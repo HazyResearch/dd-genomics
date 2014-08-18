@@ -17,7 +17,7 @@ directory.
   1st column is the approved name, the other columns contain
   synonims. Created using the get_hugo_synonyms.sh script (see below).
 
-* HGNC_approved_ames.txt: a table with more explicit nomeclature for gene
+* HGNC_approved_names.txt: a table with more explicit nomeclature for gene
   symbols. It might be practical for literature mining of genes that are less
   studied. XXX What's the format of this file ? Downloaded from HGNC biomart.
 
