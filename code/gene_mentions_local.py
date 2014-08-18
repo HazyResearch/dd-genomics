@@ -14,7 +14,7 @@ import sys
 MENTION_TYPE="GENE"
 
 # Load the gene synonyms dictionary
-GENES_DICT_FILENAME="dict/hugo_synonyms.tsv"
+GENES_DICT_FILENAME="/dicts/hugo_synonyms.tsv"
 genes_dict = dict()
 with open(sys.argv[1] + GENES_DICT_FILENAME, 'rt') as genes_dict_file:
     for line in genes_dict_file:
@@ -30,23 +30,23 @@ for _row in sys.stdin:
     row = json.loads(_row)
     doc_id = row["docid"]
     sent_id = row["sentid"]
-    wordidxs = row["wordidixs"]
+    wordidxs = row["wordidxs"]
     words = row["words"]
     poses = row["poses"]
-    ners = row["nerds"]
-    lemmas = row["lemma"]
+    ners = row["ners"]
+    lemmas = row["lemmas"]
     dep_paths = row["dep_paths"]
     dep_parents = row["dep_parents"]
     bounding_boxes = row["bounding_boxes"]
 
     # Very simple rule: if the word is in the dictionary, then is a mention
-    for index in len(words):
+    for index in range(len(words)):
         word = words[index]
         if word in genes_dict:
             provenance = [ doc_id, sent_id, index, index, word]
-            mention_id = "_".join([doc_id, sent_id, index, index])
+            mention_id = "_".join(str(x) for x in (doc_id, sent_id, index, index))
             name = genes_dict[word]
             
             print(json.dumps({"id": None, "mention_id": mention_id,
-                "provenance": provenance, "name": name}))
+                "provenance": provenance, "name": name, "is_correct": True}))
 
