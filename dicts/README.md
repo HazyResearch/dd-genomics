@@ -1,4 +1,4 @@
-# /dicts: Dictionaries and Maps Directory
+# `/dicts`: Dictionaries and Maps Directory
 
 This directory contains dictionaries and maps that are useful for mention
 extraction, entity linking, and feature extraction.
