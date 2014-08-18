@@ -2,7 +2,7 @@
 -- WARNING: all the tables are dropped and recreated
 
 -- Sentences table
-DROP TABLE IF EXIST sentences CASCADE;
+DROP TABLE IF EXISTS sentences CASCADE;
 CREATE TABLE sentences (
 	docid text,
 	sentid text,
@@ -11,7 +11,7 @@ CREATE TABLE sentences (
 	poses text[],
 	ners text[],
 	dep_paths text[],
-	dep_parents int[]
+	dep_parents int[],
 	bounding_boxes text[]
 );
 
