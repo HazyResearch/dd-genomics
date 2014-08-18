@@ -11,7 +11,9 @@ directory.
 * hg19_genes.tsv: a list of 17,801 human gene-symbols. 1 column: gene-symbol.
   Created from the loci file in the resource update with:
 
+	```
 	cut -f5 /cluster/u/amirma/Resource_Update_2013/GeneSet2013/human/excludeUnconventionals/hg19.loci | grep -V ENSG | sort -u > hg19_genes.tsv
+	```
 
 * hugo_synonyms.tsv: a gene-symbol synonyms table. Variable number of columns:
   1st column is the approved name, the other columns contain
