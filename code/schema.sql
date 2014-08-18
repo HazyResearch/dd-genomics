@@ -5,7 +5,7 @@
 DROP TABLE IF EXISTS sentences CASCADE;
 CREATE TABLE sentences (
 	docid text,
-	sentid text,
+	sentid int,
 	wordidxs int[],
 	words text[],
 	poses text[],
