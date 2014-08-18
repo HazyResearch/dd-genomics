@@ -18,7 +18,7 @@
 # 7: the word index of the *parent* of this word in the dependency path
 # 8: the sentence ID, unique in the document
 # 9: the bounding box containing this word in the PDF document. The format is
-# "pXXXlXXXtXXXrXXXbXXX" for page, left, top, right, bottom
+# "[pXXXlXXXtXXXrXXXbXXX]," for page, left, top, right, bottom
 # An example line is:
 #1	Genome	NNP	O	Genome	nn	3	SENT_1	[p1l1669t172r1943b234],
 #
@@ -27,7 +27,7 @@
 # in input to the PostgreSQL 'COPY FROM' command. The columns are the following
 # (between parentheses is the PostgreSQL type for the column):
 # 1: document ID (text)
-# 2: sentence ID (text)
+# 2: sentence ID (int)
 # 3: word indexes (int[])
 # 4: words, (text[])
 # 5: POSes (text[])
@@ -45,12 +45,17 @@ import sys
 
 # Convert a list to a string that can be used in a TSV column and intepreted as
 # an array by the PostreSQL COPY FROM command.
-# If quote is True, the element of the list are dollar-quoted (put between
-# '$pars$', see
-# http://www.postgresql.org/docs/current/static/sql-syntax-lexical.html#SQL-SYNTAX-DOLLAR-QUOTING)
-def list2psqlcopy(a_list, quote=False):
+def list2TSVarray(a_list, quote=False):
     if quote:
-        string = ",".join(list(map(lambda x: "$pars$" + str(x) + "$pars$", a_list)))
+        for index in range(len(a_list)):
+            if "\\" in str(a_list[index]):
+                # Replace '\' with '\\\\"' to be accepted by COPY FROM
+                a_list[index] = str(a_list[index]).replace("\\", "\\\\\\\\")
+            # This must happen the previous substitution
+            if "\"" in str(a_list[index]):
+                # Replace '"' with '\\"' to be accepted by COPY FROM
+                a_list[index] = str(a_list[index]).replace("\"", "\\\\\"")
+        string = ",".join(list(map(lambda x: "\"" + str(x) + "\"", a_list)))
     else:
         string = ",".join(list(map(lambda x: str(x), a_list)))
     return "{" + string + "}"
@@ -76,7 +81,7 @@ def main():
             atEOF = False
             # One iteration of the following loop corresponds to one sentence
             while not atEOF: 
-                sent_id = ""
+                sent_id = -1
                 wordidxs = []
                 words = []
                 poses = []
@@ -94,13 +99,20 @@ def main():
                         return 1
 
                     word_idx, word, pos, ner, lemma, dep_path, dep_parent, word_sent_id, bounding_box = tokens 
+
+                    # Normalize sentence id
+                    word_sent_id = int(word_sent_id.replace("SENT_", ""))
+
                     # assign sentence id if this is the first word of the sentence
-                    if sent_id == "":
+                    if sent_id == -1:
                         sent_id = word_sent_id
                     # sanity check for word_sent_id
                     elif sent_id != word_sent_id:
                         sys.stderr.write("{}: ERROR: found word with mismatching sent_id w.r.t. sentence: {} != {}\n".format(script_name, word_sent_id, sent_id))
                         return 1
+
+                    # Normalize bounding box, stripping initial '[' and final '],'
+                    bounding_box = bounding_box[1:-2]
 
                     # Append contents of this line to the sentence arrays
                     wordidxs.append(int(word_idx))
@@ -116,14 +128,14 @@ def main():
                     curr_line = curr_file.readline().strip()
 
                 # Write sentence to output
-                print("\t".join([docid, sent_id, list2psqlcopy(wordidxs),
-                    list2psqlcopy(words, quote=True),
-                    list2psqlcopy(poses, quote=True),
-                    list2psqlcopy(ners, quote=True),
-                    list2psqlcopy(lemmas, quote=True),
-                    list2psqlcopy(dep_paths, quote=True),
-                    list2psqlcopy(dep_parents),
-                    list2psqlcopy(bounding_boxes, quote=True)]))
+                print("\t".join([docid, sent_id, list2TSVarray(wordidxs),
+                    list2TSVarray(words, quote=True),
+                    list2TSVarray(poses, quote=True),
+                    list2TSVarray(ners),
+                    list2TSVarray(lemmas, quote=True),
+                    list2TSVarray(dep_paths),
+                    list2TSVarray(dep_parents),
+                    list2TSVarray(bounding_boxes)]))
 
                 # Check if we are at End of File
                 curr_pos = curr_file.tell()
