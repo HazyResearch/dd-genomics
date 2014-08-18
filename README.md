@@ -1,4 +1,7 @@
-dd-genomics
-===========
+# The Genomics DeepDive Project
 
-The Genomics DeepDive project
+We have a wiki for this project at
+http://dev.stanford.edu/confluence/display/collaborators/DeepDive+Genomics
+
+Contact Matteo Riondato <rionda@cs.stanford.edu> for information.
+
