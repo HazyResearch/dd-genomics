@@ -1,7 +1,8 @@
 # `/dicts`: Dictionaries and Maps Directory
 
 This directory contains dictionaries and maps that are useful for mention
-extraction, entity linking, and feature extraction.
+extraction, entity linking, and feature extraction. It also contains some
+utilities to create or update the dictionaries.
 
 This document describes the contents, format, and origin of each file in this
 directory.
@@ -17,7 +18,7 @@ directory.
 
 * `hugo_synonyms.tsv`: a gene-symbol synonyms table. Variable number of columns:
   1st column is the approved name, the other columns contain
-  synonims. Created using the get_hugo_synonyms.sh script (see below).
+  synonyms. Created using the get_hugo_synonyms.sh script (see below).
 
 * `HGNC_approved_names.txt`: a table with more explicit nomeclature for gene
   symbols. It might be practical for literature mining of genes that are less
