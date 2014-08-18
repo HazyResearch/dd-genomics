@@ -128,7 +128,7 @@ def main():
                     curr_line = curr_file.readline().strip()
 
                 # Write sentence to output
-                print("\t".join([docid, sent_id, list2TSVarray(wordidxs),
+                print("\t".join([docid, str(sent_id), list2TSVarray(wordidxs),
                     list2TSVarray(words, quote=True),
                     list2TSVarray(poses, quote=True),
                     list2TSVarray(ners),
