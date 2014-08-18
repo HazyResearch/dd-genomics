@@ -19,6 +19,6 @@ fi
 
 SQL_COMMAND_FILE=`mktemp /tmp/ctff.XXXXX` || exit 1
 echo "COPY $2 FROM '$3';" > ${SQL_COMMAND_FILE}
-psql -X -d $1 -f ${SQL_COMMAND_FILE} || exit 1
+psql -X --set ON_ERROR_STOP=1 -d $1 -f ${SQL_COMMAND_FILE} || exit 1
 rm ${SQL_COMMAND_FILE}
 

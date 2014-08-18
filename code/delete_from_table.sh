@@ -13,6 +13,6 @@ fi
 
 SQL_COMMAND_FILE=`mktemp /tmp/dft.XXXXX` || exit 1
 echo "DELETE FROM $2;" >> ${SQL_COMMAND_FILE}
-psql -X -d $1 -f ${SQL_COMMAND_FILE} || exit 1
+psql -X --set ON_ERROR_STOP=1 -d $1 -f ${SQL_COMMAND_FILE} || exit 1
 rm ${SQL_COMMAND_FILE}
 
