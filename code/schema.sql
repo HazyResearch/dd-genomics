@@ -10,6 +10,7 @@ CREATE TABLE sentences (
 	words text[],
 	poses text[],
 	ners text[],
+	lemmas text[],
 	dep_paths text[],
 	dep_parents int[],
 	bounding_boxes text[]
