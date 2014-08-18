@@ -2,7 +2,7 @@
 
 This directory contains most if not all the code.
 
-## Files
+## Data preparation / Table management
 
 * `copy_table_from_file.sh`: Load a TSV file into a database table with the
   PostgreSQL `COPY FROM` command.
@@ -14,4 +14,9 @@ This directory contains most if not all the code.
 * `run_parser2sentences.sh`: Run parser2sentences.py with the right paths from
   application.conf
 * `schema.sql`: SQL script to build the schema. Used in `create_schema.sh`.
+
+## Extractors
+
+* `gene_mention_local.py`: Extract mentions of genes at the 'local' (sentence)
+  level.
 
