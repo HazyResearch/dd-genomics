@@ -9,6 +9,8 @@ This directory contains most if not all the code.
 * `create_schema.sh`: Create the database schema.
 * `delete_from_table.sh`: Empty a database table with the PostgreSQL `DELETE
   FROM` command.
+* `get_parser_outputs.sh`: Extract the parser outputs from the article directory
+  and link them to files named after the article.
 * `parser2sentences.py`: Convert parser output files into a TSV file that can be
   loaded in the `sentences` table with the PostgreSQL `COPY FROM` command.
 * `run_parser2sentences.sh`: Run parser2sentences.py with the right paths from
