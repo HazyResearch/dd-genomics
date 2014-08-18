@@ -11,5 +11,7 @@ This directory contains most if not all the code.
   FROM` command.
 * `parser2sentences.py`: Convert parser output files into a TSV file that can be
   loaded in the `sentences` table with the PostgreSQL `COPY FROM` command.
+* `run_parser2sentences.sh`: Run parser2sentences.py with the right paths from
+  application.conf
 * `schema.sql`: SQL script to build the schema. Used in `create_schema.sh`.
 
