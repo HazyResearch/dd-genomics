@@ -6,12 +6,17 @@
 # First argument is the application base directory
 #
 
-
+import random
 import json
 import sys
 
 # Type of the mentions
 MENTION_TYPE="GENE"
+
+# Number of non correct mentions to generate
+NON_CORRECT_QUOTA = 100
+# Probabily of generating a non correct mention
+NON_CORRECT_PROBABILITY = 0.7
 
 # Load the gene synonyms dictionary
 GENES_DICT_FILENAME="/dicts/hugo_synonyms.tsv"
@@ -26,6 +31,7 @@ with open(sys.argv[1] + GENES_DICT_FILENAME, 'rt') as genes_dict_file:
 
 
 # Process input
+non_correct = 0
 for _row in sys.stdin:
     row = json.loads(_row)
     doc_id = row["docid"]
@@ -48,5 +54,18 @@ for _row in sys.stdin:
             name = genes_dict[word]
             
             print(json.dumps({"id": None, "mention_id": mention_id,
-                "provenance": provenance, "name": name, "is_correct": True}))
+                "provenance": provenance, "name": name, "is_correct": True,
+                "features": [dep_parents[index]]}))
+        # generate negative example
+        elif non_correct < NON_CORRECT_QUOTA and random.random() < NON_CORRECT_PROBABILITY:
+            non_correct += 1
+            provenance = [ doc_id, sent_id, index, index, word]
+            mention_id = "_".join(str(x) for x in (doc_id, sent_id, index, index))
+            name = lemmas[index]
+            
+            print(json.dumps({"id": None, "mention_id": mention_id,
+                "provenance": provenance, "name": name, "is_correct": False,
+                "features": [dep_parents[index]]}))
+
+            
 

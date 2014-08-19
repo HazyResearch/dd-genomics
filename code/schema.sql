@@ -37,8 +37,10 @@ CREATE TABLE genes_mentions (
 	name text,
 	-- provenance
 	provenance text[],
-	-- is this a correct mention? (for training)
+	-- is this a correct mention?
 	is_correct boolean
+	-- features for training
+	features text[]
 );
 
 -- HPO terms mentions
@@ -52,12 +54,24 @@ CREATE TABLE hpoterms_mentions (
 	name text,
 	-- provenance
 	provenance text[],
-	-- is this a correct mention? (for training)
+	-- is this a correct mention?
 	is_correct boolean
+	-- features for training
+	features text[]
 );
 
 -- 'gene <-> HPO term' relations
 DROP TABLE IF EXISTS gene_hpoterm_relations CASCADE;
 CREATE TABLE gene_hpoterm_relations (
+	-- id for random variable
+	id bigint,
+	-- relation id
+	relationid text,
+	-- mention IDs composing this relation
+	mentions text[],
+	-- is this a correct relation?
+	is_correct boolean,
+	-- features for training
+	features text[]
 );
         

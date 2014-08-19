@@ -8,6 +8,11 @@ import sys
 # Type of the mentions
 MENTION_TYPE="HPOTERM"
 
+# Number of non correct mentions to generate
+NON_CORRECT_QUOTA = 100
+# Probabily of generating a non correct mention
+NON_CORRECT_PROBABILITY = 0.7
+
 # Given a list of words, return a list of variants built by splitting words
 # that contain the separator.
 # An example is more valuable:
@@ -60,6 +65,7 @@ with open(sys.argv[1] + HPOTERMS_DICT_FILENAME, 'rt') as hpoterms_dict_file:
             hpoterms_dict[variant.lower()] = name
 
 
+non_correct = 0
 # Process input
 for _row in sys.stdin:
     row = json.loads(_row)
@@ -92,7 +98,7 @@ for _row in sys.stdin:
                 name = hpoterms_dict[phrase_lower]
                 print(json.dumps({"id": None, "mention_id": mention_id,
                     "provenance": provenance, "name": name, "is_correct":
-                    True}))
+                    True, "features": []}))
                 # Found a mention with this start and end: we can insert the
                 # indexes of this mention in the history, and break the loop on
                 # end and get to a new start
