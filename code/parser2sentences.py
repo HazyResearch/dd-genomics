@@ -45,6 +45,8 @@ import sys
 
 # Convert a list to a string that can be used in a TSV column and intepreted as
 # an array by the PostreSQL COPY FROM command.
+# If 'quote' is True, then double quote the string representation of the
+# elements of the list, and escape double quotes and backslashes.
 def list2TSVarray(a_list, quote=False):
     if quote:
         for index in range(len(a_list)):
@@ -59,6 +61,7 @@ def list2TSVarray(a_list, quote=False):
     else:
         string = ",".join(list(map(lambda x: str(x), a_list)))
     return "{" + string + "}"
+
 
 # Process the input files
 def main():
@@ -75,7 +78,7 @@ def main():
             return 1
 
     for filename in sys.argv[1:]:
-        # TODO (MR) Check this when we know how to get it.
+        # Docid assumed to be the filename.
         docid = os.path.basename(filename)
         with open(filename, 'rt') as curr_file:
             atEOF = False
@@ -133,7 +136,7 @@ def main():
                     list2TSVarray(poses, quote=True),
                     list2TSVarray(ners),
                     list2TSVarray(lemmas, quote=True),
-                    list2TSVarray(dep_paths),
+                    list2TSVarray(dep_paths, quote=True),
                     list2TSVarray(dep_parents),
                     list2TSVarray(bounding_boxes)]))
 
