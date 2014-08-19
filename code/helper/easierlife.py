@@ -54,9 +54,9 @@ def serialize(obj, mode="ascii"):
     """ Return a serialized object with the specified mode """
 
     if mode == "zlib":
-	return zlib.compress(pickle.dumps(obj))
+        return zlib.compress(pickle.dumps(obj))
     elif mode == "ascii":
-	return asciiCompress(pickle.dumps(obj))
+        return asciiCompress(pickle.dumps(obj))
     else:
         return None
 
