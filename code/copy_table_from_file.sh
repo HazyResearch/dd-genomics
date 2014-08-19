@@ -6,6 +6,15 @@
 # Second argument is the table name
 # Third argument is the path to the TSV file
 
+abspath () { 
+	case "$1" in 
+		/*) TSV_FILE_ABS_PATH="$1"
+			;;
+		*)  TSV_FILE_ABS_PATH="$PWD/$1"
+			;;
+	esac; 
+}
+
 if [ $# -ne 3 ]; then
 	echo "$0: ERROR: wrong number of arguments" >&2
 	echo "$0: USAGE: $0 DB TABLE FILE" >&2
@@ -18,7 +27,8 @@ if [ ! -r $3 ]; then
 fi
 
 SQL_COMMAND_FILE=`mktemp /tmp/ctff.XXXXX` || exit 1
-echo "COPY $2 FROM '$3';" > ${SQL_COMMAND_FILE}
+abspath $3
+echo "COPY $2 FROM '${TSV_FILE_ABS_PATH}';" > ${SQL_COMMAND_FILE}
 psql -X --set ON_ERROR_STOP=1 -d $1 -f ${SQL_COMMAND_FILE} || exit 1
 rm ${SQL_COMMAND_FILE}
 
