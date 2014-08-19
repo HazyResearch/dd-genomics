@@ -22,24 +22,25 @@ directory.
 
 * `HGNC_approved_names.txt`: a table with more explicit nomeclature for gene
   symbols. It might be practical for literature mining of genes that are less
-  studied. XXX What's the format of this file ? Downloaded from HGNC biomart.
+  studied. 3 columns: 1st column is gene symbol, 2nd column is CSV list of
+  synonyms, 3rd column is explicit name/description of the gene (usually an
+  expansion of the symbol). Downloaded from HGNC biomart.
 
 * `hpo_terms.tsv`: a table listing HPO terms. 4 columns: 1st column is term ID,
-  2nd column is term description, 3rd column is ? XXX, 4th column is ?
-  XXX XXX Where does this file come from?
+  2nd column is term description, 3rd column is always C, 4th column is
+  (probably) the distance from the root in the dag.
 
 * `hpo_dag.tsv`: a table listing the "is a" relationships between HPO terms. 3
   columns: 1st column is first term ID, 2nd column is text "is a", 3rd column is
-  second term ID. XXX Where does this file come from?
+  second term ID. From the HPO.
 
 * `genes_to_hpo_terms.tsv`: a table mapping gene-symbols to HPO terms. 3
   columns: 1st column is gene-symbol, 2nd column is HPO term id, 3rd column is
-  XXX . XXX Where does this file come from?
+  description/name of the term. From the HPO.
 
 * `genes_to_hpo_terms_with_synonyms.tsv`: an expanded table mapping gene-symbols
   and their synonyms to to HPO terms. 3 columns: 1st column is gene-symbol or
-  synonym, 2nd column is HPO term id, 3rd column is XXX . XXX Where does
-  this file come from?. 
+  synonym, 2nd column is HPO term id, 3rd column is description/name of the term. 
 
 * `humanGeneSymbol.humanEnsembl.biomart73.map`: XXX What is this? 
 
