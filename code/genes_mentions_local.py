@@ -32,7 +32,7 @@ def get_input_sentences(mode="tsv"):
 
         elif mode == "json":
             sent_dict = json.loads(line)
-            yield Sentence(sent_dict["docid"], sent_dict["sent_id"],
+            yield Sentence(sent_dict["doc_id"], sent_dict["sent_id"],
                     sent_dict["words"], sent_dict["poses"], sent_dict["ners"],
                     sent_dict["lemmas"], sent_dict["dep_paths"],
                     sent_dict["dep_parents"], sent_dict["bounding_boxes"])

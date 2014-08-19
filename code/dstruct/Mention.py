@@ -8,8 +8,8 @@ from helper.easierlife import *
 
 class Mention(object):
 
-    docid = None
-    sentid = None
+    doc_id = None
+    sent_id = None
     id = None	
     type = None
     prov_words = None
@@ -24,16 +24,17 @@ class Mention(object):
         for f in features:
             self.features.append(f)
 
-    def __init__(self, _docid, _type, _words):
-        self.docid = _docid
+    def __init__(self, _doc_id, _type, _words):
+        self.doc_id = _doc_id
         self.type = _type
         self.prov_words = []
         for w in _words:
             self.prov_words.append(w)
-        self.sentid = _words[0].sentid
+        self.sent_id = _words[0].sent_id
         self.start_word_id = self.prov_words[0].insent_id
         self.end_word_id = self.prov_words[-1].insent_id
-        self.id = "MENTION_%s_%s_SENT%d_%d_%d" % (self.type, self.docid, self.sentid, self.start_word_id, self.end_word_id)
+        self.id = "MENTION_{}_{}_SENT{}_{}_{}".format(self.type, self.doc_id,
+                self.sent_id, self.start_word_id, self.end_word_id)
         self.features = []
 
     def dumps(self, mode="tsv"):
@@ -53,14 +54,19 @@ class Mention(object):
             ict = "\\N"
             if self.is_correct != None:
                 ict = self.is_correct.__repr__()
-            return "\t".join(["\\N", self.docid, self.sentid.__repr__(), self.id, self.start_word_id.__repr__(), self.end_word_id.__repr__(), self.type, ict, self.__repr__().encode("ascii", "ignore"), '{' + ",".join(valid_features) + '}', serialized_obj])
+            return "\t".join(["\\N", self.doc_id, self.sent_id.__repr__(),
+                self.id, self.start_word_id.__repr__(),
+                self.end_word_id.__repr__(), self.type, ict,
+                self.__repr__().encode("ascii", "ignore"), '{' +
+                ",".join(valid_features) + '}'])
+            # TODO (Matteo) Commenting out until we find out why we would need it
+            #, serialized_obj])
         elif mode == "json":
-            js_obj = {"docid":self.docid, "mentionid":self.id, "type":self.type,
+            js_obj = {"doc_id":self.doc_id, "mention_id":self.id, "type":self.type,
         	"repr":self.__repr__().decode("utf-8"), "is_correct":self.is_correct,
-        	"features": valid_features, "sentid":self.sentid, "start_word_id":self.start_word_id,
+        	"features": valid_features, "sent_id":self.sent_id, "start_word_id":self.start_word_id,
         	"end_word_id":self.end_word_id}
-                # TODO (Matteo) Commenting out until we find out why we would
-                # need it
+                # TODO (Matteo) Commenting out until we find out why we would need it
         	#"object":serialized_obj}
             return json.dumps(js_obj)
         else:
