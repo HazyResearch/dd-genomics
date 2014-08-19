@@ -1,71 +1,49 @@
 #! /usr/bin/env python3
 #
-# Find mentions of genes in a 'local' way (i.e., in a sentence-level way) by
-# looking up words in the gene synonyms dictionary
-#
-# First argument is the application base directory
-#
-
-import random
+import fileinput
 import json
-import sys
+from extractor.MentionExtractor_Gene import MentionExtractor_Gene
+from dstruct.Sentence import Sentence
 
-# Type of the mentions
-MENTION_TYPE="GENE"
+#MODE = "tsv"
+MODE = "json"
 
-# Number of non correct mentions to generate
-NON_CORRECT_QUOTA = 100
-# Probabily of generating a non correct mention
-NON_CORRECT_PROBABILITY = 0.7
+def TSVarray2list(_list):
+    # TODO (Matteo) implement this (should be in helper.easierlife)
+    return []
 
-# Load the gene synonyms dictionary
-GENES_DICT_FILENAME="/dicts/hugo_synonyms.tsv"
-genes_dict = dict()
-with open(sys.argv[1] + GENES_DICT_FILENAME, 'rt') as genes_dict_file:
-    for line in genes_dict_file:
-        tokens = line.strip().split("\t")
-        # first token is name, the rest are synonyms
-        name = tokens[0]
-        for synonym in tokens:
-            genes_dict[synonym] = name
+def get_input_sentences(mode="tsv"):
+    for line in fileinput.input():
+        if mode == "tsv":
+            tokens = line.split("\t")
+            doc_id = tokens[0]
+            sent_id = int(tokens[1])
+            words = tokens[2]
+            poses = tokens[3]
+            ners = tokens[4]
+            lemmas = tokens[5]
+            dep_paths = tokens[6]
+            dep_parents = tokens[7]
+            bounding_boxes = tokens[8]
+            yield Sentence(doc_id, sent_id, TSVarray2list(words),
+                    TSVarray2list(poses), TSVarray2list(ners),
+                    TSVarray2list(lemmas), TSVarray2list(dep_paths),
+                    TSVarray2list(dep_parents), TSVarray2list(bounding_boxes))
 
+        elif mode == "json":
+            sent_dict = json.loads(line)
+            yield Sentence(sent_dict["docid"], sent_dict["sent_id"],
+                    sent_dict["words"], sent_dict["poses"], sent_dict["ners"],
+                    sent_dict["lemmas"], sent_dict["dep_paths"],
+                    sent_dict["dep_parents"], sent_dict["bounding_boxes"])
+        else:
+            break
 
-# Process input
-non_correct = 0
-for _row in sys.stdin:
-    row = json.loads(_row)
-    doc_id = row["docid"]
-    sent_id = row["sentid"]
-    wordidxs = row["wordidxs"]
-    words = row["words"]
-    poses = row["poses"]
-    ners = row["ners"]
-    lemmas = row["lemmas"]
-    dep_paths = row["dep_paths"]
-    dep_parents = row["dep_parents"]
-    bounding_boxes = row["bounding_boxes"]
+# Initialize the extractor
+mention_extractor = MentionExtractor_Gene()
 
-    # Very simple rule: if the word is in the dictionary, then is a mention
-    for index in range(len(words)):
-        word = words[index]
-        if word in genes_dict:
-            provenance = [ doc_id, sent_id, index, index, word]
-            mention_id = "_".join(str(x) for x in (doc_id, sent_id, index, index))
-            name = genes_dict[word]
-            
-            print(json.dumps({"id": None, "mention_id": mention_id,
-                "provenance": provenance, "name": name, "is_correct": True,
-                "features": [dep_parents[index]]}))
-        # generate negative example
-        elif non_correct < NON_CORRECT_QUOTA and random.random() < NON_CORRECT_PROBABILITY:
-            non_correct += 1
-            provenance = [ doc_id, sent_id, index, index, word]
-            mention_id = "_".join(str(x) for x in (doc_id, sent_id, index, index))
-            name = lemmas[index]
-            
-            print(json.dumps({"id": None, "mention_id": mention_id,
-                "provenance": provenance, "name": name, "is_correct": False,
-                "features": [dep_parents[index]]}))
-
-            
-
+for sentence in get_input_sentences(MODE):
+    mention = mention_extractor.extract(sentence)
+    if mention != None:
+        mention.dump(MODE)
+    
