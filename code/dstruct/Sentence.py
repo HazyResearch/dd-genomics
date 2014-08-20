@@ -107,15 +107,15 @@ class Sentence(object):
 
     ## Given two word idx1 and idx2, return the dependency path feature between them
     def get_prev_wordobject(self, mention):
-        begin = mention.prov_words[0].insent_id
+        begin = mention.prov_words[0].in_sent_idx
         if begin - 1 < 0: 
             return None
         else: 
             return self.words[begin - 1]
 
     def dep_parent(self, mention):
-        begin = mention.prov_words[0].insent_id
-        end = mention.prov_words[-1].insent_id
+        begin = mention.prov_words[0].in_sent_idx
+        end = mention.prov_words[-1].in_sent_idx
 
         paths = []
         for i in range(begin, end+1):
@@ -130,10 +130,10 @@ class Sentence(object):
         
     def dep_path(self, entity1, entity2):
   
-        begin1 = entity1.prov_words[0].insent_id
-        end1 = entity1.prov_words[-1].insent_id
-        begin2 = entity2.prov_words[0].insent_id
-        end2 = entity2.prov_words[-1].insent_id
+        begin1 = entity1.prov_words[0].in_sent_idx
+        end1 = entity1.prov_words[-1].in_sent_idx
+        begin2 = entity2.prov_words[0].in_sent_idx
+        end2 = entity2.prov_words[-1].in_sent_idx
     
         paths = []
         for idx1 in range(begin1, end1+1):
