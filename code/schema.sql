@@ -48,7 +48,10 @@ CREATE TABLE genes_mentions (
 	-- string representation
 	repr text,
 	-- features for training
-	features text[]
+	features text[],
+	-- serialized object
+	object text
+);
 );
 
 -- HPO terms mentions
@@ -72,6 +75,25 @@ CREATE TABLE hpoterms_mentions (
 	is_correct boolean,
 	-- string representation
 	repr text,
+	-- features for training
+	features text[],
+	-- serialized object
+	object text
+);
+
+-- Gene / HPOterm relation mentions
+DROP TABLE IF EXISTS gene_hpoterm_relations CASCADE;
+CREATE TABLE gene_hpoterm_relations (
+	-- id for random variable
+	id bigint,
+	-- type
+	type text,
+	-- mention 1
+	mention_1 text,
+	-- mention 2
+	mention_2 text,
+	-- is this a correct relation?
+	is_correct boolean,
 	-- features for training
 	features text[]
 );
