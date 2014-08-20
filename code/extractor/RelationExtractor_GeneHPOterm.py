@@ -1,8 +1,8 @@
 #! /usr/bin/env python3
 
 import re
-from Extractor import RelationExtractor
-from dstruct.RelationMention import RelationMention
+from extractor.Extractor import RelationExtractor
+from dstruct.Relation import Relation
 from helper.easierlife import BASE_DIR
 
 GENEHPOTERM_DICT_FILENAME = "/dicts/genes_to_hpo_terms_with_synonyms.tsv"
@@ -15,7 +15,7 @@ class RelationExtractor_GeneHPOterm(RelationExtractor):
         with open(BASE_DIR + GENEHPOTERM_DICT_FILENAME, 'rt') as genehpoterm_dict_file:
             for line in genehpoterm_dict_file:
                 gene, term, unused = line.strip().split("\t")
-                self.genehpoterm_dict.add(frozenset(gene, term))
+                self.genehpoterm_dict.add(frozenset([gene, term.lower()]))
 
     # Perform the distant supervision
     def supervise(self, sentence, gene, hpoterm, relation):
@@ -24,7 +24,7 @@ class RelationExtractor_GeneHPOterm(RelationExtractor):
 
     # Extract the relation mentions
     def extract(self, sentence, gene, hpoterm):
-        relation = RelationMention("GENEHPOTERM", gene, hpoterm)
+        relation = Relation("GENEHPOTERM", gene, hpoterm)
 
         self.supervise(sentence, gene, hpoterm, relation)
 
@@ -35,27 +35,24 @@ class RelationExtractor_GeneHPOterm(RelationExtractor):
         hpoterm_end = int(hpoterm.id.split("_")[5])
         start = min(gene_start, hpoterm_start)
         end = max(gene_end, hpoterm_end)
-        sent_words_between = " ".join([w.lemma for w in sentence.words[start:end]])
 
         # Present in the existing HPO mapping
-        relation.add_features(["in_gene_hpoterm_map={}".format(int(frozenset((gene.symbol,
-            gene.term)) in self.genehpoterm_dict))])
-
+        relation.add_features(["in_gene_hpoterm_map={}".format(int(frozenset([gene.symbol,
+            hpoterm.term.lower()]) in self.genehpoterm_dict))])
         # Verb between the two words, if present
-        for word in sent_words_between:
-                if re.search('VB\w*', word.pos):
-                        relation.add_features(["verb="+word.lemma])
+        # XXX (Matteo) From pharm, RelationExtractor_DrugGene.py, but not correct
+        #for word in sentence.words[start:end]: 
+        #    if re.search('^VB[A-Z]*$', word.pos):
+        #        relation.add_features(["verb="+word.lemma])
         # Word sequence between words
-        relation.add_features(["word_seq="+"_".join(sent_words_between)])
+        relation.add_features(["word_seq="+"_".join([w.lemma for w in sentence.words[start:end]])])
         # Left and right windows
         if start > 0:
             relation.add_features(["window_left_1={}".format(sentence.words[start-1])])
         if end < len(sentence.words) - 1:
             relation.add_features(["window_right_1={}".format(sentence.words[end])])
         # Shortest dependency path between the two mentions
-        gene_symbol = gene.symbol
-        hpoterm_term = hpoterm.name.lower()
-        relation.add_features([sentence.dep_path(gene_symbol, hpoterm_term),])
+        relation.add_features([sentence.dep_path(gene, hpoterm),])
 
         return relation
 
