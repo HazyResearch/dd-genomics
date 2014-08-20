@@ -11,7 +11,7 @@ from helper.easierlife import BASE_FOLDER
 GENES_DICT_FILENAME="/dicts/hugo_synonyms.tsv"
 
 NON_CORRECT_QUOTA = 100
-NON_CORRECT_PROBABILITY = 0.8
+NON_CORRECT_PROBABILITY = 0.1
 
 class MentionExtractor_Gene(MentionExtractor):
     non_correct = 0

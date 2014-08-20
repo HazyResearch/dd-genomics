@@ -11,7 +11,7 @@ from helper.easierlife import BASE_FOLDER, get_all_phrases_in_sentence
 HPOTERMS_DICT_FILENAME="/dicts/hpo_terms.tsv"
 
 NON_CORRECT_QUOTA = 100
-NON_CORRECT_PROBABILITY = 0.8
+NON_CORRECT_PROBABILITY = 0.1
 
 # XXX (Matteo) This function should probably be in helper.easierlife
 # Given a list of words, return a list of variants built by splitting words
@@ -46,6 +46,7 @@ def get_variants(words, separator="/"):
         variants = [" ".join(base)]
     return variants
  
+
 class MentionExtractor_HPOterm(MentionExtractor):
     non_correct = 0
 
