@@ -20,6 +20,9 @@ directory.
   and their synonyms to to HPO terms. 3 columns: 1st column is gene-symbol or
   synonym, 2nd column is HPO term id, 3rd column is description/name of the term. 
 
+* `grant_codes_nih.tsv`: a list of grant codes used by the NIH. 1 column: the
+   code. From the 'pharm' repository.
+
 * `hg19_genes.tsv`: a list of 17,801 human gene-symbols. 1 column: gene-symbol.
   Created from the loci file in the resource update with:
 
