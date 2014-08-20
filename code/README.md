@@ -23,9 +23,11 @@ This directory contains most if not all the code.
   mentions.
 * `extractors/` directory: Contains classes to model extractors. These classes
   do the real 'grunt work'.
+* `gene_hpoterm_relations.py`: Extract relation mentions between genes and HPO
+  terms. Basically calls `extractors/RelationExtractor_GeneHPOterm.py`.
 * `genes_mentions_local.py`: Extract mentions of genes at the 'local' (sentence)
-  level. Basically calls extractors/MentionExtractor_Gene.py
+  level. Basically calls `extractors/MentionExtractor_Gene.py`.
 * `hpoterms_mentions_local.py`: Extract mentions of HPO terms at the 'local'
-  (sentence) level. Basically calls extractors/MentionExtractor_HPOterm.py
+  (sentence) level. Basically calls `extractors/MentionExtractor_HPOterm.py`.
 
 
