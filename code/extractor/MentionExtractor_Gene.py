@@ -6,14 +6,14 @@ import re
 
 from extractor.Extractor import MentionExtractor
 from dstruct.GeneMention import GeneMention
-from helper.easierlife import BASE_FOLDER
+from helper.easierlife import BASE_DIR
 
 GENES_DICT_FILENAME="/dicts/hugo_synonyms.tsv"
 ENGLISH_DICT_FILENAME="/dicts/english_words.tsv"
 NIH_GRANTS_DICT_FILENAME="/dicts/grant_codes_nih.tsv"
 MED_ACRONS_DICT_FILENAME="/dicts/med_acronyms_pruned.tsv"
 
-NON_CORRECT_QUOTA = 100
+NON_CORRECT_QUOTA = 10000
 NON_CORRECT_PROBABILITY = 0.1
 
 class MentionExtractor_Gene(MentionExtractor):
@@ -22,7 +22,7 @@ class MentionExtractor_Gene(MentionExtractor):
     def __init__(self):
         # Load the gene synonyms dictionary
         self.genes_dict = dict()
-        with open(BASE_FOLDER + GENES_DICT_FILENAME, 'rt') as genes_dict_file:
+        with open(BASE_DIR + GENES_DICT_FILENAME, 'rt') as genes_dict_file:
             for line in genes_dict_file:
                 tokens = line.strip().split("\t")
                 # first token is name, the rest are synonyms
@@ -32,19 +32,19 @@ class MentionExtractor_Gene(MentionExtractor):
         # Load the English words dictionary
         # It's a set because it only contains a single column
         self.english_dict = set()
-        with open(BASE_FOLDER + ENGLISH_DICT_FILENAME, 'rt') as english_dict_file:
+        with open(BASE_DIR + ENGLISH_DICT_FILENAME, 'rt') as english_dict_file:
             for line in english_dict_file:
                 self.english_dict.add(line.rstrip().lower())
         # Load the NIH grant codes dictionary
         # It's a set because it only contains a single column
         self.nih_grants_dict = set()
-        with open(BASE_FOLDER + NIH_GRANTS_DICT_FILENAME, 'rt') as nih_grants_dict_file:
+        with open(BASE_DIR + NIH_GRANTS_DICT_FILENAME, 'rt') as nih_grants_dict_file:
             for line in nih_grants_dict_file:
                 self.nih_grants_dict.add(line.rstrip().lower())
         # Load the medical abbreviation dictionary
         # It's a set because it only contains a single column
         self.med_acrons_dict = set()
-        with open(BASE_FOLDER + MED_ACRONS_DICT_FILENAME, 'rt') as med_acrons_dict_file:
+        with open(BASE_DIR + MED_ACRONS_DICT_FILENAME, 'rt') as med_acrons_dict_file:
             for line in med_acrons_dict_file:
                 self.med_acrons_dict.add(line.rstrip().lower())
 

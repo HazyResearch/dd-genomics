@@ -13,8 +13,8 @@ import os.path
 import pickle
 
 
-BASE_FOLDER, throwaway = os.path.split(os.path.realpath(__file__))
-BASE_FOLDER = BASE_FOLDER + "/../../"
+BASE_DIR, throwaway = os.path.split(os.path.realpath(__file__))
+BASE_DIR = BASE_DIR + "/../../"
 
 
 def get_all_phrases_in_sentence(sent, max_phrase_length):
