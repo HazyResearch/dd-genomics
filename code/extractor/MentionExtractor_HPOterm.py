@@ -81,6 +81,7 @@ class MentionExtractor_HPOterm(MentionExtractor):
             phrase = " ".join([word.word for word in words[start:end]])
             phrase_lower = phrase.lower()
 
+            mention = None
             # Very simple rule: if the phrase is in the dictionary, then is a mention
             if phrase_lower in self.hpoterms_dict:
                 # Found a mention with this start and end: we can insert the
