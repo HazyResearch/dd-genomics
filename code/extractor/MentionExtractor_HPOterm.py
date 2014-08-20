@@ -4,9 +4,10 @@ import random
 
 from extractor.Extractor import MentionExtractor
 from dstruct.HPOtermMention import HPOtermMention
-from helper.easierlife import BASE_FOLDER, get_all_phrases_in_sentence
+from helper.easierlife import BASE_DIR, get_all_phrases_in_sentence
 
 HPOTERMS_DICT_FILENAME="/dicts/hpo_terms.tsv"
+ENGLISH_DICT_FILENAME="/dicts/english_words.tsv"
 
 NON_CORRECT_QUOTA = 100
 NON_CORRECT_PROBABILITY = 0.1
@@ -52,19 +53,29 @@ class MentionExtractor_HPOterm(MentionExtractor):
         # Load the HPO terms dictionary
         self.hpoterms_dict = dict()
         self.max_variant_length = 0 # No. of words in longest variant
-        with open(BASE_FOLDER + HPOTERMS_DICT_FILENAME, 'rt') as hpoterms_dict_file:
+        with open(BASE_DIR + HPOTERMS_DICT_FILENAME, 'rt') as hpoterms_dict_file:
             for line in hpoterms_dict_file:
                 tokens = line.strip().split("\t")
                 # 1st token is name, 2nd is description, 3rd is 'C' and 4th is
                 # (presumably) the distance from the root of the DAG.
                 name = tokens[0]
                 description = tokens[1]
+                # Skip "All"
+                # XXX (Matteo) There may be more generic terms that we want to skip
+                if description == "All":
+                    continue
                 description_words = description.split()
                 variants = get_variants(description_words)
                 for variant in variants:
                     if len(variant.split()) > self.max_variant_length:
                         self.max_variant_length = len(variant.split())
                     self.hpoterms_dict[variant.lower()] = name
+        # Load the English words dictionary
+        # It's a set because it only contains a single column
+        self.english_dict = set()
+        with open(BASE_DIR + ENGLISH_DICT_FILENAME, 'rt') as english_dict_file:
+            for line in english_dict_file:
+                self.english_dict.add(line.rstrip().lower())
 
     # Perform the distant supervision
     # TODO
@@ -89,7 +100,6 @@ class MentionExtractor_HPOterm(MentionExtractor):
                 # end and get to a new start
                 for i in range(start, end + 1):
                     history.add(i)
-                break
                 term = self.hpoterms_dict[phrase_lower]
                 mention = HPOtermMention(sentence.doc_id, term, words[start:end])
                 mention.is_correct = True
