@@ -45,7 +45,10 @@ class Sentence(object):
             else:
                 return False
 
-    ## Get all words in the dependency tree from word_index to the root
+    ## Return a list of the indexes of all words in the dependency path from
+    ## the word at index word_index to the root
+    ## XXX (Matteo) This function depends on the fact that we decrement
+    ## dep_parent by one in the constructor of Word.
     def get_path_till_root(self, word_index):
         path = []
         c = word_index
@@ -53,6 +56,7 @@ class Sentence(object):
         while MAXLEN > 0:
             MAXLEN = MAXLEN -1
             try:
+                # c == -1 means we found the root
                 if c == -1: 
                     break
                 path.append(c)
@@ -61,20 +65,39 @@ class Sentence(object):
                 break
         return path
 
-    ## Given two paths returned by get_path_till_root, find the least common ancestor
+    ## Given two paths returned by get_path_till_root, find the least common
+    ## ancestor, i.e., the one farthest away from the root. If there is no
+    ## common ancestor, return None
     def get_common_ancestor(self, path1, path2):
-        parent = None
-        for i in range(0, max(len(path1), len(path2))):
-            tovisit = 0 - i - 1
-            if i >= len(path1) or i >= len(path2):
-                break
-            if path1[tovisit] != path2[tovisit]:
-                break
-            parent = path1[tovisit]
-        return parent
+        # The paths are sorted from leaf to root, so reverse them
+        path1_rev = reversed(path1)
+        path2_rev = reversed(path2)
+        i = 0
+        while i < min(len(path1_rev), len(path2_rev)) and \
+                path1_rev[i] == path2_rev[i]:
+            i += 1
+        if  i == min(len(path1_rev), len(path2_rev)):
+            # No common ancestor found
+            return None
+        else:
+            return i - 1
+        # XXX (Matteo) The following is the function as it was in pharma.
+        # The logic seemed more complicated to understand for me.
+       # parent = None
+       # for i in range(max(len(path1), len(path2))):
+       #     tovisit = 0 - i - 1
+       #     if i >= len(path1) or i >= len(path2):
+       #         break
+       #     if path1[tovisit] != path2[tovisit]:
+       #         break
+       #     parent = path1[tovisit]
+       # return parent
 
-    ## Given two word idx1 and idx2, where idx2 is the parent of idx1, return the
-    # words on the dependency path
+    ## Given two word idx1 and idx2, where idx2 is an ancestor of idx1, return,
+    ## for each word 'w' on the dependency path between idx1 and idx2, the label
+    ## on the edge to 'w' and the NER tag of 'w' or its lemma if the NER tag
+    ## is 'O' (see Word.get_feature())
+    # the dependency path labels on the path from idx1 to idx2 
     def get_direct_dependency_path_between_words(self, idx1, idx2):
         words_on_path = []
         c = idx1
@@ -82,10 +105,13 @@ class Sentence(object):
         while MAXLEN > 0:
             MAXLEN = MAXLEN - 1
             try:
-                if c == -1: break
-                if c == idx2: break
-                if c == idx1: 
-                    words_on_path.append(str(self.words[c].dep_path)) # we do not include the word of idx1
+                if c == -1: 
+                    break
+                elif c == idx2: 
+                    break
+                elif c == idx1: 
+                    # we do not include the NER tag/lemma for idx1
+                    words_on_path.append(str(self.words[c].dep_path)) 
                 else:
                     words_on_path.append(str(self.words[c].dep_path) + "|" + self.words[c].get_feature())
                 c = self.words[c].dep_parent
