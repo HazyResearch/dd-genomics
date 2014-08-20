@@ -9,16 +9,23 @@ directory.
 
 ## Dictionaries
 
+* `english_words.tsv`: words in the English language. 1 column: the word. From
+  the 'pharm' repository.
+
+* `genes_to_hpo_terms.tsv`: a table mapping gene-symbols to HPO terms. 3
+  columns: 1st column is gene-symbol, 2nd column is HPO term id, 3rd column is
+  description/name of the term. From the HPO.
+
+* `genes_to_hpo_terms_with_synonyms.tsv`: an expanded table mapping gene-symbols
+  and their synonyms to to HPO terms. 3 columns: 1st column is gene-symbol or
+  synonym, 2nd column is HPO term id, 3rd column is description/name of the term. 
+
 * `hg19_genes.tsv`: a list of 17,801 human gene-symbols. 1 column: gene-symbol.
   Created from the loci file in the resource update with:
 
 	```
 	cut -f5 /cluster/u/amirma/Resource_Update_2013/GeneSet2013/human/excludeUnconventionals/hg19.loci | grep -V ENSG | sort -u > hg19_genes.tsv
 	```
-
-* `hugo_synonyms.tsv`: a gene-symbol synonyms table. Variable number of columns:
-  1st column is the approved name, the other columns contain
-  synonyms. Created using the get_hugo_synonyms.sh script (see below).
 
 * `HGNC_approved_names.txt`: a table with more explicit nomeclature for gene
   symbols. It might be practical for literature mining of genes that are less
@@ -34,17 +41,12 @@ directory.
   columns: 1st column is first term ID, 2nd column is text "is a", 3rd column is
   second term ID. From the HPO.
 
-* `genes_to_hpo_terms.tsv`: a table mapping gene-symbols to HPO terms. 3
-  columns: 1st column is gene-symbol, 2nd column is HPO term id, 3rd column is
-  description/name of the term. From the HPO.
-
-* `genes_to_hpo_terms_with_synonyms.tsv`: an expanded table mapping gene-symbols
-  and their synonyms to to HPO terms. 3 columns: 1st column is gene-symbol or
-  synonym, 2nd column is HPO term id, 3rd column is description/name of the term. 
+* `hugo_synonyms.tsv`: a gene-symbol synonyms table. Variable number of columns:
+  1st column is the approved name, the other columns contain
+  synonyms. Created using the get_hugo_synonyms.sh script (see below).
 
 * `humanGeneSymbol.humanEnsembl.biomart73.map`: XXX What is this? 
 
-* `english_words.tsv`: words in the English language
 
 ## Utilities
 
