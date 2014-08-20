@@ -18,11 +18,17 @@ class Word(object):
 
     def __init__(self, _sent_id, _in_sent_idx, _word, _pos, _ner, _lemma, _dep_path, _dep_parent, _box):
         self.sent_id = _sent_id
-        self.in_sent_idx = _in_sent_idx # XXX (Matteo) Originally it had a -1
+        # We subtract 1 so it starts from 0 (the parser output files have it
+        # starting from 1). This allows us to use _in_sent_idx as index in the
+        # Sentence.words array.
+        # XXX (Matteo) Should this be done in the parser2sentences.py script?
+        self.in_sent_idx = _in_sent_idx - 1 
         self.word = _word
         self.pos = _pos
         self.ner = _ner
-        self.dep_parent = _dep_parent # XXX (Matteo) Originally it had a -1
+        # As before for in_sent_idx. This allows us to follow dependency paths.
+        # Note that the value -1 now denotes the root.
+        self.dep_parent = _dep_parent - 1 
         self.dep_path = _dep_path
         self.box = _box
         self.lemma = _lemma
@@ -34,7 +40,8 @@ class Word(object):
     def __repr__(self):
         return self.word
 
-    def get_ner(self):
+    # Return the NER tag if different than 'O', otherwise return the lemma
+    def get_feature(self):
         if self.ner == 'O':
             return self.lemma
         else:
