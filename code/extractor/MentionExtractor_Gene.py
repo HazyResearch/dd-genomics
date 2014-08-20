@@ -123,7 +123,7 @@ class MentionExtractor_Gene(MentionExtractor):
                     mention.add_features(['KEYWORD_PATH_with[' + minw + '] ' + minp])
                 # The word on the left of the mention, if present
                 if index > 0:
-                    mention.add_features(["WINDOW_LEFT_1_with[{}]".format(sentence.words[index-1].lemma)])
+                    mention.add_features(["WINDOW_LEFT_1_with[{}]".format(sentence.words[index - 1].lemma)])
                 # The word on the right of the mention, if present
                 if index + 1 < len(sentence.words):
                     mention.add_features(["WINDOW_RIGHT_1_with[{}]".format(sentence.words[index + 1].lemma)])
