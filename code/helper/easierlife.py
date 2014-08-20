@@ -37,17 +37,20 @@ def asciiCompress(data, level=9):
 
     code = zlib.compress(data,level)
     #csum = zlib.crc32(code)
-    code = base64.encodestring(code)
-    return code.replace('\n', ' ')
+    code = base64.b64encode(code)
+    #return code.replace('\n', ' ')
+    return code.decode()
 
 
 def asciiDecompress(code):
     """ decompress result of asciiCompress """
 
-    code = base64.decodestring(code.replace(' ', '\n'))
+    #code = base64.decodebytes(code.replace(' ', '\n'))
+    code = base64.b64decode(code)
     #csum = zlib.crc32(code)
     data = zlib.decompress(code)
     return data
+    #return code
 
 
 def serialize(obj, mode="ascii"):
