@@ -1,8 +1,6 @@
 #! /usr/bin/env python3
 
 import random
-import sys
-import re
 
 from extractor.Extractor import MentionExtractor
 from dstruct.HPOtermMention import HPOtermMention
@@ -68,7 +66,9 @@ class MentionExtractor_HPOterm(MentionExtractor):
                         self.max_variant_length = len(variant.split())
                     self.hpoterms_dict[variant.lower()] = name
 
-    def supervise(self):
+    # Perform the distant supervision
+    # TODO
+    def supervise(self, sentence, mention):
         pass
 
     def extract(self, sentence):
@@ -92,11 +92,19 @@ class MentionExtractor_HPOterm(MentionExtractor):
                 term = self.hpoterms_dict[phrase_lower]
                 mention = HPOtermMention(sentence.doc_id, term, words[start:end])
                 mention.is_correct = True
-                mention.add_features([]) # XXX TODO
+                self.supervise(sentence, mention)
             elif self.non_correct < NON_CORRECT_QUOTA and random.random() < NON_CORRECT_PROBABILITY:
                 self.non_correct += 1
                 mention = HPOtermMention(sentence.doc_id, "NONCORRECT", words[start:end])
                 mention.is_correct = False
-                mention.add_features([]) # XXX TODO
+
+            # Add features
+            if mention:
+                # The word on the left of the mention, if present
+                if start > 0:
+                    mention.add_features(["WINDOW_LEFT_1_with[{}]".format(sentence.words[start - 1].lemma)])
+                # The word on the right of the mention, if present
+                if end + 1 < len(sentence.words):
+                    mention.add_features(["WINDOW_RIGHT_1_with[{}]".format(sentence.words[end + 1].lemma)])
                 yield mention
 
