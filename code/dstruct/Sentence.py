@@ -70,17 +70,19 @@ class Sentence(object):
     ## common ancestor, return None
     def get_common_ancestor(self, path1, path2):
         # The paths are sorted from leaf to root, so reverse them
-        path1_rev = reversed(path1)
-        path2_rev = reversed(path2)
+        path1_rev = path1[:]
+        path1_rev.reverse() 
+        path2_rev = path2[:]
+        path2_rev.reverse()
         i = 0
         while i < min(len(path1_rev), len(path2_rev)) and \
                 path1_rev[i] == path2_rev[i]:
             i += 1
-        if  i == min(len(path1_rev), len(path2_rev)):
+        if  path1_rev[i-1] != path2_rev[i-1]:
             # No common ancestor found
             return None
         else:
-            return i - 1
+            return path1_rev[i-1]
         # XXX (Matteo) The following is the function as it was in pharma.
         # The logic seemed more complicated to understand for me.
        # parent = None
