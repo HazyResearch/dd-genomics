@@ -44,6 +44,8 @@ directory.
 
 * `humanGeneSymbol.humanEnsembl.biomart73.map`: XXX What is this? 
 
+* `english_words.tsv`: words in the English language
+
 ## Utilities
 
 * `get_hugo_synonyms.sh`: Update the hugo_synonyms.tsv file by downloading and
