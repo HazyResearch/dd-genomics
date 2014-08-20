@@ -17,11 +17,12 @@ class RelationExtractor_GeneHPOterm(RelationExtractor):
         self.supervise(sentence, gene, hpoterm, relation)
 
         # Add features
-        # TODO (Matteo) Check those indices
-        gene_position = int(gene.id.split("_")[4])
-        hpoterm_position = int(hpoterm.id.split("_")[4])
-        start = min(gene_position, hpoterm_position)
-        end = max(gene_position, hpoterm_position)
+        gene_start = int(gene.id.split("_")[4])
+        hpoterm_start = int(hpoterm.id.split("_")[4])
+        gene_end = int(gene.id.split("_")[5])
+        hpoterm_end = int(hpoterm.id.split("_")[5])
+        start = min(gene_start, hpoterm_start)
+        end = max(gene_end, hpoterm_end)
         sent_words_between = " ".join([w.lemma for w in sentence.words[start:end]])
 
         # Verb between the two words, if present
