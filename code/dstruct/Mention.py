@@ -43,12 +43,14 @@ class Mention(object):
 
         # XXX There seem to be encoding errors with the features, maybe from OCR?
         # We only use the features that don't have encoding errors.
+        # XXX (Matteo) Commented out the encoding. 
         valid_features = []
         for feature in self.features:
-            try:
-                valid_features.append("'" + feature.encode("ascii", "ignore").replace("'", '_').replace('{', '-_-').replace('}','-__-').replace('"', '-___-') + "'")
-            except:
-                continue
+            valid_features.append("'" + feature.replace("'", '_').replace('{', '-_-').replace('}','-__-').replace('"', '-___-') + "'")
+            #try:
+            #    valid_features.append("'" + feature.encode("ascii", "ignore").replace("'", '_').replace('{', '-_-').replace('}','-__-').replace('"', '-___-') + "'")
+            #except:
+            #    continue
 
         if mode == "tsv":
             ict = "\\N"
