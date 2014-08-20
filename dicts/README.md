@@ -47,6 +47,9 @@ directory.
 
 * `humanGeneSymbol.humanEnsembl.biomart73.map`: XXX What is this? 
 
+* `med_acronyms_pruned.tsv`: a list of medical acronyms and their meaning. 2
+  columns: 1st column is acronym, 2nd column is meaning. From the 'pharm'
+  repository.
 
 ## Utilities
 
