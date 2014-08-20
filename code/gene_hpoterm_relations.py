@@ -18,7 +18,5 @@ for line in fileinput.input():
 
     # Extract the relation mention
     relation = extractor.extract(sentence, gene_mention, hpoterm_mention)
-
-    if relation:
-        print(relation.dump())
+    print(relation.dump())
 
