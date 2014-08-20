@@ -4,7 +4,8 @@
 Originally obtained from the 'pharm' repository, but modified.
 """
 
-from helper.easierlife import *
+import json
+from helper.easierlife import serialize
 
 class Mention(object):
 
@@ -38,8 +39,7 @@ class Mention(object):
         self.features = []
 
     def dump(self, mode="tsv"):
-        # TODO (Matteo) Ask Ce why one would need the following.
-        #serialized_obj = serialize(self)
+        serialized_obj = serialize(self)
 
         # XXX There seem to be encoding errors with the features, maybe from OCR?
         # We only use the features that don't have encoding errors.
@@ -60,16 +60,12 @@ class Mention(object):
                 self.id, self.start_word_id.__repr__(),
                 self.end_word_id.__repr__(), self.type, ict,
                 self.__repr__().encode("ascii", "ignore"), '{' +
-                ",".join(valid_features) + '}'])
-            # TODO (Matteo) Commenting out until we find out why we would need it
-            #, serialized_obj])
+                ",".join(valid_features) + '}', serialized_obj])
         elif mode == "json":
             js_obj = {"doc_id":self.doc_id, "mention_id":self.id, "type":self.type,
         	"repr": self.__repr__(), "is_correct":self.is_correct,
         	"features": valid_features, "sent_id":self.sent_id, "start_word_id":self.start_word_id,
-        	"end_word_id":self.end_word_id}
-                # TODO (Matteo) Commenting out until we find out why we would need it
-        	#"object":serialized_obj}
+        	"end_word_id":self.end_word_id, "object":serialized_obj}
             return json.dumps(js_obj)
         else:
             return None
