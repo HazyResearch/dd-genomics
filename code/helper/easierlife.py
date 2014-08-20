@@ -10,7 +10,7 @@ import zlib
 import base64
 import sys
 import os.path
-import cPickle as pickle
+import pickle
 
 
 BASE_FOLDER, throwaway = os.path.split(os.path.realpath(__file__))
