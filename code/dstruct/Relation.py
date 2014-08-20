@@ -25,7 +25,7 @@ class Relation(object):
         self.mention_1 = _mention_1
         self.mention_2 = _mention_2
 
-    def dumps(self):
+    def dump(self):
         return json.dumps({"id": None, "type":self.type,
             "mention_1":self.mention_1.id, "mention_2":self.mention_2.id,
             "is_correct":self.is_correct, "features":self.features})
