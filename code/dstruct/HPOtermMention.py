@@ -3,10 +3,10 @@
 
 from dstruct.Mention import Mention
 
-class HPOterm_Mention(Mention):
+class HPOtermMention(Mention):
     term = None
 
     def __init__(self, _doc_id, _term, _words):
-        super(HPOterm_Mention, self).__init__(_doc_id, "HPOTERM", _words)
+        super(HPOtermMention, self).__init__(_doc_id, "HPOTERM", _words)
         self.term = _term
 

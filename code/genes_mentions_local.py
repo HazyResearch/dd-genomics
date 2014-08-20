@@ -46,5 +46,5 @@ mention_extractor = MentionExtractor_Gene()
 for sentence in get_input_sentences(MODE):
     for mention in mention_extractor.extract(sentence):
         if mention != None:
-            mention.dump(MODE)
+            print(mention.dump(MODE))
     
