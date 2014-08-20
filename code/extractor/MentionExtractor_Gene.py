@@ -92,8 +92,39 @@ class MentionExtractor_Gene(MentionExtractor):
 
             # Add features
             if mention:
+                # The labels and the NERs on the shortest dependency path
+                # between a verb and the mention word.
+                minl = 100
+                minp = None
+                minw = None
+                for word2 in sentence.words:
+                    if word2.pos.startswith('V') and word2.lemma != 'be':
+                        p = sentence.get_word_dep_path(word.insent_id, word2.insent_id)
+                        if len(p) < minl:
+                            minl = len(p)
+                            minp = p
+                            minw = word2.lemma
+                if minw != None:
+                    mention.add_features(['VERB_PATH_with[' + minw + '] ' + minp])
+
+                # The labels and the NERs on the shortest dependency path
+                # between a keyword and the mention word
+                minl = 100
+                minp = None
+                minw = None
+                for word2 in sentence.words:
+                    if word2.lemma in ["gene","family","domain"]:
+                        p = sentence.get_word_dep_path(word.insent_id, word2.insent_id)
+                        if len(p) < minl:
+                            minl = len(p)
+                            minp = p
+                            minw = word2.lemma
+                if minw != None:
+                    mention.add_features(['KEYWORD_PATH_with[' + minw + '] ' + minp])
+                # The word on the left of the mention, if present
                 if index > 0:
                     mention.add_features(["WINDOW_LEFT_1_with[{}]".format(sentence.words[index-1].lemma)])
+                # The word on the right of the mention, if present
                 if index + 1 < len(sentence.words):
                     mention.add_features(["WINDOW_RIGHT_1_with[{}]".format(sentence.words[index + 1].lemma)])
                 yield mention
