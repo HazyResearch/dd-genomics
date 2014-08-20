@@ -99,7 +99,7 @@ class MentionExtractor_Gene(MentionExtractor):
                 minw = None
                 for word2 in sentence.words:
                     if word2.pos.startswith('V') and word2.lemma != 'be':
-                        p = sentence.get_word_dep_path(word.insent_id, word2.insent_id)
+                        p = sentence.get_word_dep_path(word.in_sent_idx, word2.in_sent_idx)
                         if len(p) < minl:
                             minl = len(p)
                             minp = p
@@ -114,7 +114,7 @@ class MentionExtractor_Gene(MentionExtractor):
                 minw = None
                 for word2 in sentence.words:
                     if word2.lemma in ["gene","family","domain"]:
-                        p = sentence.get_word_dep_path(word.insent_id, word2.insent_id)
+                        p = sentence.get_word_dep_path(word.in_sent_idx, word2.in_sent_idx)
                         if len(p) < minl:
                             minl = len(p)
                             minp = p
