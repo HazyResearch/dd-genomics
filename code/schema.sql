@@ -52,7 +52,6 @@ CREATE TABLE genes_mentions (
 	-- serialized object
 	object text
 );
-);
 
 -- HPO terms mentions
 DROP TABLE IF EXISTS hpoterms_mentions CASCADE;
