@@ -31,13 +31,13 @@ class Mention(object):
         for w in _words:
             self.prov_words.append(w)
         self.sent_id = _words[0].sent_id
-        self.start_word_id = self.prov_words[0].insent_id
-        self.end_word_id = self.prov_words[-1].insent_id
+        self.start_word_id = self.prov_words[0].in_sent_idx
+        self.end_word_id = self.prov_words[-1].in_sent_idx
         self.id = "MENTION_{}_{}_SENT{}_{}_{}".format(self.type, self.doc_id,
                 self.sent_id, self.start_word_id, self.end_word_id)
         self.features = []
 
-    def dumps(self, mode="tsv"):
+    def dump(self, mode="tsv"):
         # TODO (Matteo) Ask Ce why one would need the following.
         #serialized_obj = serialize(self)
 
@@ -63,7 +63,7 @@ class Mention(object):
             #, serialized_obj])
         elif mode == "json":
             js_obj = {"doc_id":self.doc_id, "mention_id":self.id, "type":self.type,
-        	"repr":self.__repr__().decode("utf-8"), "is_correct":self.is_correct,
+        	"repr": self.__repr__(), "is_correct":self.is_correct,
         	"features": valid_features, "sent_id":self.sent_id, "start_word_id":self.start_word_id,
         	"end_word_id":self.end_word_id}
                 # TODO (Matteo) Commenting out until we find out why we would need it

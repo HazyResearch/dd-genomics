@@ -19,7 +19,7 @@ class MentionExtractor_Gene(MentionExtractor):
     def __init__(self):
         # Load the gene synonyms dictionary
         self.genes_dict = dict()
-        with open(BASE_FOLDER + self.genes_dict_FILENAME, 'rt') as self.genes_dict_file:
+        with open(BASE_FOLDER + GENES_DICT_FILENAME, 'rt') as self.genes_dict_file:
             for line in self.genes_dict_file:
                 tokens = line.strip().split("\t")
                 # first token is name, the rest are synonyms

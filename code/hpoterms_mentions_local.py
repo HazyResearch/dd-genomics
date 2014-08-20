@@ -43,8 +43,8 @@ def get_input_sentences(mode="tsv"):
 mention_extractor = MentionExtractor_HPOterm()
 
 for sentence in get_input_sentences(MODE):
-    mention = mention_extractor.extract(sentence)
-    if mention != None:
-        mention.dump(MODE)
+    for mention in mention_extractor.extract(sentence):
+        if mention != None:
+            mention.dump(MODE)
     
 

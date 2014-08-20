@@ -33,9 +33,10 @@ def get_input_sentences(mode="tsv"):
         elif mode == "json":
             sent_dict = json.loads(line)
             yield Sentence(sent_dict["doc_id"], sent_dict["sent_id"],
-                    sent_dict["words"], sent_dict["poses"], sent_dict["ners"],
-                    sent_dict["lemmas"], sent_dict["dep_paths"],
-                    sent_dict["dep_parents"], sent_dict["bounding_boxes"])
+                    sent_dict["wordidxs"], sent_dict["words"],
+                    sent_dict["poses"], sent_dict["ners"], sent_dict["lemmas"],
+                    sent_dict["dep_paths"], sent_dict["dep_parents"],
+                    sent_dict["bounding_boxes"])
         else:
             break
 
@@ -43,7 +44,7 @@ def get_input_sentences(mode="tsv"):
 mention_extractor = MentionExtractor_Gene()
 
 for sentence in get_input_sentences(MODE):
-    mention = mention_extractor.extract(sentence)
-    if mention != None:
-        mention.dump(MODE)
+    for mention in mention_extractor.extract(sentence):
+        if mention != None:
+            mention.dump(MODE)
     
