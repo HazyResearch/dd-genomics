@@ -153,9 +153,9 @@ class Sentence(object):
 
         return sorted(paths, key=len)[0:min(5,len(paths))]
         
-        
+    ## Given two entities, return the feature of the shortest dependency path
+    ## between word from one of to a word of the other.
     def dep_path(self, entity1, entity2):
-  
         begin1 = entity1.prov_words[0].in_sent_idx
         end1 = entity1.prov_words[-1].in_sent_idx
         begin2 = entity2.prov_words[0].in_sent_idx
