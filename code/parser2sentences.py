@@ -7,20 +7,21 @@
 # "block"  is a sentence. Each sentence spans over one or more lines. Each line
 # represents a # "word" in the sentence (it can be punctuation, a symbol or
 # anything). Each word line has *nine* fields:
-# 1: index of the word in the sentence
+# 1: index of the word in the sentence, starting from 1.
 # 2: the text of the word as it appears in the document
 # 3: Part of Speech (POS) tag of the word (see
-# http://www.computing.dcu.ie/~acahill/tagset.html for a list)
+#    http://www.computing.dcu.ie/~acahill/tagset.html for a list)
 # 4: Named Entity Recognition (NER) tag of the word
 # 5: the lemmatized word
 # 6: the label on the edge in dependency path between the parent of this word
-# and the word
-# 7: the word index of the *parent* of this word in the dependency path
+#    and the word
+# 7: the word index of the *parent* of this word in the dependency path. 0
+#    means root
 # 8: the sentence ID, unique in the document
 # 9: the bounding box containing this word in the PDF document. The format is
-# "[pXXXlXXXtXXXrXXXbXXX]," for page, left, top, right, bottom
+#    "[pXXXlXXXtXXXrXXXbXXX]," for page, left, top, right, bottom
 # An example line is:
-#1	Genome	NNP	O	Genome	nn	3	SENT_1	[p1l1669t172r1943b234],
+# 1	Genome	NNP	O	Genome	nn	3	SENT_1	[p1l1669t172r1943b234],
 #
 # This script outputs TSV lines, one line per sentence. Each line has nine
 # columns. The text in the columns is formatted so that the output can be given
