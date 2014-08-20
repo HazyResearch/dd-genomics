@@ -8,9 +8,12 @@ class RelationExtractor_GeneHPOterm(RelationExtractor):
     def __init__(self):
         pass
 
+    # Perform the distant supervision
+    # TODO (Matteo) implement
     def supervise(self, sentence, gene, hpoterm, rel):
         pass
 
+    # Extract the relation mentions
     def extract(self, sentence, gene, hpoterm):
         relation = RelationMention("GENEHPOTERM", gene, hpoterm)
 
