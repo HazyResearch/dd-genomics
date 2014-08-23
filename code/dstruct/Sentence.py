@@ -133,13 +133,21 @@ class Sentence(object):
 
         return "-".join(words_from_idx1_to_parents) + "@" + "-".join(words_from_idx2_to_parents)
 
-    ## Given two word idx1 and idx2, return the dependency path feature between them
+    ## Given a mention, return the word before the first word of the mention, if present
     def get_prev_wordobject(self, mention):
         begin = mention.prov_words[0].in_sent_idx
         if begin - 1 < 0: 
             return None
         else: 
             return self.words[begin - 1]
+
+    ## Given a mention, return the word after the last word of the mention, if present
+    def get_next_wordobject(self, mention):
+        end = mention.prov_words[-1].in_sent_idx
+        if end == len(self.words) - 1: 
+            return None
+        else: 
+            return self.words[end + 1]
 
     def dep_parent(self, mention):
         begin = mention.prov_words[0].in_sent_idx
