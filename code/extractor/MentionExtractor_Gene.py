@@ -11,10 +11,13 @@ from helper.easierlife import BASE_DIR
 GENES_DICT_FILENAME="/dicts/hugo_synonyms.tsv"
 ENGLISH_DICT_FILENAME="/dicts/english_words.tsv"
 NIH_GRANTS_DICT_FILENAME="/dicts/grant_codes_nih.tsv"
+NSF_GRANTS_DICT_FILENAME="/dicts/grant_codes_nsf.tsv"
 MED_ACRONS_DICT_FILENAME="/dicts/med_acronyms_pruned.tsv"
+POS_MENTIONS_DICT_FILENAME="/dicts/positive_gene_mentions.tsv"
+NEG_MENTIONS_DICT_FILENAME="/dicts/negative_gene_mentions.tsv"
 
 NON_CORRECT_QUOTA = 10000
-NON_CORRECT_PROBABILITY = 0.1
+NON_CORRECT_PROBABILITY = 0.05
 
 class MentionExtractor_Gene(MentionExtractor):
     non_correct = 0
@@ -41,36 +44,54 @@ class MentionExtractor_Gene(MentionExtractor):
         with open(BASE_DIR + NIH_GRANTS_DICT_FILENAME, 'rt') as nih_grants_dict_file:
             for line in nih_grants_dict_file:
                 self.nih_grants_dict.add(line.rstrip().lower())
+        # Load the NSF grant codes dictionary
+        # It's a set because it only contains a single column
+        self.nsf_grants_dict = set()
+        with open(BASE_DIR + NSF_GRANTS_DICT_FILENAME, 'rt') as nsf_grants_dict_file:
+            for line in nsf_grants_dict_file:
+                self.nsf_grants_dict.add(line.rstrip().lower())
         # Load the medical abbreviation dictionary
         # It's a set because it only contains a single column
         self.med_acrons_dict = set()
         with open(BASE_DIR + MED_ACRONS_DICT_FILENAME, 'rt') as med_acrons_dict_file:
             for line in med_acrons_dict_file:
                 self.med_acrons_dict.add(line.rstrip().lower())
+        # Load the positive examples dictionary.
+        # First column is doc id, second is sentence id, third is gene.
+        self.pos_examples = set()
+        with open(BASE_DIR + POS_MENTIONS_DICT_FILENAME, 'rt') as pos_examples_dict_file:
+            for line in pos_examples_dict_file:
+                self.pos_examples.add(frozenset(line.rstrip().split("\t")))
+        # Load the negative examples dictionary.
+        # First column is doc id, second is sentence id, third is gene.
+        self.neg_examples = set()
+        with open(BASE_DIR + NEG_MENTIONS_DICT_FILENAME, 'rt') as neg_examples_dict_file:
+            for line in neg_examples_dict_file:
+                self.neg_examples.add(frozenset(line.rstrip().split("\t")))
 
 
     # Perform the distant supervision
     def supervise(self, sentence, mention):
-        # Correct if it start with a letter and contains numbers and letters
-        # mixed 
-        # XXX (Matteo) No evidence
-        if mention.symbol in self.genes_dict and \
-            re.match("[A-Z]+[0-9]+[A-Z]+[0-9]*", mention.symbol):
+        if re.match("[A-Z]+[0-9]+[A-Z]+[0-9]*", mention.symbol):
             mention.is_correct = True
+        # If it's a gene symbol, and not an English word, and not a medical
+        # acronym, and not a NIH or NSF grant code, then label it as correct 
+        # XXX (Matteo) Taken from pharm
         if mention.symbol in self.genes_dict and \
             mention.symbol.lower() not in self.english_dict and \
             mention.symbol not in self.med_acrons_dict and \
-            mention.symbol not in self.nih_grants_dict:
+            mention.symbol not in self.nih_grants_dict and\
+            mention.symbol not in self.nsf_grants_dict:
             mention.is_correct = True
-        # Not correct if it's not in the dictionary of symbols and is an
-        # English word
-        elif mention.symbol not in self.genes_dict and mention.symbol.lower() in self.english_dict:
-            mention.is_correct = False
-        # Not correct if the previous word is one of the following
+        # Not correct if the previous word is one of the following keywords.
         # XXX (Matteo) Taken from pharm
         prev_word = sentence.get_prev_wordobject(mention)
-        if prev_word != None and prev_word.word in ['Figure', 'Table', 'individual']:
+        if prev_word != None and prev_word.word.lower() in ['figure', 'table', 'individual', "figures", "tables", "individuals"]:
                 mention.is_correct = False
+        if frozenset([sentence.doc_id, str(sentence.sent_id), mention.symbol]) in self.pos_examples:
+            mention.is_correct = True
+        if frozenset([sentence.doc_id, str(sentence.sent_id), mention.symbol]) in self.neg_examples:
+            mention.is_correct = False
 
 
     # Yield mentions from sentence
@@ -85,13 +106,25 @@ class MentionExtractor_Gene(MentionExtractor):
                 mention = GeneMention(sentence.doc_id, word.word, [word,])
                 self.supervise(sentence, mention)
             # Generate some negative examples
-            elif self.non_correct < NON_CORRECT_QUOTA and random.random() < NON_CORRECT_PROBABILITY:
+            elif re.search("^[A-z0-9]+", word.word) and \
+                    self.non_correct < NON_CORRECT_QUOTA and \
+                    random.random() < NON_CORRECT_PROBABILITY:
                 self.non_correct += 1
                 mention = GeneMention(sentence.doc_id, word.word, [word,])
                 mention.is_correct = False
 
             # Add features
             if mention:
+                ## The NER is an organization, or a location, or a person
+                if mention.prov_words[0].ner in [ "ORGANIZATION", "LOCATION", "PERSON"]:
+                    mention.add_features(["IS_" + mention.prov_words[0].ner])
+                # The POS is a proper noun
+                if mention.prov_words[0].pos in [ "NNP"]:
+                    mention.add_features(["IS_NNP"])
+                # The symbol is a mix of letters and numbers (but can't be only
+                # letters followed by numbers)
+                if re.match("[A-Z]+[0-9]+[A-Z]+[0-9]*", mention.symbol):
+                    mention.add_features(['IS_MIX_OF_LETTERS_NUMBERS_LETTERS'])
                 # The labels and the NERs on the shortest dependency path
                 # between a verb and the mention word.
                 minl = 100
@@ -105,15 +138,14 @@ class MentionExtractor_Gene(MentionExtractor):
                             minp = p
                             minw = word2.lemma
                 if minw != None:
-                    mention.add_features(['VERB_PATH_with[' + minw + '] ' + minp])
-
+                    mention.add_features(['VERB_PATH_with[' + minw + '] '+ minp])
                 # The labels and the NERs on the shortest dependency path
                 # between a keyword and the mention word
                 minl = 100
                 minp = None
                 minw = None
                 for word2 in sentence.words:
-                    if word2.lemma in ["gene","family","domain"]:
+                    if word2.lemma in ["gene", "genes", "protein"]:
                         p = sentence.get_word_dep_path(word.in_sent_idx, word2.in_sent_idx)
                         if len(p) < minl:
                             minl = len(p)
@@ -121,7 +153,7 @@ class MentionExtractor_Gene(MentionExtractor):
                             minw = word2.lemma
                 if minw != None:
                     mention.add_features(['KEYWORD_PATH_with[' + minw + '] ' + minp])
-                # The word on the left of the mention, if present
+                # The lemma on the left of the mention, if present
                 if index > 0:
                     mention.add_features(["WINDOW_LEFT_1_with[{}]".format(sentence.words[index - 1].lemma)])
                 # The word on the right of the mention, if present
