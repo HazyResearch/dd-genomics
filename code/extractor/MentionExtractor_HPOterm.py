@@ -9,7 +9,7 @@ from helper.easierlife import BASE_DIR, get_all_phrases_in_sentence
 HPOTERMS_DICT_FILENAME="/dicts/hpo_terms.tsv"
 ENGLISH_DICT_FILENAME="/dicts/english_words.tsv"
 
-NON_CORRECT_QUOTA = 100
+NON_CORRECT_QUOTA = 10000
 NON_CORRECT_PROBABILITY = 0.1
 
 # XXX (Matteo) This function should probably be in helper.easierlife
