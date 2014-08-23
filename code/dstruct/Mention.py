@@ -41,18 +41,19 @@ class Mention(object):
     def dump(self, mode="tsv"):
         serialized_obj = serialize(self)
 
-        # XXX There seem to be encoding errors with the features, maybe from OCR?
-        # We only use the features that don't have encoding errors.
-        # XXX (Matteo) Commented out the encoding. 
-        valid_features = []
-        for feature in self.features:
-            valid_features.append("'" + feature.replace("'", '_').replace('{', '-_-').replace('}','-__-').replace('"', '-___-') + "'")
+        if mode == "tsv":
+            # XXX There seem to be encoding errors with the features, maybe from OCR?
+            # We only use the features that don't have encoding errors.
+            # XXX (Matteo) Commented out encoding. 
+            valid_features = []
+            for feature in self.features:
+                # XXX (Matteo) We should do this also in the json then...
+                valid_features.append("'" + feature.replace("'", '_').replace('{', '-_-').replace('}','-__-').replace('"', '-___-') + "'")
             #try:
             #    valid_features.append("'" + feature.encode("ascii", "ignore").replace("'", '_').replace('{', '-_-').replace('}','-__-').replace('"', '-___-') + "'")
             #except:
             #    continue
 
-        if mode == "tsv":
             ict = "\\N"
             if self.is_correct != None:
                 ict = self.is_correct.__repr__()
@@ -64,7 +65,7 @@ class Mention(object):
         elif mode == "json":
             js_obj = {"doc_id":self.doc_id, "mention_id":self.id, "type":self.type,
         	"repr": self.__repr__(), "is_correct":self.is_correct,
-        	"features": valid_features, "sent_id":self.sent_id, "start_word_id":self.start_word_id,
+        	"features": self.features, "sent_id":self.sent_id, "start_word_id":self.start_word_id,
         	"end_word_id":self.end_word_id, "object":serialized_obj}
             return json.dumps(js_obj)
         else:
