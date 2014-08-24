@@ -7,7 +7,7 @@ from helper.easierlife import get_input_sentences
 from helper.dictionaries import load_dict
 
 ## Add features to a gene mention
-def add_features(sentence, mention):
+def add_features(mention, sentence):
     # The NER is an organization, or a location, or a person
     if mention.words[0].ner in [ "ORGANIZATION", "LOCATION", "PERSON"]:
         mention.add_feature("IS_" + mention.words[0].ner)
@@ -28,7 +28,7 @@ def add_features(sentence, mention):
     minw = None
     for word2 in sentence.words:
         if word2.pos.startswith('V') and word2.lemma != 'be':
-            p = sentence.get_word_dep_path(mention.words[0].in_sent_idx, word2.in_sent_idx)
+            p = sentence.get_word_dep_path(mention.start_word_idx, word2.in_sent_idx)
             if len(p) < minl:
                 minl = len(p)
                 minp = p
@@ -42,7 +42,7 @@ def add_features(sentence, mention):
     minw = None
     for word2 in sentence.words:
         if word2.lemma in ["gene", "genes", "protein", "proteins"]:
-            p = sentence.get_word_dep_path(mention.words[0].in_sent_idx, word2.in_sent_idx)
+            p = sentence.get_word_dep_path(mention.start_word_idx, word2.in_sent_idx)
             if len(p) < minl:
                 minl = len(p)
                 minp = p
@@ -50,13 +50,13 @@ def add_features(sentence, mention):
     if minw != None:
         mention.add_feature('KEYWORD_PATH_[' + minw + '] ' + minp)
     # The lemma on the left of the mention, if present
-    if mention.words[0].in_sent_idx > 0:
+    if mention.start_word_idx > 0:
         mention.add_feature("WINDOW_LEFT_1_[{}]".format(
-            sentence.words[mention.words[0].in_sent_idx - 1].lemma))
+            sentence.words[mention.start_word_idx - 1].lemma))
     # The word on the right of the mention, if present
-    if mention.words[0].in_sent_idx + 1 < len(sentence.words):
+    if mention.end_word_idx + 1 < len(sentence.words):
         mention.add_feature("WINDOW_RIGHT_1_[{}]".format(
-            sentence.words[mention.words[0].in_sent_idx + 1].lemma))
+            sentence.words[mention.end_word_idx + 1].lemma))
 
 # Yield mentions from the sentence
 def extract(sentence):
@@ -68,7 +68,7 @@ def extract(sentence):
         if word.word in genes_dict:
             mention = Mention("GENE", genes_dict[word.word], [word,])
             # Add features
-            add_features(sentence, mention)
+            add_features(mention, sentence)
             yield mention
 
 # Load the dictionaries that we need
