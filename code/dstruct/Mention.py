@@ -20,13 +20,13 @@ class Mention(object):
     is_correct = None
 
     def __init__(self, _type, _entity, _words):
-        self.doc_id = _words[0]._doc_id
+        self.doc_id = _words[0].doc_id
         self.sent_id = _words[0].sent_id
         self.start_word_idx = _words[0].in_sent_idx
         self.end_word_idx = _words[-1].in_sent_idx
+        self.type = _type
         self.id = "MENTION_{}_{}_{}_{}_{}".format(self.type, self.doc_id,
                 self.sent_id, self.start_word_idx, self.end_word_idx)
-        self.type = _type
         self.entity = _entity;
         # These are Word objects
         self.words = []
