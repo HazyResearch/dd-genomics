@@ -1,13 +1,15 @@
 #! /usr/bin/env python3
 """ A Sentence class
 
+Basically a container for an array of Word objects, plus doc_id and sent_id.
+
 Originally obtained from the 'pharm' repository, but modified.
 """
 
 from dstruct.Word import Word
 
 class Sentence(object):
-    _MAXLEN = 1000 # to avoid bad parse tree that have self-recursion
+    _MAX_DEP_PATH_LEN = 1000 # to avoid bad parse tree that have self-recursion
     doc_id = None
     sent_id = None
     words = []
@@ -26,8 +28,9 @@ class Sentence(object):
         bounding_boxes = _bounding_boxes 
         self.words = []
         for i in range(len(wordidxs)):
-            word = Word(self.sent_id, wordidxs[i], words[i], poses[i], ners[i], lemmas[i],
-                    dep_paths[i], dep_parents[i], bounding_boxes[i])
+            word = Word(self.doc_id, self.sent_id, wordidxs[i], words[i],
+                    poses[i], ners[i], lemmas[i], dep_paths[i], dep_parents[i],
+                    bounding_boxes[i])
             self.words.append(word)
 
     def __repr__(self):
@@ -47,14 +50,12 @@ class Sentence(object):
 
     ## Return a list of the indexes of all words in the dependency path from
     ## the word at index word_index to the root
-    ## XXX (Matteo) This function depends on the fact that we decrement
-    ## dep_parent by one in the constructor of Word.
     def get_path_till_root(self, word_index):
         path = []
         c = word_index
-        MAXLEN = self._MAXLEN
-        while MAXLEN > 0:
-            MAXLEN = MAXLEN -1
+        MAX_DEP_PATH_LEN = self._MAX_DEP_PATH_LEN
+        while MAX_DEP_PATH_LEN > 0:
+            MAX_DEP_PATH_LEN = MAX_DEP_PATH_LEN -1
             try:
                 # c == -1 means we found the root
                 if c == -1: 
@@ -103,9 +104,9 @@ class Sentence(object):
     def get_direct_dependency_path_between_words(self, idx1, idx2):
         words_on_path = []
         c = idx1
-        MAXLEN = self._MAXLEN
-        while MAXLEN > 0:
-            MAXLEN = MAXLEN - 1
+        MAX_DEP_PATH_LEN = self._MAX_DEP_PATH_LEN
+        while MAX_DEP_PATH_LEN > 0:
+            MAX_DEP_PATH_LEN -= 1 
             try:
                 if c == -1: 
                     break
@@ -178,7 +179,7 @@ class Sentence(object):
 
         # we pick the one that is shortest
         path = ""
-        ll = 100000000
+        ll = 100000000 # Just a very large number
         for p in paths:
             if len(p) < ll:
                 path = p

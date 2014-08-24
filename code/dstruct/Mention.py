@@ -5,72 +5,58 @@ Originally obtained from the 'pharm' repository, but modified.
 """
 
 import json
-from helper.easierlife import serialize
 
 class Mention(object):
 
     doc_id = None
     sent_id = None
+    start_word_idx = None
+    end_word_idx = None
     id = None	
     type = None
-    prov_words = None
+    entity = None
+    words = None
     features = None
     is_correct = None
-    start_word_id = None
-    end_word_id = None
 
-    def add_features(self, features):
-        """ Add features to the list of features """
-	    
-        for f in features:
-            self.features.append(f)
-
-    def __init__(self, _doc_id, _type, _words):
-        self.doc_id = _doc_id
-        self.type = _type
-        self.prov_words = []
-        for w in _words:
-            self.prov_words.append(w)
+    def __init__(self, _type, _entity, _words):
+        self.doc_id = _words[0]._doc_id
         self.sent_id = _words[0].sent_id
-        self.start_word_id = self.prov_words[0].in_sent_idx
-        self.end_word_id = self.prov_words[-1].in_sent_idx
-        self.id = "MENTION_{}_{}_SENT{}_{}_{}".format(self.type, self.doc_id,
-                self.sent_id, self.start_word_id, self.end_word_id)
+        self.start_word_idx = _words[0].in_sent_idx
+        self.end_word_idx = _words[-1].in_sent_idx
+        self.id = "MENTION_{}_{}_{}_{}_{}".format(self.type, self.doc_id,
+                self.sent_id, self.start_word_idx, self.end_word_idx)
+        self.type = _type
+        self.entity = _entity;
+        # These are Word objects
+        self.words = []
+        for w in _words:
+            self.words.append(w)
         self.features = []
-
-    def dump(self, mode="tsv"):
-        serialized_obj = serialize(self)
-
-        if mode == "tsv":
-            # XXX There seem to be encoding errors with the features, maybe from OCR?
-            # We only use the features that don't have encoding errors.
-            # XXX (Matteo) Commented out encoding. 
-            valid_features = []
-            for feature in self.features:
-                # XXX (Matteo) We should do this also in the json then...
-                valid_features.append("'" + feature.replace("'", '_').replace('{', '-_-').replace('}','-__-').replace('"', '-___-') + "'")
-            #try:
-            #    valid_features.append("'" + feature.encode("ascii", "ignore").replace("'", '_').replace('{', '-_-').replace('}','-__-').replace('"', '-___-') + "'")
-            #except:
-            #    continue
-
-            ict = "\\N"
-            if self.is_correct != None:
-                ict = self.is_correct.__repr__()
-            return "\t".join(["\\N", self.doc_id, self.sent_id.__repr__(),
-                self.id, self.start_word_id.__repr__(),
-                self.end_word_id.__repr__(), self.type, ict,
-                self.__repr__().encode("ascii", "ignore"), '{' +
-                ",".join(valid_features) + '}', serialized_obj])
-        elif mode == "json":
-            js_obj = {"doc_id":self.doc_id, "mention_id":self.id, "type":self.type,
-        	"repr": self.__repr__(), "is_correct":self.is_correct,
-        	"features": self.features, "sent_id":self.sent_id, "start_word_id":self.start_word_id,
-        	"end_word_id":self.end_word_id, "object":serialized_obj}
-            return json.dumps(js_obj)
-        else:
-            return None
+        self.is_correct = None
 
     def __repr__(self):
-        return "[" + self.type + " : " + " ".join([w.word for w in self.prov_words]) + "]"
+        return " ".join([w.word for w in self.words])
+
+    ## Dump self to a json object
+    def json_dump(self):
+        json_obj = {"doc_id": self.doc_id, "sent_id": self.sent_id,
+                "start_word_idx": self.start_word_idx,
+                "end_word_idx": self.end_word_idx, 
+                "mention_id": self.id, "type": self.type,
+                "entity": self.entity,
+                "words": [w.word for w in self.words],
+                "is_correct":self.is_correct,
+                "features": self.features}
+        return json.dumps(json_obj)
+
+
+    ## Add a feature
+    def add_feature(self, feature):
+        self.features.append(feature)
+
+    ## Add multiple features
+    def add_features(self, features):
+        for feature in features:
+            self.add_feature(feature)
 

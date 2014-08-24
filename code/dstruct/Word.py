@@ -6,6 +6,8 @@ Originally obtained from the 'pharm' repository, but modified.
 
 class Word(object):
   
+    doc_id = None
+    sent_id = None
     insent_idx = None
     word = None
     pos = None
@@ -16,26 +18,22 @@ class Word(object):
     sent_id = None
     box = None
 
-    def __init__(self, _sent_id, _in_sent_idx, _word, _pos, _ner, _lemma, _dep_path, _dep_parent, _box):
+    def __init__(self, _doc_id, _sent_id, _in_sent_idx, _word, _pos, _ner, _lemma, _dep_path, _dep_parent, _box):
+        self.doc_id = _doc_id
         self.sent_id = _sent_id
-        # We subtract 1 so it starts from 0 (the parser output files have it
-        # starting from 1). This allows us to use _in_sent_idx as index in the
-        # Sentence.words array.
-        # XXX (Matteo) Should this be done in the parser2sentences.py script?
-        self.in_sent_idx = _in_sent_idx - 1 
+        self.in_sent_idx = _in_sent_idx 
         self.word = _word
         self.pos = _pos
         self.ner = _ner
-        # As before for in_sent_idx. This allows us to follow dependency paths.
-        # Note that the value -1 now denotes the root.
-        self.dep_parent = _dep_parent - 1 
+        self.dep_parent = _dep_parent
         self.dep_path = _dep_path
         self.box = _box
         self.lemma = _lemma
         # If do not do the following, outputting an Array in the language will crash
-        # XXX (Matteo) This was in the original code, not sure what it means
-        self.lemma = self.lemma.replace('"', "''") 
-        self.lemma = self.lemma.replace('\\', "_") 
+        # XXX (Matteo) This was in the pharm code, not sure what it means
+        # I actually don't think this should go here.
+        #self.lemma = self.lemma.replace('"', "''") 
+        #self.lemma = self.lemma.replace('\\', "_") 
 
     def __repr__(self):
         return self.word
