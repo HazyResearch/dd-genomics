@@ -23,6 +23,27 @@ def load_genes_dictionary(filename):
                 genes_dict[synonym] = name
     return genes_dict
 
+# Load the HPOterms dictionary
+# Terms are converted to lower case
+def load_hpoterms_dictionary(filename):
+    hpoterms_dict = dict()
+    with open(filename, 'rt') as hpoterms_dict_file:
+        for line in hpoterms_dict_file:
+            tokens = line.strip().split("\t")
+            # 1st token is name, 2nd is description, 3rd is 'C' and 4th is
+            # (presumably) the distance from the root of the DAG.
+            name = tokens[0]
+            description = tokens[1]
+            # Skip "All"
+            # XXX (Matteo) There may be more generic terms that we want to skip
+            if description == "All":
+                continue
+            description_words = description.split()
+            variants = get_variants(description_words)
+            for variant in variants:
+                hpoterms_dict[variant.lower()] = name
+    return hpoterms_dict
+
 # Load a dictionary which is a set.
 def load_set(filename):
     _set = set()
@@ -43,9 +64,10 @@ def load_set_lower_case(filename):
 ## Dictionaries
 GENES_DICT_FILENAME = BASE_DIR + "/dicts/hugo_synonyms.tsv"
 ENGLISH_DICT_FILENAME = BASE_DIR + "/dicts/english_words.tsv"
+HPOTERMS_DICT_FILENAME = BASE_DIR + "/dicts/hpo_terms.tsv"
+MED_ACRONS_DICT_FILENAME = BASE_DIR + "/dicts/med_acronyms_pruned.tsv"
 NIH_GRANTS_DICT_FILENAME = BASE_DIR + "/dicts/grant_codes_nih.tsv"
 NSF_GRANTS_DICT_FILENAME = BASE_DIR + "/dicts/grant_codes_nsf.tsv"
-MED_ACRONS_DICT_FILENAME = BASE_DIR + "/dicts/med_acronyms_pruned.tsv"
 POS_GENE_MENTIONS_DICT_FILENAME = BASE_DIR + "/dicts/positive_gene_mentions.tsv"
 NEG_GENE_MENTIONS_DICT_FILENAME= BASE_DIR + "/dicts/negative_gene_mentions.tsv"
 
@@ -55,6 +77,7 @@ NEG_GENE_MENTIONS_DICT_FILENAME= BASE_DIR + "/dicts/negative_gene_mentions.tsv"
 dictionaries = dict()
 dictionaries["genes"] = [GENES_DICT_FILENAME, load_genes_dictionary]
 dictionaries["english"] = [ENGLISH_DICT_FILENAME, load_set_lower_case]
+dictionaries["hpoterms"] = [HPOTERMS_DICT_FILENAME,load_hpoterms_dictionary ]
 dictionaries["nih_grants"] = [NIH_GRANTS_DICT_FILENAME, load_set]
 dictionaries["nsf_grants"] = [NSF_GRANTS_DICT_FILENAME, load_set]
 dictionaries["med_acrons"] = [MED_ACRONS_DICT_FILENAME, load_set]
@@ -68,4 +91,36 @@ def load_dict(dict_name):
     filename = dictionaries[dict_name][0]
     load = dictionaries[dict_name][1]
     return load(filename)
+
+## Given a list of words, return a list of variants built by splitting words that contain the separator.
+## An example is more valuable:
+## let words = ["the", "cat/dog", "is", "mine"], the function would return ["the
+## cat is mine", "the dog is mine"]
+## XXX (Matteo) Maybe goes in a different module
+def get_variants(words, separator="/"):
+    if len(words) == 0:
+        return []
+    variants = []
+    base = []
+    i = 0
+    # Look for a word containing a "/"
+    while words[i].find(separator) == -1:
+        base.append(words[i])
+        i += 1
+        if i == len(words):
+            break
+    # If we found a word containing a "/", call recursively
+    if i < len(words):
+        variants_starting_words = words[i].split("/")
+        following_variants = get_variants(words[i+1:])
+        for variant_starting_word in variants_starting_words:
+            variant_base = base + [variant_starting_word]
+            if len(following_variants) > 0:
+                for following_variant in following_variants:
+                    variants.append(" ".join(variant_base +[following_variant]))
+            else:
+                variants.append(" ".join(variant_base))
+    else:
+        variants = [" ".join(base)]
+    return variants
 
