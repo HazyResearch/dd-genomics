@@ -29,16 +29,15 @@
 # (between parentheses is the PostgreSQL type for the column):
 # 1: document ID (text)
 # 2: sentence ID (int)
-# 3: word indexes (int[])
+# 3: word indexes (int[]). They now start from 0, like an array.
 # 4: words, (text[])
 # 5: POSes (text[])
 # 6: NERs (text[])
 # 7: dependency paths (text[])
-# 8: dependency parent (int[])
+# 8: dependency parent (int[]) -1 means root, so that each of them is an array index
 # 9: bounding boxes (text[])
 #
 # Author: Matteo Riondato <rionda@cs.stanford.edu>
-# Date: 20140811
 #
 
 import os.path
@@ -119,13 +118,14 @@ def main():
                     bounding_box = bounding_box[1:-2]
 
                     # Append contents of this line to the sentence arrays
-                    wordidxs.append(int(word_idx))
-                    words.append(word)
+                    wordidxs.append(int(word_idx) - 1) # Start from 0
+                    words.append(word) 
                     poses.append(pos)
                     ners.append(ner)
                     lemmas.append(lemma)
                     dep_paths.append(dep_path)
-                    dep_parents.append(int(dep_parent))
+                    # Now "-1" means root and the rest correspond to array indices
+                    dep_parents.append(int(dep_parent) - 1) 
                     bounding_boxes.append(bounding_box)
 
                     # Read the next line
