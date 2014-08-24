@@ -1,4 +1,9 @@
 #! /usr/bin/env python3
+#
+# Extract gene mentions using the genes dictionary and add some features
+#
+# XXX ATTENTION: This script does _NOT_ perform distant supervision
+#
 
 import re
 
