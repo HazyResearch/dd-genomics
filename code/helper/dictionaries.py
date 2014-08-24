@@ -21,7 +21,7 @@ def load_genes_dictionary(filename):
             name = tokens[0]
             for synonym in tokens:
                 genes_dict[synonym] = name
-    return genes_dict()
+    return genes_dict
 
 # Load a dictionary which is a set.
 def load_set(filename):
