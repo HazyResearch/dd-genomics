@@ -26,6 +26,21 @@
  	bounding_boxes text[]
  );
 
+-- Acronym table
+DROP TABLE IF EXISTS acronyms CASCADE;
+CREATE TABLE acronyms (
+	-- document id
+	doc_id text,
+	-- sentence id
+	sent_id int,
+	-- word idx
+	wordidx int,
+	-- acronym
+	acronym text,
+	-- definition
+	definition text
+);
+
 -- Gene mentions (without supervision)
 DROP TABLE IF EXISTS gene_mentions CASCADE;
 CREATE TABLE gene_mentions (
