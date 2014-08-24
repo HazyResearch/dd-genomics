@@ -34,7 +34,7 @@ def add_features(sentence, mention):
                 minp = p
                 minw = word2.lemma
     if minw != None:
-        mention.add_features('VERB_PATH_[' + minw + '] '+ minp)
+        mention.add_feature('VERB_PATH_[' + minw + '] '+ minp)
     # The labels and the NERs on the shortest dependency path
     # between a keyword and the mention word
     minl = 100
@@ -48,14 +48,14 @@ def add_features(sentence, mention):
                 minp = p
                 minw = word2.lemma
     if minw != None:
-        mention.add_features('KEYWORD_PATH_[' + minw + '] ' + minp)
+        mention.add_feature('KEYWORD_PATH_[' + minw + '] ' + minp)
     # The lemma on the left of the mention, if present
     if mention.words[0].in_sent_idx > 0:
-        mention.add_features("WINDOW_LEFT_1_[{}]".format(
+        mention.add_feature("WINDOW_LEFT_1_[{}]".format(
             sentence.words[mention.words[0].in_sent_idx - 1].lemma))
     # The word on the right of the mention, if present
     if mention.words[0].in_sent_idx + 1 < len(sentence.words):
-        mention.add_features("WINDOW_RIGHT_1_[{}]".format(
+        mention.add_feature("WINDOW_RIGHT_1_[{}]".format(
             sentence.words[mention.words[0].in_sent_idx + 1].lemma))
 
 # Yield mentions from the sentence
