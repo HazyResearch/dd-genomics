@@ -36,10 +36,13 @@
 # 7: dependency paths (text[])
 # 8: dependency parent (int[]) -1 means root, so that each of them is an array index
 # 9: bounding boxes (text[])
+
+# This script outputs json objects when main() is called with "json" as argument
 #
 # Author: Matteo Riondato <rionda@cs.stanford.edu>
 #
 
+import json
 import os.path
 import sys
 
@@ -63,8 +66,8 @@ def list2TSVarray(a_list, quote=False):
     return "{" + string + "}"
 
 
-# Process the input files
-def main():
+# Process the input files. Output can be either tsv or json
+def main(mode="tsv"):
     script_name = os.path.basename(__file__)
     # Check
     if len(sys.argv) == 1:
@@ -132,14 +135,20 @@ def main():
                     curr_line = curr_file.readline().strip()
 
                 # Write sentence to output
-                print("\t".join([docid, str(sent_id), list2TSVarray(wordidxs),
-                    list2TSVarray(words, quote=True),
-                    list2TSVarray(poses, quote=True),
-                    list2TSVarray(ners),
-                    list2TSVarray(lemmas, quote=True),
-                    list2TSVarray(dep_paths, quote=True),
-                    list2TSVarray(dep_parents),
-                    list2TSVarray(bounding_boxes)]))
+                if mode == "tsv":
+                    print("\t".join([docid, str(sent_id),
+                        list2TSVarray(wordidxs), list2TSVarray(words,
+                            quote=True), list2TSVarray(poses, quote=True),
+                        list2TSVarray(ners), list2TSVarray(lemmas, quote=True),
+                        list2TSVarray(dep_paths, quote=True),
+                        list2TSVarray(dep_parents),
+                        list2TSVarray(bounding_boxes)]))
+                elif mode == "json":
+                    print(json.dumps({ "doc_id": docid, "sent_id": sent_id,
+                        "wordidxs": wordidxs, "words": words, "poses": poses,
+                        "ners": ners, "lemmas": lemmas, "dep_paths": dep_paths,
+                        "dep_parents": dep_parents, "bounding_boxes":
+                        bounding_boxes}))
 
                 # Check if we are at End of File
                 curr_pos = curr_file.tell()
