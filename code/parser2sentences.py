@@ -23,10 +23,12 @@
 # An example line is:
 # 1	Genome	NNP	O	Genome	nn	3	SENT_1	[p1l1669t172r1943b234],
 #
-# This script outputs TSV lines, one line per sentence. Each line has nine
-# columns. The text in the columns is formatted so that the output can be given
-# in input to the PostgreSQL 'COPY FROM' command. The columns are the following
-# (between parentheses is the PostgreSQL type for the column):
+# This script outputs TSV lines or JSON objects, one per sentence. You can
+# select the mode of operation by setting the MODE global variable. 
+#
+# Each TSV line has nine columns. The text in the columns is formatted so that
+# the output can be given in input to the PostgreSQL 'COPY FROM' command. The
+# columns are the following (between parentheses is the PostgreSQL type for the column):
 # 1: document ID (text)
 # 2: sentence ID (int)
 # 3: word indexes (int[]). They now start from 0, like an array.
@@ -36,8 +38,10 @@
 # 7: dependency paths (text[])
 # 8: dependency parent (int[]) -1 means root, so that each of them is an array index
 # 9: bounding boxes (text[])
-
-# This script outputs json objects when main() is called with "json" as argument
+#
+# This script can be spawn subprocesses to increase parallelism, which can be
+# useful when having to convert a lot of files. You can set the level of
+# parallelism by setting the PARALLELISM global variable.
 #
 # Author: Matteo Riondato <rionda@cs.stanford.edu>
 #
@@ -45,6 +49,10 @@
 import json
 import os.path
 import sys
+from multiprocessing import Lock, Process
+
+MODE = "tsv"
+PARALLELISM = 4
 
 # Convert a list to a string that can be used in a TSV column and intepreted as
 # an array by the PostreSQL COPY FROM command.
@@ -65,22 +73,8 @@ def list2TSVarray(a_list, quote=False):
         string = ",".join(list(map(lambda x: str(x), a_list)))
     return "{" + string + "}"
 
-
-# Process the input files. Output can be either tsv or json
-def main(mode="tsv"):
-    script_name = os.path.basename(__file__)
-    # Check
-    if len(sys.argv) == 1:
-        print("USAGE: {} FILE1 [FILE2 [...]]".format(script_name))
-        return 1
-
-    # Check that the input files exist
-    for filename in sys.argv[1:]:
-        if not os.path.exists(filename):
-            sys.stderr.write("script_name: ERROR: file '{}' does not exist\n".format(filename))
-            return 1
-
-    for filename in sys.argv[1:]:
+def process_files(lock, input_files):
+    for filename in input_files:
         # Docid assumed to be the filename.
         docid = os.path.basename(filename)
         with open(filename, 'rt') as curr_file:
@@ -101,7 +95,7 @@ def main(mode="tsv"):
                 while curr_line != "":
                     tokens = curr_line.split("\t")
                     if len(tokens) != 9:
-                        sys.stderr.write("{}: ERROR: malformed line (wrong number of fields): {}\n".format(script_name, curr_line))
+                        sys.stderr.write("ERROR: malformed line (wrong number of fields): {}\n".format(curr_line))
                         return 1
 
                     word_idx, word, pos, ner, lemma, dep_path, dep_parent, word_sent_id, bounding_box = tokens 
@@ -135,20 +129,24 @@ def main(mode="tsv"):
                     curr_line = curr_file.readline().strip()
 
                 # Write sentence to output
-                if mode == "tsv":
-                    print("\t".join([docid, str(sent_id),
-                        list2TSVarray(wordidxs), list2TSVarray(words,
-                            quote=True), list2TSVarray(poses, quote=True),
-                        list2TSVarray(ners), list2TSVarray(lemmas, quote=True),
-                        list2TSVarray(dep_paths, quote=True),
-                        list2TSVarray(dep_parents),
-                        list2TSVarray(bounding_boxes)]))
-                elif mode == "json":
-                    print(json.dumps({ "doc_id": docid, "sent_id": sent_id,
-                        "wordidxs": wordidxs, "words": words, "poses": poses,
-                        "ners": ners, "lemmas": lemmas, "dep_paths": dep_paths,
-                        "dep_parents": dep_parents, "bounding_boxes":
-                        bounding_boxes}))
+                lock.acquire()
+                try:
+                    if MODE == "tsv":
+                        print("\t".join([docid, str(sent_id),
+                            list2TSVarray(wordidxs), list2TSVarray(words,
+                                quote=True), list2TSVarray(poses, quote=True),
+                            list2TSVarray(ners), list2TSVarray(lemmas, quote=True),
+                            list2TSVarray(dep_paths, quote=True),
+                            list2TSVarray(dep_parents),
+                            list2TSVarray(bounding_boxes)]))
+                    elif MODE == "json":
+                        print(json.dumps({ "doc_id": docid, "sent_id": sent_id,
+                            "wordidxs": wordidxs, "words": words, "poses": poses,
+                            "ners": ners, "lemmas": lemmas, "dep_paths": dep_paths,
+                            "dep_parents": dep_parents, "bounding_boxes":
+                            bounding_boxes}))
+                finally:
+                    lock.release()
 
                 # Check if we are at End of File
                 curr_pos = curr_file.tell()
@@ -158,6 +156,31 @@ def main(mode="tsv"):
                     atEOF = True
                 else:
                     curr_file.seek(curr_pos)
+
+
+# Process the input files. Output can be either tsv or json
+def main():
+    script_name = os.path.basename(__file__)
+    # Check
+    if len(sys.argv) == 1:
+        print("USAGE: {} FILE1 [FILE2 [...]]".format(script_name))
+        return 1
+
+    # Check that the input files exist
+    for filename in sys.argv[1:]:
+        if not os.path.exists(filename):
+            sys.stderr.write("script_name: ERROR: file '{}' does not exist\n".format(filename))
+            return 1
+
+    output_lock = Lock()
+    for i in range(PARALLELISM):
+        files = []
+        for j in range(len(sys.argv[1:])):
+            if j % PARALLELISM == i:
+                files.append(sys.argv[j])
+        p = Process(target = process_files, args = (output_lock, files))
+        p.start()
+
     return 0
 
 
