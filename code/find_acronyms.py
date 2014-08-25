@@ -14,19 +14,22 @@ def extract(sentence):
     # Scan all the words in the sentence
     for word in sentence.words:
         acronym = None
-        # Look for definition only if this word is all capitals 
-        if word.word.isupper():
+        # Look for definition only if this word has length at least 2 and is
+        # all capitals and it's between "(" and ")"
+        if word.word.isalpha() and len(word.word) >= 2 and word.word.isupper() \
+        and word.in_sent_idx > 0 and word.in_sent_idx < len(sentence.words) - 1 \
+        and sentence.words[word.in_sent_idx - 1].word == "(" \
+        and  sentence.words[word.in_sent_idx + 1].word == ")":
             word_idx = word.in_sent_idx
             window_size = len(word.word)
             # Look for a sequence of words coming before this one whose
             # initials are capitals and would create this acronym
             start_idx = 0
             while start_idx + window_size - 1 < word_idx:
-                window_words = sentence.words[start_idx:(start_idx +
-                    window_size - 1)]
+                window_words = sentence.words[start_idx:(start_idx + window_size)]
                 is_definition = True
                 for window_index in range(window_size):
-                    if window_words[window_index][0] != word.word[window_index]:
+                    if window_words[window_index].word[0] != word.word[window_index]:
                         is_definition = False
                         break
                 if is_definition:
@@ -36,7 +39,9 @@ def extract(sentence):
                     acronym["word_idx"] = word.in_sent_idx
                     acronym["acronym"] = word.word
                     acronym["definition"] = " ".join([w.word for w in window_words])
-            yield acronym
+                    yield acronym
+                    break
+                start_idx += 1
 
 # Process the input
 for sentence in get_input_sentences():
