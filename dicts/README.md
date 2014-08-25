@@ -12,6 +12,9 @@ directory.
 * `english_words.tsv`: words in the English language. 1 column: the word. From
   the 'pharm' repository.
 
+* `english_stopwords.tsv`: commond stop words in the English language. 1 column:
+  the word. From the geodd repository.
+
 * `genes_to_hpo_terms.tsv`: a table mapping gene-symbols to HPO terms. 3
   columns: 1st column is gene-symbol, 2nd column is HPO term id, 3rd column is
   description/name of the term. From the HPO.
