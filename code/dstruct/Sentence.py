@@ -136,7 +136,7 @@ class Sentence(object):
 
     ## Given a mention, return the word before the first word of the mention, if present
     def get_prev_wordobject(self, mention):
-        begin = mention.prov_words[0].in_sent_idx
+        begin = mention.words[0].in_sent_idx
         if begin - 1 < 0: 
             return None
         else: 
@@ -144,15 +144,15 @@ class Sentence(object):
 
     ## Given a mention, return the word after the last word of the mention, if present
     def get_next_wordobject(self, mention):
-        end = mention.prov_words[-1].in_sent_idx
+        end = mention.words[-1].in_sent_idx
         if end == len(self.words) - 1: 
             return None
         else: 
             return self.words[end + 1]
 
     def dep_parent(self, mention):
-        begin = mention.prov_words[0].in_sent_idx
-        end = mention.prov_words[-1].in_sent_idx
+        begin = mention.words[0].in_sent_idx
+        end = mention.words[-1].in_sent_idx
 
         paths = []
         for i in range(begin, end+1):
@@ -167,10 +167,10 @@ class Sentence(object):
     ## Given two entities, return the feature of the shortest dependency path
     ## between word from one of to a word of the other.
     def dep_path(self, entity1, entity2):
-        begin1 = entity1.prov_words[0].in_sent_idx
-        end1 = entity1.prov_words[-1].in_sent_idx
-        begin2 = entity2.prov_words[0].in_sent_idx
-        end2 = entity2.prov_words[-1].in_sent_idx
+        begin1 = entity1.words[0].in_sent_idx
+        end1 = entity1.words[-1].in_sent_idx
+        begin2 = entity2.words[0].in_sent_idx
+        end2 = entity2.words[-1].in_sent_idx
     
         paths = []
         for idx1 in range(begin1, end1+1):
