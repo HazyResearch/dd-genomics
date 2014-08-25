@@ -76,18 +76,19 @@ def extract(sentence):
             add_features(mention, sentence)
             yield mention
 
-# Load the dictionaries that we need
-genes_dict = load_dict("genes")
-english_dict = load_dict("english")
-nih_grants_dict = load_dict("nih_grants")
-nsf_grants_dict = load_dict("nsf_grants")
-med_acrons_dict = load_dict("med_acrons")
-pos_mentions_dict = load_dict("pos_gene_mentions")
-neg_mentions_dict = load_dict("neg_gene_mentions")
 
-# Process the input
-for sentence in get_input_sentences():
-    for mention in extract(sentence):
-        if mention:
-            print(mention.json_dump())
+if __name__ == "__main__":
+    # Load the dictionaries that we need
+    genes_dict = load_dict("genes")
+    english_dict = load_dict("english")
+    nih_grants_dict = load_dict("nih_grants")
+    nsf_grants_dict = load_dict("nsf_grants")
+    med_acrons_dict = load_dict("med_acrons")
+    pos_mentions_dict = load_dict("pos_gene_mentions")
+    neg_mentions_dict = load_dict("neg_gene_mentions")
+    # Process the input
+    for sentence in get_input_sentences():
+        for mention in extract(sentence):
+            if mention:
+                print(mention.json_dump())
 
