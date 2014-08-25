@@ -19,7 +19,7 @@ fi
 
 mkdir -p $2
 
-for article_filename in `ls -d $1/*`; do
+for article_filename in `find $1 -maxdepth 1 -type d`; do
 	if [ -r ${article_filename}/input.text ]; then
 		if [ ! -r $2/`basename ${article_filename}` ]; then
 			ln -s ${article_filename}/input.text $2/`basename ${article_filename}`
