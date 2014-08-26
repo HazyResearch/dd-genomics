@@ -10,7 +10,6 @@ import os.path
 import random
 import sys
 
-
 from dstruct.Mention import Mention
 from extract_gene_mentions import add_features
 from helper.dictionaries import load_dict
@@ -19,10 +18,11 @@ from helper.easierlife import get_input_sentences
 # Load the dictionaries that we need
 genes_dict = load_dict("genes")
 stopwords_dict = load_dict("stopwords")
+english_dict = load_dict("english")
 
 # Yield random mentions labeled as non correct
 def extract(sentence):
-    created = 0
+    global created
     # Scan each word in the sentence
     for index in range(len(sentence.words)):
         mention = None
@@ -36,7 +36,10 @@ def extract(sentence):
             # Add features
             add_features(mention, sentence)
             mention.is_correct = False
+            created += 1
             yield mention
+        if created == examples_quota:
+            sys.exit(0)
 
 # Get arguments
 if len(sys.argv) < 3:
@@ -46,9 +49,9 @@ examples_quota = int(sys.argv[1])
 example_prob = float(sys.argv[2])
 
 # Process the input
+created = 0
 for sentence in get_input_sentences(sys.argv[3:]):
     for mention in extract(sentence):
         if mention:
             print(mention.json_dump())
-
 
