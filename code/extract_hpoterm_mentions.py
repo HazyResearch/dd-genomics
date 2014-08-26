@@ -39,17 +39,18 @@ def extract(sentence):
             add_features(mention, sentence)
             yield mention
 
-# Load the dictionaries that we need
-hpoterms_dict = load_dict("hpoterms")
-max_variant_length = 0
-for key in hpoterms_dict:
-    length = len(key.split())
-    if length > max_variant_length:
-        max_variant_length = length
+if __name__ == "__main":
+    # Load the dictionaries that we need
+    hpoterms_dict = load_dict("hpoterms")
+    max_variant_length = 0
+    for key in hpoterms_dict:
+        length = len(key.split())
+        if length > max_variant_length:
+            max_variant_length = length
 
-# Process the input
-for sentence in get_input_sentences():
-    for mention in extract(sentence):
-        if mention:
-            print(mention.json_dump())
+    # Process the input
+    for sentence in get_input_sentences():
+        for mention in extract(sentence):
+            if mention:
+                print(mention.json_dump())
 
