@@ -16,7 +16,7 @@ from helper.dictionaries import load_dict
 
 SUPERVISION_GENES_DICT_FRACTION = 0.3
 EXAMPLES_PROB = 0.01
-EXAMPLE_QUOTA = 15000
+EXAMPLES_QUOTA = 15000
 created_examples = 0
 
 ## Perform the supervision
@@ -141,8 +141,8 @@ def extract(sentence):
         # If the word satisfies the regex, or is in the dictionary, then is a
         # mention candidate.
         if word.word in genes_dict or \
-                re.match("[A-Z]+[0-9]+[A-Z]*", word.word):
-            mention = Mention("GENE", genes_dict[word.word], [word,])
+                re.match("^[A-Z]+[0-9]+[A-Z]*", word.word):
+            mention = Mention("GENE", word.word, [word,])
             # Add features
             add_features(mention, sentence)
             yield mention
@@ -181,8 +181,8 @@ neg_mentions_dict = load_dict("neg_gene_mentions")
 # dictionary. This is to avoid that we label as positive examples everything
 # that is in the dictionary
 supervision_genes_dict = dict()
-to_sample = set(random.sample(range(len(supervision_genes_dict.keys)),
-        len(supervision_genes_dict.keys)  ))
+to_sample = set(random.sample(range(len(genes_dict)),
+        int(len(genes_dict) * SUPERVISION_GENES_DICT_FRACTION)))
 i = 0
 for gene in genes_dict:
     if i in to_sample:
