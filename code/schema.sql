@@ -2,29 +2,29 @@
 -- WARNING: all the tables are dropped and recreated
 
 -- Sentences table
- DROP TABLE IF EXISTS sentences CASCADE;
- CREATE TABLE sentences (
- 	-- document id
- 	doc_id text,
- 	-- sentence id
- 	sent_id int,
- 	-- word indexes
- 	wordidxs int[],
- 	-- words
- 	words text[],
- 	-- parts of speech
- 	poses text[],
- 	-- named entity recognition tags
- 	ners text[],
- 	-- lemmified version of words
- 	lemmas text[],
- 	-- dependency path labels
- 	dep_paths text[],
- 	-- dependency path parents
- 	dep_parents int[],
- 	-- bounding boxes
- 	bounding_boxes text[]
- );
+-- DROP TABLE IF EXISTS sentences CASCADE;
+-- CREATE TABLE sentences (
+-- 	-- document id
+-- 	doc_id text,
+-- 	-- sentence id
+-- 	sent_id int,
+-- 	-- word indexes
+-- 	wordidxs int[],
+-- 	-- words
+-- 	words text[],
+-- 	-- parts of speech
+-- 	poses text[],
+-- 	-- named entity recognition tags
+-- 	ners text[],
+-- 	-- lemmified version of words
+-- 	lemmas text[],
+-- 	-- dependency path labels
+-- 	dep_paths text[],
+-- 	-- dependency path parents
+-- 	dep_parents int[],
+-- 	-- bounding boxes
+-- 	bounding_boxes text[]
+-- );
 
 -- Acronym table
 DROP TABLE IF EXISTS acronyms CASCADE;
