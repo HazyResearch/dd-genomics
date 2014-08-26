@@ -16,7 +16,7 @@ from helper.dictionaries import load_dict
 def supervise(mention, sentence):
     # If it's a gene symbol, and not an English word, and not a medical
     # acronym, and not a NIH or NSF grant code, then label it as correct
-    # XXX (Matteo) Taken from pharm
+    # Taken from pharm
     mention_word = mention.words[0].word
     if mention_word in genes_dict and \
         mention_word.lower() not in english_dict and \
@@ -25,12 +25,14 @@ def supervise(mention, sentence):
         mention_word not in nsf_grants_dict:
             mention.is_correct = True
     # Not correct if the previous word is one of the following keywords.
-    # XXX (Matteo) Taken from pharm
+    # Taken from pharm
     prev_word = sentence.get_prev_wordobject(mention)
     if prev_word != None and prev_word.word.lower() in ['figure', 'table', 'individual', "figures", "tables", "individuals"]:
         mention.is_correct = False
+    # Not correct if it is in our collection of positive examples
     if frozenset([sentence.doc_id, str(sentence.sent_id), mention_word]) in pos_mentions_dict:
         mention.is_correct = True
+    # Not correct if it is in our collection of negative examples
     if frozenset([sentence.doc_id, str(sentence.sent_id), mention_word]) in neg_mentions_dict:
         mention.is_correct = False
 
