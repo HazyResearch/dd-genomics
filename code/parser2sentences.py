@@ -134,20 +134,21 @@ def process_files(lock, input_files, input_dir):
                 lock.acquire()
                 try:
                     if MODE == "tsv":
-                        print("\t".join([docid, str(sent_id),
+                        sys.stdout.write("{}\n".format("\t".join([docid, str(sent_id),
                             list2TSVarray(wordidxs), list2TSVarray(words,
                                 quote=True), list2TSVarray(poses, quote=True),
                             list2TSVarray(ners), list2TSVarray(lemmas, quote=True),
                             list2TSVarray(dep_paths, quote=True),
                             list2TSVarray(dep_parents),
-                            list2TSVarray(bounding_boxes)]))
+                            list2TSVarray(bounding_boxes)])))
                     elif MODE == "json":
-                        print(json.dumps({ "doc_id": docid, "sent_id": sent_id,
+                        sys.stdout.write("{}\n".format(json.dumps({ "doc_id": docid, "sent_id": sent_id,
                             "wordidxs": wordidxs, "words": words, "poses": poses,
                             "ners": ners, "lemmas": lemmas, "dep_paths": dep_paths,
                             "dep_parents": dep_parents, "bounding_boxes":
-                            bounding_boxes}))
+                            bounding_boxes})))
                 finally:
+                    sys.stdout.flush()
                     lock.release()
 
                 # Check if we are at End of File
