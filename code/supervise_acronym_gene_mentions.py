@@ -10,5 +10,6 @@ with fileinput.input() as input_files:
     for line in input_files:
         mention = json.loads(line)
         mention["is_correct"] = False
+        mention["type"] = "ACRONYM"
         print(json.dumps(mention))
 
