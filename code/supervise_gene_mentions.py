@@ -55,6 +55,8 @@ with fileinput.input() as input_files:
             row["dep_paths"], row["dep_parents"], row["bounding_boxes"])
         mention = Mention(row["type"], row["entity"],
                 sentence.words[row["start_word_idx"]:row["end_word_idx"]+1])
+        mention.add_features(row["features"])
+        mention.is_correct = row["is_correct"]
         # Perform supervision
         supervise(mention, sentence)
         # Print mention
