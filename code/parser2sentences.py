@@ -1,7 +1,8 @@
 #! /usr/bin/env python3
 #
-# Takes one or more parser output files in input and emits TSV lines that can
-# be loaded # in the 'sentences' table using the PostgreSQL COPY FROM command.
+# Takes one directory containing parser output files and, for each file in that
+# directory, emits TSV lines that can be loaded # in the 'sentences' table
+# using the PostgreSQL COPY FROM command.
 # 
 # Parser output files contain "blocks" which are separated by blank lines. Each
 # "block"  is a sentence. Each sentence spans over one or more lines. Each line
@@ -47,12 +48,13 @@
 #
 
 import json
+import os
 import os.path
 import sys
 from multiprocessing import Lock, Process
 
 MODE = "tsv"
-PARALLELISM = 4
+PARALLELISM = 10
 
 # Convert a list to a string that can be used in a TSV column and intepreted as
 # an array by the PostreSQL COPY FROM command.
@@ -73,11 +75,11 @@ def list2TSVarray(a_list, quote=False):
         string = ",".join(list(map(lambda x: str(x), a_list)))
     return "{" + string + "}"
 
-def process_files(lock, input_files):
+def process_files(lock, input_files, input_dir):
     for filename in input_files:
         # Docid assumed to be the filename.
-        docid = os.path.basename(filename)
-        with open(filename, 'rt') as curr_file:
+        docid = filename
+        with open(os.path.realpath(input_dir + "/" + filename), 'rt') as curr_file:
             atEOF = False
             # One iteration of the following loop corresponds to one sentence
             while not atEOF: 
@@ -108,7 +110,7 @@ def process_files(lock, input_files):
                         sent_id = word_sent_id
                     # sanity check for word_sent_id
                     elif sent_id != word_sent_id:
-                        sys.stderr.write("{}: ERROR: found word with mismatching sent_id w.r.t. sentence: {} != {}\n".format(script_name, word_sent_id, sent_id))
+                        sys.stderr.write("ERROR: found word with mismatching sent_id w.r.t. sentence: {} != {}\n".format(word_sent_id, sent_id))
                         return 1
 
                     # Normalize bounding box, stripping initial '[' and final '],'
@@ -162,23 +164,20 @@ def process_files(lock, input_files):
 def main():
     script_name = os.path.basename(__file__)
     # Check
-    if len(sys.argv) == 1:
-        print("USAGE: {} FILE1 [FILE2 [...]]".format(script_name))
+    if len(sys.argv) != 2:
+        print("USAGE: {} DIR".format(script_name))
         return 1
 
-    # Check that the input files exist
-    for filename in sys.argv[1:]:
-        if not os.path.exists(filename):
-            sys.stderr.write("script_name: ERROR: file '{}' does not exist\n".format(filename))
-            return 1
+    parser_files = os.listdir(os.path.abspath(os.path.realpath(sys.argv[1])))
 
     output_lock = Lock()
     for i in range(PARALLELISM):
         files = []
-        for j in range(len(sys.argv[1:])):
+        for j in range(len(parser_files)):
             if j % PARALLELISM == i:
-                files.append(sys.argv[j])
-        p = Process(target = process_files, args = (output_lock, files))
+                files.append(parser_files[j])
+        p = Process(target = process_files, args = (output_lock, files,
+            os.path.abspath(os.path.realpath(sys.argv[1]))))
         p.start()
 
     return 0
