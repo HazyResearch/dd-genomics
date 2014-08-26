@@ -2,15 +2,40 @@
 #
 # Extract gene mentions using the genes dictionary and add some features
 #
-# XXX ATTENTION: This script does _NOT_ perform distant supervision
-#
 
+import fileinput
+import json
+import random
 import re
+import sys
 
 from dstruct.Mention import Mention
-from helper.easierlife import get_input_sentences
+from dstruct.Sentence import Sentence
 from helper.dictionaries import load_dict
 
+# Perform the supervision
+def supervise(mention, sentence):
+    # If it's a gene symbol, and not an English word, and not a medical
+    # acronym, and not a NIH or NSF grant code, then label it as correct
+    # Taken from pharm
+    mention_word = mention.words[0].word
+    if mention_word in genes_dict and \
+        mention_word.lower() not in english_dict and \
+        mention_word not in med_acrons_dict and \
+        mention_word not in nih_grants_dict and\
+        mention_word not in nsf_grants_dict:
+            mention.is_correct = True
+    # Not correct if the previous word is one of the following keywords.
+    # Taken from pharm
+    prev_word = sentence.get_prev_wordobject(mention)
+    if prev_word != None and prev_word.word.lower() in ['figure', 'table', 'individual', "figures", "tables", "individuals"]:
+        mention.is_correct = False
+    # Not correct if it is in our collection of positive examples
+    if frozenset([sentence.doc_id, str(sentence.sent_id), mention_word]) in pos_mentions_dict:
+        mention.is_correct = True
+    # Not correct if it is in our collection of negative examples
+    if frozenset([sentence.doc_id, str(sentence.sent_id), mention_word]) in neg_mentions_dict:
+        mention.is_correct = False
 ## Add features to a gene mention
 def add_features(mention, sentence):
     # The NER is an organization, or a location, or a person
@@ -88,6 +113,7 @@ def add_features(mention, sentence):
 
 # Yield mentions from the sentence
 def extract(sentence):
+    global created_examples
     # Scan each word in the sentence
     for index in range(len(sentence.words)):
         mention = None
@@ -98,15 +124,54 @@ def extract(sentence):
             # Add features
             add_features(mention, sentence)
             yield mention
+        elif word.word.isalnum() and word.word not in stopwords_dict and \
+                not word.pos.startswith("VB") and \
+                random.random() < example_prob and created_examples < examples_quota:
+            # Generate a mention that somewhat resembles what a gene may look like,
+            # or at least its role in the sentence.
+            mention = Mention("RANDOM", word.word, [word,])
+            # Add features
+            add_features(mention, sentence)
+            mention.is_correct = False
+            created_examples += 1
+            yield mention
 
+# Load the dictionaries that we need
 genes_dict = load_dict("genes")
 english_dict = load_dict("english")
+nih_grants_dict = load_dict("nih_grants")
+nsf_grants_dict = load_dict("nsf_grants")
+med_acrons_dict = load_dict("med_acrons")
+stopwords_dict = load_dict("stopwords")
+pos_mentions_dict = load_dict("pos_gene_mentions")
+neg_mentions_dict = load_dict("neg_gene_mentions")
+
 
 if __name__ == "__main__":
-    # Load the dictionaries that we need
+    # Get arguments
+    if len(sys.argv) < 3:
+        sys.stderr.write("{}: ERROR: wrong number of arguments\n".format(os.path.basename(sys.argv[0])))
+        sys.exit(1)
+    examples_quota = int(sys.argv[1])
+    example_prob = float(sys.argv[2])
+    created_examples = 0
     # Process the input
-    for sentence in get_input_sentences():
-        for mention in extract(sentence):
-            if mention:
-                print(mention.json_dump())
+    with fileinput.input(sys.argv[3:]) as f:
+        for line in f:
+            line_dict = json.loads(line)
+            sentence = Sentence(line_dict["doc_id"], line_dict["sent_id"],
+                    line_dict["wordidxs"], line_dict["words"],
+                    line_dict["poses"], line_dict["ners"], line_dict["lemmas"],
+                    line_dict["dep_paths"], line_dict["dep_parents"],
+                    line_dict["bounding_boxes"])
+            for mention in extract(sentence):
+                if mention:
+                    if "acronym" in line_dict:
+                        if mention.words[0].word == line_dict["acronym"]:
+                            mention.type = "ACRONYM"
+                            mention.is_correct = False
+                    else:
+                        # Perform supervision
+                        supervise(mention, sentence)
+                    print(mention.json_dump())
 

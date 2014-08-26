@@ -41,36 +41,9 @@ CREATE TABLE acronyms (
 	definition text
 );
 
--- Gene mentions (without supervision)
+-- Gene mentions
 DROP TABLE IF EXISTS gene_mentions CASCADE;
 CREATE TABLE gene_mentions (
-	-- id for random variable
-	id bigint,
-	-- document id
-	doc_id text,
-	-- sentence id
-	sent_id int,
-	-- start word id
-	start_word_idx int,
-	-- end word id
-	end_word_idx int,
-	-- mention id
-	mention_id text,
-	-- mention type
-	type text,
-	-- entity
-	entity text,
-	-- words
-	words text[],
-	-- is this a correct mention?
-	is_correct boolean,
-	-- features for training
-	features text[]
-);
-
--- Supervised and non supervised Gene mentions
-DROP TABLE IF EXISTS supervised_gene_mentions CASCADE;
-CREATE TABLE supervised_gene_mentions (
 	-- id for random variable
 	id bigint,
 	-- document id
