@@ -56,9 +56,13 @@ with fileinput.input() as input_files:
         mention = Mention(row["type"], row["entity"],
                 sentence.words[row["start_word_idx"]:row["end_word_idx"]+1])
         mention.add_features(row["features"])
-        mention.is_correct = row["is_correct"]
-        # Perform supervision
-        supervise(mention, sentence)
+        # Check if it comes with an acronym
+        if "acronym" in row:
+            mention.type = "ACRONYM"
+            mention.is_correct = False
+        else:
+            # Perform supervision
+            supervise(mention, sentence)
         # Print mention
         print(mention.json_dump())
 
