@@ -21,11 +21,31 @@ def add_features(mention, sentence):
         mention.add_feature("IS_NNP")
     # The symbol is a mix of letters and numbers (but can't be only
     # letters followed by numbers)
-    if re.match("[A-Z]+[0-9]+[A-Z]+[0-9]*", mention.entity):
+    if re.match("[A-Z]+[0-9]+[A-Z]+[0-9]*", mention.words[0].word):
         mention.add_feature('IS_MIX_OF_LETTERS_NUMBERS_LETTERS')
     # The symbol is a mix of letters and numbers (can end with a number)
-    if re.match("[A-Z]+[0-9]+", mention.entity):
+    if re.match("[A-Z]+[0-9]+", mention.words[0].word):
         mention.add_feature('IS_MIX_OF_LETTERS_NUMBERS')
+    # The word is in the English dictionary
+    if mention.words[0].word in english_dict:
+        mention.add_feature('IS_ENGLISH_WORD')
+    # The word comes after an organization, or a location, or a person
+    comes_after = None
+    if mention.start_word_idx > 0 and sentence.words[mention.start_word_idx - 1].ner in [ "ORGANIZATION", "LOCATION", "PERSON"]:
+        mention.add_feature("COMES_AFTER_" + sentence.words[mention.start_word_idx - 1].ner)
+        comes_after = sentence.words[mention.start_word_idx - 1].ner
+    # The word comes before an organization, or a location, or a person
+    comes_before = None
+    if mention.start_word_idx < len(sentence.words) - 1 and sentence.words[mention.start_word_idx + 1].ner in [ "ORGANIZATION", "LOCATION", "PERSON"]:
+        mention.add_feature("COMES_BEFORE_" + sentence.words[mention.start_word_idx - 1].ner)
+        comes_before = sentence.words[mention.start_word_idx - 1].ner
+    # The word is between two words that are an organization, or a location or a person
+    if comes_before and comes_after:
+        mention.add_feature("IS_BETWEEN_" + comes_after + "_" + comes_before)
+    # The word comes after a "document element" (e.g., table, or figure)
+    prev_word = sentence.get_prev_wordobject(mention)
+    if prev_word != None and prev_word.word.lower() in ['figure', 'table', 'individual', "figures", "tables", "individuals"]:
+        mention.add_feature("IS_AFTER_DOC_ELEMENT")
     # The labels and the NERs on the shortest dependency path
     # between a verb and the mention word.
     minl = 100
@@ -62,6 +82,9 @@ def add_features(mention, sentence):
     if mention.end_word_idx + 1 < len(sentence.words):
         mention.add_feature("WINDOW_RIGHT_1_[{}]".format(
             sentence.words[mention.end_word_idx + 1].lemma))
+    # The word appears many times (more than 3) in the sentence
+    if [w.word for w in sentence.words].count(mention.words[0].word) > 3:
+        mention.add_feature("APPEARS_MANY_TIMES_IN_SENTENCE")
 
 # Yield mentions from the sentence
 def extract(sentence):
@@ -76,9 +99,11 @@ def extract(sentence):
             add_features(mention, sentence)
             yield mention
 
+genes_dict = load_dict("genes")
+english_dict = load_dict("english")
+
 if __name__ == "__main__":
     # Load the dictionaries that we need
-    genes_dict = load_dict("genes")
     # Process the input
     for sentence in get_input_sentences():
         for mention in extract(sentence):
