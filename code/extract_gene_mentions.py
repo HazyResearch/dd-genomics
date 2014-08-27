@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 #
-# Extract gene mentions using the genes dictionary and add some features
+# Extract gene mention candidates, add features, and
+# perform distant supervision
 #
 
 import fileinput
@@ -13,22 +14,29 @@ from dstruct.Mention import Mention
 from dstruct.Sentence import Sentence
 from helper.dictionaries import load_dict
 
-# Perform the supervision
+SUPERVISION_GENES_DICT_FRACTION = 0.3
+EXAMPLES_PROB = 0.01
+EXAMPLES_QUOTA = 15000
+created_examples = 0
+
+## Perform the supervision
 def supervise(mention, sentence):
-    # If it's a gene symbol, and not an English word, and not a medical
-    # acronym, and not a NIH or NSF grant code, then label it as correct
-    # Taken from pharm
+    # If the candidate mention a gene symbol in the supervision dictionary, and
+    # not an English word, and not a medical acronym, and not a NIH or NSF
+    # grant code, and not a Roman numeral then label it as correct 
     mention_word = mention.words[0].word
-    if mention_word in genes_dict and \
+    if mention_word in supervision_genes_dict and \
         mention_word.lower() not in english_dict and \
         mention_word not in med_acrons_dict and \
-        mention_word not in nih_grants_dict and\
-        mention_word not in nsf_grants_dict:
+        mention_word not in nih_grants_dict and \
+        mention_word not in nsf_grants_dict and \
+        not re.match("^(IV|VI{,3}|I{1,4})$", mention_word):
             mention.is_correct = True
     # Not correct if the previous word is one of the following keywords.
-    # Taken from pharm
     prev_word = sentence.get_prev_wordobject(mention)
-    if prev_word != None and prev_word.word.lower() in ['figure', 'table', 'individual', "figures", "tables", "individuals"]:
+    if prev_word != None and prev_word.word.lower() in ['figure', 'table',
+            'individual', "individuals","figures", "tables", "fig", "fig.",
+            "figs", "figs."]:
         mention.is_correct = False
     # Not correct if it is in our collection of positive examples
     if frozenset([sentence.doc_id, str(sentence.sent_id), mention_word]) in pos_mentions_dict:
@@ -36,8 +44,17 @@ def supervise(mention, sentence):
     # Not correct if it is in our collection of negative examples
     if frozenset([sentence.doc_id, str(sentence.sent_id), mention_word]) in neg_mentions_dict:
         mention.is_correct = False
+    # If the sentence is contains less than 3 words, it probably doesn't have
+    # enough information to convey anything.
+    if len(sentence.words) < 3:
+        mention.is_correct = False
+
+
 ## Add features to a gene mention
 def add_features(mention, sentence):
+    # Is in the genes dictionary
+    if mention.words[0].word in genes_dict:
+        mention.add_feature("IS_IN_GENE_DICTIONARY")
     # The NER is an organization, or a location, or a person
     if mention.words[0].ner in [ "ORGANIZATION", "LOCATION", "PERSON"]:
         mention.add_feature("IS_" + mention.words[0].ner)
@@ -77,28 +94,30 @@ def add_features(mention, sentence):
     minp = None
     minw = None
     for word2 in sentence.words:
-        if word2.pos.startswith('V') and word2.lemma != 'be':
+        if word2.pos.startswith('VB') and word2.lemma != 'be':
             p = sentence.get_word_dep_path(mention.start_word_idx, word2.in_sent_idx)
             if len(p) < minl:
                 minl = len(p)
                 minp = p
                 minw = word2.lemma
     if minw != None:
-        mention.add_feature('VERB_PATH_[' + minw + '] '+ minp)
+        mention.add_feature('EXT_VERB_PATH_[' + minw + ']' + minp)
+        mention.add_feature('VERB_PATH_[' + minw + ']')
     # The labels and the NERs on the shortest dependency path
     # between a keyword and the mention word
     minl = 100
     minp = None
     minw = None
     for word2 in sentence.words:
-        if word2.lemma in ["gene", "genes", "protein", "proteins"]:
+        if word2.lemma in ["gene", "genes", "protein", "proteins", "DNA", "rRNA"]:
             p = sentence.get_word_dep_path(mention.start_word_idx, word2.in_sent_idx)
             if len(p) < minl:
                 minl = len(p)
                 minp = p
                 minw = word2.lemma
     if minw != None:
-        mention.add_feature('KEYWORD_PATH_[' + minw + '] ' + minp)
+        mention.add_feature('EXT_KEYWORD_PATH_[' + minw + ']' + minp)
+        mention.add_feature('KEYWORD_PATH_[' + minw + ']')
     # The lemma on the left of the mention, if present
     if mention.start_word_idx > 0:
         mention.add_feature("WINDOW_LEFT_1_[{}]".format(
@@ -111,30 +130,42 @@ def add_features(mention, sentence):
     if [w.word for w in sentence.words].count(mention.words[0].word) > 3:
         mention.add_feature("APPEARS_MANY_TIMES_IN_SENTENCE")
 
-# Yield mentions from the sentence
+
+## Yield mentions from the sentence
 def extract(sentence):
     global created_examples
     # Scan each word in the sentence
     for index in range(len(sentence.words)):
         mention = None
         word = sentence.words[index]
-        # If the word is in the dictionary, then is a possible mention
-        if word.word in genes_dict:
-            mention = Mention("GENE", genes_dict[word.word], [word,])
+        # If the word satisfies the regex, or is in the dictionary, then is a
+        # mention candidate.
+        if word.word in genes_dict or \
+                re.match("^[A-Z]+[0-9]+[A-Z]*", word.word):
+            mention = Mention("GENE", word.word, [word,])
             # Add features
             add_features(mention, sentence)
             yield mention
-        elif word.word.isalnum() and word.word not in stopwords_dict and \
+        else: # Potentially generate a random mention
+            # Check whether it's a number, we do not want to generate a mention
+            # with it.
+            try:
+                float(word.word)
+            except:
+                is_number = False
+            else:
+                is_number = True
+            if word.word.isalnum() and not is_number and word.word not in stopwords_dict and \
                 not word.pos.startswith("VB") and \
-                random.random() < example_prob and created_examples < examples_quota:
-            # Generate a mention that somewhat resembles what a gene may look like,
-            # or at least its role in the sentence.
-            mention = Mention("RANDOM", word.word, [word,])
-            # Add features
-            add_features(mention, sentence)
-            mention.is_correct = False
-            created_examples += 1
-            yield mention
+                random.random() < EXAMPLES_PROB and created_examples < EXAMPLES_QUOTA:
+                # Generate a mention that somewhat resembles what a gene may look like,
+                # or at least its role in the sentence.
+                mention = Mention("RANDOM", word.word, [word,])
+                # Add features
+                add_features(mention, sentence)
+                mention.is_correct = False
+                created_examples += 1
+                yield mention
 
 # Load the dictionaries that we need
 genes_dict = load_dict("genes")
@@ -146,17 +177,21 @@ stopwords_dict = load_dict("stopwords")
 pos_mentions_dict = load_dict("pos_gene_mentions")
 neg_mentions_dict = load_dict("neg_gene_mentions")
 
+# Create supervision dictionary that only contains a fraction of the genes in the gene
+# dictionary. This is to avoid that we label as positive examples everything
+# that is in the dictionary
+supervision_genes_dict = dict()
+to_sample = set(random.sample(range(len(genes_dict)),
+        int(len(genes_dict) * SUPERVISION_GENES_DICT_FRACTION)))
+i = 0
+for gene in genes_dict:
+    if i in to_sample:
+        supervision_genes_dict[gene] = genes_dict[gene]
+    i += 1
 
 if __name__ == "__main__":
-    # Get arguments
-    if len(sys.argv) < 3:
-        sys.stderr.write("{}: ERROR: wrong number of arguments\n".format(os.path.basename(sys.argv[0])))
-        sys.exit(1)
-    examples_quota = int(sys.argv[1])
-    example_prob = float(sys.argv[2])
-    created_examples = 0
     # Process the input
-    with fileinput.input(sys.argv[3:]) as f:
+    with fileinput.input() as f:
         for line in f:
             line_dict = json.loads(line)
             sentence = Sentence(line_dict["doc_id"], line_dict["sent_id"],
