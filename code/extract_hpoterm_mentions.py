@@ -1,21 +1,40 @@
 #! /usr/bin/env python3
 
+import random
 import re
 
 from dstruct.Mention import Mention
 from helper.easierlife import get_input_sentences, get_all_phrases_in_sentence
 from helper.dictionaries import load_dict
 
+SUPERVISION_HPOTERMS_DICT_FRACTION = 0.3
+SUPERVISION_PROB = 0.5
+EXAMPLES_PROB = 0.01
+EXAMPLES_QUOTA = 15000
+created_examples = 0
+
+## Perform the supervision
+def supervise(mention, sentence):
+    if random.random() < SUPERVISION_PROB and \
+            (" ".join(mention.words)).lower() in supervision_hpoterms_dict:
+        mention.is_correct = True
+
+
 ## Add features
 def add_features(mention, sentence):
+    if mention.start_word_idx > 1:
+        mention.add_feature("WINDOW_LEFT_2_[{}]".format(sentence.words[mention.start_word_idx + 2]))
+    if mention.end_word_idx + 2 < len(sentence.words):
+        mention.add_feature("WINDOW_RIGHT_2_[{}]".format(sentence.words[mention.end_word_idx + 2]))
     # The word on the left of the mention, if present
     if mention.start_word_idx > 0:
-        mention.add_feature("WINDOW_LEFT_1_with[{}]".format(sentence.words[mention.start_word_idx - 1].lemma))
+        mention.add_feature("WINDOW_LEFT_1_[{}]".format(sentence.words[mention.start_word_idx - 1].lemma))
     # The word on the right of the mention, if present
     if mention.end_word_idx + 1 < len(sentence.words):
-        mention.add_features(["WINDOW_RIGHT_1_with[{}]".format(sentence.words[mention.end_word_idx + 1].lemma)])
+        mention.add_feature("WINDOW_RIGHT_1_[{}]".format(sentence.words[mention.end_word_idx + 1].lemma))
 
-# Yield mentions from the sentence
+
+## Yield mentions from the sentence
 def extract(sentence):
     history = set()
     words = sentence.words
@@ -39,9 +58,23 @@ def extract(sentence):
             add_features(mention, sentence)
             yield mention
 
+
+# Load the dictionaries that we need
+hpoterms_dict = load_dict("hpoterms")
+# Create supervision dictionary that only contains a fraction of the genes in the gene
+# dictionary. This is to avoid that we label as positive examples everything
+# that is in the dictionary
+supervision_hpoterms_dict = dict()
+to_sample = set(random.sample(range(len(hpoterms_dict)),
+        int(len(hpoterms_dict) * SUPERVISION_HPOTERMS_DICT_FRACTION)))
+i = 0
+for hpoterm in hpoterms_dict:
+    if i in to_sample:
+        supervision_hpoterms_dict[hpoterm] = hpoterms_dict[hpoterm]
+    i += 1
+
+
 if __name__ == "__main":
-    # Load the dictionaries that we need
-    hpoterms_dict = load_dict("hpoterms")
     max_variant_length = 0
     for key in hpoterms_dict:
         length = len(key.split())
@@ -52,5 +85,9 @@ if __name__ == "__main":
     for sentence in get_input_sentences():
         for mention in extract(sentence):
             if mention:
+                if mention.type != "RANDOM":
+                    supervise(mention, sentence)
+                else:
+                    mention.is_correct = False
                 print(mention.json_dump())
 
