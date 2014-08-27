@@ -61,9 +61,19 @@ def load_set_lower_case(filename):
         lower_case_set.add(entry.lower())
     return lower_case_set
 
+# Load a dictionary which is a set of pairs, where the pairs are frozensets
+def load_set_pairs(filename):
+    pair_set = set()
+    with open(filename, 'rt') as set_file:
+        for line in set_file:
+            tokens = line.rstrip.split("\t")
+            pair_set.add(frozenset(tokens))
+    return pair_set
+
 ## Dictionaries
 GENES_DICT_FILENAME = BASE_DIR + "/dicts/hugo_synonyms.tsv"
 ENGLISH_DICT_FILENAME = BASE_DIR + "/dicts/english_words.tsv"
+GENEHPOTERM_DICT_FILENAME = BASE_DIR + "/dicts/genes_to_hpo_terms_with_synonyms.tsv"
 HPOTERMS_DICT_FILENAME = BASE_DIR + "/dicts/hpo_terms.tsv"
 MED_ACRONS_DICT_FILENAME = BASE_DIR + "/dicts/med_acronyms_pruned.tsv"
 NIH_GRANTS_DICT_FILENAME = BASE_DIR + "/dicts/grant_codes_nih.tsv"
@@ -78,6 +88,7 @@ NEG_GENE_MENTIONS_DICT_FILENAME= BASE_DIR + "/dicts/negative_gene_mentions.tsv"
 dictionaries = dict()
 dictionaries["genes"] = [GENES_DICT_FILENAME, load_genes_dictionary]
 dictionaries["english"] = [ENGLISH_DICT_FILENAME, load_set_lower_case]
+dictionaries["genehpoterms"] = [GENEHPOTERM_DICT_FILENAME, load_set_pairs]
 dictionaries["hpoterms"] = [HPOTERMS_DICT_FILENAME,load_hpoterms_dictionary ]
 dictionaries["nih_grants"] = [NIH_GRANTS_DICT_FILENAME, load_set]
 dictionaries["nsf_grants"] = [NSF_GRANTS_DICT_FILENAME, load_set]
