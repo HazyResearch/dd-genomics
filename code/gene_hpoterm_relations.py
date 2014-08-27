@@ -4,6 +4,7 @@ import fileinput
 import json
 import random
 
+from dstruct.Mention import Mention
 from dstruct.Sentence import Sentence
 from dstruct.Relation import Relation
 
@@ -44,25 +45,16 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
     relation.add_feature(sentence.dep_path(gene_mention, hpoterm_mention))
 
 
-## Yield the relations (actually only one per call, but we follow the
-## behavior of extract() in other extractors)
-def extract(gene_mention, hpoterm_mention, sentence):
-    relation = Relation("GENEHPOTERM", gene_mention, hpoterm_mention)
-    add_features(relation, gene_mention, hpoterm_mention, sentence)
-    yield relation
-
-
 # Process input
 with fileinput.input as input_files:
     for line in input_files:
         row = json.loads(line)
-        gene_mention = deserialize(row["gene"])
-        hpoterm_mention = deserialize(row["hpoterm"])
-
         sentence = Sentence(row["doc_id"], row["sent_id"], row["wordidxs"],
                 row["words"], row["poses"], row["ners"], row["lemmas"],
                 row["dep_paths"], row["dep_parents"], row["bounding_boxes"])
-        for relation in extract(gene_mention, hpoterm_mention, sentence):
-            supervise(relation, gene_mention, hpoterm_mention, sentence)
-
+        gene_mention = Mention( )
+        hpoterm_menito = Mention()
+        relation = Relation("GENEHPOTERM", gene_mention, hpoterm_mention)
+        add_features(relation, gene_mention, hpoterm_mention, sentence)
+        supervise(relation, gene_mention, hpoterm_mention, sentence)
 
