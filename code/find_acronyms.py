@@ -15,11 +15,12 @@ def extract(sentence):
     for word in sentence.words:
         acronym = None
         # Look for definition only if this word has length at least 2 and is
-        # all capitals and it comes between "(" and ")" or "(" and ";"
+        # all capitals and it comes between "(" and ")" or "(" and ";" or "("
+        # and ","
         if word.word.isalpha() and len(word.word) >= 2 and word.word.isupper() \
         and word.in_sent_idx > 0 and word.in_sent_idx < len(sentence.words) - 1 \
         and sentence.words[word.in_sent_idx - 1].word == "(" \
-        and sentence.words[word.in_sent_idx + 1].word in [")", ";"]:
+        and sentence.words[word.in_sent_idx + 1].word in [")", ";" ","]:
             word_idx = word.in_sent_idx
             window_size = len(word.word)
             # Look for a sequence of words coming before this one whose
