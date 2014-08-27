@@ -13,11 +13,14 @@ from dstruct.Mention import Mention
 from dstruct.Sentence import Sentence
 from helper.dictionaries import load_dict
 
-SUPERVISION_GENES_DICT_FRACTION = 0.3
+SUPERVISION_GENES_DICT_FRACTION = 0.5
 SUPERVISION_PROB = 0.5
 EXAMPLES_PROB = 0.01
-EXAMPLES_QUOTA = 15000
-created_examples = 0
+EXAMPLES_QUOTA = 1000
+ACRONYMS_QUOTA = 1000
+ACRONYMS_PROB = 0.01
+random_examples = 0
+false_acronyms = 0
 
 ## Perform the supervision
 def supervise(mention, sentence):
@@ -34,9 +37,9 @@ def supervise(mention, sentence):
         mention_word not in nsf_grants_dict and \
         not re.match("^(IV|VI{,3}|I{1,4})$", mention_word):
             mention.is_correct = True
-    # Not correct if the previous word is one of the following keywords.
-    prev_word = sentence.get_prev_wordobject(mention)
-    if prev_word != None and prev_word.word.lower() in ['figure', 'table',
+    # Not correct if the previous word is one of the above keywords.
+    if sentence.get_prev_wordobject(mention) != None and \
+    sentence.get_prev_wordobject(mention).word.lower() in ['figure', 'table',
             'individual', "individuals","figures", "tables", "fig", "fig.",
             "figs", "figs."]:
         mention.is_correct = False
@@ -46,10 +49,28 @@ def supervise(mention, sentence):
     # Not correct if it is in our collection of negative examples
     if frozenset([sentence.doc_id, str(sentence.sent_id), mention_word]) in neg_mentions_dict:
         mention.is_correct = False
+    # If it looks like a DNA sequence, don't label it
+    if re.match("^[ACGT]+$", mention.words[0].word):
+        mention.is_correct = None
+    # If it match one of the following, don't label it
+    if mention.words[0].word in ["EST", "GC", "SDS", "FST"]:
+        mention.is_correct = None
     # If the sentence is contains less than 3 words, it probably doesn't have
-    # enough information to convey anything.
-    if len(sentence.words) < 3:
-        mention.is_correct = False
+    # enough information to convey anything, so don't supervise it.
+    if len(sentence.words) < 4:
+        mention.is_correct = None
+
+
+## Supervise random examples
+def supervise_random(mention, sentence):
+    mention.is_correct = False
+    # If it looks like a DNA sequence, don't label it
+    if re.match("^[ACGT]+$", mention.words[0].word):
+        mention.is_correct = None
+    # If the sentence is contains less than 3 words, it probably doesn't have
+    # enough information to convey anything, so don't supervise it.
+    if len(sentence.words) < 4:
+        mention.is_correct = None
 
 
 ## Add features to a gene mention
@@ -65,13 +86,14 @@ def add_features(mention, sentence):
         mention.add_feature("IS_NNP")
     # The symbol is a mix of letters and numbers (but can't be only
     # letters followed by numbers)
-    if re.match("[A-Z]+[0-9]+[A-Z]+[0-9]*", mention.words[0].word):
+    if re.match("^[A-Z]+[0-9]+[A-Z]+[0-9]*$", mention.words[0].word):
         mention.add_feature('IS_MIX_OF_LETTERS_NUMBERS_LETTERS')
     # The symbol is a mix of letters and numbers (can end with a number)
-    if re.match("[A-Z]+[0-9]+", mention.words[0].word):
+    if re.match("^[A-Z]+[0-9]+$", mention.words[0].word):
         mention.add_feature('IS_MIX_OF_LETTERS_NUMBERS')
     # The word is in the English dictionary
-    if mention.words[0].word in english_dict:
+    if mention.words[0].word.lower() in english_dict or \
+            mention.words[0].lemma in english_dict:
         mention.add_feature('IS_ENGLISH_WORD')
     # The word comes after an organization, or a location, or a person
     comes_after = None
@@ -111,7 +133,11 @@ def add_features(mention, sentence):
     minp = None
     minw = None
     for word2 in sentence.words:
-        if word2.lemma in ["gene", "genes", "protein", "proteins", "DNA", "rRNA"]:
+        if word2.lemma in ["gene", "genes", "protein", "proteins", "DNA",
+                "rRNA", "cell", "cells", "tumor", "tumors", "domain",
+                "sequence", "sequences", "alignment", "expression", "mRNA",
+                "knockout", "recruitment", "hybridization", "isoform",
+                "chromosome"]:
             p = sentence.get_word_dep_path(mention.start_word_idx, word2.in_sent_idx)
             if len(p) < minl:
                 minl = len(p)
@@ -120,22 +146,36 @@ def add_features(mention, sentence):
     if minw != None:
         mention.add_feature('EXT_KEYWORD_PATH_[' + minw + ']' + minp)
         mention.add_feature('KEYWORD_PATH_[' + minw + ']')
-    # The lemma on the left of the mention, if present
-    if mention.start_word_idx > 0:
+    # The lemma on the left of the mention, if present, provided it's not a
+    # ",", in which case we get the previous word
+    idx = mention.start_word_idx - 1
+    while idx >= 0 and sentence.words[idx].lemma == ",":
+        idx -= 1
+    if idx >= 0:
         mention.add_feature("WINDOW_LEFT_1_[{}]".format(
-            sentence.words[mention.start_word_idx - 1].lemma))
-    # The word on the right of the mention, if present
-    if mention.end_word_idx + 1 < len(sentence.words):
+            sentence.words[idx].lemma))
+    # The word on the right of the mention, if present, provided it's not a
+    # ",", in which case we get the next word.
+    idx = mention.start_word_idx + 1
+    while idx < len(sentence.words) and sentence.words[idx].lemma == ",":
+        idx += 1
+    if idx < len(sentence.words):
         mention.add_feature("WINDOW_RIGHT_1_[{}]".format(
-            sentence.words[mention.end_word_idx + 1].lemma))
+            sentence.words[idx].lemma))
     # The word appears many times (more than 3) in the sentence
     if [w.word for w in sentence.words].count(mention.words[0].word) > 3:
         mention.add_feature("APPEARS_MANY_TIMES_IN_SENTENCE")
+    # There are other genes in the dictionary appearing in the sentence
+    genes_in_sentence = 1
+    for word in sentence.words:
+        if word in genes_dict and word.in_sent_idx != mention.words[0].in_sent_idx:
+            mention.add_feature("WITH_GENES_" + genes_in_sentence)
+            genes_in_sentence += 1
 
 
 ## Yield mentions from the sentence
 def extract(sentence):
-    global created_examples
+    global random_examples
     # Scan each word in the sentence
     for index in range(len(sentence.words)):
         mention = None
@@ -143,7 +183,7 @@ def extract(sentence):
         # If the word satisfies the regex, or is in the dictionary, then is a
         # mention candidate.
         if word.word in genes_dict or \
-                re.match("^[A-Z]+[0-9]+[A-Z]*", word.word):
+                re.match("^[A-Z]{2,}[0-9]*[A-Z]*$", word.word):
             mention = Mention("GENE", word.word, [word,])
             # Add features
             add_features(mention, sentence)
@@ -158,15 +198,16 @@ def extract(sentence):
             else:
                 is_number = True
             if word.word.isalnum() and not is_number and word.word not in stopwords_dict and \
-                not word.pos.startswith("VB") and \
-                random.random() < EXAMPLES_PROB and created_examples < EXAMPLES_QUOTA:
+                not word.pos.startswith("VB") and word.word not in genes_dict and \
+                len(sentence.words) > 5 and random.random() < EXAMPLES_PROB and \
+                random_examples < EXAMPLES_QUOTA:
                 # Generate a mention that somewhat resembles what a gene may look like,
                 # or at least its role in the sentence.
                 mention = Mention("RANDOM", word.word, [word,])
                 # Add features
                 add_features(mention, sentence)
                 mention.is_correct = False
-                created_examples += 1
+                random_examples += 1
                 yield mention
 
 # Load the dictionaries that we need
@@ -206,9 +247,14 @@ if __name__ == "__main__":
                     if "acronym" in line_dict:
                         if mention.words[0].word == line_dict["acronym"]:
                             mention.type = "ACRONYM"
-                            mention.is_correct = False
-                    elif mention.type != "RANDOM":
+                            if false_acronyms < ACRONYMS_QUOTA and \
+                            random.random() < ACRONYMS_PROB:
+                                mention.is_correct = False
+                                false_acronyms += 1
+                    elif mention.type == "RANDOM":
                         # Perform supervision
+                        supervise_random(mention,sentence)
+                    else:
                         supervise(mention, sentence)
                     print(mention.json_dump())
 

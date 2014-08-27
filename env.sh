@@ -7,7 +7,7 @@ export DEEPDIVE_HOME=`cd ${REAL_DIRNAME}/../..; pwd`
 export APP_HOME=`pwd`
 
 # Machine Configuration
-export MEMORY="64g"
+export MEMORY="256g"
 export PARALLELISM=4
 
 # Database Configuration
