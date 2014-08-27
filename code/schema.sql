@@ -2,29 +2,29 @@
 -- WARNING: all the tables are dropped and recreated
 
 -- Sentences table
--- DROP TABLE IF EXISTS sentences CASCADE;
--- CREATE TABLE sentences (
--- 	-- document id
--- 	doc_id text,
--- 	-- sentence id
--- 	sent_id int,
--- 	-- word indexes
--- 	wordidxs int[],
--- 	-- words
--- 	words text[],
--- 	-- parts of speech
--- 	poses text[],
--- 	-- named entity recognition tags
--- 	ners text[],
--- 	-- lemmified version of words
--- 	lemmas text[],
--- 	-- dependency path labels
--- 	dep_paths text[],
--- 	-- dependency path parents
--- 	dep_parents int[],
--- 	-- bounding boxes
--- 	bounding_boxes text[]
--- );
+DROP TABLE IF EXISTS sentences CASCADE;
+CREATE TABLE sentences (
+	-- document id
+	doc_id text,
+	-- sentence id
+	sent_id int,
+	-- word indexes
+	wordidxs int[],
+	-- words
+	words text[],
+	-- parts of speech
+	poses text[],
+	-- named entity recognition tags
+	ners text[],
+	-- lemmified version of words
+	lemmas text[],
+	-- dependency path labels
+	dep_paths text[],
+	-- dependency path parents
+	dep_parents int[],
+	-- bounding boxes
+	bounding_boxes text[]
+) DISTRIBUTED BY (doc_id);
 
 -- Acronym table
 DROP TABLE IF EXISTS acronyms CASCADE;
@@ -39,7 +39,7 @@ CREATE TABLE acronyms (
 	acronym text,
 	-- definition
 	definition text
-);
+) DISTRIBUTED BY (doc_id);
 
 -- Gene mentions
 DROP TABLE IF EXISTS gene_mentions CASCADE;
@@ -66,7 +66,7 @@ CREATE TABLE gene_mentions (
 	is_correct boolean,
 	-- features for training
 	features text[]
-);
+) DISTRIBUTED BY (mention_id);
 
 -- HPO terms mentions
 DROP TABLE IF EXISTS hpoterm_mentions CASCADE;
@@ -93,22 +93,32 @@ CREATE TABLE hpoterm_mentions (
 	is_correct boolean,
 	-- features for training
 	features text[]
-);
+) DISTRIBUTED BY (sent_id);
 
 -- Gene / HPOterm relation mentions
 DROP TABLE IF EXISTS gene_hpoterm_relations CASCADE;
 CREATE TABLE gene_hpoterm_relations (
 	-- id for random variable
 	id bigint,
+	-- document id
+	doc_id text,
+	-- sentence id
+	sent_id int,
+	-- relation id
+	relation_id text,
 	-- type
 	type text,
-	-- mention 1
-	mention_1 text,
-	-- mention 2
-	mention_2 text,
+	-- gene word indexes
+	wordidxs_1 int[],
+	-- hpoterm word indexes
+	wordidxs_2 int[],
+	-- gene (words)
+	words_1 text[],
+	-- hpoterm (words)
+	words_2 text[],
 	-- is this a correct relation?
 	is_correct boolean,
 	-- features for training
 	features text[]
-);
+) DISTRIBUTED BY (relation_id);
 
