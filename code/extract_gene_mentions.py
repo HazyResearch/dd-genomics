@@ -8,13 +8,13 @@ import fileinput
 import json
 import random
 import re
-import sys
 
 from dstruct.Mention import Mention
 from dstruct.Sentence import Sentence
 from helper.dictionaries import load_dict
 
 SUPERVISION_GENES_DICT_FRACTION = 0.3
+SUPERVISION_PROB = 0.5
 EXAMPLES_PROB = 0.01
 EXAMPLES_QUOTA = 15000
 created_examples = 0
@@ -23,9 +23,11 @@ created_examples = 0
 def supervise(mention, sentence):
     # If the candidate mention a gene symbol in the supervision dictionary, and
     # not an English word, and not a medical acronym, and not a NIH or NSF
-    # grant code, and not a Roman numeral then label it as correct 
+    # grant code, and not a Roman numeral then label it as correct, provided
+    # we get head when we flip the coin
     mention_word = mention.words[0].word
-    if mention_word in supervision_genes_dict and \
+    if random.random() < SUPERVISION_PROB and \
+        mention_word in supervision_genes_dict and \
         mention_word.lower() not in english_dict and \
         mention_word not in med_acrons_dict and \
         mention_word not in nih_grants_dict and \
@@ -205,7 +207,7 @@ if __name__ == "__main__":
                         if mention.words[0].word == line_dict["acronym"]:
                             mention.type = "ACRONYM"
                             mention.is_correct = False
-                    else:
+                    elif mention.type != "RANDOM":
                         # Perform supervision
                         supervise(mention, sentence)
                     print(mention.json_dump())
