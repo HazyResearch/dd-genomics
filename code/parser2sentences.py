@@ -24,8 +24,7 @@
 # An example line is:
 # 1	Genome	NNP	O	Genome	nn	3	SENT_1	[p1l1669t172r1943b234],
 #
-# This script outputs TSV lines or JSON objects, one per sentence. You can
-# select the mode of operation by setting the MODE global variable. 
+# This script outputs TSV lines or JSON objects, one per sentence. 
 #
 # Each TSV line has nine columns. The text in the columns is formatted so that
 # the output can be given in input to the PostgreSQL 'COPY FROM' command. The
@@ -41,20 +40,14 @@
 # 9: bounding boxes (text[])
 #
 # This script can be spawn subprocesses to increase parallelism, which can be
-# useful when having to convert a lot of files. You can set the level of
-# parallelism by setting the PARALLELISM global variable.
-#
-# Author: Matteo Riondato <rionda@cs.stanford.edu>
+# useful when having to convert a lot of files. 
 #
 
 import json
 import os
 import os.path
 import sys
-from multiprocessing import Lock, Process
-
-MODE = "tsv"
-PARALLELISM = 10
+from multiprocessing import Process
 
 # Convert a list to a string that can be used in a TSV column and intepreted as
 # an array by the PostreSQL COPY FROM command.
@@ -75,110 +68,106 @@ def list2TSVarray(a_list, quote=False):
         string = ",".join(list(map(lambda x: str(x), a_list)))
     return "{" + string + "}"
 
-def process_files(lock, input_files, input_dir):
-    for filename in input_files:
-        # Docid assumed to be the filename.
-        docid = filename
-        with open(os.path.realpath(input_dir + "/" + filename), 'rt') as curr_file:
-            atEOF = False
-            # One iteration of the following loop corresponds to one sentence
-            while not atEOF: 
-                sent_id = -1
-                wordidxs = []
-                words = []
-                poses = []
-                ners = []
-                lemmas = []
-                dep_paths = []
-                dep_parents = []
-                bounding_boxes = []
-                curr_line = curr_file.readline().strip()
-                # Sentences are separated by empty lines in the parser output file
-                while curr_line != "":
-                    tokens = curr_line.split("\t")
-                    if len(tokens) != 9:
-                        sys.stderr.write("ERROR: malformed line (wrong number of fields): {}\n".format(curr_line))
-                        return 1
 
-                    word_idx, word, pos, ner, lemma, dep_path, dep_parent, word_sent_id, bounding_box = tokens 
-
-                    # Normalize sentence id
-                    word_sent_id = int(word_sent_id.replace("SENT_", ""))
-
-                    # assign sentence id if this is the first word of the sentence
-                    if sent_id == -1:
-                        sent_id = word_sent_id
-                    # sanity check for word_sent_id
-                    elif sent_id != word_sent_id:
-                        sys.stderr.write("ERROR: found word with mismatching sent_id w.r.t. sentence: {} != {}\n".format(word_sent_id, sent_id))
-                        return 1
-
-                    # Normalize bounding box, stripping initial '[' and final '],'
-                    bounding_box = bounding_box[1:-2]
-
-                    # Append contents of this line to the sentence arrays
-                    wordidxs.append(int(word_idx) - 1) # Start from 0
-                    words.append(word) 
-                    poses.append(pos)
-                    ners.append(ner)
-                    lemmas.append(lemma)
-                    dep_paths.append(dep_path)
-                    # Now "-1" means root and the rest correspond to array indices
-                    dep_parents.append(int(dep_parent) - 1) 
-                    bounding_boxes.append(bounding_box)
-
-                    # Read the next line
+def process_files(proc_id, input_files, input_dir, output_dir, mode):
+    with open(os.path.realpath(output_dir + "proc_id." + mode)) as out_file:
+        for filename in input_files:
+            # Docid assumed to be the filename.
+            docid = filename
+            with open(os.path.realpath(input_dir + "/" + filename), 'rt') as curr_file:
+                atEOF = False
+                # One iteration of the following loop corresponds to one sentence
+                while not atEOF: 
+                    sent_id = -1
+                    wordidxs = []
+                    words = []
+                    poses = []
+                    ners = []
+                    lemmas = []
+                    dep_paths = []
+                    dep_parents = []
+                    bounding_boxes = []
                     curr_line = curr_file.readline().strip()
-
-                # Write sentence to output
-                lock.acquire()
-                try:
-                    if MODE == "tsv":
-                        sys.stdout.write("{}\n".format("\t".join([docid, str(sent_id),
-                            list2TSVarray(wordidxs), list2TSVarray(words,
-                                quote=True), list2TSVarray(poses, quote=True),
-                            list2TSVarray(ners), list2TSVarray(lemmas, quote=True),
-                            list2TSVarray(dep_paths, quote=True),
-                            list2TSVarray(dep_parents),
-                            list2TSVarray(bounding_boxes)])))
-                    elif MODE == "json":
-                        sys.stdout.write("{}\n".format(json.dumps({ "doc_id": docid, "sent_id": sent_id,
-                            "wordidxs": wordidxs, "words": words, "poses": poses,
-                            "ners": ners, "lemmas": lemmas, "dep_paths": dep_paths,
-                            "dep_parents": dep_parents, "bounding_boxes":
-                            bounding_boxes})))
-                finally:
-                    sys.stdout.flush()
-                    lock.release()
-
-                # Check if we are at End of File
-                curr_pos = curr_file.tell()
-                curr_file.read(1)
-                new_pos = curr_file.tell()
-                if new_pos == curr_pos:
-                    atEOF = True
-                else:
-                    curr_file.seek(curr_pos)
+                    # Sentences are separated by empty lines in the parser output file
+                    while curr_line != "":
+                        tokens = curr_line.split("\t")
+                        if len(tokens) != 9:
+                            sys.stderr.write("ERROR: malformed line (wrong number of fields): {}\n".format(curr_line))
+                            return 1
+                        word_idx, word, pos, ner, lemma, dep_path, dep_parent, word_sent_id, bounding_box = tokens 
+                        # Normalize sentence id
+                        word_sent_id = int(word_sent_id.replace("SENT_", ""))
+                        # assign sentence id if this is the first word of the sentence
+                        if sent_id == -1:
+                            sent_id = word_sent_id
+                        # sanity check for word_sent_id
+                        elif sent_id != word_sent_id:
+                            sys.stderr.write("ERROR: found word with mismatching sent_id w.r.t. sentence: {} != {}\n".format(word_sent_id, sent_id))
+                            return 1
+                        # Normalize bounding box, stripping initial '[' and final '],'
+                        bounding_box = bounding_box[1:-2]
+                        # Append contents of this line to the sentence arrays
+                        wordidxs.append(int(word_idx) - 1) # Start from 0
+                        words.append(word) 
+                        poses.append(pos)
+                        ners.append(ner)
+                        lemmas.append(lemma)
+                        dep_paths.append(dep_path)
+                        # Now "-1" means root and the rest correspond to array indices
+                        dep_parents.append(int(dep_parent) - 1) 
+                        bounding_boxes.append(bounding_box)
+                        # Read the next line
+                        curr_line = curr_file.readline().strip()
+                    # Write sentence to output
+                    lock.acquire()
+                    try:
+                        if mode == "tsv":
+                            out_file.write("{}\n".format("\t".join([docid, str(sent_id),
+                                list2TSVarray(wordidxs), list2TSVarray(words,
+                                    quote=True), list2TSVarray(poses, quote=True),
+                                list2TSVarray(ners), list2TSVarray(lemmas, quote=True),
+                                list2TSVarray(dep_paths, quote=True),
+                                list2TSVarray(dep_parents),
+                                list2TSVarray(bounding_boxes)])))
+                        elif mode == "json":
+                            out_file.write("{}\n".format(json.dumps({ "doc_id": docid, "sent_id": sent_id,
+                                "wordidxs": wordidxs, "words": words, "poses": poses,
+                                "ners": ners, "lemmas": lemmas, "dep_paths": dep_paths,
+                                "dep_parents": dep_parents, "bounding_boxes":
+                                bounding_boxes})))
+                    finally:
+                        sys.stdout.flush()
+                        lock.release()
+                    # Check if we are at End of File
+                    curr_pos = curr_file.tell()
+                    curr_file.read(1)
+                    new_pos = curr_file.tell()
+                    if new_pos == curr_pos:
+                        atEOF = True
+                    else:
+                        curr_file.seek(curr_pos)
 
 
 # Process the input files. Output can be either tsv or json
 def main():
     script_name = os.path.basename(__file__)
     # Check
-    if len(sys.argv) != 2:
-        print("USAGE: {} DIR".format(script_name))
+    if len(sys.argv) != 5:
+        sys.stderr.write("USAGE: {} MODE PARALLELISM INPUTDIR OUTPUTDIR\n".format(script_name))
         return 1
 
     parser_files = os.listdir(os.path.abspath(os.path.realpath(sys.argv[1])))
+    parallelism = int(sys.argv[2])
+    mode = sys.argv[1]
 
-    output_lock = Lock()
-    for i in range(PARALLELISM):
+    for i in range(parallelism):
         files = []
         for j in range(len(parser_files)):
-            if j % PARALLELISM == i:
+            if j % parallelism == i:
                 files.append(parser_files[j])
-        p = Process(target = process_files, args = (output_lock, files,
-            os.path.abspath(os.path.realpath(sys.argv[1]))))
+        p = Process(target = process_files, args = (i, files,
+            os.path.abspath(os.path.realpath(sys.argv[3])),
+            os.path.abspath(os.path.realpath(sys.argv[4])), mode))
         p.start()
 
     return 0
