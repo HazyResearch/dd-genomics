@@ -70,7 +70,7 @@ def list2TSVarray(a_list, quote=False):
 
 
 def process_files(proc_id, input_files, input_dir, output_dir, mode):
-    with open(os.path.realpath(output_dir + "proc_id." + mode)) as out_file:
+    with open(os.path.realpath("{}/sentences-{}.{}".format(output_dir, proc_id, mode)), 'wt') as out_file:
         for filename in input_files:
             # Docid assumed to be the filename.
             docid = filename
@@ -119,25 +119,20 @@ def process_files(proc_id, input_files, input_dir, output_dir, mode):
                         # Read the next line
                         curr_line = curr_file.readline().strip()
                     # Write sentence to output
-                    lock.acquire()
-                    try:
-                        if mode == "tsv":
-                            out_file.write("{}\n".format("\t".join([docid, str(sent_id),
-                                list2TSVarray(wordidxs), list2TSVarray(words,
-                                    quote=True), list2TSVarray(poses, quote=True),
-                                list2TSVarray(ners), list2TSVarray(lemmas, quote=True),
-                                list2TSVarray(dep_paths, quote=True),
-                                list2TSVarray(dep_parents),
-                                list2TSVarray(bounding_boxes)])))
-                        elif mode == "json":
-                            out_file.write("{}\n".format(json.dumps({ "doc_id": docid, "sent_id": sent_id,
-                                "wordidxs": wordidxs, "words": words, "poses": poses,
-                                "ners": ners, "lemmas": lemmas, "dep_paths": dep_paths,
-                                "dep_parents": dep_parents, "bounding_boxes":
-                                bounding_boxes})))
-                    finally:
-                        sys.stdout.flush()
-                        lock.release()
+                    if mode == "tsv":
+                        out_file.write("{}\n".format("\t".join([docid, str(sent_id),
+                            list2TSVarray(wordidxs), list2TSVarray(words,
+                                quote=True), list2TSVarray(poses, quote=True),
+                            list2TSVarray(ners), list2TSVarray(lemmas, quote=True),
+                            list2TSVarray(dep_paths, quote=True),
+                            list2TSVarray(dep_parents),
+                            list2TSVarray(bounding_boxes)])))
+                    elif mode == "json":
+                        out_file.write("{}\n".format(json.dumps({ "doc_id": docid, "sent_id": sent_id,
+                            "wordidxs": wordidxs, "words": words, "poses": poses,
+                            "ners": ners, "lemmas": lemmas, "dep_paths": dep_paths,
+                            "dep_parents": dep_parents, "bounding_boxes":
+                            bounding_boxes})))
                     # Check if we are at End of File
                     curr_pos = curr_file.tell()
                     curr_file.read(1)
@@ -156,7 +151,7 @@ def main():
         sys.stderr.write("USAGE: {} MODE PARALLELISM INPUTDIR OUTPUTDIR\n".format(script_name))
         return 1
 
-    parser_files = os.listdir(os.path.abspath(os.path.realpath(sys.argv[1])))
+    parser_files = os.listdir(os.path.abspath(os.path.realpath(sys.argv[3])))
     parallelism = int(sys.argv[2])
     mode = sys.argv[1]
 
