@@ -23,15 +23,19 @@ with fileinput.input() as input_files:
         ners = line_dict["ners"]
         lemmas = line_dict["lemmas"]
         dep_paths_orig = line_dict["dep_paths"]
-        bounding_boxes = []
+        bounding_boxes = [""] * len(words)
 
-        dep_paths = []
-        dep_parents = []
-        for dep_path in  dep_paths_orig:
+        dep_paths = ["_"] * len(words)
+        dep_parents = [0] * len(words)
+        assert len(words) == len(poses)
+        assert len(words) == len(ners)
+        assert len(words) == len(lemmas)
+        for dep_path in dep_paths_orig:
             tokens = dep_path.split("(")
-            dep_paths.append(tokens[0])
-            dep_parent_token = int(tokens[1].split("-")[2][:-1]) - 1
-            dep_parents.append(dep_parent_token)
+            dep_parent = int((tokens[1].split(",")[0]).split("-")[1]) - 1
+            dep_child = int((tokens[1].split(",")[1]).split("-")[1][:-1]) - 1
+            dep_paths[dep_child] = tokens[0]
+            dep_parents[dep_child] = dep_parent
 
         print("{}\n".format("\t".join([docid, str(sent_id),
             list2TSVarray(wordidxs), list2TSVarray(words,
