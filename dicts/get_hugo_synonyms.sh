@@ -25,12 +25,13 @@ else
 	SED="gsed"
 	which $SED > /dev/null 2> /dev/null
 	if [ $? -gt 0 ]; then
-		echo "This script only work with gsed. Sorry but the sed in OSX way too cumbersome" >&2
+		echo "This script only work with gsed. Sorry but the sed in OSX is way too cumbersome" >&2
 		exit 1
 	fi
 fi
 
-cut -f1,2,3 ${HUGO_MAP_FILE} | ${SED} -r -e 's/,[ |\t]*/\t/g' -e 's/\s+/\t/g' -e 's/\t$//g' | grep -i -v withdrawn | sort -u > hugo_synonyms.tsv
+#cut -f1,2,3 ${HUGO_MAP_FILE} | ${SED} -r -e 's/,[ |\t]*/\t/g' -e 's/\s+/\t/g' -e 's/\t$//g' | grep -i -v withdrawn | sort -u > hugo_synonyms.tsv
+cut -f1,2,3 ${HUGO_MAP_FILE} | ${SED} -r -e 's/,[ |\t]*/,/g' -e 's/\s+/,/g' -e 's/,+$//g' -e 's/,/\t/' | grep -i -v withdrawn | sort -u > hugo_synonyms.tsv
 
 # Remove the map file
 rm ${HUGO_MAP_FILE}

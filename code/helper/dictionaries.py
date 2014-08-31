@@ -17,9 +17,10 @@ def load_genes_dictionary(filename):
     with open(filename, 'rt') as genes_dict_file:
         for line in genes_dict_file:
             tokens = line.strip().split("\t")
-            # first token is name, the rest are synonyms
+            # first token is name, second is csv list of synonyms 
             name = tokens[0]
-            for synonym in tokens:
+            genes_dict[name] = name
+            for synonym in tokens[1].split(","):
                 genes_dict[synonym] = name
     return genes_dict
 
