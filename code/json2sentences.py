@@ -22,9 +22,16 @@ with fileinput.input() as input_files:
         poses = line_dict["poses"]
         ners = line_dict["ners"]
         lemmas = line_dict["lemmas"]
-        dep_paths = line_dict["dep_paths"]
-        dep_parents = line_dict["dep_parents"]
+        dep_paths_orig = line_dict["dep_paths"]
         bounding_boxes = []
+
+        dep_paths = []
+        dep_parents = []
+        for dep_path in  dep_paths_orig:
+            tokens = dep_path.split("(")
+            dep_paths.append(tokens[0])
+            dep_parent_token = int(tokens[1].split("-")[2][:-1]) - 1
+            dep_parents.append(dep_parent_token)
 
         print("{}\n".format("\t".join([docid, str(sent_id),
             list2TSVarray(wordidxs), list2TSVarray(words,
