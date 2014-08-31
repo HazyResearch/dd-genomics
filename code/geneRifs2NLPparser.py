@@ -11,11 +11,12 @@ if len(sys.argv) < 2:
     sys.stderr.write("USAGE: {} FILE [FILE [FILE [...]]]\n".format(sys.argv[0]))
     sys.exit(1)
 
-DOCUMENT_ID = "RANDOM"
-line_dict = {"id": DOCUMENT_ID, "text": ""}
+DOCUMENT_ID = "geneRifs-"
+i = 0
 with fileinput.input() as input_files:
     for line in input_files:
         tokens = line.split("\t")
-        line_dict["text"] = tokens[2]
+        line_dict = {"id": DOCUMENT_ID + str(i), "text": tokens[2]}
         print(json.dumps(line_dict))
+        i += 1
 
