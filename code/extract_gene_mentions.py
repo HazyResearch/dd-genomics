@@ -182,8 +182,7 @@ def extract(sentence):
         word = sentence.words[index]
         # If the word satisfies the regex, or is in the dictionary, then is a
         # mention candidate.
-        if word.word in genes_dict or \
-                re.match("^[A-Z]{2,}[0-9]*[A-Z]*$", word.word):
+        if word.word in genes_dict:
             mention = Mention("GENE", word.word, [word,])
             # Add features
             add_features(mention, sentence)
