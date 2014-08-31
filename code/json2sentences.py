@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 #
+# Take the json output of the NLPextractor extractor and convert it to TSV that
+# we can feed to the sentences table
 
 import fileinput
 import json
