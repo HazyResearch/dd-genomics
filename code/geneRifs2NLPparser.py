@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 #
-# Converte geneRifs file to a file that can be given in input to the NLPparser
+# Convert geneRifs file to a file that can be given in input to the NLPparser
 # extractor.
 
 import fileinput
