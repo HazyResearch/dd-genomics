@@ -11,17 +11,32 @@ def load_examples_dictionary(filename):
             examples.add(frozenset(line.rstrip().split("\t")))
     return examples
 
+# Load the merged genes dictionary
+def load_merged_genes_dictionary(filename):
+    merged_genes_dict = dict()
+    with open(filename, 'rt') as merged_genes_dict_file:
+        for line in merged_genes_dict_file:
+            tokens = line.strip().split("\t")
+            symbol = tokens[0]
+            alternate_symbols = tokens[1].split("|")
+            names = tokens[2].split("|")
+            for sym in [symbol] + alternate_symbols + names:
+                if sym not in merged_genes_dict:
+                    merged_genes_dict[sym] = []
+                merged_genes_dict[sym].append(symbol)
+    return merged_genes_dict
+
 # Load the genes dictionary
 def load_genes_dictionary(filename):
     genes_dict = dict()
     with open(filename, 'rt') as genes_dict_file:
         for line in genes_dict_file:
             tokens = line.strip().split("\t")
-            # first token is name, second is csv list of synonyms 
-            name = tokens[0]
-            genes_dict[name] = name
+            # first token is symbol, second is csv list of synonyms 
+            symbol = tokens[0]
+            genes_dict[symbol] = symbol
             for synonym in tokens[1].split(","):
-                genes_dict[synonym] = name
+                genes_dict[synonym] = symbol
     return genes_dict
 
 # Load the HPOterms dictionary
@@ -77,6 +92,7 @@ ENGLISH_DICT_FILENAME = BASE_DIR + "/dicts/english_words.tsv"
 GENEHPOTERM_DICT_FILENAME = BASE_DIR + "/dicts/genes_to_hpo_terms_with_synonyms.tsv"
 HPOTERMS_DICT_FILENAME = BASE_DIR + "/dicts/hpo_terms.tsv"
 MED_ACRONS_DICT_FILENAME = BASE_DIR + "/dicts/med_acronyms_pruned.tsv"
+MERGED_GENES_DICT_FILENAME = BASE_DIR + "/dicts/merged_genes_dicts.tsv"
 NIH_GRANTS_DICT_FILENAME = BASE_DIR + "/dicts/grant_codes_nih.tsv"
 NSF_GRANTS_DICT_FILENAME = BASE_DIR + "/dicts/grant_codes_nsf.tsv"
 STOPWORDS_DICT_FILENAME = BASE_DIR + "/dicts/english_stopwords.tsv"
@@ -94,6 +110,7 @@ dictionaries["hpoterms"] = [HPOTERMS_DICT_FILENAME,load_hpoterms_dictionary ]
 dictionaries["nih_grants"] = [NIH_GRANTS_DICT_FILENAME, load_set]
 dictionaries["nsf_grants"] = [NSF_GRANTS_DICT_FILENAME, load_set]
 dictionaries["med_acrons"] = [MED_ACRONS_DICT_FILENAME, load_set]
+dictionaries["merged_genes"] = [MERGED_GENES_DICT_FILENAME, load_merged_genes_dictionary]
 dictionaries["stopwords"] = [STOPWORDS_DICT_FILENAME, load_set]
 dictionaries["pos_gene_mentions"] = [POS_GENE_MENTIONS_DICT_FILENAME, load_examples_dictionary]
 dictionaries["neg_gene_mentions"] = [NEG_GENE_MENTIONS_DICT_FILENAME, load_examples_dictionary]
