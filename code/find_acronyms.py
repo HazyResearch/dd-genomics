@@ -34,7 +34,7 @@ def extract(sentence):
         # Second method: find 'A Better Example (ABE)' type of definitions.
         # Scan all the words in the sentence
         for word in sentence.words:
-            if word.casefold() not in merged_genes_dict:
+            if word.word.casefold() not in merged_genes_dict:
                 continue
             acronym = None
             # Look for definition only if this word has length at least 2 and is
