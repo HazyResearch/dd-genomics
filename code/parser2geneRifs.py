@@ -41,8 +41,8 @@ with fileinput.input(sys.argv[2:]) as input_files:
         dep_parents = [0] * len(words)
         for dep_path in dep_paths_orig:
             tokens = dep_path.split("(")
-            dep_parent = int((tokens[1].split(",")[0]).split("-")[1]) - 1
-            dep_child = int((tokens[1].split(",")[1]).split("-")[1][:-1]) - 1
+            dep_parent = int((tokens[1].split(", ")[0]).split("-")[-1]) - 1
+            dep_child = int((tokens[1].split(", ")[-1]).split("-")[-1][:-1]) - 1
             dep_paths[dep_child] = tokens[0]
             dep_parents[dep_child] = dep_parent
 
