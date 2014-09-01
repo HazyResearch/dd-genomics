@@ -22,7 +22,6 @@ with open(sys.argv[1], 'rt') as gene_rifs_dict_file:
         tokens = line.strip().split("\t")
         genes.append(tokens[1])
 
-line_index = 0
 with fileinput.input(sys.argv[2:]) as input_files:
     for line in input_files:
         line_dict = json.loads(line)
@@ -35,6 +34,8 @@ with fileinput.input(sys.argv[2:]) as input_files:
         lemmas = line_dict["lemmas"]
         dep_paths_orig = line_dict["dep_paths"]
         bounding_boxes = [""] * len(words)
+
+        gene_index = int(doc_id.split("-")[-1])
 
         # Compute dependency path edge labels and node parents
         dep_paths = ["_"] * len(words)
@@ -52,6 +53,5 @@ with fileinput.input(sys.argv[2:]) as input_files:
             list2TSVarray(ners), list2TSVarray(lemmas, quote=True),
             list2TSVarray(dep_paths, quote=True),
             list2TSVarray(dep_parents),
-            list2TSVarray(bounding_boxes), genes[line_index]])))
-        line_index += 1
+            list2TSVarray(bounding_boxes), genes[gene_index]])))
 
