@@ -44,7 +44,8 @@ def supervise(mention, sentence):
     #        mention.is_correct = True
     #
     # Correct if it is in our collection of positive examples
-    if frozenset([sentence.doc_id, str(sentence.sent_id), mention.entity]) in pos_mentions_dict:
+    if frozenset([sentence.doc_id, str(sentence.sent_id), mention.entity]) in pos_mentions_dict or \
+            frozenset([sentence.doc_id, str(sentence.sent_id), mention.words[0].word]) in pos_mentions_dict:
         mention.is_correct = True
     # Not correct if the previous word is one of the following keywords
     # denoting a figure, a table, or an individual
@@ -52,7 +53,8 @@ def supervise(mention, sentence):
             sentence.get_prev_wordobject(mention).word.casefold() in DOC_ELEMENTS_OR_INDIVIDUALS:
         mention.is_correct = False
     # Not correct if it is in our collection of negative examples
-    if frozenset([sentence.doc_id, str(sentence.sent_id), mention.entity]) in neg_mentions_dict:
+    if frozenset([sentence.doc_id, str(sentence.sent_id), mention.entity]) in neg_mentions_dict or \
+            frozenset([sentence.doc_id, str(sentence.sent_id), mention.words[0].word]) in neg_mentions_dict:
         mention.is_correct = False
     # If the sentence is less than 4 words, it probably doesn't contain
     # enough information to convey anything useful for the supervision, so let
