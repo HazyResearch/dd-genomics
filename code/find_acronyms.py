@@ -1,9 +1,10 @@
 #! /usr/bin/env python3
 #
-# Look for acronyms defined in the sentence,#
+# Look for acronyms defined in the sentence that look like gene symbols
 
 import json
 
+from helper.dictionaries import load_dict
 from helper.easierlife import get_input_sentences
 
 # Yield acronyms from sentence
@@ -18,6 +19,10 @@ def extract(sentence):
                 definition_end = sentence.words.index(";", index + 1)
             except:
                 definition_end = len(sentence.words) - 1
+            # Skip acronym if it's not in the genes dictionary
+            if sentence.words[index].word.casefold() not in merged_genes_dict:
+                index = definition_end + 1
+                continue
             acronym["doc_id"] = sentence.doc_id
             acronym["sent_id"] = sentence.sent_id
             acronym["word_idx"] = sentence.words[index].in_sent_idx
@@ -29,6 +34,8 @@ def extract(sentence):
         # Second method: find 'A Better Example (ABE)' type of definitions.
         # Scan all the words in the sentence
         for word in sentence.words:
+            if word.casefold() not in merged_genes_dict:
+                continue
             acronym = None
             # Look for definition only if this word has length at least 2 and is
             # all capitals and it comes between "(" and ")" or "(" and ";" or "("
@@ -59,6 +66,9 @@ def extract(sentence):
                         yield acronym
                         break
                     start_idx += 1
+
+# Load the genes dictionary
+merged_genes_dict = load_dict("merged_genes")
 
 # Process the input
 for sentence in get_input_sentences():

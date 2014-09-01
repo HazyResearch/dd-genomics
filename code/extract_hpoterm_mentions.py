@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 
 import random
-import re
 
 from dstruct.Mention import Mention
 from helper.easierlife import get_input_sentences, get_all_phrases_in_sentence
@@ -9,9 +8,9 @@ from helper.dictionaries import load_dict
 
 SUPERVISION_HPOTERMS_DICT_FRACTION = 0.3
 SUPERVISION_PROB = 0.5
-EXAMPLES_PROB = 0.01
-EXAMPLES_QUOTA = 15000
-created_examples = 0
+RANDOM_EXAMPLES_PROB = 0.01
+RANDOM_EXAMPLES_QUOTA = 15000
+random_examples = 0
 
 ## Perform the supervision
 def supervise(mention, sentence):
@@ -21,9 +20,12 @@ def supervise(mention, sentence):
 
 
 ## Add features
+# TODO (Matteo) There are obviously many more missing
 def add_features(mention, sentence):
+    # The word "two on the left" of the mention, if present
     if mention.start_word_idx > 1:
         mention.add_feature("WINDOW_LEFT_2_[{}]".format(sentence.words[mention.start_word_idx + 2]))
+    # The word "two on the right" on the left of the mention, if present
     if mention.end_word_idx + 2 < len(sentence.words):
         mention.add_feature("WINDOW_RIGHT_2_[{}]".format(sentence.words[mention.end_word_idx + 2]))
     # The word on the left of the mention, if present
@@ -34,29 +36,39 @@ def add_features(mention, sentence):
         mention.add_feature("WINDOW_RIGHT_1_[{}]".format(sentence.words[mention.end_word_idx + 1].lemma))
 
 
-## Yield mentions from the sentence
+## Return a list of mentions from the sentence
 def extract(sentence):
+    global random_examples
+    mentions = []
     history = set()
     words = sentence.words
     for start, end in get_all_phrases_in_sentence(sentence, max_variant_length):
         if start in history or end in history:
                 continue
         phrase = " ".join([word.word for word in words[start:end]])
-        phrase_lower = phrase.lower()
+        phrase_caseless = phrase.casefold()
         mention = None
         # If the phrase is in the dictionary, then is a possible mention
-        if phrase_lower in hpoterms_dict:
+        if phrase_caseless in hpoterms_dict:
             # Found a mention with this start and end: we can insert the
             # indexes of this mention in the history, and break the loop on
             # end and get to a new start
             for i in range(start, end + 1):
                 history.add(i)
-            term = hpoterms_dict[phrase_lower]
+            term = hpoterms_dict[phrase_caseless]
             mention = Mention("HPOTERM", term, words[start:end])
-            mention.is_correct = True
-            ## Add feature
+            # Add feature
             add_features(mention, sentence)
-            yield mention
+            mentions.append(mention)
+        else: 
+            # Potentially generate a random mention that resembles real ones
+            # This mention is supervised (as false) in the code calling this function
+            # XXX (Matteo) may need additional conditions to generate a mention
+            if random.random() < RANDOM_EXAMPLES_PROB and random_examples < RANDOM_EXAMPLES_QUOTA:
+                mention = Mention("RANDOM", "random", words[start:end])
+                random_examples += 1
+                mentions.append(mention)
+    return mentions
 
 
 # Load the dictionaries that we need
@@ -80,14 +92,12 @@ if __name__ == "__main":
         length = len(key.split())
         if length > max_variant_length:
             max_variant_length = length
-
     # Process the input
     for sentence in get_input_sentences():
         for mention in extract(sentence):
-            if mention:
-                if mention.type != "RANDOM":
-                    supervise(mention, sentence)
-                else:
-                    mention.is_correct = False
-                print(mention.json_dump())
+            if mention.type != "RANDOM":
+                supervise(mention, sentence)
+            else:
+                mention.is_correct = False
+            print(mention.json_dump())
 

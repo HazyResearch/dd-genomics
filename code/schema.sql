@@ -26,6 +26,33 @@ CREATE TABLE sentences (
 	bounding_boxes text[]
 ) DISTRIBUTED BY (doc_id);
 
+-- GeneRifs table
+DROP TABLE IF EXISTS generifs CASCADE;
+CREATE TABLE generifs (
+	-- document id
+	doc_id text,
+	-- sentence id
+	sent_id int,
+	-- word indexes
+	wordidxs int[],
+	-- words
+	words text[],
+	-- parts of speech
+	poses text[],
+	-- named entity recognition tags
+	ners text[],
+	-- lemmified version of words
+	lemmas text[],
+	-- dependency path labels
+	dep_paths text[],
+	-- dependency path parents
+	dep_parents int[],
+	-- bounding boxes
+	bounding_boxes text[],
+	-- 'labelled' gene that is contained in the geneRif
+	gene text
+) DISTRIBUTED BY (doc_id);
+
 -- Acronym table
 DROP TABLE IF EXISTS acronyms CASCADE;
 CREATE TABLE acronyms (

@@ -29,7 +29,7 @@ class Relation(object):
 
     def add_feature(self, feature):
         self.features.append(feature)
-	
+
     def add_features(self, features):
         for f in features:
             self.features.append(f)

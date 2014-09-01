@@ -11,16 +11,32 @@ def load_examples_dictionary(filename):
             examples.add(frozenset(line.rstrip().split("\t")))
     return examples
 
+# Load the merged genes dictionary
+def load_merged_genes_dictionary(filename):
+    merged_genes_dict = dict()
+    with open(filename, 'rt') as merged_genes_dict_file:
+        for line in merged_genes_dict_file:
+            tokens = line.strip().split("\t")
+            symbol = tokens[0]
+            alternate_symbols = tokens[1].split("|")
+            names = tokens[2].split("|")
+            for sym in [symbol] + alternate_symbols + names:
+                if sym.casefold() not in merged_genes_dict:
+                    merged_genes_dict[sym.casefold()] = []
+                merged_genes_dict[sym.casefold()].append(symbol)
+    return merged_genes_dict
+
 # Load the genes dictionary
 def load_genes_dictionary(filename):
     genes_dict = dict()
     with open(filename, 'rt') as genes_dict_file:
         for line in genes_dict_file:
             tokens = line.strip().split("\t")
-            # first token is name, the rest are synonyms
-            name = tokens[0]
-            for synonym in tokens:
-                genes_dict[synonym] = name
+            # first token is symbol, second is csv list of synonyms 
+            symbol = tokens[0]
+            genes_dict[symbol] = symbol
+            for synonym in tokens[1].split(","):
+                genes_dict[synonym] = symbol
     return genes_dict
 
 # Load the HPOterms dictionary
@@ -41,7 +57,7 @@ def load_hpoterms_dictionary(filename):
             description_words = description.split()
             variants = get_variants(description_words)
             for variant in variants:
-                hpoterms_dict[variant.lower()] = name
+                hpoterms_dict[variant.casefold()] = name
     return hpoterms_dict
 
 # Load a dictionary which is a set.
@@ -58,7 +74,7 @@ def load_set_lower_case(filename):
     case_set = load_set(filename)
     lower_case_set = set()
     for entry in case_set:
-        lower_case_set.add(entry.lower())
+        lower_case_set.add(entry.casefold())
     return lower_case_set
 
 # Load a dictionary which is a set of pairs, where the pairs are frozensets
@@ -76,6 +92,7 @@ ENGLISH_DICT_FILENAME = BASE_DIR + "/dicts/english_words.tsv"
 GENEHPOTERM_DICT_FILENAME = BASE_DIR + "/dicts/genes_to_hpo_terms_with_synonyms.tsv"
 HPOTERMS_DICT_FILENAME = BASE_DIR + "/dicts/hpo_terms.tsv"
 MED_ACRONS_DICT_FILENAME = BASE_DIR + "/dicts/med_acronyms_pruned.tsv"
+MERGED_GENES_DICT_FILENAME = BASE_DIR + "/dicts/merged_genes_dicts.tsv"
 NIH_GRANTS_DICT_FILENAME = BASE_DIR + "/dicts/grant_codes_nih.tsv"
 NSF_GRANTS_DICT_FILENAME = BASE_DIR + "/dicts/grant_codes_nsf.tsv"
 STOPWORDS_DICT_FILENAME = BASE_DIR + "/dicts/english_stopwords.tsv"
@@ -93,6 +110,7 @@ dictionaries["hpoterms"] = [HPOTERMS_DICT_FILENAME,load_hpoterms_dictionary ]
 dictionaries["nih_grants"] = [NIH_GRANTS_DICT_FILENAME, load_set]
 dictionaries["nsf_grants"] = [NSF_GRANTS_DICT_FILENAME, load_set]
 dictionaries["med_acrons"] = [MED_ACRONS_DICT_FILENAME, load_set]
+dictionaries["merged_genes"] = [MERGED_GENES_DICT_FILENAME, load_merged_genes_dictionary]
 dictionaries["stopwords"] = [STOPWORDS_DICT_FILENAME, load_set]
 dictionaries["pos_gene_mentions"] = [POS_GENE_MENTIONS_DICT_FILENAME, load_examples_dictionary]
 dictionaries["neg_gene_mentions"] = [NEG_GENE_MENTIONS_DICT_FILENAME, load_examples_dictionary]
