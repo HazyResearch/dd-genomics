@@ -33,7 +33,7 @@ with fileinput.input(sys.argv[2:]) as input_files:
         ners = line_dict["ners"]
         lemmas = line_dict["lemmas"]
         dep_paths_orig = line_dict["dep_paths"]
-        bounding_boxes = [""] * len(words)
+        bounding_boxes = ["empty"] * len(words)
 
         gene_index = int(doc_id.split("-")[-1])
 
@@ -47,7 +47,7 @@ with fileinput.input(sys.argv[2:]) as input_files:
             dep_paths[dep_child] = tokens[0]
             dep_parents[dep_child] = dep_parent
 
-        print("{}\n".format("\t".join([doc_id, str(sent_id),
+        print("{}".format("\t".join([doc_id, str(sent_id),
             list2TSVarray(wordidxs), list2TSVarray(words,
                 quote=True), list2TSVarray(poses, quote=True),
             list2TSVarray(ners), list2TSVarray(lemmas, quote=True),
