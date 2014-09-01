@@ -4,6 +4,10 @@ DIRNAME=`dirname $0`
 REAL_DIRNAME=`readlink -f ${DIRNAME}`
 
 export DEEPDIVE_HOME=`cd ${REAL_DIRNAME}/../..; pwd`
+
+export HOSTNAME=`hostname`
+export LFS_DIR=/lfs/$HOSTNAME/0/rionda/
+
 export APP_HOME=`pwd`
 
 # Machine Configuration
@@ -12,15 +16,11 @@ export PARALLELISM=4
 
 # Database Configuration
 export DBNAME=genomics
-export PGUSER=${PGUSER:-`whoami`}
-export PGPASSWORD=${PGPASSWORD:-}
-export PGPORT=${PGPORT:-5432}
-export PGHOST=${PGHOST:-localhost}
-
+export PGPASSWORD=`cut -d':' -f 5 $HOME/.pgpass`
 # SBT Options
 export SBT_OPTS="-Xmx$MEMORY"
 export JAVA_OPTS="-Xmx$MEMORY"
 
 # Using ddlib
-export PYTHONPATH=$DEEPDIVE_HOME/ddlib:$PYTHONPATH
+PYTHONPATH=$DEEPDIVE_HOME/ddlib:$PYTHONPATH
 
