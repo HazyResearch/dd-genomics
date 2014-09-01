@@ -73,7 +73,7 @@ directory.
   columns: 1st column is acronym, 2nd column is meaning. From the 'pharm'
   repository.
 
-* `merged_gene_dicts.tsv`: the output of `merge_gene_dicts.py`
+* `merged_genes_dict.tsv`: the output of `merge_gene_dicts.py`
 
 ## Utilities
 
