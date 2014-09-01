@@ -75,6 +75,14 @@ directory.
 
 * `merged_genes_dict.tsv`: the output of `merge_gene_dicts.py`
 
+* `negative_gene_mentions.tsv`: labeled negative examples for the training of
+  candidate gene mentions. 3 column: 1st is doc_id, 2nd is sent_id, 3rd is gene
+  symbol.
+
+* `positive_gene_mentions.tsv`: labeled positive examples for the training of
+  candidate gene mentions. 3 column: 1st is doc_id, 2nd is sent_id, 3rd is gene
+  symbol.
+
 ## Utilities
 
 * `get_hugo_synonyms.sh`: Update the hugo_synonyms.tsv file by downloading and
