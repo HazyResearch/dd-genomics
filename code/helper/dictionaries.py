@@ -21,9 +21,9 @@ def load_merged_genes_dictionary(filename):
             alternate_symbols = tokens[1].split("|")
             names = tokens[2].split("|")
             for sym in [symbol] + alternate_symbols + names:
-                if sym not in merged_genes_dict:
-                    merged_genes_dict[sym] = []
-                merged_genes_dict[sym].append(symbol)
+                if sym.casefold() not in merged_genes_dict:
+                    merged_genes_dict[sym.casefold()] = []
+                merged_genes_dict[sym.casefold()].append(symbol)
     return merged_genes_dict
 
 # Load the genes dictionary
@@ -57,7 +57,7 @@ def load_hpoterms_dictionary(filename):
             description_words = description.split()
             variants = get_variants(description_words)
             for variant in variants:
-                hpoterms_dict[variant.lower()] = name
+                hpoterms_dict[variant.casefold()] = name
     return hpoterms_dict
 
 # Load a dictionary which is a set.
@@ -74,7 +74,7 @@ def load_set_lower_case(filename):
     case_set = load_set(filename)
     lower_case_set = set()
     for entry in case_set:
-        lower_case_set.add(entry.lower())
+        lower_case_set.add(entry.casefold())
     return lower_case_set
 
 # Load a dictionary which is a set of pairs, where the pairs are frozensets
