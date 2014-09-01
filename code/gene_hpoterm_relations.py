@@ -8,12 +8,14 @@ from dstruct.Mention import Mention
 from dstruct.Sentence import Sentence
 from dstruct.Relation import Relation
 
+from helper.dictionaries import load_dict
+
 SUPERVISION_PROB = 0.5
-SUPERVISION_GENEHPOTERM_DICT_FRACTION = 0.4
+SUPERVISION_GENEHPOTERMS_DICT_FRACTION = 0.4
 
 ## Perform distant supervision
 def supervise(relation, gene_mention, hpoterm_mention, sentence):
-    if random.random() < SUPERVISION_PROB and relation.bla in supervision_genehpoterm_dict:
+    if random.random() < SUPERVISION_PROB and relation.bla in supervision_genehpoterms_dict:
         relation.is_correct = True
 
 
@@ -28,7 +30,7 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
     end = max(gene_end, hpoterm_end)
     # Present in the existing HPO mapping
     relation.add_feature("IN_GENE_HPOTERM_MAP={}".format(int(frozenset([gene_mention.symbol,
-        hpoterm_mention.term.lower()]) in genehpoterm_dict)))
+        hpoterm_mention.term.lower()]) in genehpoterms_dict)))
     # Verb between the two words, if present
     # XXX (Matteo) From pharm, RelationExtractor_Druggene_mention.py, but not correct
     #for word in sentence.words[start:end]: 
@@ -45,16 +47,40 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
     relation.add_feature(sentence.dep_path(gene_mention, hpoterm_mention))
 
 
-# Process input
-with fileinput.input as input_files:
-    for line in input_files:
-        row = json.loads(line)
-        sentence = Sentence(row["doc_id"], row["sent_id"], row["wordidxs"],
-                row["words"], row["poses"], row["ners"], row["lemmas"],
-                row["dep_paths"], row["dep_parents"], row["bounding_boxes"])
-        gene_mention = Mention( )
-        hpoterm_menito = Mention()
-        relation = Relation("GENEHPOTERM", gene_mention, hpoterm_mention)
-        add_features(relation, gene_mention, hpoterm_mention, sentence)
-        supervise(relation, gene_mention, hpoterm_mention, sentence)
+# Load the gene<->hpoterm dictionary
+genehpoterms_dict = load_dict("genehpoterms")
+# Create supervision dictionary that only contains a fraction of the genes in the gene
+# dictionary. This is to avoid that we label as positive examples everything
+# that is in the dictionary
+supervision_genehpoterms_dict = dict()
+to_sample = set(random.sample(range(len(genehpoterms_dict)),
+        int(len(genehpoterms_dict) * SUPERVISION_GENEHPOTERMS_DICT_FRACTION)))
+i = 0
+for hpoterm in genehpoterms_dict:
+    if i in to_sample:
+        supervision_genehpoterms_dict[hpoterm] = genehpoterms_dict[hpoterm]
+    i += 1
+
+if __name__ == "__main__":
+    # Process input
+    with fileinput.input as input_files:
+        for line in input_files:
+            row = json.loads(line)
+            # Create the sentence object where the two mentions appear
+            sentence = Sentence(row["doc_id"], row["sent_id"], row["wordidxs"],
+                    row["words"], row["poses"], row["ners"], row["lemmas"],
+                    row["dep_paths"], row["dep_parents"], row["bounding_boxes"])
+            # Create the mentions
+            gene_mention = Mention("GENE", row["gene_entity"],
+                    sentence.words[row["gene_startidx"]:row["gene_endindx"]+1])
+            hpoterm_mention = Mention("HPOTERM", row["hpoterm_entity"],
+                    sentence.words[row["hpoterm_startidx"]:row["hpoterm_endindx"]+1])
+            # Create the relation
+            relation = Relation("GENEHPOTERM", gene_mention, hpoterm_mention)
+            # Add features
+            add_features(relation, gene_mention, hpoterm_mention, sentence)
+            # Supervise
+            supervise(relation, gene_mention, hpoterm_mention, sentence)
+            # Print!
+            print(relation.json_dump())
 
