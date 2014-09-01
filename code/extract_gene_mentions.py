@@ -86,7 +86,7 @@ def add_features(mention, sentence):
     # The word comes after an organization, or a location, or a person. We skip
     # commas as they may trick us
     comes_after = None
-    idx = mention.start_word_idx - 1
+    idx = mention.wordidxs[0] - 1
     while idx >= 0 and sentence.words[idx].lemma == ",":
         idx -= 1
     if idx >= 0 and sentence.words[idx].ner in [ "ORGANIZATION", "LOCATION", "PERSON"]:
@@ -95,7 +95,7 @@ def add_features(mention, sentence):
     # The word comes before an organization, or a location, or a person. We
     # skip commas, as they may trick us.
     comes_before = None
-    idx = mention.start_word_idx + 1
+    idx = mention.wordidxs[-1] + 1
     while idx < len(sentence.words) and sentence.words[idx].lemma == ",":
         idx += 1
     if idx < len(sentence.words) and sentence.words[idx].ner in [ "ORGANIZATION", "LOCATION", "PERSON"]:
@@ -115,7 +115,7 @@ def add_features(mention, sentence):
     minw = None
     for word2 in sentence.words:
         if word2.pos.startswith('VB') and word2.lemma != 'be':
-            p = sentence.get_word_dep_path(mention.start_word_idx, word2.in_sent_idx)
+            p = sentence.get_word_dep_path(mention.wordidxs[0], word2.in_sent_idx)
             if len(p) < minl:
                 minl = len(p)
                 minp = p
@@ -133,7 +133,7 @@ def add_features(mention, sentence):
                 "sequence", "sequences", "alignment", "expression", "mRNA",
                 "knockout", "recruitment", "hybridization", "isoform",
                 "chromosome"]:
-            p = sentence.get_word_dep_path(mention.start_word_idx, word2.in_sent_idx)
+            p = sentence.get_word_dep_path(mention.wordidxs[0], word2.in_sent_idx)
             mention.add_feature("KEYWORD_[" + word2.lemma + "]")
             if len(p) < minl:
                 minl = len(p)
@@ -145,7 +145,7 @@ def add_features(mention, sentence):
         mention.add_feature('KEYWORD_SHORTEST_PATH_[' + minw + ']')
     # The lemma on the left of the mention, if present, provided it's not a
     # ",", in which case we get the previous word
-    idx = mention.start_word_idx - 1
+    idx = mention.wordidxs[0] - 1
     while idx >= 0 and sentence.words[idx].lemma == ",":
         idx -= 1
     if idx >= 0:
@@ -153,7 +153,7 @@ def add_features(mention, sentence):
             sentence.words[idx].lemma))
     # The word on the right of the mention, if present, provided it's not a
     # ",", in which case we get the next word.
-    idx = mention.start_word_idx + 1
+    idx = mention.wordidxs[-1] + 1
     while idx < len(sentence.words) and sentence.words[idx].lemma == ",":
         idx += 1
     if idx < len(sentence.words):

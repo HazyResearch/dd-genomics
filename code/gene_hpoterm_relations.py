@@ -72,9 +72,9 @@ if __name__ == "__main__":
                     row["dep_paths"], row["dep_parents"], row["bounding_boxes"])
             # Create the mentions
             gene_mention = Mention("GENE", row["gene_entity"],
-                    sentence.words[row["gene_startidx"]:row["gene_endindx"]+1])
+                    [sentence.words[i] for i in row["gene_wordidxs"]])
             hpoterm_mention = Mention("HPOTERM", row["hpoterm_entity"],
-                    sentence.words[row["hpoterm_startidx"]:row["hpoterm_endindx"]+1])
+                    [sentence.words[i] for i in row["hpoterm_wordidxs"]])
             # Create the relation
             relation = Relation("GENEHPOTERM", gene_mention, hpoterm_mention)
             # Add features

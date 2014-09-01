@@ -10,8 +10,7 @@ class Mention(object):
 
     doc_id = None
     sent_id = None
-    start_word_idx = None
-    end_word_idx = None
+    wordidxs = None
     id = None	
     type = None
     entity = None
@@ -22,16 +21,13 @@ class Mention(object):
     def __init__(self, _type, _entity, _words):
         self.doc_id = _words[0].doc_id
         self.sent_id = _words[0].sent_id
-        self.start_word_idx = _words[0].in_sent_idx
-        self.end_word_idx = _words[-1].in_sent_idx
+        self.wordidxs = sorted([word.in_sent_idx for word in _words])
         self.type = _type
         self.id = "MENTION_{}_{}_{}_{}_{}".format(self.type, self.doc_id,
-                self.sent_id, self.start_word_idx, self.end_word_idx)
+                self.sent_id, self.wordidxs[0], self.wordidxs[-1])
         self.entity = _entity;
         # These are Word objects
-        self.words = []
-        for w in _words:
-            self.words.append(w)
+        self.words = _words
         self.features = []
         self.is_correct = None
 
@@ -41,15 +37,13 @@ class Mention(object):
     ## Dump self to a json object
     def json_dump(self):
         json_obj = {"doc_id": self.doc_id, "sent_id": self.sent_id,
-                "start_word_idx": self.start_word_idx,
-                "end_word_idx": self.end_word_idx, 
+                "wordidxs": self.wordidxs,
                 "mention_id": self.id, "type": self.type,
                 "entity": self.entity,
                 "words": [w.word for w in self.words],
                 "is_correct":self.is_correct,
                 "features": self.features}
         return json.dumps(json_obj)
-
 
     ## Add a feature
     def add_feature(self, feature):

@@ -77,10 +77,8 @@ CREATE TABLE gene_mentions (
 	doc_id text,
 	-- sentence id
 	sent_id int,
-	-- start word id
-	start_word_idx int,
-	-- end word id
-	end_word_idx int,
+	-- indexes of the words composing the mention
+	wordidxs int[],
 	-- mention id
 	mention_id text,
 	-- mention type
@@ -104,10 +102,8 @@ CREATE TABLE hpoterm_mentions (
 	doc_id text,
 	-- sentence id
 	sent_id int,
-	-- start word id
-	start_word_idx int,
-	-- end word id
-	end_word_idx int,
+	-- indexes of the words composing the mention
+	wordidxs int[],
 	-- mention id
 	mention_id text,
 	-- mention type

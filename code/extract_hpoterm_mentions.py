@@ -15,7 +15,7 @@ random_examples = 0
 ## Perform the supervision
 def supervise(mention, sentence):
     if random.random() < SUPERVISION_PROB and \
-            (" ".join(mention.words)).lower() in supervision_hpoterms_dict:
+            (" ".join(mention.words)).casefold() in supervision_hpoterms_dict:
         mention.is_correct = True
 
 
@@ -23,17 +23,17 @@ def supervise(mention, sentence):
 # TODO (Matteo) There are obviously many more missing
 def add_features(mention, sentence):
     # The word "two on the left" of the mention, if present
-    if mention.start_word_idx > 1:
-        mention.add_feature("WINDOW_LEFT_2_[{}]".format(sentence.words[mention.start_word_idx + 2]))
+    if mention.wordidxs[0] > 1:
+        mention.add_feature("WINDOW_LEFT_2_[{}]".format(sentence.words[mention.wordidxs[0] - 2]))
     # The word "two on the right" on the left of the mention, if present
-    if mention.end_word_idx + 2 < len(sentence.words):
-        mention.add_feature("WINDOW_RIGHT_2_[{}]".format(sentence.words[mention.end_word_idx + 2]))
+    if mention.wordidxs[-1] + 2 < len(sentence.words):
+        mention.add_feature("WINDOW_RIGHT_2_[{}]".format(sentence.words[mention.wordidxs[-1] + 2]))
     # The word on the left of the mention, if present
-    if mention.start_word_idx > 0:
-        mention.add_feature("WINDOW_LEFT_1_[{}]".format(sentence.words[mention.start_word_idx - 1].lemma))
+    if mention.wordidxs[0] > 0:
+        mention.add_feature("WINDOW_LEFT_1_[{}]".format(sentence.words[mention.wordidxs[0] - 1].lemma))
     # The word on the right of the mention, if present
-    if mention.end_word_idx + 1 < len(sentence.words):
-        mention.add_feature("WINDOW_RIGHT_1_[{}]".format(sentence.words[mention.end_word_idx + 1].lemma))
+    if mention.wordidxs[-1] + 1 < len(sentence.words):
+        mention.add_feature("WINDOW_RIGHT_1_[{}]".format(sentence.words[mention.wordidxs[-1] + 1].lemma))
 
 
 ## Return a list of mentions from the sentence
