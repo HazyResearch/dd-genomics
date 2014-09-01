@@ -34,10 +34,8 @@ def main():
                     mention.is_correct = True
                 print(mention.json_dump())
             # Print big warning if we did not find the 'labelled' gene
-            # and exit with failure code!
-            if not found_gene:
-                sys.stderr.err("WARNING: Not found mention of '{}' in geneRifs {} ('{}')\n".format(gene, line_dict["doc_id"], " ".join(line_dict["words"])))
-                return 1
+            #if not found_gene:
+            #    sys.stderr.err("WARNING: Not found mention of '{}' in geneRifs {} ('{}')\n".format(gene, line_dict["doc_id"], " ".join(line_dict["words"])))
     return 0
 
 if __name__ == "__main__":
