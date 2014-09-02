@@ -1,9 +1,10 @@
 #! /usr/bin/env python3
 
+import fileinput
 import random
 
 from dstruct.Mention import Mention
-from helper.easierlife import get_input_sentences, get_all_phrases_in_sentence
+from helper.easierlife import get_all_phrases_in_sentence, get_line_dict, TSVstring2list, no_op
 from helper.dictionaries import load_dict
 
 SUPERVISION_HPOTERMS_DICT_FRACTION = 0.3
@@ -93,11 +94,27 @@ if __name__ == "__main":
         if length > max_variant_length:
             max_variant_length = length
     # Process the input
-    for sentence in get_input_sentences():
-        for mention in extract(sentence):
-            if mention.type != "RANDOM":
-                supervise(mention, sentence)
-            else:
-                mention.is_correct = False
-            print(mention.json_dump())
+    with fileinput.input() as input_files:
+        for line in input_files:
+            # This is for the json case
+            #line_dict = json.loads(line)
+            # This is for the tsv case
+            line_dict = get_line_dict(line, ["doc_id", "sent_id", "wordidxs",
+            "words", "poses", "ners", "lemmas", "dep_paths", "dep_parents",
+            "bounding_boxes"], [no_op, int, lambda x :
+                TSVstring2list(x, int), TSVstring2list, TSVstring2list,
+                TSVstring2list, TSVstring2list, TSVstring2list, lambda x :
+                TSVstring2list(x, int), TSVstring2list])
+            sentence = Sentence(line_dict["doc_id"], line_dict["sent_id"],
+                    line_dict["wordidxs"], line_dict["words"],
+                    line_dict["poses"], line_dict["ners"], line_dict["lemmas"],
+                    line_dict["dep_paths"], line_dict["dep_parents"],
+                    line_dict["bounding_boxes"])
+            for mention in extract(sentence):
+                if mention.type != "RANDOM":
+                    supervise(mention, sentence)
+                else:
+                    mention.is_correct = False
+                #print(mention.json_dump())
+                print(mention.tsv_dump())
 

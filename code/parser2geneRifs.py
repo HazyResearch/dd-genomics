@@ -9,7 +9,7 @@ import fileinput
 import json
 import sys
 
-from parser2sentences import list2TSVarray
+from helper.easierlife import list2TSVarray
 
 
 if len(sys.argv) < 2:

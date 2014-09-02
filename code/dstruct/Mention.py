@@ -6,6 +6,8 @@ Originally obtained from the 'pharm' repository, but modified.
 
 import json
 
+from helper.easierlife import list2TSVarray
+
 class Mention(object):
 
     doc_id = None
@@ -36,7 +38,7 @@ class Mention(object):
 
     ## Dump self to a json object
     def json_dump(self):
-        json_obj = {"doc_id": self.doc_id, "sent_id": self.sent_id,
+        json_obj = {"id": None, "doc_id": self.doc_id, "sent_id": self.sent_id,
                 "wordidxs": self.wordidxs,
                 "mention_id": self.id, "type": self.type,
                 "entity": self.entity,
@@ -44,6 +46,17 @@ class Mention(object):
                 "is_correct":self.is_correct,
                 "features": self.features}
         return json.dumps(json_obj)
+
+    ## Dump self to a TSV line
+    def tsv_dump(self):
+        is_correct_str = "\\N"
+        if self.is_correct != None:
+            is_correct_str = self.is_correct.__repr__()
+        tsv_line = "\t".join(["\\N", self.doc_id, str(self.sent_id),
+            list2TSVarray(self.wordidxs), self.mention_id, self.type,
+            self.entity, list2TSVarray(self.words, quote=True), is_correct_str,
+            list2TSVarray(self.features, quote=True)])
+        return tsv_line
 
     ## Add a feature
     def add_feature(self, feature):

@@ -49,25 +49,7 @@ import os.path
 import sys
 from multiprocessing import Process
 
-# Convert a list to a string that can be used in a TSV column and intepreted as
-# an array by the PostreSQL COPY FROM command.
-# If 'quote' is True, then double quote the string representation of the
-# elements of the list, and escape double quotes and backslashes.
-def list2TSVarray(a_list, quote=False):
-    if quote:
-        for index in range(len(a_list)):
-            if "\\" in str(a_list[index]):
-                # Replace '\' with '\\\\"' to be accepted by COPY FROM
-                a_list[index] = str(a_list[index]).replace("\\", "\\\\\\\\")
-            # This must happen the previous substitution
-            if "\"" in str(a_list[index]):
-                # Replace '"' with '\\"' to be accepted by COPY FROM
-                a_list[index] = str(a_list[index]).replace("\"", "\\\\\"")
-        string = ",".join(list(map(lambda x: "\"" + str(x) + "\"", a_list)))
-    else:
-        string = ",".join(list(map(lambda x: str(x), a_list)))
-    return "{" + string + "}"
-
+from helper.easierlife import list2TSVarray
 
 def process_files(proc_id, input_files, input_dir, output_dir, mode):
     with open(os.path.realpath("{}/sentences-{}.{}".format(output_dir, proc_id, mode)), 'wt') as out_file:
