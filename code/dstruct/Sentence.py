@@ -27,26 +27,12 @@ class Sentence(object):
         dep_parents = _dep_parents
         bounding_boxes = _bounding_boxes 
         self.words = []
-        for i in range(len(wordidxs)):
-            word = Word(self.doc_id, self.sent_id, wordidxs[i], words[i],
-                    poses[i], ners[i], lemmas[i], dep_paths[i], dep_parents[i],
-                    bounding_boxes[i])
-            self.words.append(word)
-
-    def __repr__(self):
-        return " ".join([w.word for w in self.words])
-  
-    def push_word(self, word):
-        if self.sent_id == None:
-            self.sent_id = word.sent_id
-            self.words.append(word)
-            return True
-        else:
-            if self.sent_id == word.sent_id:
+        if _wordidxs: # checking for None
+            for i in range(len(wordidxs)):
+                word = Word(self.doc_id, self.sent_id, wordidxs[i], words[i],
+                        poses[i], ners[i], lemmas[i], dep_paths[i], dep_parents[i],
+                        bounding_boxes[i])
                 self.words.append(word)
-                return True
-            else:
-                return False
 
     ## Return a list of the indexes of all words in the dependency path from
     ## the word at index word_index to the root

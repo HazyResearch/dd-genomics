@@ -58,6 +58,14 @@ def process_files(proc_id, input_files, input_dir, output_dir, mode):
             docid = filename
             with open(os.path.realpath(input_dir + "/" + filename), 'rt') as curr_file:
                 atEOF = False
+                # Check if the file is empty (we are at End of File)
+                curr_pos = curr_file.tell()
+                curr_file.read(1)
+                new_pos = curr_file.tell()
+                if new_pos == curr_pos:
+                    atEOF = True
+                else:
+                    curr_file.seek(curr_pos)
                 # One iteration of the following loop corresponds to one sentence
                 while not atEOF: 
                     sent_id = -1

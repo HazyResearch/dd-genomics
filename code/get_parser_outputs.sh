@@ -20,7 +20,8 @@ fi
 mkdir -p $2
 
 for article_filename in `find $1 -maxdepth 1 -type d`; do
-	if [ -r ${article_filename}/input.text ]; then
+	# -s : file exists and has size larger than 0
+	if [ -s ${article_filename}/input.text ]; then
 		NAME=`basename ${article_filename}`
 		if [ ! -r $2/${NAME} ]; then
 			ln -s `readlink -f ${article_filename}/input.text` $2/${NAME}
