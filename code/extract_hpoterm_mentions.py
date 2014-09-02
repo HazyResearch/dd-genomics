@@ -16,7 +16,7 @@ random_examples = 0
 ## Perform the supervision
 def supervise(mention, sentence):
     if random.random() < SUPERVISION_PROB and \
-            (" ".join(mention.words)).casefold() in supervision_hpoterms_dict:
+            " ".join([x.word.casefold() for x in mention.words]) in supervision_hpoterms_dict:
         mention.is_correct = True
 
 
@@ -87,7 +87,7 @@ for hpoterm in hpoterms_dict:
     i += 1
 
 
-if __name__ == "__main":
+if __name__ == "__main__":
     max_variant_length = 0
     for key in hpoterms_dict:
         length = len(key.split())
