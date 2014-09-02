@@ -39,7 +39,9 @@ def get_input_sentences(input_files=sys.argv[1:]):
 def get_dict_from_TSVline(line, keys, funcs):
     assert len(keys) == len(funcs)
     line_dict = dict()
-    tokens = line.strip().split("\t")
+    while line[-1] == '\n':
+        line = line[:-1]
+    tokens = line.split("\t")
     assert len(tokens) == len(keys)
     for i in range(len(tokens)):
         token = tokens[i]
