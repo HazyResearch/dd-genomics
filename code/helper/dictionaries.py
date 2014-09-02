@@ -21,9 +21,9 @@ def load_merged_genes_dictionary(filename):
             alternate_symbols = tokens[1].split("|")
             names = tokens[2].split("|")
             for sym in [symbol,] + alternate_symbols + names:
-                if sym.casefold() not in merged_genes_dict:
-                    merged_genes_dict[sym.casefold()] = []
-                merged_genes_dict[sym.casefold()].append(symbol)
+                if sym not in merged_genes_dict:
+                    merged_genes_dict[sym] = []
+                merged_genes_dict[sym].append(symbol)
     return merged_genes_dict
 
 # Load the genes dictionary
