@@ -72,6 +72,8 @@ def extract(sentence):
                 # Add features
                 add_features(mention, sentence)
                 mentions.append(mention)
+                for i in range(start, end + 1):
+                    history.add(i)
     return mentions
 
 
