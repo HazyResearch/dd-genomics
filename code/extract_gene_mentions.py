@@ -197,26 +197,47 @@ def extract(sentence):
                     "|".join(merged_genes_dict[phrase_caseless]), words[start:end])
             add_features(mention, sentence)
             mentions.append(mention)
+            # Add to history
+            for i in range(start, end + 1):
+                history.add(i)
         else: # Potentially generate a random mention
             # Check whether it's a number, we do not want to generate a mention
             # with it.
+            is_number = False
             try:
-                float(word.word)
+                float(phrase_caseless)
             except:
-                is_number = False
+                pass
             else:
-                is_number = True
-            if word.word.isalnum() and not is_number and word.word not in stopwords_dict and \
-                not word.pos.startswith("VB") and word.word not in merged_genes_dict and \
+                continue
+            has_stop_words = False
+            has_verbs = False
+            in_merged_dict = False
+            for word in words[start:end]:
+                if word.word in stopwords_dict:
+                    has_stop_words = True
+                    break
+                if word.pos.startwith("VB"):
+                    has_verbs = True
+                    break
+                # XXX (Matteo) Not perfect. A subset of phrase may be in the
+                # dict and we're not checking for this. Low probability, I'd
+                # say.
+                if word.word in merged_genes_dict:
+                    in_merged_dict = True
+                    break
+            if phrase_caseless.isalnum() and not is_number and not has_stop_words and \
+                not has_verbs and not in_merged_dict and \
                 len(sentence.words) > 5 and random.random() < RANDOM_EXAMPLES_PROB and \
                 random_examples < RANDOM_EXAMPLES_QUOTA:
                 # Generate a mention that somewhat resembles what a gene may look like,
                 # or at least its role in the sentence.
                 # This mention is supervised (as false) in the code calling this function
-                mention = Mention("RANDOM", word.word, [word,])
+                mention = Mention("RANDOM", phrase_caseless, sentence[start:end])
                 add_features(mention, sentence)
                 random_examples += 1
                 mentions.append(mention)
+    return mentions
 
 
 # Load the dictionaries that we need
