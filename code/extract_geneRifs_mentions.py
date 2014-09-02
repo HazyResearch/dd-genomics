@@ -36,8 +36,8 @@ def main():
             for mention in extract(sentence):
                 add_features(mention)
                 # Check whether this mention contains the 'labelled' gene
-                # XXX (Matteo) is this the right check?
-                if mention.entity.find(gene) > -1: 
+                # Only print it if that is the case
+                if mention.entity.find(gene) > -1 or mention.words[0].word.find(gene) > -1: 
                     found_gene = True
                     mention.is_correct = True
                     # this is for json
