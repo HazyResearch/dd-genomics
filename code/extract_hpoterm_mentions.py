@@ -91,13 +91,13 @@ for hpoterm in hpoterms_dict:
         supervision_hpoterms_dict[hpoterm] = hpoterms_dict[hpoterm]
     i += 1
 
+max_variant_length = 0
+for key in hpoterms_dict:
+    length = len(key.split())
+    if length > max_variant_length:
+        max_variant_length = length
 
 if __name__ == "__main__":
-    max_variant_length = 0
-    for key in hpoterms_dict:
-        length = len(key.split())
-        if length > max_variant_length:
-            max_variant_length = length
     # Process the input
     with fileinput.input() as input_files:
         for line in input_files:
