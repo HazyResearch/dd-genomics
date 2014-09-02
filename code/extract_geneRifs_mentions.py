@@ -9,7 +9,7 @@ import sys
 
 from dstruct.Sentence import Sentence
 from extract_gene_mentions import extract, add_features
-from helper.easierlife import get_line_dict, TSVstring2list, no_op
+from helper.easierlife import get_dict_from_TSVline, TSVstring2list, no_op
 
 def main():
     # Process the input
@@ -18,7 +18,7 @@ def main():
             # This is for the json case
             #line_dict = json.loads(line)
             # This is for the tsv case
-            line_dict = get_line_dict(line, ["doc_id", "sent_id", "wordidxs",
+            line_dict = get_dict_from_TSVline(line, ["doc_id", "sent_id", "wordidxs",
             "words", "poses", "ners", "lemmas", "dep_paths", "dep_parents",
             "bounding_boxes", "gene"], [no_op, int, lambda x :
                 TSVstring2list(x, int), TSVstring2list, TSVstring2list,

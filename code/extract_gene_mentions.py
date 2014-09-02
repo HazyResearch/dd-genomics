@@ -11,7 +11,7 @@ import random
 from dstruct.Mention import Mention
 from dstruct.Sentence import Sentence
 from helper.dictionaries import load_dict
-from helper.easierlife import get_all_phrases_in_sentence, get_line_dict, TSVstring2list, no_op
+from helper.easierlife import get_all_phrases_in_sentence, get_dict_from_TSVline, TSVstring2list, no_op
 
 RANDOM_EXAMPLES_PROB = 0.01
 RANDOM_EXAMPLES_QUOTA = 1000
@@ -245,7 +245,7 @@ if __name__ == "__main__":
             # This is for json
             #line_dict = json.loads(line)
             # This is for tsv
-            line_dict = get_line_dict(line, ["doc_id", "sent_id", "wordidxs",
+            line_dict = get_dict_from_TSVline(line, ["doc_id", "sent_id", "wordidxs",
             "words", "poses", "ners", "lemmas", "dep_paths", "dep_parents",
             "bounding_boxes", "acronym"], [no_op, int, lambda x :
                 TSVstring2list(x, int), TSVstring2list, TSVstring2list,

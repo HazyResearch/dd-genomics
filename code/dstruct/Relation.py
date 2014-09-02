@@ -5,6 +5,8 @@
 
 import json
 
+from helper.easierlife import list2TSVarray
+
 class Relation(object):
     doc_id = None
     sent_id = None
@@ -42,4 +44,15 @@ class Relation(object):
             "words_1" : [x.word for x  in self.mention_1_words],
             "words_2" : [x.word for x  in self.mention_2_words],
             "is_correct":self.is_correct, "features":self.features})
+
+    def tsv_dump(self):
+        is_correct_str = "\\N"
+        if self.is_correct != None:
+            is_correct_str = self.is_correct.__repr__()
+        return "\t".join(self.doc_id, str(self.sent_id), self.id, self.type,
+                list2TSVarray([x.in_sent_idx for x in self.mention1_words]),
+                list2TSVarray([x.in_sent_idx for x in self.mention2_words]),
+                list2TSVarray([x.word for x in self.mention1_words], quote=True),
+                list2TSVarray([x.word for x in self.mention2_words], quote=True), 
+                is_correct_str, list2TSVarray(self.features, quote=True))
 

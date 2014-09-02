@@ -1,14 +1,13 @@
 #! /usr/bin/env python3
 
 import fileinput
-import json
 import random
 
 from dstruct.Mention import Mention
 from dstruct.Sentence import Sentence
 from dstruct.Relation import Relation
-
 from helper.dictionaries import load_dict
+from helper.easierlife import get_dict_from_TSVline, no_op, TSVstring2list
 
 SUPERVISION_PROB = 0.5
 SUPERVISION_GENEHPOTERMS_DICT_FRACTION = 0.4
@@ -65,16 +64,26 @@ if __name__ == "__main__":
     # Process input
     with fileinput.input as input_files:
         for line in input_files:
-            row = json.loads(line)
+            # This is for json
+            #line_dict = json.loads(line)
+            # This is for tsv
+            line_dict = get_dict_from_TSVline(line, [ "doc_id", "sent_id", "wordidxs",
+            "words", "poses", "ners", "lemmas", "dep_paths", "dep_parents",
+            "bounding_boxes", "gene_entity", "gene_wordidxs", "hpoterm_entity",
+            "hpoterm_wordidxs"], [no_op, int, lambda x :
+                TSVstring2list(x, int), TSVstring2list, TSVstring2list,
+                TSVstring2list, TSVstring2list, TSVstring2list, lambda x :
+                TSVstring2list(x, int), TSVstring2list, no_op, lambda x:
+                TSVstring2list(x, int), no_op, lambda x : TSVstring2list(x, int)])
             # Create the sentence object where the two mentions appear
-            sentence = Sentence(row["doc_id"], row["sent_id"], row["wordidxs"],
-                    row["words"], row["poses"], row["ners"], row["lemmas"],
-                    row["dep_paths"], row["dep_parents"], row["bounding_boxes"])
+            sentence = Sentence(line_dict["doc_id"], line_dict["sent_id"], line_dict["wordidxs"],
+                    line_dict["words"], line_dict["poses"], line_dict["ners"], line_dict["lemmas"],
+                    line_dict["dep_paths"], line_dict["dep_parents"], line_dict["bounding_boxes"])
             # Create the mentions
-            gene_mention = Mention("GENE", row["gene_entity"],
-                    [sentence.words[i] for i in row["gene_wordidxs"]])
-            hpoterm_mention = Mention("HPOTERM", row["hpoterm_entity"],
-                    [sentence.words[i] for i in row["hpoterm_wordidxs"]])
+            gene_mention = Mention("GENE", line_dict["gene_entity"],
+                    [sentence.words[i] for i in line_dict["gene_wordidxs"]])
+            hpoterm_mention = Mention("HPOTERM", line_dict["hpoterm_entity"],
+                    [sentence.words[i] for i in line_dict["hpoterm_wordidxs"]])
             # Create the relation
             relation = Relation("GENEHPOTERM", gene_mention, hpoterm_mention)
             # Add features
@@ -82,5 +91,8 @@ if __name__ == "__main__":
             # Supervise
             supervise(relation, gene_mention, hpoterm_mention, sentence)
             # Print!
-            print(relation.json_dump())
+            # This is for json
+            #print(relation.json_dump())
+            # This is for tsv
+            print(relation.tsv_dump())
 

@@ -4,7 +4,8 @@ import fileinput
 import random
 
 from dstruct.Mention import Mention
-from helper.easierlife import get_all_phrases_in_sentence, get_line_dict, TSVstring2list, no_op
+from dstruct.Sentence import Sentence
+from helper.easierlife import get_all_phrases_in_sentence, get_dict_from_TSVline, TSVstring2list, no_op
 from helper.dictionaries import load_dict
 
 SUPERVISION_HPOTERMS_DICT_FRACTION = 0.3
@@ -25,10 +26,10 @@ def supervise(mention, sentence):
 def add_features(mention, sentence):
     # The word "two on the left" of the mention, if present
     if mention.wordidxs[0] > 1:
-        mention.add_feature("WINDOW_LEFT_2_[{}]".format(sentence.words[mention.wordidxs[0] - 2]))
+        mention.add_feature("WINDOW_LEFT_2_[{}]".format(sentence.words[mention.wordidxs[0] - 2].lemma))
     # The word "two on the right" on the left of the mention, if present
     if mention.wordidxs[-1] + 2 < len(sentence.words):
-        mention.add_feature("WINDOW_RIGHT_2_[{}]".format(sentence.words[mention.wordidxs[-1] + 2]))
+        mention.add_feature("WINDOW_RIGHT_2_[{}]".format(sentence.words[mention.wordidxs[-1] + 2].lemma))
     # The word on the left of the mention, if present
     if mention.wordidxs[0] > 0:
         mention.add_feature("WINDOW_LEFT_1_[{}]".format(sentence.words[mention.wordidxs[0] - 1].lemma))
@@ -58,7 +59,7 @@ def extract(sentence):
                 history.add(i)
             term = hpoterms_dict[phrase_caseless]
             mention = Mention("HPOTERM", term, words[start:end])
-            # Add feature
+            # Add features
             add_features(mention, sentence)
             mentions.append(mention)
         else: 
@@ -68,6 +69,8 @@ def extract(sentence):
             if random.random() < RANDOM_EXAMPLES_PROB and random_examples < RANDOM_EXAMPLES_QUOTA:
                 mention = Mention("RANDOM", "random", words[start:end])
                 random_examples += 1
+                # Add features
+                add_features(mention, sentence)
                 mentions.append(mention)
     return mentions
 
@@ -99,7 +102,7 @@ if __name__ == "__main__":
             # This is for the json case
             #line_dict = json.loads(line)
             # This is for the tsv case
-            line_dict = get_line_dict(line, ["doc_id", "sent_id", "wordidxs",
+            line_dict = get_dict_from_TSVline(line, ["doc_id", "sent_id", "wordidxs",
             "words", "poses", "ners", "lemmas", "dep_paths", "dep_parents",
             "bounding_boxes"], [no_op, int, lambda x :
                 TSVstring2list(x, int), TSVstring2list, TSVstring2list,

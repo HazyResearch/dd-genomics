@@ -53,7 +53,7 @@ class Mention(object):
         if self.is_correct != None:
             is_correct_str = self.is_correct.__repr__()
         tsv_line = "\t".join(["\\N", self.doc_id, str(self.sent_id),
-            list2TSVarray(self.wordidxs), self.mention_id, self.type,
+            list2TSVarray(self.wordidxs), self.id, self.type,
             self.entity, list2TSVarray(self.words, quote=True), is_correct_str,
             list2TSVarray(self.features, quote=True)])
         return tsv_line

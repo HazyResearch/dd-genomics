@@ -52,7 +52,7 @@ def no_op(x):
 
 ## Transform a string obtained by postgresql array_str() into a list. 
 # The parameter func() gets applied to the elements of the list
-def TSVstring2list(string, func=(lambda x : x), sep="$$$"):
+def TSVstring2list(string, func=(lambda x : x), sep="|^|"):
     tokens = string.split(sep)
     return [func(x) for x in tokens]
 
