@@ -66,15 +66,14 @@ def supervise(mention, sentence):
 ## Add features to a gene mention
 def add_features(mention, sentence):
     # The mention is a 'main' symbol:
-    if len(mention.words) == 1 and mention.entity == mention.words[0].word:
+    if len(mention.words) == 1 and mention.entity == mention.words[0].word and mention.entity in merged_genes_dict:
         mention.add_feature('IS_MAIN_SYMBOL')
     # The mention is a synonym symbol
     # XXX (Matteo) this is not entirely foolproof
-    elif len(mention.words) == 1 and not (mention.word[0].word.isalpha() and \
-            mention.words[0].word.casefold() == mention.words[0].word): 
-        mention.add_feature('IS_SYNONYM_SYMBOL')
+    elif len(mention.words) == 1 and mention.entity in merged_genes_dict:
+        mention.add_feature('IS_SYNONYM')
     # The mention is a long name
-    else:
+    elif mention.entity in merged_genes_dict:
         mention.add_feature('IS_LONG_NAME')
     # The mention is a single word that is in the English dictionary
     if len(mention.words) == 1 and mention.words[0].word.casefold() in english_dict or \
@@ -160,10 +159,10 @@ def add_features(mention, sentence):
         mention.add_feature("WINDOW_RIGHT_1_[{}]".format(
             sentence.words[idx].lemma))
     # The word appears many times (more than 4) in the sentence
-    if len(mentions.words) == 1 and [w.word for w in sentence.words].count(mention.words[0].word) > 4:
+    if len(mention.words) == 1 and [w.word for w in sentence.words].count(mention.words[0].word) > 4:
         mention.add_feature("APPEARS_MANY_TIMES_IN_SENTENCE")
     # There are many PERSONs/ORGANIZATIONs/LOCATIONs in the sentence
-    for ner in ["PERSON", "ORGANIZAZTION", "LOCATION"]:
+    for ner in ["PERSON", "ORGANIZATION", "LOCATION"]:
         if [x.lemma for x in sentence.words].count(ner) > 4:
             mention.add_feature("MANY_{}_IN_SENTENCE".format(ner))
 
@@ -173,7 +172,7 @@ def add_features_to_all(mentions, sentence):
     # Number of other mentions in the sentence 
     for i in range(len(mentions)):
         for mention in mentions:
-            mention.add_feature("{}_OTHER_MENTIONS_IN_SENTENCE".format(i - 1))
+            mention.add_feature("{}_OTHER_MENTIONS_IN_SENTENCE".format(i))
 
 
 ## Return a list of mention candidates extracted from the sentence
@@ -189,12 +188,11 @@ def extract(sentence):
         if start in history or end in history:
                 continue
         phrase = " ".join([word.word for word in words[start:end]])
-        phrase_caseless = phrase.casefold()
         mention = None
         # If the phrase is in the dictionary, then is a mention candidate
-        if phrase_caseless in merged_genes_dict:
+        if phrase in merged_genes_dict:
             mention = Mention("GENE",
-                    "|".join(merged_genes_dict[phrase_caseless]), words[start:end])
+                    "|".join(merged_genes_dict[phrase]), words[start:end])
             add_features(mention, sentence)
             mentions.append(mention)
             # Add to history
@@ -205,7 +203,7 @@ def extract(sentence):
             # with it.
             is_number = False
             try:
-                float(phrase_caseless)
+                float(phrase)
             except:
                 pass
             else:
@@ -217,7 +215,7 @@ def extract(sentence):
                 if word.word in stopwords_dict:
                     has_stop_words = True
                     break
-                if word.pos.startwith("VB"):
+                if word.pos.startswith("VB"):
                     has_verbs = True
                     break
                 # XXX (Matteo) Not perfect. A subset of phrase may be in the
@@ -226,14 +224,14 @@ def extract(sentence):
                 if word.word in merged_genes_dict:
                     in_merged_dict = True
                     break
-            if phrase_caseless.isalnum() and not is_number and not has_stop_words and \
+            if phrase.isalnum() and not is_number and not has_stop_words and \
                 not has_verbs and not in_merged_dict and \
                 len(sentence.words) > 5 and random.random() < RANDOM_EXAMPLES_PROB and \
                 random_examples < RANDOM_EXAMPLES_QUOTA:
                 # Generate a mention that somewhat resembles what a gene may look like,
                 # or at least its role in the sentence.
                 # This mention is supervised (as false) in the code calling this function
-                mention = Mention("RANDOM", phrase_caseless, sentence[start:end])
+                mention = Mention("RANDOM", phrase, sentence.words[start:end])
                 add_features(mention, sentence)
                 random_examples += 1
                 mentions.append(mention)
