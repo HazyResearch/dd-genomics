@@ -70,7 +70,7 @@ def add_features(mention, sentence):
         mention.add_feature('IS_MAIN_SYMBOL')
     # The mention is a synonym symbol
     # XXX (Matteo) this is not entirely foolproof
-    elif len(mention.words) == 1 and mention.entity in merged_genes_dict:
+    elif len(mention.words) == 1 and (mention.entity in merged_genes_dict or mention.words[0].word in merged_genes_dict) :
         mention.add_feature('IS_SYNONYM')
     # The mention is a long name
     elif mention.entity in merged_genes_dict:
