@@ -45,7 +45,10 @@ def get_dict_from_TSVline(line, keys, funcs):
     assert len(tokens) == len(keys)
     for i in range(len(tokens)):
         token = tokens[i]
-        line_dict[keys[i]] = funcs[i](token)
+        try:
+            line_dict[keys[i]] = funcs[i](token)
+        except:
+            line_dict[keys[i]] = None
     return line_dict
 
 # Return the argument
