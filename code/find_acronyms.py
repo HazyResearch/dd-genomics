@@ -5,6 +5,7 @@
 import fileinput
 import json
 
+from dstruct.Sentence import Sentence
 from helper.dictionaries import load_dict
 from helper.easierlife import get_dict_from_TSVline, no_op, TSVstring2list
 
@@ -96,7 +97,7 @@ if __name__ == "__main__":
                 # This is for json
                 #print(json.dumps(acronym))
                 # This is for tsv
-                print("\t".join([acronym["doc_id"], acronym["sent_id"],
-                    acronym["word_idx"], acronym["acronym"],
+                print("\t".join([acronym["doc_id"], str(acronym["sent_id"]),
+                    str(acronym["word_idx"]), acronym["acronym"],
                     acronym["definition"]]))
 
