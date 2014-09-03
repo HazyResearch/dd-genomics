@@ -8,10 +8,10 @@ from dstruct.Sentence import Sentence
 from helper.easierlife import get_all_phrases_in_sentence, get_dict_from_TSVline, TSVstring2list, no_op
 from helper.dictionaries import load_dict
 
-SUPERVISION_HPOTERMS_DICT_FRACTION = 0.3
+SUPERVISION_HPOTERMS_DICT_FRACTION = 0.5
 SUPERVISION_PROB = 0.5
 RANDOM_EXAMPLES_PROB = 0.01
-RANDOM_EXAMPLES_QUOTA = 15000
+RANDOM_EXAMPLES_QUOTA = 7500
 random_examples = 0
 
 ## Perform the supervision
