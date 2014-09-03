@@ -12,7 +12,7 @@ export APP_HOME=`pwd`
 
 # Machine Configuration
 export MEMORY="256g"
-export PARALLELISM=70
+export PARALLELISM=90
 
 # The number of sentences in the sentences table
 export SENTENCES=95027000
