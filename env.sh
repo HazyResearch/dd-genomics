@@ -12,7 +12,13 @@ export APP_HOME=`pwd`
 
 # Machine Configuration
 export MEMORY="256g"
-export PARALLELISM=4
+export PARALLELISM=70
+
+# The number of sentences in the sentences table
+export SENTENCES=95027000
+# The input batch size for extractors working on the sentences table
+export SENTENCES_BATCH_SIZE=`echo  "(" ${SENTENCES} "/" ${PARALLELISM} ") + 1" | bc`
+
 
 # Database Configuration
 export DBNAME=genomics
