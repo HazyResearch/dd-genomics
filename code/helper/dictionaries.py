@@ -65,6 +65,19 @@ def load_hpoterms_dictionary(filename):
     return hpoterms_dict
 
 
+# Load the medical acronyms dictionary
+def load_medacrons_dictionary(filename):
+    medacrons_dict = dict()
+    with open(filename, 'rt') as medacrons_dict_file:
+        for line in medacrons_dict_file:
+            tokens = line.strip().split("\t")
+            # 1st token is acronym, 2nd is definition
+            name = tokens[0]
+            definition = tokens[1].casefold()
+            medacrons_dict[definition] = name
+    return medacrons_dict
+
+
 # Load a dictionary which is a set.
 def load_set(filename):
     _set = set()
@@ -96,15 +109,18 @@ def load_set_pairs(filename):
 # Dictionaries
 GENES_DICT_FILENAME = BASE_DIR + "/dicts/hugo_synonyms.tsv"
 ENGLISH_DICT_FILENAME = BASE_DIR + "/dicts/english_words.tsv"
-GENEHPOTERM_DICT_FILENAME = BASE_DIR + "/dicts/genes_to_hpo_terms_with_synonyms.tsv"
+GENEHPOTERM_DICT_FILENAME = BASE_DIR + \
+    "/dicts/genes_to_hpo_terms_with_synonyms.tsv"
 HPOTERMS_DICT_FILENAME = BASE_DIR + "/dicts/hpo_terms.tsv"
 MED_ACRONS_DICT_FILENAME = BASE_DIR + "/dicts/med_acronyms_pruned.tsv"
 MERGED_GENES_DICT_FILENAME = BASE_DIR + "/dicts/merged_genes_dict.tsv"
 NIH_GRANTS_DICT_FILENAME = BASE_DIR + "/dicts/grant_codes_nih.tsv"
 NSF_GRANTS_DICT_FILENAME = BASE_DIR + "/dicts/grant_codes_nsf.tsv"
 STOPWORDS_DICT_FILENAME = BASE_DIR + "/dicts/english_stopwords.tsv"
-POS_GENE_MENTIONS_DICT_FILENAME = BASE_DIR + "/dicts/positive_gene_mentions.tsv"
-NEG_GENE_MENTIONS_DICT_FILENAME= BASE_DIR + "/dicts/negative_gene_mentions.tsv"
+POS_GENE_MENTIONS_DICT_FILENAME = BASE_DIR + \
+    "/dicts/positive_gene_mentions.tsv"
+NEG_GENE_MENTIONS_DICT_FILENAME = BASE_DIR + \
+    "/dicts/negative_gene_mentions.tsv"
 
 # Dictionary of dictionaries. First argument is the filename, second is the
 # function to call to load the dictionary. The function must take the filename
@@ -113,14 +129,18 @@ dictionaries = dict()
 dictionaries["genes"] = [GENES_DICT_FILENAME, load_genes_dictionary]
 dictionaries["english"] = [ENGLISH_DICT_FILENAME, load_set_lower_case]
 dictionaries["genehpoterms"] = [GENEHPOTERM_DICT_FILENAME, load_set_pairs]
-dictionaries["hpoterms"] = [HPOTERMS_DICT_FILENAME,load_hpoterms_dictionary ]
+dictionaries["hpoterms"] = [HPOTERMS_DICT_FILENAME, load_hpoterms_dictionary]
 dictionaries["nih_grants"] = [NIH_GRANTS_DICT_FILENAME, load_set]
 dictionaries["nsf_grants"] = [NSF_GRANTS_DICT_FILENAME, load_set]
-dictionaries["med_acrons"] = [MED_ACRONS_DICT_FILENAME, load_set]
-dictionaries["merged_genes"] = [MERGED_GENES_DICT_FILENAME, load_merged_genes_dictionary]
+dictionaries["med_acrons"] = [MED_ACRONS_DICT_FILENAME,
+                              load_medacrons_dictionary]
+dictionaries["merged_genes"] = [MERGED_GENES_DICT_FILENAME,
+                                load_merged_genes_dictionary]
 dictionaries["stopwords"] = [STOPWORDS_DICT_FILENAME, load_set]
-dictionaries["pos_gene_mentions"] = [POS_GENE_MENTIONS_DICT_FILENAME, load_examples_dictionary]
-dictionaries["neg_gene_mentions"] = [NEG_GENE_MENTIONS_DICT_FILENAME, load_examples_dictionary]
+dictionaries["pos_gene_mentions"] = [POS_GENE_MENTIONS_DICT_FILENAME,
+                                     load_examples_dictionary]
+dictionaries["neg_gene_mentions"] = [NEG_GENE_MENTIONS_DICT_FILENAME,
+                                     load_examples_dictionary]
 
 
 # Load a dictionary using the appropriate filename and load function
@@ -158,7 +178,8 @@ def get_variants(words, separator="/"):
             variant_base = base + [variant_starting_word]
             if len(following_variants) > 0:
                 for following_variant in following_variants:
-                    variants.append(" ".join(variant_base +[following_variant]))
+                    variants.append(" ".join(variant_base +
+                                             [following_variant]))
             else:
                 variants.append(" ".join(variant_base))
     else:
