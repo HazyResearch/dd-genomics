@@ -71,7 +71,8 @@ def supervise(mention, sentence):
 # Add features to a gene mention
 def add_features(mention, sentence):
     # The mention is a 'main' symbol:
-    if len(mention.words) == 1 and mention.entity == mention.words[0].word and \
+    if len(mention.words) == 1 and \
+            mention.entity == mention.words[0].word and \
             mention.entity in merged_genes_dict:
         mention.add_feature('IS_MAIN_SYMBOL')
     # The mention is a synonym symbol
@@ -84,7 +85,8 @@ def add_features(mention, sentence):
     elif mention.entity in merged_genes_dict:
         mention.add_feature('IS_LONG_NAME')
     # The mention is a single word that is in the English dictionary
-    if len(mention.words) == 1 and mention.words[0].word.casefold() in english_dict or \
+    if len(mention.words) == 1 and \
+            mention.words[0].word.casefold() in english_dict or \
             mention.words[0].lemma in english_dict:
         mention.add_feature('IS_ENGLISH_WORD')
     # The NER is an organization, or a location, or a person
@@ -243,7 +245,8 @@ def extract(sentence):
                     break
             if phrase.isalnum() and not is_number and not has_stop_words and \
                     not has_verbs and not in_merged_dict and \
-                    len(sentence.words) > 5 and random.random() < RANDOM_EXAMPLES_PROB and \
+                    len(sentence.words) > 5 and \
+                    random.random() < RANDOM_EXAMPLES_PROB and \
                     random_examples < RANDOM_EXAMPLES_QUOTA:
                 # Generate a mention that somewhat resembles what a gene may
                 # look like,
@@ -263,12 +266,12 @@ english_dict = load_dict("english")
 stopwords_dict = load_dict("stopwords")
 pos_mentions_dict = load_dict("pos_gene_mentions")
 neg_mentions_dict = load_dict("neg_gene_mentions")
+med_acrons_dict = load_dict("med_acrons")
 # XXX (Matteo) This dictionaries were used when we didn't have geneRifs to
 # label mention candidates as positive. Now they're no longer needed. See also
 # comment in supervise().
 # nih_grants_dict = load_dict("nih_grants")
 # nsf_grants_dict = load_dict("nsf_grants")
-# med_acrons_dict = load_dict("med_acrons")
 max_mention_length = 0
 for key in merged_genes_dict:
     length = len(key.split())
@@ -285,7 +288,8 @@ if __name__ == "__main__":
                                                   "words", "poses", "ners",
                                                   "lemmas", "dep_paths",
                                                   "dep_parents",
-                                                  "bounding_boxes", "acronym"],
+                                                  "bounding_boxes", "acronym",
+                                                  "definitions"],
                                               [no_op, int, lambda x:
                                                   TSVstring2list(x, int),
                                                   TSVstring2list,
@@ -294,13 +298,17 @@ if __name__ == "__main__":
                                                   TSVstring2list,
                                                   TSVstring2list, lambda x:
                                                   TSVstring2list(x, int),
-                                                  TSVstring2list, no_op])
+                                                  TSVstring2list, no_op,
+                                                  TSVstring2list])
             sentence = Sentence(line_dict["doc_id"], line_dict["sent_id"],
                                 line_dict["wordidxs"], line_dict["words"],
                                 line_dict["poses"], line_dict["ners"],
                                 line_dict["lemmas"], line_dict["dep_paths"],
                                 line_dict["dep_parents"],
                                 line_dict["bounding_boxes"])
+            # Remove duplicates
+            line_dict["definitions"] = frozenset([x.casefold() for x in
+                                                  line_dict["definitions"]])
             # Get list of mentions candidates in this sentence
             mentions = extract(sentence)
             # Add features that use information about other mentions
@@ -315,6 +323,10 @@ if __name__ == "__main__":
                 elif "acronym" in line_dict and \
                         mention.words[0].word == line_dict["acronym"]:
                     mention.type = "ACRONYM"
+                    for definition in line_dict["definitions"]:
+                        if definition.casefold() in med_acrons_dict:
+                            mention.add_feature("IS_MED_ACRONYM")
+                            break
                     if false_acronyms < ACRONYMS_QUOTA and \
                             random.random() < ACRONYMS_PROB:
                         mention.is_correct = False
