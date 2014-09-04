@@ -3536,7 +3536,7 @@ DHX40P1	DHX40P	DEAH (Asp-Glu-Ala-His) box polypeptide 40 pseudogene 1
 LHFPL3-AS1		LHFPL3 antisense RNA 1
 TPT1P14		tumor protein, translationally-controlled 1 pseudogene 14
 PTP4A1P4		protein tyrosine phosphatase type IVA, member 1 pseudogene 4
-BDNF		brain-derived neurotrophic factor|neurotrophin
+BDNF		brain-derived neurotrophic factor|neurotrophin|brain derived neurotrophic factor
 GABRR1		gamma-aminobutyric acid (GABA) A receptor, rho 1|GABA(A) receptor, rho 1
 ERVK-24	HERV-K101|c22_A	endogenous retrovirus group K, member 24
 PRKX-AS1		PRKX antisense RNA 1
@@ -6305,7 +6305,7 @@ DNM3-IT1		DNM3 intronic transcript 1 (non-protein coding)
 BLCAP	BC10	bladder cancer associated protein
 ANPEP	LAP1|PEPN|p150|CD13|gp150	aminopeptidase M|microsomal aminopeptidase|alanyl (membrane) aminopeptidase|aminopeptidase N
 ARMC10	SVH|MGC3195	specific Splicing Variant involved in Hepatocarcinogenesis|armadillo repeat containing 10
-AKAP1	AKAP121|PPP1R43|AKAP84|AKAP149|PRKA1|D-AKAP1|S-AKAP84|TDRD17|SAKAP84	A kinase (PRKA) anchor protein 1|tudor domain containing 17|dual specificity A-kinase-anchoring protein 1|protein phosphatase 1, regulatory subunit 43|protein kinase anchoring protein 1
+AKAP1	AKAP121|PPP1R43|AKAP84|AKAP149|PRKA1|D-AKAP1|S-AKAP84|TDRD17|SAKAP84	A kinase (PRKA) anchor protein 1|tudor domain containing 17|dual specificity A-kinase-anchoring protein 1|protein phosphatase 1, regulatory subunit 43|protein kinase anchoring protein 1|A-kinase anchor protein
 RNU6ATAC14P		RNA, U6atac small nuclear 14, pseudogene
 OR4S2	OR4S2P|OST725	olfactory receptor, family 4, subfamily S, member 2
 TTC18	FLJ25765	tetratricopeptide repeat domain 18
@@ -8752,7 +8752,7 @@ RPL13AP17		ribosomal protein L13a pseudogene 17
 CCNB1IP1P2		cyclin B1 interacting protein 1 pseudogene 2
 EGFR-AS1		EGFR antisense RNA 1
 CD302	BIMLEC|DCL-1|CLEC13A|KIAA0022	CD302 molecule|C-type lectin domain family 13, member A
-MYH9	NMHC-II-A|EPSTS|NMMHCA|FTNS|DFNA17|MHA	myosin, heavy chain 9, non-muscle|nonmuscle myosin heavy chain II-A
+MYH9	NMHC-II-A|EPSTS|NMMHCA|FTNS|DFNA17|MHA	myosin, heavy chain 9, non-muscle|nonmuscle myosin heavy chain II-A|myosin heavy chain 9 gene|myosin heavy chain 9
 MIR630	hsa-mir-630|MIRN630	microRNA 630
 BRK1P2		BRICK1, SCAR/WAVE actin-nucleating complex subunit pseudogene 2
 RNU7-68P	HSU7.732A|RNU7P1|U7.68	RNA, U7 small nuclear 68 pseudogene
@@ -11234,7 +11234,7 @@ PPP1R2P7		protein phosphatase 1, regulatory (inhibitor) subunit 2 pseudogene 7
 TAAR1	TRAR1|TAR1|TA1	trace amine associated receptor 1
 MFI2-AS1		MFI2 antisense RNA 1
 PROB1	C5orf65	proline-rich basic protein 1
-PCNA		proliferating cell nuclear antigen
+PCNA		proliferating cell nuclear antigen|proliferating cells nuclear antigen
 MRPS18CP6		mitochondrial ribosomal protein S18C pseudogene 6
 LRRTM1	FLJ32082	leucine rich repeat transmembrane neuronal 1
 NTNG2	NTNG1|Lmnt2|KIAA1857	Netrin-G2|netrin G2
@@ -13390,7 +13390,7 @@ RAB23		RAB23, member RAS oncogene family
 MIR1303	hsa-mir-1303|MIRN1303	microRNA 1303
 FRA3C		fragile site, aphidicolin type, common, fra(3)(q27)
 OR6Q1		olfactory receptor, family 6, subfamily Q, member 1
-NGF	NGFB	nerve growth factor (beta polypeptide)
+NGF	NGFB	nerve growth factor (beta polypeptide)|nerve growth factor|neural growth factor
 LDHAP5	LDHAL5	lactate dehydrogenase A pseudogene 5
 WDR77	MEP50	WD repeat domain 77
 NFATC2	NF-ATP|NFAT1|NFATp	nuclear factor of activated T-cells, cytoplasmic, calcineurin-dependent 2
@@ -14004,7 +14004,7 @@ OR2A12	OR2A12P	olfactory receptor, family 2, subfamily A, member 12
 PDE3B	HcGIP1	phosphodiesterase 3B, cGMP-inhibited
 DDX52	ROK1	DEAD (Asp-Glu-Ala-Asp) box polypeptide 52
 CTBP2P3		C-terminal binding protein 2 pseudogene 3
-VEGFA	VEGF-A|VEGF|VPF	vascular endothelial growth factor A
+VEGFA	VEGF-A|VEGF|VPF	vascular endothelial growth factor A|vascular endothelial growth factor
 TRAJ7		T cell receptor alpha joining 7
 FAM197Y3		family with sequence similarity 197, Y-linked, member 3
 RNA18S3		RNA, 18S ribosomal 3
@@ -15313,7 +15313,7 @@ LINC01010		long intergenic non-protein coding RNA 1010
 IGLVI-68	IGLV(I)-68	immunoglobulin lambda variable (I)-68 (pseudogene)
 GPATCH4	GPATC4|DKFZP434F1735|FLJ20249	G patch domain containing 4
 UBL7-AS1		UBL7 antisense RNA 1 (head to head)
-GH1	GHN|GH|GH-N|hGH-N	growth hormone 1|pituitary growth hormone
+GH1	GHN|GH|GH-N|hGH-N	growth hormone 1|pituitary growth hormone|growth hormone
 CDV3P1		CDV3 homolog (mouse) pseudogene 1
 MMACHC	DKFZP564I122|cblC	methylmalonic aciduria (cobalamin deficiency) cblC type, with homocystinuria
 GPR39		G protein-coupled receptor 39
@@ -15637,7 +15637,7 @@ ZNF33AP1	BA393J16.4|ZNF33CP	zinc finger protein 33A pseudogene 1
 RIMS3	RIM3|NIM3	regulating synaptic membrane exocytosis 3
 AP3M2	CLA20|AP47B	adaptor-related protein complex 3, mu 2 subunit
 SLC2A14	SLC2A3P3|GLUT14	solute carrier family 2 (facilitated glucose transporter), member 14
-ALK	CD246	anaplastic lymphoma receptor tyrosine kinase
+ALK	CD246	anaplastic lymphoma receptor tyrosine kinase|anaplastic lymphoma kinase
 ATRAID	C2orf28|p18|HSPC013|APR3	apoptosis-related protein 3|all-trans retinoic acid-induced differentiation factor
 TSGA10	CT79|CEP4L	testis specific, 10|cancer/testis antigen 79
 RPL13P4	HsT16723	ribosomal protein L13 pseudogene 4
@@ -17517,7 +17517,7 @@ RPL36AP21		ribosomal protein L36a pseudogene 21
 DPY19L2	FLJ32949|SPATA34	spermatogenesis associated 34|dpy-19-like 2 (C. elegans)
 PTPRN	IA-2	protein tyrosine phosphatase, receptor type, N
 SLC36A1	PAT1|LYAAT-1|TRAMD3	solute carrier family 36 (proton/amino acid symporter), member 1
-IDE		insulin-degrading enzyme|insulysin
+IDE		insulin-degrading enzyme|insulysin|insulin degrading enzyme
 OR6B3	OR6B3P|OR6B3Q	olfactory receptor, family 6, subfamily B, member 3
 RNU6-921P		RNA, U6 small nuclear 921, pseudogene
 MCTS1	MCT-1	malignant T cell amplified sequence 1
@@ -20596,7 +20596,7 @@ RN7SL166P		RNA, 7SL, cytoplasmic 166, pseudogene
 RPS29P8		ribosomal protein S29 pseudogene 8
 CCL26	eotaxin-3|TSC-1|IMAC|SCYA26|MIP-4a|MIP-4alpha	CC chemokine IMAC|eotaxin-3|chemokine N1|small inducible cytokine A26|chemokine (C-C motif) ligand 26|macrophage inflammatory protein 4-alpha|thymic stroma chemokine-1
 NMTRQ-TTG13-1	TRNAQ52P	transfer RNA glutamine 52 (anticodon UUG) pseudogene
-HGF	HPTA|DFNB39|SF|F-TCF|HGFB	lung fibroblast-derived mitogen|deafness, autosomal recessive 39|hepatocyte growth factor (hepapoietin A; scatter factor)|scatter factor|fibroblast-derived tumor cytotoxic factor|hepatopoietin A
+HGF	HPTA|DFNB39|SF|F-TCF|HGFB	lung fibroblast-derived mitogen|deafness, autosomal recessive 39|hepatocyte growth factor (hepapoietin A; scatter factor)|scatter factor|fibroblast-derived tumor cytotoxic factor|hepatopoietin A|hepatocyte growth factor
 RPL13AP20		ribosomal protein L13a pseudogene 20
 NMI		N-myc (and STAT) interactor
 ABCA2	ABC2	ATP-binding cassette, sub-family A (ABC1), member 2
@@ -23554,7 +23554,7 @@ EPHA5	TYRO4|Hek7|EHK1|CEK7	EPH receptor A5
 CEP41	FLJ22445|JBTS15|DKFZp762H1311|TSGA14	centrosomal protein 41kDa
 RPL31P55		ribosomal protein L31 pseudogene 55
 CD207	CLEC4K|Langerin	CD207 molecule, langerin
-DRD2		dopamine receptor D2
+DRD2		dopamine receptor D2|dopamine D2 receptor
 RNU1-69P		RNA, U1 small nuclear 69, pseudogene
 PGLYRP4	PGRPIB|PGLYRPIbeta|SBBI67|PGRP-Ibeta	peptidoglycan recognition protein I beta precursor|peptidoglycan recognition protein 4
 CCDC137P		coiled-coil domain containing 137 pseudogene
@@ -25301,7 +25301,7 @@ UBTFL7		upstream binding transcription factor, RNA polymerase I-like 7 (pseudoge
 RN7SKP57		RNA, 7SK small nuclear pseudogene 57
 RPL15P7		ribosomal protein L15 pseudogene 7
 EEF1A1P1	EEF1A1P	eukaryotic translation elongation factor 1 alpha 1 pseudogene 1|eukaryotic translation elongation factor 1 alpha 1 pseudogene
-IRF8	IRF-8|ICSBP1|ICSBP	interferon regulatory factor 8
+IRF8	IRF-8|ICSBP1|ICSBP	interferon regulatory factor 8|interferon regulatory factor
 RNU6ATAC7P		RNA, U6atac small nuclear 7, pseudogene
 MIR7113	hsa-mir-7113	microRNA 7113
 USP21	USP16|USP23	ubiquitin specific peptidase 21
@@ -25453,7 +25453,7 @@ MIR450A2	hsa-mir-450a-2|hsa-mir-450-2|MIRN450-2|MIRN450A2	microRNA 450a-2
 RIMS2	KIAA0751|OBOE|RAB3IP3|RIM2	regulating synaptic membrane exocytosis 2
 LINC01519		
 RPL6P12		ribosomal protein L6 pseudogene 12
-APP	AD1	amyloid beta (A4) precursor protein|peptidase nexin-II
+APP	AD1	amyloid beta (A4) precursor protein|peptidase nexin-II|amyloid precursor protein
 RNU5F-7P		RNA, U5F small nuclear 7, pseudogene
 ZPLD1		zona pellucida-like domain containing 1
 ITPK1		inositol-tetrakisphosphate 1-kinase
@@ -28572,7 +28572,7 @@ CLSPN		claspin
 DEFB128	DEFB-28	defensin, beta 128|defensin, beta 28
 LINC01125		long intergenic non-protein coding RNA 1125
 TMED6	MGC23911	transmembrane emp24 protein transport domain containing 6
-MLPH	Slac-2a|ln|exophilin-3|l(1)-3Rk|l1Rk3	melanophilin
+MLPH	Slac-2a|ln|exophilin-3|l(1)-3Rk|l1Rk3	melanophilin|melanophilin
 RPS10P27		ribosomal protein S10 pseudogene 27
 MIR1288	hsa-mir-1288|MIRN1288	microRNA 1288
 LINC01005		long intergenic non-protein coding RNA 1005
@@ -31355,7 +31355,7 @@ ANKRD1	MCARP|CARP|ALRP|C-193|CVARP	ankyrin repeat domain 1 (cardiac muscle)
 GTF2E2	FE|TFIIE-B|TF2E2	general transcription factor IIE, polypeptide 2, beta 34kDa
 FUNDC2	HCBP6|DC44	FUN14 domain containing 2
 DSC3	DSC|DSC4|CDHF3|DSC1|DSC2	desmocollin 3
-MEFV	MEF|FMF|TRIM20	Mediterranean fever|pyrin
+MEFV	MEF|FMF|TRIM20	Mediterranean fever|Mediterranean fever gene|pyrin
 NSMCE2	MMS21|ZMIZ7|C8orf36|NSE2|FLJ32440	non-SMC element 2, MMS21 homolog (S. cerevisiae)|zinc finger, MIZ-type containing 7
 HIST1H4H	H4FH|H4/h	histone cluster 1, H4h
 HEPH	KIAA0698|CPL	hephaestin
@@ -31522,7 +31522,7 @@ MYOD1	MYOD|PUM|MYF3|bHLHc1	myoblast determination protein 1|myogenic differentia
 SCA30		spinocerebellar ataxia 30
 TSEN54	SEN54L|SEN54	tRNA splicing endonuclease 54 homolog (S. cerevisiae)|TSEN54 tRNA splicing endonuclease subunit
 RNU6-1250P		RNA, U6 small nuclear 1250, pseudogene
-VIP		prepro-VIP|vasoactive intestinal peptide
+VIP		prepro-VIP|vasoactive intestinal peptide|vasoactive intestinal polypeptide
 HSPH1	HSP105B|KIAA0201|NY-CO-25|HSP105A	heat shock 105kDa/110kDa protein 1
 OR52I2		olfactory receptor, family 52, subfamily I, member 2
 TUBB6	MGC4083|HsT1601	class V beta-tubulin|tubulin beta MGC4083|tubulin, beta 6 class V
@@ -33789,8 +33789,8 @@ DDR1	CD167|PTK3A|CAK|NEP|NTRK4|EDDR1|RTK6	discoidin domain receptor tyrosine kin
 HOOK1	HK1	hook microtubule-tethering protein 1|hook homolog 1 (Drosophila)
 OGFR	7-60	opioid growth factor receptor
 RNU6-281P		RNA, U6 small nuclear 281, pseudogene
-AMBN		ameloblastin (enamel matrix protein)
-HSPD1	SPG13|HSP60|GROEL	heat shock 60kDa protein 1 (chaperonin)
+AMBN		ameloblastin (enamel matrix protein)|ameloblastin|enamel matrix protein
+HSPD1	SPG13|HSP60|GROEL	heat shock 60kDa protein 1|chaperonin
 LACRT	LACRITIN	lacritin
 MROH1	KIAA1833|HEATR7A	maestro heat-like repeat family member 1
 NXF4		nuclear RNA export factor 4 pseudogene
@@ -37467,7 +37467,7 @@ REXO1L10P		REX1, RNA exonuclease 1 homolog (S. cerevisiae)-like 10, pseudogene
 TAS2R62P	T2R62|TAS2R62	taste receptor, type 2, member 62, pseudogene
 EDN3	ET3	endothelin 3
 CUX2P2		cut-like homeobox 2 pseudogene 2
-CETP	BPIFF	cholesteryl ester transfer protein, plasma|BPI fold containing family F
+CETP	BPIFF	cholesteryl ester transfer protein, plasma|BPI fold containing family F|cholesteryl ester transfer protein|cholesterol ester transfer protein
 URI1	PPP1R19|RMP|NNX3|FLJ10575|C19orf2|URI	unconventional prefoldin RPB5 interactor|URI1, prefoldin-like chaperone|RPB5-mediating protein|protein phosphatase 1, regulatory subunit 19
 OR2G1P	OST619|hs6M1-25	olfactory receptor, family 2, subfamily G, member 1 pseudogene
 RNA5SP138	RN5S138	RNA, 5S ribosomal pseudogene 138
