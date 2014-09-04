@@ -7453,7 +7453,7 @@ TEKT1		tektin 1
 PELI3	MGC35521	pellino E3 ubiquitin protein ligase family member 3
 RNA5SP522	RN5S522	RNA, 5S ribosomal pseudogene 522
 ANAPC2	APC2|KIAA1406	anaphase promoting complex subunit 2
-LIPA	CESD|LAL	Wolman disease|lipase A, lysosomal acid, cholesterol esterase
+LIPA	CESD|LAL	Wolman disease|lipase A, lysosomal acid, cholesterol esterase|Lysosomal acid lipase
 WNT9A	WNT14	wingless-type MMTV integration site family, member 9A
 AURKA	BTAK|STK6|AIK|AurA|ARK1|STK7|STK15|PPP1R47	Aurora-A kinase|aurora kinase A|protein phosphatase 1, regulatory subunit 47
 RN7SL516P		RNA, 7SL, cytoplasmic 516, pseudogene
@@ -10590,7 +10590,7 @@ ZACN	ZAC|LGICZ1|L2|ZAC1|LGICZ	zinc activated ligand-gated ion channel
 IGLV7-43		immunoglobulin lambda variable 7-43
 C1orf100		chromosome 1 open reading frame 100
 GLI4	HKR4|ZNF928	GLI family zinc finger 4
-TRH		thyrotropin-releasing hormone|prothyroliberin
+TRH		thyrotropin-releasing hormone|prothyroliberin|thyrotropin-releasing hormone
 MMP8	CLG1	matrix metallopeptidase 8 (neutrophil collagenase)
 FRA7F		fragile site, aphidicolin type, common, fra(7)(q22)
 TMPO	LEMD4|LAP2|TP	LEM domain containing 4|thymopoietin
@@ -19437,7 +19437,7 @@ RNU6-648P		RNA, U6 small nuclear 648, pseudogene
 MIR483	hsa-mir-483|MIRN483	microRNA 483
 LRRC20	FLJ10751|FLJ10844	leucine rich repeat containing 20
 CHST6	MCDC1	carbohydrate (N-acetylglucosamine 6-O) sulfotransferase 6
-NDUFAB1	ACP|FASN2A|SDAP	acyl carrier protein, mitochondrial|complex I SDAP subunit|NADH dehydrogenase (ubiquinone) 1, alpha/beta subcomplex, 1, 8kDa
+NDUFAB1	ACP|FASN2A|SDAP	acyl carrier protein|acyl-acyl carrier protein|acyl carrier protein, mitochondrial|complex I SDAP subunit|NADH dehydrogenase (ubiquinone) 1, alpha/beta subcomplex, 1, 8kDa
 RPIAP1		ribose 5-phosphate isomerase A pseudogene 1
 PPP2R5D	B56D	protein phosphatase 2, regulatory subunit B', delta
 RNU6-949P		RNA, U6 small nuclear 949, pseudogene
@@ -24247,7 +24247,7 @@ RNU6-184P		RNA, U6 small nuclear 184, pseudogene
 TSSK2	STK22B|SPOGA2|FLJ38613	testis-specific serine kinase 2
 RNU6-59P	RNU6-59	RNA, U6 small nuclear 59, pseudogene
 DNAJB1	Hsp40|HSPF1|Sis1|RSPH16B	DnaJ (Hsp40) homolog, subfamily B, member 1|radial spoke 16 homolog B (Chlamydomonas)
-GC	VDBP|hDBP|DBP	group-specific component (vitamin D binding protein)
+GC	VDBP|hDBP|DBP	group-specific component (vitamin D binding protein)|Vitamin D binding protein
 METTL7B	MGC17301|ALDI	methyltransferase like 7B|associated with lipid droplets 1
 RNU6ATAC35P		RNA, U6atac small nuclear 35, pseudogene
 BCAM	LU|CD239	basal cell adhesion molecule (Lutheran blood group)
@@ -25453,7 +25453,7 @@ MIR450A2	hsa-mir-450a-2|hsa-mir-450-2|MIRN450-2|MIRN450A2	microRNA 450a-2
 RIMS2	KIAA0751|OBOE|RAB3IP3|RIM2	regulating synaptic membrane exocytosis 2
 LINC01519		
 RPL6P12		ribosomal protein L6 pseudogene 12
-APP	AD1	amyloid beta (A4) precursor protein|peptidase nexin-II|amyloid precursor protein
+APP	AD1	amyloid beta (A4) precursor protein|peptidase nexin-II|amyloid precursor protein|Amyloid-B Precursor Protein
 RNU5F-7P		RNA, U5F small nuclear 7, pseudogene
 ZPLD1		zona pellucida-like domain containing 1
 ITPK1		inositol-tetrakisphosphate 1-kinase
@@ -27149,7 +27149,7 @@ LINC00610	FLJ45212|C11orf55	long intergenic non-protein coding RNA 610
 TRL-CAG1-3	TRNAL30	transfer RNA leucine 30 (anticodon CAG)
 LAGE3	CVG5|DXS9879E|ITBA2|ESO3|DXS9951E	L antigen family, member 3|DNA segment on chromosome X (unique) 9879 expressed sequence
 HMGB1P8	HMG1L8|HMGB1L8	high mobility group box 1 pseudogene 8
-TDG		thymine-DNA glycosylase|G/T mismatch-specific thymine DNA glycosylase
+TDG		thymine-DNA glycosylase|G/T mismatch-specific thymine DNA glycosylase|thymine DNA glycosylases|thymine DNA glycosylase
 F3	CD142	coagulation factor III (thromboplastin, tissue factor)
 HLA-DPA2	HLA-DP2A	major histocompatibility complex, class II, DP alpha 2 (pseudogene)
 CHCHD2P2		coiled-coil-helix-coiled-coil-helix domain containing 2 pseudogene 2
@@ -30223,7 +30223,7 @@ RN7SL597P		RNA, 7SL, cytoplasmic 597, pseudogene
 RPL17P15		ribosomal protein L17 pseudogene 15
 C1orf134		chromosome 1 open reading frame 134
 BRD2	NAT|RING3|FSRG1|KIAA9001|D6S113E	bromodomain containing 2
-VWF	F8VWF	von Willebrand factor
+VWF	F8VWF|vWF	von Willebrand factor
 RN7SL509P		RNA, 7SL, cytoplasmic 509, pseudogene
 MDH1		malate dehydrogenase 1, NAD (soluble)
 PCDHGB4	FIB2|CDH20|PCDH-GAMMA-B4	protocadherin gamma subfamily B, 4|cadherin 20|fibroblast cadherin FIB2

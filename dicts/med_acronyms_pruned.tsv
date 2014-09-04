@@ -6290,6 +6290,10 @@ MLCK	myosin light chain kinases
 MLCK	myosin light chain kinase
 MLCs	mixed lymphocyte cultures
 MLD	median lethal dose
+MLD	minimum lethal dose
+MLD	minimum lethal doses
+MLD	minimal lethal dose
+MLD	minimal lethal doses
 MLD	minimum lumen diameter
 mle	maximum likelihood estimator
 MLE	maximum likelihood estimate
@@ -6500,6 +6504,7 @@ MPCR	multiple polymerase chain reaction
 MPD	minimum positive dose
 MPDs	mean population doublings
 MPE	micronucleated polychromatic erythrocytes
+MPE	malignant pleural effusion
 MPF	maturation promoting factor
 MPF	mitotic kinase maturation promoting factor
 Mpf	mating pair formation
@@ -7459,6 +7464,7 @@ PCA	principal component analysis
 PCA	principal components analysis
 PCA	principal component analyses
 PCA	permanent cerebellar ataxia
+PCAD	premature coronary artery disease
 PCC	present as premature chromosome condensation
 PCC	premature chromosome condensation
 PCC	premature chromatin condensation
