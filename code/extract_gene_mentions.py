@@ -308,17 +308,17 @@ if __name__ == "__main__":
                 add_features_to_all(mentions, sentence)
             # Supervise according to the mention type
             for mention in mentions:
-                if "acronym" in line_dict and mention.type != "RANDOM" and \
+                if mention.type == "RANDOM":
+                    # this is a randomly generated example that we assume
+                    # to be false
+                    mention.is_correct = False
+                elif "acronym" in line_dict and \
                         mention.words[0].word == line_dict["acronym"]:
                     mention.type = "ACRONYM"
                     if false_acronyms < ACRONYMS_QUOTA and \
                             random.random() < ACRONYMS_PROB:
                         mention.is_correct = False
                         false_acronyms += 1
-                elif mention.type == "RANDOM":
-                    # this is a randomly generated example that we assume
-                    # to be false
-                    mention.is_correct = False
                 else:
                     supervise(mention, sentence)
                 print(mention.tsv_dump())
