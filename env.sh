@@ -6,7 +6,11 @@ REAL_DIRNAME=`readlink -f ${DIRNAME}`
 export DEEPDIVE_HOME=`cd ${REAL_DIRNAME}/../..; pwd`
 
 export HOSTNAME=`hostname`
-export LFS_DIR=/lfs/$HOSTNAME/0/rionda/
+export LFS_DIR=/lfs/$HOSTNAME/0/rionda
+
+export GPHOST=${HOSTNAME}.stanford.edu
+export GPPORT=8888
+export GPPATH=/lfs/${HOSTNAME}/0/rionda/greenplum_gpfdist 
 
 export APP_HOME=`pwd`
 

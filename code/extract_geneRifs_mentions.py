@@ -34,7 +34,7 @@ def main():
             found_gene = False
             # Extract mentions from sentence
             for mention in extract(sentence):
-                add_features(mention)
+                add_features(mention, sentence)
                 # Check whether this mention contains the 'labelled' gene
                 # Only print it if that is the case
                 if mention.entity.find(gene) > -1 or mention.words[0].word.find(gene) > -1: 
