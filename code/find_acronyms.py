@@ -22,7 +22,7 @@ def extract(sentence):
             except:
                 definition_end = len(sentence.words) - 1
             definition = " ".join([x.word for x in
-                                   sentence.words[index + 1:definition_end]])
+                                   sentence.words[index + 2:definition_end]])
             # Skip acronym if it's not in the genes dictionary or if the
             # definition is in it.
             if sentence.words[index].word.casefold() not in merged_genes_dict \
