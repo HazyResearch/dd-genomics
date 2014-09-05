@@ -6,6 +6,7 @@
 
 import fileinput
 import random
+import re
 
 from dstruct.Mention import Mention
 from dstruct.Sentence import Sentence
@@ -127,7 +128,7 @@ def add_features(mention, sentence):
     minp = None
     minw = None
     for word2 in sentence.words:
-        if word2.pos.startswith('VB') and word2.lemma != 'be':
+        if re.search('^VB[A-Z]*$', word2.pos) and word2.lemma != 'be':
             p = sentence.get_word_dep_path(mention.wordidxs[0],
                                            word2.in_sent_idx)
             if len(p) < minl:
