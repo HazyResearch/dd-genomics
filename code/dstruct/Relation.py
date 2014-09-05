@@ -61,10 +61,10 @@ class Relation(object):
         if self.is_correct is not None:
             is_correct_str = self.is_correct.__repr__()
         return "\t".join(
-            [self.doc_id, str(self.sent_id_1), str(self.sent_id_2), self.id,
-                self.type, self.mention_1_id, self.mention_2_id,
-                list2TSVarray([x.in_sent_idx for x in self.mention1_words]),
-                list2TSVarray([x.in_sent_idx for x in self.mention2_words]),
-                list2TSVarray([x.word for x in self.mention1_words], True),
-                list2TSVarray([x.word for x in self.mention2_words], True),
+            ["\\N", self.doc_id, str(self.sent_id_1), str(self.sent_id_2),
+                self.id, self.type, self.mention_1_id, self.mention_2_id,
+                list2TSVarray([x.in_sent_idx for x in self.mention_1_words]),
+                list2TSVarray([x.in_sent_idx for x in self.mention_2_words]),
+                list2TSVarray([x.word for x in self.mention_1_words], True),
+                list2TSVarray([x.word for x in self.mention_2_words], True),
                 is_correct_str, list2TSVarray(list(self.features), True)])
