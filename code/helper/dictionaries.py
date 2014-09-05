@@ -102,7 +102,7 @@ def load_set_pairs(filename):
     pair_set = set()
     with open(filename, 'rt') as set_file:
         for line in set_file:
-            tokens = line.rstrip.split("\t")
+            tokens = line.rstrip().split("\t")
             pair_set.add(frozenset(tokens))
     return pair_set
 
