@@ -27,31 +27,31 @@
 -- ) DISTRIBUTED BY (doc_id);
 
 -- GeneRifs table
-DROP TABLE IF EXISTS generifs CASCADE;
-CREATE TABLE generifs (
-	-- document id
-	doc_id text,
-	-- sentence id
-	sent_id int,
-	-- word indexes
-	wordidxs int[],
-	-- words
-	words text[],
-	-- parts of speech
-	poses text[],
-	-- named entity recognition tags
-	ners text[],
-	-- lemmified version of words
-	lemmas text[],
-	-- dependency path labels
-	dep_paths text[],
-	-- dependency path parents
-	dep_parents int[],
-	-- bounding boxes
-	bounding_boxes text[],
-	-- 'labelled' gene that is contained in the geneRif
-	gene text
-) DISTRIBUTED BY (doc_id);
+--DROP TABLE IF EXISTS generifs CASCADE;
+--CREATE TABLE generifs (
+--	-- document id
+--	doc_id text,
+--	-- sentence id
+--	sent_id int,
+--	-- word indexes
+--	wordidxs int[],
+--	-- words
+--	words text[],
+--	-- parts of speech
+--	poses text[],
+--	-- named entity recognition tags
+--	ners text[],
+--	-- lemmified version of words
+--	lemmas text[],
+--	-- dependency path labels
+--	dep_paths text[],
+--	-- dependency path parents
+--	dep_parents int[],
+--	-- bounding boxes
+--	bounding_boxes text[],
+--	-- 'labelled' gene that is contained in the geneRif
+--	gene text
+--) DISTRIBUTED BY (doc_id);
 
 -- Acronym table
 DROP TABLE IF EXISTS acronyms CASCADE;
@@ -125,12 +125,18 @@ CREATE TABLE gene_hpoterm_relations (
 	id bigint,
 	-- document id
 	doc_id text,
-	-- sentence id
-	sent_id int,
+	-- gene mention sentence id
+	sent_id_1 int,
+	-- hpoterm mention sentence id
+	sent_id_2 int,
 	-- relation id
 	relation_id text,
 	-- type
 	type text,
+	-- gene mention id
+	mention_id_1 text,
+	-- hpoterm mention id
+	mention_id_2 text,
 	-- gene word indexes
 	wordidxs_1 int[],
 	-- hpoterm word indexes
