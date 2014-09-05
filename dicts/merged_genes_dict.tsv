@@ -2967,7 +2967,7 @@ SNORD114-20	14q(II-20)	small nucleolar RNA, C/D box 114-20
 FAM53B-AS1		FAM53B antisense RNA 1
 KLRC1	NKG2|NKG2-B|NKG2-A|CD159a	killer cell lectin-like receptor subfamily C, member 1|NKG2-1/B activating NK receptor
 OR2T33		olfactory receptor, family 2, subfamily T, member 33
-PDGFRA	CD140a|PDGFR2	platelet-derived growth factor receptor, alpha polypeptide
+PDGFRA	CD140a|PDGFR2	platelet-derived growth factor receptor, alpha polypeptide|platelet derived growth factor receptor alpha
 RPL12P36		ribosomal protein L12 pseudogene 36
 TAS2R42	hT2R55|T2R55|TAS2R55|T2R24	taste receptor, type 2, member 42
 LINC00353		long intergenic non-protein coding RNA 353
@@ -25323,7 +25323,7 @@ PLEKHM1	KIAA0356	pleckstrin homology domain containing, family M (with RUN domai
 RPL7P17		ribosomal protein L7 pseudogene 17
 LENEP	LEP503	lens epithelial protein
 TOMM22P5		translocase of outer mitochondrial membrane 22 homolog (yeast) pseudogene 5
-NR3C1	GR|GRL	nuclear receptor subfamily 3, group C, member 1 (glucocorticoid receptor)
+NR3C1	GR|GRL	nuclear receptor subfamily 3, group C, member 1 (glucocorticoid receptor)|glucocoiticoid receptor
 GLC1L		glaucoma 1, open angle, L (adult-onset)
 NCRNA00250		non-protein coding RNA 250
 CCNJP2		cyclin J pseudogene 2
@@ -36391,7 +36391,7 @@ B4GALT1	beta4Gal-T1|GGTB2	UDP-Gal:betaGlcNAc beta 1,4- galactosyltransferase, po
 F10-AS1		F10 antisense RNA 1
 SLC5A10	SGLT5	solute carrier family 5 (sodium/sugar cotransporter), member 10|solute carrier family 5 (sodium/glucose cotransporter), member 10
 STAG3L2	MGC131759|STAG3L2P	stromal antigen 3-like 2|stromal antigen 3-like 2 (pseudogene)
-MT-CO1	COX1|COI|MTCO1	mitochondrially encoded cytochrome c oxidase I
+MT-CO1	COX1|COI|MTCO1	mitochondrially encoded cytochrome c oxidase I|Cytochrome oxidase I|cytochrome oxydase I
 ZNF33A	ZNF11A|KOX31|ZNF33|ZZAPK|KIAA0065|KOX5|FLJ23404	zinc finger protein 33A|zinc finger and ZAK associated protein with KRAB domain
 HPV6AI1		human papillomavirus (type 6a) integration site 1
 LIN28B	FLJ16517|CSDD2	lin-28 homolog B (C. elegans)
@@ -36746,7 +36746,7 @@ RPL17P48		ribosomal protein L17 pseudogene 48
 HIGD1AP4		HIG1 hypoxia inducible domain family, member 1A pseudogene 4
 KCNQ1	KCNA9|LQT|JLNS1|LQT1|KVLQT1|Kv7.1|KCNA8	Jervell and Lange-Nielsen syndrome 1|potassium voltage-gated channel, KQT-like subfamily, member 1
 S1PR5	EDG8|Edg-8	sphingosine-1-phosphate receptor 5
-PTPRJ	HPTPeta|DEP1|CD148	protein tyrosine phosphatase, receptor type, J
+PTPRJ	HPTPeta|DEP1|CD148	protein tyrosine phosphatase, receptor type, J|Protein Tyrosine Phosphatase Receptor J
 NHP2P2	TCAG_30283	NHP2 ribonucleoprotein pseudogene 2
 TLE6	GRG6|FLJ14009	transducin-like enhancer of split 6|transducin-like enhancer of split 6 (E(sp1) homolog, Drosophila)
 RN7SL602P		RNA, 7SL, cytoplasmic 602, pseudogene
@@ -37588,7 +37588,7 @@ TRBV7-1	TCRBV7S1|TCRBV6S7P|TRBV71	T cell receptor beta variable 7-1 (non-functio
 CCNG2		cyclin G2
 INPP1		inositol polyphosphate-1-phosphatase
 NRIP2	DKFZP761G1913	nuclear receptor interacting protein 2
-RBMS3		RNA binding motif, single stranded interacting protein 3|RNA-binding protein
+RBMS3		RNA binding motif, single stranded interacting protein 3
 TRM-CAT4-3	TRNAM20	transfer RNA methionine 20 (anticodon CAU)
 OSTN		osteocrin
 LINC00970		long intergenic non-protein coding RNA 970

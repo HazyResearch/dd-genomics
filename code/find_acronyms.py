@@ -25,10 +25,7 @@ def extract(sentence):
                 definition_end = len(sentence.words) - 1
             definition = " ".join([x.word for x in
                                    sentence.words[index + 2:definition_end]])
-            # Skip acronym if it's not in the genes dictionary or if the
-            # definition is in it.
-            if sentence.words[index].word.casefold() not in merged_genes_dict \
-                    or definition.casefold() in merged_genes_dict:
+            if sentence.words[index].word not in merged_genes_dict:
                 index = definition_end + 1
                 continue
             acronym["doc_id"] = sentence.doc_id
@@ -69,10 +66,8 @@ def extract(sentence):
                             is_definition = False
                             break
                     definition = " ".join([w.word for w in window_words])
-                    # Only consider this acronym if the definition is valid and
-                    # is not in the genes dictionary
-                    if is_definition and \
-                            definition.casefold() not in merged_genes_dict:
+                    # Only consider this acronym if the definition is valid 
+                    if is_definition:
                         acronym = dict()
                         acronym["doc_id"] = word.doc_id
                         acronym["sent_id"] = word.sent_id

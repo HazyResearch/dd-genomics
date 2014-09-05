@@ -146,7 +146,8 @@ def add_features(mention, sentence):
                            "rRNA", "cell", "cells", "tumor", "tumors",
                            "domain", "sequence", "sequences", "alignment",
                            "expression", "mRNA", "knockout", "recruitment",
-                           "hybridization", "isoform", "chromosome"]:
+                           "hybridization", "isoform", "chromosome",
+                           "receptor", "receptors", "mutation", "mutations"]:
             p = sentence.get_word_dep_path(mention.wordidxs[0],
                                            word2.in_sent_idx)
             mention.add_feature("KEYWORD_[" + word2.lemma + "]")
@@ -215,7 +216,7 @@ def extract(sentence):
             add_features(mention, sentence)
             mentions.append(mention)
             # Add to history
-            for i in range(start, end + 1):
+            for i in range(start, end):
                 history.add(i)
         else:  # Potentially generate a random mention
             # Check whether it's a number, we do not want to generate a mention
@@ -322,15 +323,23 @@ if __name__ == "__main__":
                     mention.is_correct = False
                 elif "acronym" in line_dict and \
                         mention.words[0].word == line_dict["acronym"]:
-                    mention.type = "ACRONYM"
                     for definition in line_dict["definitions"]:
-                        if definition.casefold() in med_acrons_dict:
-                            mention.add_feature("IS_MED_ACRONYM")
+                        if definition.casefold in merged_genes_dict:
+                            mention.add_feature("COMES_WITH_LONG_NAME")
+                            mention.is_correct = True
                             break
-                    if false_acronyms < ACRONYMS_QUOTA and \
-                            random.random() < ACRONYMS_PROB:
-                        mention.is_correct = False
-                        false_acronyms += 1
+                    if not mention.is_correct:
+                        mention.type = "ACRONYM"
+                        mention.add_feature("NOT_KNOWN_ACRONYM_" +
+                                            mention.words[0].word)
+                        for definition in line_dict["definitions"]:
+                            if definition.casefold() in med_acrons_dict:
+                                mention.add_feature("IS_MED_ACRONYM")
+                                break
+                        if false_acronyms < ACRONYMS_QUOTA and \
+                                random.random() < ACRONYMS_PROB:
+                            mention.is_correct = False
+                            false_acronyms += 1
                 else:
                     supervise(mention, sentence)
                 print(mention.tsv_dump())
