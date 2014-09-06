@@ -96,8 +96,8 @@ def add_features(mention, sentence):
     # but we differentiate between lower case and upper case
     if len(mention.words) == 1 and \
             mention.words[0].word.casefold() in english_dict or \
-            mention.words[0].lemma in english_dict:
-        if mention.words[0].isupper():
+            mention.words[0].lemma.casefold() in english_dict:
+        if mention.words[0].word.isupper():
             mention.add_feature('IS_ENGLISH_WORD_UPP_CASE')
         else:
             mention.add_feature('IS_ENGLISH_WORD_LOW_CASE')
