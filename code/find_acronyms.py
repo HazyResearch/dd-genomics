@@ -15,7 +15,7 @@ def extract(sentence):
     if len(sentence.words) > 2 and \
             sentence.words[0].word.casefold() == "abbreviations" and \
             sentence.words[1].word.casefold() == ":":
-        words = [x.word for x in sentence.word]
+        words = [x.word for x in sentence.words]
         index = 2
         while index < len(words):
             acronym = dict()
