@@ -11,9 +11,9 @@ def load_examples_dictionary(filename):
         for line in examples_dict_file:
             tokens = line.rstrip().split("\t")
             sent_ids = frozenset(tokens[1].split("|"))
-            examples[frozenset(tokens[0], tokens[2])] = sent_ids
+            examples[frozenset([tokens[0], tokens[2]])] = sent_ids
             if tokens[1] == "":
-                examples[frozenset(tokens[0], tokens[2])] = None
+                examples[frozenset([tokens[0], tokens[2]])] = None
     return examples
 
 
