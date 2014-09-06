@@ -1733,7 +1733,7 @@ JAG2		jagged 2
 ACIN1	fSAP152|ACINUS|KIAA0670	apoptotic chromatin condensation inducer 1|functional spliceosome-associated protein 152
 CDRT15P2	CDRT15L1	CMT1A duplicated region transcript 15 pseudogene 2
 PRAMENP	FLJ16327|PRAMEL|PRAMEF24P	PRAME family member 24, pseudogene|PRAME N-terminal-like, pseudogene
-CPEB1	CPEB|FLJ13203	cytoplasmic polyadenylation element binding protein 1|
+CPEB1	CPEB|FLJ13203	cytoplasmic polyadenylation element binding protein 1
 TLE1P1		transducin-like enhancer of split 1 pseudogene 1
 SSR1P2		signal sequence receptor, alpha pseudogene 2
 ACO1	IREB1|IRP1|IREBP	aconitase 1, soluble
@@ -10633,8 +10633,7 @@ CREB1		cAMP responsive element binding protein 1
 N4BP1		NEDD4 binding protein 1
 ATP5G1P3		ATP synthase, H+ transporting, mitochondrial Fo complex, subunit C1 (subunit 9) pseudogene 3
 NAPSA	Kdap|KAP|NAPA|NAP1	napsin A aspartic peptidase|kidney-derived aspartic protease-like protein
-MTHFR		methylenetetrahydrofolate reductase (NAD(P)H)|methylene
-tetrahydrofolate reductase|methylenetetrahydrofolate reductase|Methylene — tetrahydrofolate reductase
+MTHFR		methylenetetrahydrofolate reductase (NAD(P)H)|methylene tetrahydrofolate reductase|methylenetetrahydrofolate reductase|Methylene — tetrahydrofolate reductase
 VEPH1	KIAA1692|FLJ12604	ventricular zone expressed PH domain-containing 1
 HEATR9	C17orf66|FLJ32830	HEAT repeat containing 9|chromosome 17 open reading frame 66
 KBTBD7	DKFZP434E2318	kelch repeat and BTB (POZ) domain containing 7
@@ -29662,7 +29661,7 @@ FLVCR1	MFSD7B|AXPC1|PCA|FLVCR	feline leukemia virus subgroup C cellular receptor
 TRY-GTA5-2	TRNAY2	transfer RNA tyrosine 2 (anticodon GUA)
 MIR3614	hsa-mir-3614	microRNA 3614
 POM121L6P	bA239L20.2	POM121 transmembrane nucleoporin-like 6 pseudogene
-APOE	AD2	apolipoprotein E|gene for apolipoprotein E|
+APOE	AD2	apolipoprotein E|gene for apolipoprotein E
 CSNK1A1L	MGC33182	casein kinase 1, alpha 1-like
 RBAK-RBAKDN		RBAK-RBAKDN readthrough
 NME4	NDPKD|NM23H4|nm23-H4	NME/NM23 nucleoside diphosphate kinase 4
@@ -31395,11 +31394,7 @@ RNU1-108P		RNA, U1 small nuclear 108, pseudogene
 PHOSPHO2	MGC22679	phosphatase, orphan 2
 RN7SL311P		RNA, 7SL, cytoplasmic 311, pseudogene
 MIR4522	hsa-mir-4522	microRNA 4522
-CFTR	TNR-CFTR|CF|dJ760C5.1|MRP7|ABCC7|ABC35|CFTR/MRP	ATP-binding cassette
-sub-family C, member 7|cystic fibrosis transmembrane conductance regulator
-(ATP-binding cassette sub-family C, member 7)|cystic fibrosis trailsmembrane
-regulator|Cystic Fibrosis Transmembrane Regulator|Cystic Fibrosis Trans-membrane
-receptor|cystic ﬁbrosis transmembrane conductance regulator
+CFTR	TNR-CFTR|CF|dJ760C5.1|MRP7|ABCC7|ABC35|CFTR/MRP	ATP-binding cassette sub-family C, member 7|cystic fibrosis transmembrane conductance regulator (ATP-binding cassette sub-family C, member 7)|cystic fibrosis trailsmembrane regulator|Cystic Fibrosis Transmembrane Regulator|Cystic Fibrosis Trans-membrane receptor|cystic ﬁbrosis transmembrane conductance regulator
 LINC00273	NCRNA00273-1|NCRNA00273|TOP	long intergenic non-protein coding RNA 273|non-protein coding RNA 273-1
 LINC01438	TCONS_00007593	
 RNF144B	IBRDC2|bA528A10.3	ring finger protein 144B
