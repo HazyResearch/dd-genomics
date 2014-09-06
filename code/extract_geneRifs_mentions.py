@@ -9,7 +9,7 @@ import sys
 from dstruct.Sentence import Sentence
 from extract_gene_mentions import extract, add_features, add_features_to_all
 from helper.easierlife import get_dict_from_TSVline, TSVstring2list, no_op
-from helper.dictinaries import load_dict
+from helper.dictionaries import load_dict
 
 
 def main():
@@ -33,8 +33,11 @@ def main():
                 line_dict["dep_parents"], line_dict["bounding_boxes"])
             # This is the 'labelled' gene that we know is in the sentence
             gene = line_dict["gene"]
+            # Get the main symbol (or list of symbols) for the gene
             if gene in merged_genes_dict:
                 gene = merged_genes_dict[gene]
+            else:
+                gene = [gene, ]
             # Extract mentions from sentence
             mentions = extract(sentence)
             if len(mentions) > 1:
@@ -42,11 +45,14 @@ def main():
                 # Check whether this mention contains the 'labelled' gene
                 # If so, supervise positively and print
             for mention in mentions:
+                mention.type = "GENERIFS"
                 add_features(mention, sentence)
-                if mention.entity.find(gene) > -1 or \
-                        mention.words[0].word.find(gene) > -1:
-                    mention.is_correct = True
-                    print(mention.tsv_dump())
+                for g in gene:
+                    if mention.entity.find(g) > -1 or \
+                            mention.words[0].word.find(g) > -1:
+                        mention.is_correct = True
+                        print(mention.tsv_dump())
+                        break
     return 0
 
 if __name__ == "__main__":
