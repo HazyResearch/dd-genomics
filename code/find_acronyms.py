@@ -15,17 +15,21 @@ def extract(sentence):
     if len(sentence.words) > 2 and \
             sentence.words[0].word.casefold() == "abbreviations" and \
             sentence.words[1].word.casefold() == ":":
+        words = [x.word for x in sentence.word]
         index = 2
-        while index < len(sentence.words):
+        while index < len(words):
             acronym = dict()
-            acronym["acronym"] = sentence.words[index].word
+            acronym["acronym"] = words[index]
             try:
-                definition_end = sentence.words.index(";", index + 1)
+                definition_start = words.index(",", index + 1) + 1
             except:
-                definition_end = len(sentence.words) - 1
-            definition = " ".join([x.word for x in
-                                   sentence.words[index + 2:definition_end]])
-            if sentence.words[index].word not in merged_genes_dict:
+                definition_start = index + 2
+            try:
+                definition_end = words.index(";", index + 1)
+            except:
+                definition_end = len(words) - 1
+            definition = " ".join(words[definition_start:definition_end])
+            if words[index] not in merged_genes_dict:
                 index = definition_end + 1
                 continue
             acronym["doc_id"] = sentence.doc_id

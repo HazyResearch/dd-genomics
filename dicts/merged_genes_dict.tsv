@@ -1733,7 +1733,7 @@ JAG2		jagged 2
 ACIN1	fSAP152|ACINUS|KIAA0670	apoptotic chromatin condensation inducer 1|functional spliceosome-associated protein 152
 CDRT15P2	CDRT15L1	CMT1A duplicated region transcript 15 pseudogene 2
 PRAMENP	FLJ16327|PRAMEL|PRAMEF24P	PRAME family member 24, pseudogene|PRAME N-terminal-like, pseudogene
-CPEB1	CPEB|FLJ13203	cytoplasmic polyadenylation element binding protein 1
+CPEB1	CPEB|FLJ13203	cytoplasmic polyadenylation element binding protein 1|
 TLE1P1		transducin-like enhancer of split 1 pseudogene 1
 SSR1P2		signal sequence receptor, alpha pseudogene 2
 ACO1	IREB1|IRP1|IREBP	aconitase 1, soluble
@@ -3277,7 +3277,7 @@ FOLR1P1	FOLR1P	folate receptor 1 (adult) pseudogene 1
 RPS2P11		ribosomal protein S2 pseudogene 11
 GDF10	BMP-3b	growth differentiation factor 10
 MRPL36P1		mitochondrial ribosomal protein L36 pseudogene 1
-PTBP1	PTB-1|PTB2|pPTB|PTB4|HNRNP-I|PTB3|HNRPI|PTB	polypyrimidine tract binding protein 1|heterogeneous nuclear ribonucleoprotein I
+PTBP1	PTB-1|PTB2|pPTB|PTB4|HNRNP-I|PTB3|HNRPI|PTB	polypyrimidine tract binding protein 1|heterogeneous nuclear ribonucleoprotein I|Polypyrimidine tract binding
 OR10A5	OR11-403|OR10A1|JCG6	olfactory receptor, family 10, subfamily A, member 5
 SPRY4-IT1		SPRY4 intronic transcript 1 (non-protein coding)
 HRASLS	H-REV107|HRASLS1	HRAS-like suppressor
@@ -3732,7 +3732,7 @@ BRS3	BB3	bombesin-like receptor 3
 RPL12P32		ribosomal protein L12 pseudogene 32
 PLEKHB2	EVT2|FLJ20783	pleckstrin homology domain containing, family B (evectins) member 2
 RN7SKP4		RNA, 7SK small nuclear pseudogene 4
-FA2H	SPG35|FAXDC1|FLJ25287|FAAH	fatty acid hydroxylase|fatty acid 2-hydroxylase
+FA2H	SPG35|FAXDC1|FLJ25287|FAAH	fatty acid hydroxylase|fatty acid 2-hydroxylase|Fatty acid amide hydrolase
 RPS7P3		ribosomal protein S7 pseudogene 3
 RPL36P1	bA80K6.3	ribosomal protein L36 pseudogene 1
 MIR4739	hsa-mir-4739	microRNA 4739
@@ -9195,7 +9195,7 @@ HCP5P3		HLA complex P5 pseudogene 3
 RN7SL319P		RNA, 7SL, cytoplasmic 319, pseudogene
 SLC39A9	FLJ11274	solute carrier family 39, member 9|solute carrier family 39 (zinc transporter), member 9
 TRAV39	TCRAV27S1|TCRAV39S1	T cell receptor alpha variable 39
-LIPE	HSL	lipase, hormone-sensitive
+LIPE	HSL	lipase, hormone-sensitive|hormone sensistive lipase
 B3GNT8	B3GALT7|beta3Gn-T8|BGALT15	UDP-GlcNAc:betaGal beta-1,3-N-acetylglucosaminyltransferase 8
 DFNB43		deafness, autosomal recessive 43
 RPL3P12		ribosomal protein L3 pseudogene 12
@@ -9904,7 +9904,7 @@ TRC-GCA16-1	TRNAC11	transfer RNA cysteine 11 (anticodon GCA)
 MTOHR		mitochondrially encoded heavy strand origin of replication
 FBXO47		F-box protein 47
 VCX	VCX10R|VCX-B1|VCX1|VCX-10r	variable charge, X-linked
-KLF1	EKLF	Kruppel-like factor 1 (erythroid)|erythroid Kruppel-like factor
+KLF1	EKLF	Kruppel-like factor 1 (erythroid)|erythroid Kruppel-like factor|erythroid Kruppel like factor
 MIR5096	hsa-mir-5096	microRNA 5096
 PPP1R1C	Inhibitor-1-like	protein phosphatase 1, regulatory (inhibitor) subunit 1C
 MIR3978	hsa-mir-3978	microRNA 3978
@@ -10633,7 +10633,8 @@ CREB1		cAMP responsive element binding protein 1
 N4BP1		NEDD4 binding protein 1
 ATP5G1P3		ATP synthase, H+ transporting, mitochondrial Fo complex, subunit C1 (subunit 9) pseudogene 3
 NAPSA	Kdap|KAP|NAPA|NAP1	napsin A aspartic peptidase|kidney-derived aspartic protease-like protein
-MTHFR		methylenetetrahydrofolate reductase (NAD(P)H)
+MTHFR		methylenetetrahydrofolate reductase (NAD(P)H)|methylene
+tetrahydrofolate reductase|methylenetetrahydrofolate reductase|Methylene — tetrahydrofolate reductase
 VEPH1	KIAA1692|FLJ12604	ventricular zone expressed PH domain-containing 1
 HEATR9	C17orf66|FLJ32830	HEAT repeat containing 9|chromosome 17 open reading frame 66
 KBTBD7	DKFZP434E2318	kelch repeat and BTB (POZ) domain containing 7
@@ -11137,7 +11138,7 @@ PDZD7	FLJ23209|bA108L7.8|PDZK7	PDZ domain containing 7
 USF1	MLTFI|UEF|bHLHb11	upstream transcription factor 1
 TEX2	TMEM96|KIAA1738|HT008	testis expressed 2|transmembrane protein 96
 ERCC4	FANCQ|XPF|RAD1	xeroderma pigmentosum, complementation group F|excision repair cross-complementation group 4|excision repair cross-complementing rodent repair deficiency, complementation group 4
-CRH	CRF	corticoliberin|corticotropin releasing hormone|corticotropin-releasing factor
+CRH	CRF	corticoliberin|corticotropin releasing hormone|corticotropin-releasing factor|corticotrophin releasing hormone|corticotrophin release hormone|
 SEA		S13 erythroblastosis oncogene homolog (avian)|S13 erythroblastosis (avian) oncogene homolog
 RPL31P20		ribosomal protein L31 pseudogene 20
 LYAR	ZC2HC2|ZLYAR	Ly1 antibody reactive
@@ -14004,7 +14005,7 @@ OR2A12	OR2A12P	olfactory receptor, family 2, subfamily A, member 12
 PDE3B	HcGIP1	phosphodiesterase 3B, cGMP-inhibited
 DDX52	ROK1	DEAD (Asp-Glu-Ala-Asp) box polypeptide 52
 CTBP2P3		C-terminal binding protein 2 pseudogene 3
-VEGFA	VEGF-A|VEGF|VPF	vascular endothelial growth factor A|vascular endothelial growth factor
+VEGFA	VEGF-A|VEGF|VPF	vascular endothelial growth factor A|vascular endothelial growth factor|vascular endothelial growth factor-A|Vascular endothelial growth factors
 TRAJ7		T cell receptor alpha joining 7
 FAM197Y3		family with sequence similarity 197, Y-linked, member 3
 RNA18S3		RNA, 18S ribosomal 3
@@ -15528,7 +15529,7 @@ RPS3AP39		ribosomal protein S3a pseudogene 39
 C17orf98	LOC388381	chromosome 17 open reading frame 98
 OR7E46P	MCEEP|OST379	olfactory receptor, family 7, subfamily E, member 46 pseudogene
 MIR22HG	DKFZp686O06159|C17orf91|MGC14376	MIR22 host gene (non-protein coding)
-REST	XBR|NRSF	RE1-silencing transcription factor
+REST	XBR|NRSF	RE1-silencing transcription factor|Neuron restrictive silencing factor|neuron restricted silencing factor|neuronal restrictive silencing factor|neural restrictive silencer factor
 TCP11X1		t-complex 11 family, X-linked 1
 PAXIP1OS	PAXIP1-AS2	PAXIP1 opposite strand
 VARS	VARS2	valine tRNA ligase 1, cytoplasmic|valyl-tRNA synthetase
@@ -19013,7 +19014,7 @@ TBL1X	TBL1|EBI	transducin (beta)-like 1X-linked
 PHKBP1		phosphorylase kinase, beta pseudogene 1
 SNORD107	HBII-436	small nucleolar RNA, C/D box 107
 OR5H2		olfactory receptor, family 5, subfamily H, member 2
-OSCP1	C1orf102|NOR1	oxidored nitro domain containing protein|organic solute carrier partner 1
+OSCP1	C1orf102|NOR1	oxidored nitro domain containing protein|organic solute carrier partner 1|oxidored nitro domain containing protein 1
 LINC00707		long intergenic non-protein coding RNA 707
 RPL23AP47		ribosomal protein L23a pseudogene 47
 RNU6-892P		RNA, U6 small nuclear 892, pseudogene
@@ -19692,7 +19693,7 @@ PHLPP1	SCOP|PLEKHE1|KIAA0606|PHLPP	PH domain and leucine rich repeat protein pho
 SPATS2L	DNAPTP6	spermatogenesis associated, serine-rich 2-like|DNA polymerase transactivated protein 6
 PKD1P2		polycystic kidney disease 1 (autosomal dominant) pseudogene 2
 MIR146B	MIRN146B|hsa-mir-146b	microRNA 146b
-SGPL1	SPL	sphingosine-1-phosphate lyase 1
+SGPL1	SPL	sphingosine-1-phosphate lyase 1|SIP lyase
 ALPK3	MAK|KIAA1330|Midori	alpha-kinase 3|muscle alpha-kinase|myocyte induction differentiation originator
 JTBP1		jumping translocation breakpoint pseudogene 1
 C1orf194		chromosome 1 open reading frame 194
@@ -22201,7 +22202,7 @@ EIF4A1P4		eukaryotic translation initiation factor 4A1 pseudogene 4
 MIR452	hsa-mir-452|MIRN452	microRNA 452
 MIR4486	hsa-mir-4486	microRNA 4486
 NMTRL-TAA6-1	TRNAL41P	transfer RNA leucine 41 (anticodon UAA) pseudogene
-BCAR3	NSP2|SH2D3B	breast cancer anti-estrogen resistance 3
+BCAR3	NSP2|SH2D3B	breast cancer anti-estrogen resistance 3|breast cancer antiestrogen resistance locus 3
 TMEM78	FLJ40168	transmembrane protein 78
 TRAJ12		T cell receptor alpha joining 12
 FAM106A	FLJ11800	family with sequence similarity 106, member A
@@ -23716,7 +23717,7 @@ KIAA1549L	MGC34830|C11orf69|G2|C11orf41	KIAA1549-like
 NCAN	CSPG3	neurocan|neurocan proteoglycan
 RN7SKP251		RNA, 7SK small nuclear pseudogene 251
 KIF16B	dJ971B4.1|SNX23|C20orf23|FLJ20135	kinesin family member 16B
-TGFB1	CED|TGFB|TGFbeta|DPD1	transforming growth factor, beta 1|Camurati-Engelmann disease
+TGFB1	CED|TGFB|TGFbeta|DPD1	transforming growth factor, beta 1|Camurati-Engelmann disease|transforming growth factor B|transforming growth factor beta
 RNU4ATAC16P		RNA, U4atac small nuclear 16, pseudogene
 C12orf54	MGC35033	chromosome 12 open reading frame 54
 RNF7P1		ring finger protein 7 pseudogene 1
@@ -28351,7 +28352,7 @@ NCAPD2P1		non-SMC condensin I complex, subunit D2 pseudogene 1
 RN7SKP291		RNA, 7SK small nuclear pseudogene 291
 RECK	hRECK|ST15	reversion-inducing-cysteine-rich protein with kazal motifs
 IGHD6-19	IGHD619	immunoglobulin heavy diversity 6-19
-PRMT2	HRMT1L1|MGC111373	protein arginine methyltransferase 2
+PRMT2	HRMT1L1|MGC111373	protein arginine methyltransferase 2|Arginine N — methyltransferase 2
 LRP8	APOER2|MCI1|LRP-8|HSZ75190	low density lipoprotein receptor-related protein 8, apolipoprotein e receptor
 RNU2-72P		RNA, U2 small nuclear 72, pseudogene
 RPS2P25		ribosomal protein S2 pseudogene 25
@@ -29492,7 +29493,7 @@ ORC6	ORC6L	origin recognition complex, subunit 6
 LINC00864		long intergenic non-protein coding RNA 864
 RPL21P70		ribosomal protein L21 pseudogene 70
 SIX3	HPE2	SIX homeobox 3
-KLF5	BTEB2|IKLF|CKLF	Kruppel-like factor 5 (intestinal)
+KLF5	BTEB2|IKLF|CKLF	Kruppel-like factor 5 (intestinal)|Kruppel-like factor 5
 RNU6-292P		RNA, U6 small nuclear 292, pseudogene
 NR5A2	FTZ-F1beta|hB1F|FTF|FTZ-F1|B1F2|hB1F-2|LRH-1	liver receptor homolog-1|nuclear receptor subfamily 5, group A, member 2
 RPS27AP16		ribosomal protein S27a pseudogene 16
@@ -29661,7 +29662,7 @@ FLVCR1	MFSD7B|AXPC1|PCA|FLVCR	feline leukemia virus subgroup C cellular receptor
 TRY-GTA5-2	TRNAY2	transfer RNA tyrosine 2 (anticodon GUA)
 MIR3614	hsa-mir-3614	microRNA 3614
 POM121L6P	bA239L20.2	POM121 transmembrane nucleoporin-like 6 pseudogene
-APOE	AD2	apolipoprotein E
+APOE	AD2	apolipoprotein E|gene for apolipoprotein E|
 CSNK1A1L	MGC33182	casein kinase 1, alpha 1-like
 RBAK-RBAKDN		RBAK-RBAKDN readthrough
 NME4	NDPKD|NM23H4|nm23-H4	NME/NM23 nucleoside diphosphate kinase 4
@@ -31394,7 +31395,11 @@ RNU1-108P		RNA, U1 small nuclear 108, pseudogene
 PHOSPHO2	MGC22679	phosphatase, orphan 2
 RN7SL311P		RNA, 7SL, cytoplasmic 311, pseudogene
 MIR4522	hsa-mir-4522	microRNA 4522
-CFTR	TNR-CFTR|CF|dJ760C5.1|MRP7|ABCC7|ABC35|CFTR/MRP	ATP-binding cassette sub-family C, member 7|cystic fibrosis transmembrane conductance regulator (ATP-binding cassette sub-family C, member 7)
+CFTR	TNR-CFTR|CF|dJ760C5.1|MRP7|ABCC7|ABC35|CFTR/MRP	ATP-binding cassette
+sub-family C, member 7|cystic fibrosis transmembrane conductance regulator
+(ATP-binding cassette sub-family C, member 7)|cystic fibrosis trailsmembrane
+regulator|Cystic Fibrosis Transmembrane Regulator|Cystic Fibrosis Trans-membrane
+receptor|cystic ﬁbrosis transmembrane conductance regulator
 LINC00273	NCRNA00273-1|NCRNA00273|TOP	long intergenic non-protein coding RNA 273|non-protein coding RNA 273-1
 LINC01438	TCONS_00007593	
 RNF144B	IBRDC2|bA528A10.3	ring finger protein 144B
@@ -38683,7 +38688,7 @@ RPS24P7		ribosomal protein S24 pseudogene 7
 OR5BP1P		olfactory receptor, family 5, subfamily BP, member 1 pseudogene
 RN7SL97P		RNA, 7SL, cytoplasmic 97, pseudogene
 HPRT1	HPRT|HGPRT	Lesch-Nyhan syndrome|hypoxanthine phosphoribosyltransferase 1
-TXK	TKL|RLK|PSCTK5|PTK4|BTKL	TXK tyrosine kinase
+TXK	TKL|RLK|PSCTK5|PTK4|BTKL	TXK tyrosine kinase|Tyrosine Kinase Like
 PDXP	dJ37E16.5|FLJ32703	pyridoxal (pyridoxine, vitamin B6) phosphatase
 SHANK1	synamon|SPANK-1|SSTRIP	SH3 and multiple ankyrin repeat domains 1|somatostatin receptor-interacting protein
 TOR1AIP2	NET9|IFRG15|LULL1	torsin A interacting protein 2

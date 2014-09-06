@@ -4,12 +4,16 @@ from helper.easierlife import BASE_DIR
 
 
 # Load an example dictionary
-# First column is doc id, second is sentence id, third is entity
+# 1st column is doc id, 2nd is sentence ids (separated by '|'), 3rd is entity
 def load_examples_dictionary(filename):
-    examples = set()
+    examples = dict()
     with open(filename, 'rt') as examples_dict_file:
         for line in examples_dict_file:
-            examples.add(frozenset(line.rstrip().split("\t")))
+            tokens = line.rstrip().split("\t")
+            sent_ids = frozenset(tokens[1].split("|"))
+            examples[frozenset(tokens[0], tokens[2])] = sent_ids
+            if tokens[1] == "":
+                examples[frozenset(tokens[0], tokens[2])] = None
     return examples
 
 

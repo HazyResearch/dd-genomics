@@ -13,5 +13,5 @@ WHERE
 AND
 	t0.is_correct = False
 AND 
-	t0.expectation > 0.9
+	t0.expectation > 0.4
 ;

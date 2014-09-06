@@ -9,9 +9,12 @@ import sys
 from dstruct.Sentence import Sentence
 from extract_gene_mentions import extract, add_features, add_features_to_all
 from helper.easierlife import get_dict_from_TSVline, TSVstring2list, no_op
+from helper.dictinaries import load_dict
 
 
 def main():
+    # Load the merged genes dictionary
+    merged_genes_dict = load_dict("merged_genes")
     # Process the input
     with fileinput.input() as input_files:
         for line in input_files:
@@ -30,6 +33,8 @@ def main():
                 line_dict["dep_parents"], line_dict["bounding_boxes"])
             # This is the 'labelled' gene that we know is in the sentence
             gene = line_dict["gene"]
+            if gene in merged_genes_dict:
+                gene = merged_genes_dict[gene]
             # Extract mentions from sentence
             mentions = extract(sentence)
             if len(mentions) > 1:

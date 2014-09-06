@@ -17,13 +17,27 @@ from helper.easierlife import get_all_phrases_in_sentence, \
 RANDOM_EXAMPLES_PROB = 0.01
 RANDOM_EXAMPLES_QUOTA = 2000
 ACRONYMS_QUOTA = 2000
-ACRONYMS_PROB = 0.01
+ACRONYMS_PROB = 0.005
 false_acronyms = 0
 random_examples = 0
 
-DOC_ELEMENTS_OR_INDIVIDUALS = ["figure", "table", "figures", "tables", "fig",
-                               "fig.", "figs", "figs.", "individual",
-                               "individuals"]
+DOC_ELEMENTS_OR_INDIVIDUALS = frozenset(
+    ["figure", "table", "figures", "tables", "fig", "fig.", "figs", "figs.",
+        "individual", "individuals"])
+
+GENE_KEYWORDS = frozenset([
+    "gene", "genes", "protein", "proteins", "DNA", "rRNA", "cell", "cells",
+    "tumor", "tumors", "domain", "sequence", "sequences", "alignment",
+    "expression", "mRNA", "knockout", "knockdown", "recruitment",
+    "hybridization", "isoform", "chromosome", "receptor", "receptors",
+    "mutation", "mutations", "molecule", "molecules", "enzyme", "peptide",
+    "staining", "binding", "allele", "alignment", "region", "transcribe",
+    "deletion", "bind", "regulate", "overexpression", "intron", "level",
+    "promote", "T-cell", "inhibitor", "resistance", "serum", "DD-genotype",
+    "genotype", "interaction", "function", "marker", "activation",
+    "recruitment", "transcript", "antibody", "down-regulation",
+    "proliferation", "activate", "polymorphism", "sumoylation",
+    "enhancer"])
 
 
 # Perform the supervision
@@ -31,25 +45,15 @@ DOC_ELEMENTS_OR_INDIVIDUALS = ["figure", "table", "figures", "tables", "fig",
 # collection of positive labelled examples because we have the geneRifs that
 # will help us a lot since they are all positively labelled
 def supervise(mention, sentence):
-    # XXX (Matteo) The following commented code is from when we didn't use
-    # geneRifs yet. It is inspired by similar code in the pharm repository.
-    #
-    # If the candidate mention a gene symbol in the supervision dictionary, and
-    # not an English word, and not a medical acronym, and not a NIH or NSF
-    # grant code, and not a Roman numeral then label it as correct, provided
-    # we get head when we flip the coin
-    # if random.random() < SUPERVISION_PROB and \
-    #    mention_word.lower() not in english_dict and \
-    #    mention_word not in med_acrons_dict and \
-    #    mention_word not in nih_grants_dict and \
-    #    mention_word not in nsf_grants_dict and \
-    #    not re.match("^(IV|VI{,3}|I{1,4})$", mention_word):
-    #        mention.is_correct = True
-    #
     # Correct if it is in our collection of positive examples
-    if frozenset([sentence.doc_id, str(sentence.sent_id), mention.entity]) in pos_mentions_dict or \
-            frozenset([sentence.doc_id, str(sentence.sent_id),
-                       mention.words[0].word]) in pos_mentions_dict:
+    example_key_1 = frozenset([sentence.doc_id, mention.entity])
+    example_key_2 = frozenset([sentence.doc_id, mention.words[0].word])
+    if (example_key_1 in pos_mentions_dict and
+            (pos_mentions_dict[example_key_1] is None or sentence.sent_id in
+                pos_mentions_dict[example_key_1])) or \
+            (example_key_2 in pos_mentions_dict and
+                (pos_mentions_dict[example_key_2] is None or sentence.sent_id
+                    in pos_mentions_dict[example_key_2])):
         mention.is_correct = True
     # Not correct if the previous word is one of the following keywords
     # denoting a figure, a table, or an individual
@@ -58,9 +62,12 @@ def supervise(mention, sentence):
             DOC_ELEMENTS_OR_INDIVIDUALS:
         mention.is_correct = False
     # Not correct if it is in our collection of negative examples
-    if frozenset([sentence.doc_id, str(sentence.sent_id), mention.entity]) in neg_mentions_dict or \
-            frozenset([sentence.doc_id, str(sentence.sent_id),
-                       mention.words[0].word]) in neg_mentions_dict:
+    if (example_key_1 in neg_mentions_dict and
+            (neg_mentions_dict[example_key_1] is None or sentence.sent_id in
+                neg_mentions_dict[example_key_1])) or \
+            (example_key_2 in neg_mentions_dict and
+                (neg_mentions_dict[example_key_2] is None or sentence.sent_id
+                    in neg_mentions_dict[example_key_2])):
         mention.is_correct = False
     # If the sentence is less than 4 words, it probably doesn't contain
     # enough information to convey anything useful for the supervision, so let
@@ -86,13 +93,19 @@ def add_features(mention, sentence):
     elif mention.entity in merged_genes_dict:
         mention.add_feature('IS_LONG_NAME')
     # The mention is a single word that is in the English dictionary
+    # but we differentiate between lower case and upper case
     if len(mention.words) == 1 and \
             mention.words[0].word.casefold() in english_dict or \
             mention.words[0].lemma in english_dict:
-        mention.add_feature('IS_ENGLISH_WORD')
+        if mention.words[0].isupper():
+            mention.add_feature('IS_ENGLISH_WORD_UPP_CASE')
+        else:
+            mention.add_feature('IS_ENGLISH_WORD_LOW_CASE')
     # The NER is an organization, or a location, or a person
+    # XXX (Matteo) 20140905 Taking out ORGANIZATION, as it seems to induce
+    # false negatives.
     if len(mention.words) == 1 and \
-            mention.words[0].ner in ["ORGANIZATION", "LOCATION", "PERSON"]:
+            mention.words[0].ner in ["LOCATION", "PERSON"]:
         mention.add_feature("IS_" + mention.words[0].ner)
     # The word comes after an organization, or a location, or a person. We skip
     # commas as they may trick us
@@ -143,12 +156,7 @@ def add_features(mention, sentence):
     minp = None
     minw = None
     for word2 in sentence.words:
-        if word2.lemma in ["gene", "genes", "protein", "proteins", "DNA",
-                           "rRNA", "cell", "cells", "tumor", "tumors",
-                           "domain", "sequence", "sequences", "alignment",
-                           "expression", "mRNA", "knockout", "recruitment",
-                           "hybridization", "isoform", "chromosome",
-                           "receptor", "receptors", "mutation", "mutations"]:
+        if word2.lemma in GENE_KEYWORDS:
             p = sentence.get_word_dep_path(mention.wordidxs[0],
                                            word2.in_sent_idx)
             mention.add_feature("KEYWORD_[" + word2.lemma + "]")
@@ -184,12 +192,30 @@ def add_features(mention, sentence):
     for ner in ["PERSON", "ORGANIZATION", "LOCATION"]:
         if [x.lemma for x in sentence.words].count(ner) > 4:
             mention.add_feature("MANY_{}_IN_SENTENCE".format(ner))
+    # There are no English words in the sentence
+    # This may be useful to push down weird/junk sentences
+    no_english_words = True
+    for word in sentence.words:
+        if word.word in english_dict:
+            no_english_words = False
+            break
+    if no_english_words:
+        mention.add_feature("NO_ENGLISH_WORDS_IN_SENTENCE")
+    # There is no verb in the sentence
+    # This may be useful to push down weird/junk sentences
+    no_verb = True
+    for word in sentence.words:
+        if re.search('^VB[A-Z]*$', word.pos):
+            no_verb = False
+            break
+    if no_verb:
+        mention.add_feature("NO_VERB_IN_SENTENCE")
 
 
 # Add features that are related to the entire set of mentions candidates
 def add_features_to_all(mentions, sentence):
     # Number of other mentions in the sentence
-    for i in range(len(mentions)):
+    for i in range(1, len(mentions)):
         for mention in mentions:
             mention.add_feature("{}_OTHER_MENTIONS_IN_SENTENCE".format(i))
 
@@ -321,6 +347,7 @@ if __name__ == "__main__":
                 if mention.type == "RANDOM":
                     # this is a randomly generated example that we assume
                     # to be false
+                    mention.add_feature("IS_RANDOM")
                     mention.is_correct = False
                 elif "acronym" in line_dict and \
                         mention.words[0].word == line_dict["acronym"]:
@@ -331,12 +358,20 @@ if __name__ == "__main__":
                             break
                     if not mention.is_correct:
                         mention.type = "ACRONYM"
+                        mention.add_feature("NOT_KNOWN_ACRONYM")
                         mention.add_feature("NOT_KNOWN_ACRONYM_" +
                                             mention.words[0].word)
+                        for definition in line_dict["definitions"]:
+                            mention.add_feature("NOT_KNOWN_ACRONYM_" +
+                                                definition)
                         for definition in line_dict["definitions"]:
                             if definition.casefold() in med_acrons_dict:
                                 mention.add_feature("IS_MED_ACRONYM")
                                 break
+                        # Supervise anyway because it may be in set of
+                        # negative examples but not processed by the following
+                        # test
+                        supervise(mention, sentence)
                         if false_acronyms < ACRONYMS_QUOTA and \
                                 random.random() < ACRONYMS_PROB:
                             mention.is_correct = False
