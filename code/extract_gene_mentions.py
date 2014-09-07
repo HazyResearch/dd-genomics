@@ -12,7 +12,7 @@ from dstruct.Mention import Mention
 from dstruct.Sentence import Sentence
 from helper.dictionaries import load_dict
 from helper.easierlife import get_all_phrases_in_sentence, \
-    get_dict_from_TSVline, TSVstring2list, no_op
+    get_dict_from_TSVline, TSVstring2list, TSVstring2dict, no_op
 
 RANDOM_EXAMPLES_PROB = 0.01
 RANDOM_EXAMPLES_QUOTA = 2000
@@ -21,9 +21,9 @@ ACRONYMS_PROB = 0.005
 false_acronyms = 0
 random_examples = 0
 
-DOC_ELEMENTS_OR_INDIVIDUALS = frozenset(
-    ["figure", "table", "figures", "tables", "fig", "fig.", "figs", "figs.",
-        "individual", "individuals"])
+DOC_ELEMENTS = frozenset(
+    ["figure", "table", "figures", "tables", "fig", "fig.", "figs", "figs."])
+INDIVIDUALS = frozenset(["individual", "individuals"])
 
 GENE_KEYWORDS = frozenset([
     "gene", "genes", "protein", "proteins", "DNA", "rRNA", "cell", "cells",
@@ -58,8 +58,10 @@ def supervise(mention, sentence):
     # Not correct if the previous word is one of the following keywords
     # denoting a figure, a table, or an individual
     if sentence.get_prev_wordobject(mention) and \
-            sentence.get_prev_wordobject(mention).word.casefold() in \
-            DOC_ELEMENTS_OR_INDIVIDUALS:
+            (sentence.get_prev_wordobject(mention).word.casefold() in
+                DOC_ELEMENTS or
+                sentence.get_prev_wordobject(mention).word.casefold() in
+                INDIVIDUALS):
         mention.is_correct = False
     # Not correct if it is in our collection of negative examples
     if (example_key_1 in neg_mentions_dict and
@@ -78,20 +80,28 @@ def supervise(mention, sentence):
 
 # Add features to a gene mention
 def add_features(mention, sentence):
-    # The mention is a 'main' symbol:
-    if len(mention.words) == 1 and \
-            mention.entity == mention.words[0].word and \
-            mention.entity in merged_genes_dict:
-        mention.add_feature('IS_MAIN_SYMBOL')
-    # The mention is a synonym symbol
-    # XXX (Matteo) this is not entirely foolproof
-    elif len(mention.words) == 1 and (mention.entity in merged_genes_dict or
-                                      mention.words[0].word in
-                                      merged_genes_dict):
-        mention.add_feature('IS_SYNONYM')
-    # The mention is a long name
-    elif mention.entity in merged_genes_dict:
-        mention.add_feature('IS_LONG_NAME')
+    # The mention is a main symbol, or a synonym, or a long name
+    if len(mention.words) == 1:
+        entity_is_word = False
+        entity_in_dict = False
+        for entity in mention.entity.split("|"):
+            if entity == mention.words[0].word:
+                entity_is_word = True
+            if entity in merged_genes_dict:
+                entity_in_dict = True
+        if entity_is_word and entity_in_dict:
+            # The mention is a 'main' symbol
+            mention.add_feature('IS_MAIN_SYMBOL')
+        elif entity_in_dict or mention.words[0].word in merged_genes_dict:
+            # XXX (Matteo) this is not entirely foolproof
+            # The mention is a synonym symbol
+            mention.add_feature('IS_SYNONYM')
+    else:
+        for entity in mention.entity.split("|"):
+            if entity in merged_genes_dict:
+                # The mention is a long name
+                mention.add_feature('IS_LONG_NAME')
+                break
     # The mention is a single word that is in the English dictionary
     # but we differentiate between lower case and upper case
     if len(mention.words) == 1 and \
@@ -133,8 +143,10 @@ def add_features(mention, sentence):
         mention.add_feature("IS_BETWEEN_" + comes_after + "_" + comes_before)
     # The word comes after a "document element" (e.g., table, or figure)
     prev_word = sentence.get_prev_wordobject(mention)
-    if prev_word and prev_word.word.casefold() in DOC_ELEMENTS_OR_INDIVIDUALS:
+    if prev_word and prev_word.word.casefold() in DOC_ELEMENTS:
         mention.add_feature("IS_AFTER_DOC_ELEMENT")
+    if prev_word and prev_word.word.casefold() in INDIVIDUALS:
+        mention.add_feature("IS_AFTER_INDIVIDUAL")
     # The labels and the NERs on the shortest dependency path
     # between a verb and the mention word.
     minl = 100
@@ -311,32 +323,31 @@ if __name__ == "__main__":
     # Process the input
     with fileinput.input() as input_files:
         for line in input_files:
-            line_dict = get_dict_from_TSVline(line,
-                                              ["doc_id", "sent_id", "wordidxs",
-                                                  "words", "poses", "ners",
-                                                  "lemmas", "dep_paths",
-                                                  "dep_parents",
-                                                  "bounding_boxes", "acronym",
-                                                  "definitions"],
-                                              [no_op, int, lambda x:
-                                                  TSVstring2list(x, int),
-                                                  TSVstring2list,
-                                                  TSVstring2list,
-                                                  TSVstring2list,
-                                                  TSVstring2list,
-                                                  TSVstring2list, lambda x:
-                                                  TSVstring2list(x, int),
-                                                  TSVstring2list, no_op,
-                                                  TSVstring2list])
-            sentence = Sentence(line_dict["doc_id"], line_dict["sent_id"],
-                                line_dict["wordidxs"], line_dict["words"],
-                                line_dict["poses"], line_dict["ners"],
-                                line_dict["lemmas"], line_dict["dep_paths"],
-                                line_dict["dep_parents"],
-                                line_dict["bounding_boxes"])
-            # Remove duplicates
-            line_dict["definitions"] = frozenset([x.casefold() for x in
-                                                  line_dict["definitions"]])
+            line_dict = get_dict_from_TSVline(
+                line, ["doc_id", "sent_id", "wordidxs", "words", "poses",
+                       "ners", "lemmas", "dep_paths", "dep_parents",
+                       "bounding_boxes", "acronyms", "definitions"],
+                [no_op, int, lambda x: TSVstring2list(x, int), TSVstring2list,
+                    TSVstring2list, TSVstring2list, TSVstring2list,
+                    TSVstring2list, lambda x: TSVstring2list(x, int),
+                    TSVstring2list, TSVstring2list, TSVstring2dict])
+            sentence = Sentence(
+                line_dict["doc_id"], line_dict["sent_id"],
+                line_dict["wordidxs"], line_dict["words"], line_dict["poses"],
+                line_dict["ners"], line_dict["lemmas"], line_dict["dep_paths"],
+                line_dict["dep_parents"], line_dict["bounding_boxes"])
+            # Change the keys of the definition dictionary to be the acronyms
+            new_def_dict = dict()
+            for i in range(len(line_dict["acronyms"])):
+                new_def_dict[line_dict["acronyms"][i]] = \
+                    line_dict["definitions"]["TSV_" + str(i)]
+            line_dict["definitions"] = new_def_dict
+            # Remove duplicates from definitions
+            if "definitions" in line_dict:
+                for acronym in line_dict["definitions"]:
+                    line_dict["definitions"][acronym] = frozenset(
+                        [x.casefold() for x in
+                            line_dict["definitions"][acronym]])
             # Get list of mentions candidates in this sentence
             mentions = extract(sentence)
             # Add features that use information about other mentions
@@ -349,10 +360,17 @@ if __name__ == "__main__":
                     # to be false
                     mention.add_feature("IS_RANDOM")
                     mention.is_correct = False
-                elif "acronym" in line_dict and \
-                        mention.words[0].word == line_dict["acronym"]:
-                    for definition in line_dict["definitions"]:
-                        if definition.casefold in merged_genes_dict:
+                elif "acronyms" in line_dict:
+                    is_acronym = False
+                    for acronym in line_dict["acronyms"]:
+                        if mention.words[0].word == acronym:
+                            is_acronym = True
+                            break
+                    if not is_acronym:
+                        continue
+                    for definition in \
+                            line_dict["definitions"][mention.words[0].word]:
+                        if definition in merged_genes_dict:
                             mention.add_feature("COMES_WITH_LONG_NAME")
                             mention.is_correct = True
                             break
@@ -361,10 +379,14 @@ if __name__ == "__main__":
                         mention.add_feature("NOT_KNOWN_ACRONYM")
                         mention.add_feature("NOT_KNOWN_ACRONYM_" +
                                             mention.words[0].word)
-                        for definition in line_dict["definitions"]:
+                        for definition in \
+                                line_dict["definitions"][
+                                    mention.words[0].word]:
                             mention.add_feature("NOT_KNOWN_ACRONYM_" +
                                                 definition)
-                        for definition in line_dict["definitions"]:
+                        for definition in \
+                                line_dict["definitions"][
+                                    mention.words[0].word]:
                             if definition.casefold() in med_acrons_dict:
                                 mention.add_feature("IS_MED_ACRONYM")
                                 break
