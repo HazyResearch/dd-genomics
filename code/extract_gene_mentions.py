@@ -366,38 +366,39 @@ if __name__ == "__main__":
                         if mention.words[0].word == acronym:
                             is_acronym = True
                             break
-                    if not is_acronym:
-                        continue
-                    for definition in \
-                            line_dict["definitions"][mention.words[0].word]:
-                        if definition in merged_genes_dict:
-                            mention.add_feature("COMES_WITH_LONG_NAME")
-                            mention.is_correct = True
-                            break
-                    if not mention.is_correct:
-                        mention.type = "ACRONYM"
-                        mention.add_feature("NOT_KNOWN_ACRONYM")
-                        mention.add_feature("NOT_KNOWN_ACRONYM_" +
-                                            mention.words[0].word)
+                    # Only process as acronym if that's the case
+                    if is_acronym:
                         for definition in \
                                 line_dict["definitions"][
                                     mention.words[0].word]:
-                            mention.add_feature("NOT_KNOWN_ACRONYM_" +
-                                                definition)
-                        for definition in \
-                                line_dict["definitions"][
-                                    mention.words[0].word]:
-                            if definition.casefold() in med_acrons_dict:
-                                mention.add_feature("IS_MED_ACRONYM")
+                            if definition in merged_genes_dict:
+                                mention.add_feature("COMES_WITH_LONG_NAME")
+                                mention.is_correct = True
                                 break
-                        # Supervise anyway because it may be in set of
-                        # negative examples but not processed by the following
-                        # test
-                        supervise(mention, sentence)
-                        if false_acronyms < ACRONYMS_QUOTA and \
-                                random.random() < ACRONYMS_PROB:
-                            mention.is_correct = False
-                            false_acronyms += 1
+                        if not mention.is_correct:
+                            mention.type = "ACRONYM"
+                            mention.add_feature("NOT_KNOWN_ACRONYM")
+                            mention.add_feature("NOT_KNOWN_ACRONYM_" +
+                                                mention.words[0].word)
+                            for definition in \
+                                    line_dict["definitions"][
+                                        mention.words[0].word]:
+                                mention.add_feature("NOT_KNOWN_ACRONYM_" +
+                                                    definition)
+                            for definition in \
+                                    line_dict["definitions"][
+                                        mention.words[0].word]:
+                                if definition.casefold() in med_acrons_dict:
+                                    mention.add_feature("IS_MED_ACRONYM")
+                                    break
+                            # Supervise anyway because it may be in set of
+                            # negative examples but not processed by the
+                            # following test
+                            supervise(mention, sentence)
+                            if false_acronyms < ACRONYMS_QUOTA and \
+                                    random.random() < ACRONYMS_PROB:
+                                mention.is_correct = False
+                                false_acronyms += 1
                 else:
                     supervise(mention, sentence)
                 print(mention.tsv_dump())
