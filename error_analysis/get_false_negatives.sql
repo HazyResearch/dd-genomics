@@ -1,6 +1,7 @@
 SELECT 
 	t0.doc_id,
 	t0.sent_id, 
+	t0.entity,
 	t0.words, 
 	t0.expectation,
 	t1.words,
@@ -19,6 +20,7 @@ AND
 SELECT 
 	t0.doc_id,
 	t0.sent_id, 
+	t0.entity,
 	t0.words, 
 	t0.expectation,
 	t1.words,
