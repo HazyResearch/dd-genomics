@@ -14,7 +14,6 @@ class Mention(object):
     doc_id = None
     sent_id = None
     wordidxs = None
-    id = None
     type = None
     entity = None
     words = None
@@ -26,9 +25,6 @@ class Mention(object):
         self.sent_id = _words[0].sent_id
         self.wordidxs = sorted([word.in_sent_idx for word in _words])
         self.type = _type
-        self.id = "MENTION_{}_{}_{}_{}_{}".format(
-            self.type, self.doc_id, self.sent_id, self.wordidxs[0],
-            self.wordidxs[-1])
         self.entity = _entity
         # These are Word objects
         self.words = _words
@@ -38,10 +34,15 @@ class Mention(object):
     def __repr__(self):
         return " ".join([w.word for w in self.words])
 
+    def id(self):
+        return "MENTION_{}_{}_{}_{}_{}".format(
+            self.type, self.doc_id, self.sent_id, self.wordidxs[0],
+            self.wordidxs[-1])
+
     # Dump self to a json object
     def json_dump(self):
         json_obj = {"id": None, "doc_id": self.doc_id, "sent_id": self.sent_id,
-                    "wordidxs": self.wordidxs, "mention_id": self.id, "type":
+                    "wordidxs": self.wordidxs, "mention_id": self.id(), "type":
                     self.type, "entity": self.entity,
                     "words": [w.word for w in self.words],
                     "is_correct": self.is_correct,
@@ -55,9 +56,9 @@ class Mention(object):
             is_correct_str = self.is_correct.__repr__()
         tsv_line = "\t".join(
             ["\\N", self.doc_id, str(self.sent_id),
-                list2TSVarray(self.wordidxs), self.id, self.type, self.entity,
-                list2TSVarray(self.words, quote=True), is_correct_str,
-                list2TSVarray(list(self.features), quote=True)])
+                list2TSVarray(self.wordidxs), self.id(), self.type,
+                self.entity, list2TSVarray(self.words, quote=True),
+                is_correct_str, list2TSVarray(list(self.features), True)])
         return tsv_line
 
     # Add a feature
