@@ -55,14 +55,15 @@ def supervise(mention, sentence):
                 (pos_mentions_dict[example_key_2] is None or sentence.sent_id
                     in pos_mentions_dict[example_key_2])):
         mention.is_correct = True
+        return
     # Not correct if the previous word is one of the following keywords
     # denoting a figure, a table, or an individual
-    if sentence.get_prev_wordobject(mention) and \
-            (sentence.get_prev_wordobject(mention).word.casefold() in
-                DOC_ELEMENTS or
-                sentence.get_prev_wordobject(mention).word.casefold() in
-                INDIVIDUALS):
+    if "IS_AFTER_DOC_ELEMENT" in mention.features:
         mention.is_correct = False
+        return
+    if "IS_AFTER_INDIVIDUAL" in mention.features:
+        mention.is_correct = False
+        return
     # Not correct if it is in our collection of negative examples
     if (example_key_1 in neg_mentions_dict and
             (neg_mentions_dict[example_key_1] is None or sentence.sent_id in
@@ -71,6 +72,22 @@ def supervise(mention, sentence):
                 (neg_mentions_dict[example_key_2] is None or sentence.sent_id
                     in neg_mentions_dict[example_key_2])):
         mention.is_correct = False
+        return
+    # Not correct if "T" and the next lemma is 'cell'.
+    if len(mention.words) == 1 and mention.words[0] == "T" and \
+            "WINDOW_RIGHT_1[cell]" in mention.features:
+        mention.is_correct = False
+        return
+    # Not correct if it's most probably a name.
+    if "IS_BETWEEN_NAMES" in mention.features:
+        mention.is_correct = False
+        return
+    # Comes after person and before "et", so it's probably a name
+    if "COMES_AFTER_PERSON" in mention.features and \
+            "WINDOW_RIGHT_1_[et]" in mention.features:
+        mention.is_correct = False
+        return
+    # If it's "II", it's most probably wrong.
     # If the sentence is less than 4 words, it probably doesn't contain
     # enough information to convey anything useful for the supervision, so let
     # the system learn what it is
@@ -105,12 +122,16 @@ def add_features(mention, sentence):
     # The mention is a single word that is in the English dictionary
     # but we differentiate between lower case and upper case
     if len(mention.words) == 1 and \
-            mention.words[0].word.casefold() in english_dict or \
-            mention.words[0].lemma.casefold() in english_dict:
+            (mention.words[0].word.casefold() in english_dict or
+             mention.words[0].lemma.casefold() in english_dict) and \
+            len(mention.words[0].word) > 2:
         if mention.words[0].word.isupper():
             mention.add_feature('IS_ENGLISH_WORD_UPP_CASE')
         else:
             mention.add_feature('IS_ENGLISH_WORD_LOW_CASE')
+    # The mention is a single letter
+    if len(mention.words) == 1 and len(mention.words[0].word) == 1:
+        mention.add_feature("IS_SINGLE_LETTER")
     # The NER is an organization, or a location, or a person
     # XXX (Matteo) 20140905 Taking out ORGANIZATION, as it seems to induce
     # false negatives.
@@ -141,6 +162,7 @@ def add_features(mention, sentence):
     # a person
     if comes_before and comes_after:
         mention.add_feature("IS_BETWEEN_" + comes_after + "_" + comes_before)
+        mention.add_feature("IS_BETWEEN_NAMES")
     # The word comes after a "document element" (e.g., table, or figure)
     prev_word = sentence.get_prev_wordobject(mention)
     if prev_word and prev_word.word.casefold() in DOC_ELEMENTS:
@@ -153,7 +175,8 @@ def add_features(mention, sentence):
     minp = None
     minw = None
     for word2 in sentence.words:
-        if re.search('^VB[A-Z]*$', word2.pos) and word2.lemma != 'be':
+        if word2.lemma.isalpha() and re.search('^VB[A-Z]*$', word2.pos) and \
+                word2.lemma != 'be':
             p = sentence.get_word_dep_path(mention.wordidxs[0],
                                            word2.in_sent_idx)
             if len(p) < minl:
@@ -180,18 +203,22 @@ def add_features(mention, sentence):
     if minw:
         mention.add_feature('EXT_KEYWORD_SHORTEST_PATH_[' + minw + ']' + minp)
         mention.add_feature('KEYWORD_SHORTEST_PATH_[' + minw + ']')
-    # The lemma on the left of the mention, if present, provided it's not a
-    # ",", in which case we get the previous word
+    # The lemma on the left of the mention, if present, provided it's
+    # alphanumeric
     idx = mention.wordidxs[0] - 1
-    while idx >= 0 and sentence.words[idx].lemma == ",":
+    while idx >= 0 and \
+            (not sentence.words[idx].lemma.isalnum() or
+             sentence.words[idx].lemma in stopwords_dict):
         idx -= 1
     if idx >= 0:
         mention.add_feature("WINDOW_LEFT_1_[{}]".format(
             sentence.words[idx].lemma))
-    # The word on the right of the mention, if present, provided it's not a
-    # ",", in which case we get the next word.
+    # The word on the right of the mention, if present, provided it's
+    # alphanumeric
     idx = mention.wordidxs[-1] + 1
-    while idx < len(sentence.words) and sentence.words[idx].lemma == ",":
+    while idx < len(sentence.words) and \
+            (not sentence.words[idx].lemma.isalnum() or
+             sentence.words[idx].lemma in stopwords_dict):
         idx += 1
     if idx < len(sentence.words):
         mention.add_feature("WINDOW_RIGHT_1_[{}]".format(
@@ -213,15 +240,6 @@ def add_features(mention, sentence):
             break
     if no_english_words:
         mention.add_feature("NO_ENGLISH_WORDS_IN_SENTENCE")
-    # There is no verb in the sentence
-    # This may be useful to push down weird/junk sentences
-    no_verb = True
-    for word in sentence.words:
-        if re.search('^VB[A-Z]*$', word.pos):
-            no_verb = False
-            break
-    if no_verb:
-        mention.add_feature("NO_VERB_IN_SENTENCE")
 
 
 # Add features that are related to the entire set of mentions candidates
@@ -337,17 +355,18 @@ if __name__ == "__main__":
                 line_dict["ners"], line_dict["lemmas"], line_dict["dep_paths"],
                 line_dict["dep_parents"], line_dict["bounding_boxes"])
             # Change the keys of the definition dictionary to be the acronyms
-            new_def_dict = dict()
-            for i in range(len(line_dict["acronyms"])):
-                new_def_dict[line_dict["acronyms"][i]] = \
-                    line_dict["definitions"]["TSV_" + str(i)]
-            line_dict["definitions"] = new_def_dict
-            # Remove duplicates from definitions
-            if "definitions" in line_dict:
-                for acronym in line_dict["definitions"]:
-                    line_dict["definitions"][acronym] = frozenset(
-                        [x.casefold() for x in
-                            line_dict["definitions"][acronym]])
+            if "acronyms" in line_dict:
+                new_def_dict = dict()
+                for i in range(len(line_dict["acronyms"])):
+                    new_def_dict[line_dict["acronyms"][i]] = \
+                        line_dict["definitions"]["TSV_" + str(i)]
+                line_dict["definitions"] = new_def_dict
+                # Remove duplicates from definitions
+                if "definitions" in line_dict:
+                    for acronym in line_dict["definitions"]:
+                        line_dict["definitions"][acronym] = frozenset(
+                            [x.casefold() for x in
+                                line_dict["definitions"][acronym]])
             # Get list of mentions candidates in this sentence
             mentions = extract(sentence)
             # Add features that use information about other mentions
@@ -366,38 +385,39 @@ if __name__ == "__main__":
                         if mention.words[0].word == acronym:
                             is_acronym = True
                             break
-                    if not is_acronym:
-                        continue
-                    for definition in \
-                            line_dict["definitions"][mention.words[0].word]:
-                        if definition in merged_genes_dict:
-                            mention.add_feature("COMES_WITH_LONG_NAME")
-                            mention.is_correct = True
-                            break
-                    if not mention.is_correct:
-                        mention.type = "ACRONYM"
-                        mention.add_feature("NOT_KNOWN_ACRONYM")
-                        mention.add_feature("NOT_KNOWN_ACRONYM_" +
-                                            mention.words[0].word)
+                    # Only process as acronym if that's the case
+                    if is_acronym:
                         for definition in \
                                 line_dict["definitions"][
                                     mention.words[0].word]:
-                            mention.add_feature("NOT_KNOWN_ACRONYM_" +
-                                                definition)
-                        for definition in \
-                                line_dict["definitions"][
-                                    mention.words[0].word]:
-                            if definition.casefold() in med_acrons_dict:
-                                mention.add_feature("IS_MED_ACRONYM")
+                            if definition in merged_genes_dict:
+                                mention.add_feature("COMES_WITH_LONG_NAME")
+                                mention.is_correct = True
                                 break
-                        # Supervise anyway because it may be in set of
-                        # negative examples but not processed by the following
-                        # test
-                        supervise(mention, sentence)
-                        if false_acronyms < ACRONYMS_QUOTA and \
-                                random.random() < ACRONYMS_PROB:
-                            mention.is_correct = False
-                            false_acronyms += 1
+                        if not mention.is_correct:
+                            mention.type = "ACRONYM"
+                            mention.add_feature("NOT_KNOWN_ACRONYM")
+                            mention.add_feature("NOT_KNOWN_ACRONYM_" +
+                                                mention.words[0].word)
+                            for definition in \
+                                    line_dict["definitions"][
+                                        mention.words[0].word]:
+                                mention.add_feature("NOT_KNOWN_ACRONYM_" +
+                                                    definition)
+                            for definition in \
+                                    line_dict["definitions"][
+                                        mention.words[0].word]:
+                                if definition.casefold() in med_acrons_dict:
+                                    mention.add_feature("IS_MED_ACRONYM")
+                                    break
+                            # Supervise anyway because it may be in set of
+                            # negative examples but not processed by the
+                            # following test
+                            supervise(mention, sentence)
+                            if false_acronyms < ACRONYMS_QUOTA and \
+                                    random.random() < ACRONYMS_PROB:
+                                mention.is_correct = False
+                                false_acronyms += 1
                 else:
                     supervise(mention, sentence)
                 print(mention.tsv_dump())

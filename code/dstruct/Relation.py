@@ -25,8 +25,8 @@ class Relation(object):
         self.doc_id = mention_1.words[0].doc_id
         self.sent_id_1 = mention_1.words[0].sent_id
         self.sent_id_2 = mention_2.words[0].sent_id
-        self.mention_1_id = mention_1.id
-        self.mention_2_id = mention_2.id
+        self.mention_1_id = mention_1.id()
+        self.mention_2_id = mention_2.id()
         self.type = _type
         self.id = "RELATION_{}_{}_{}_{}_{},{}_{},{}".format(
             self.type, self.doc_id, self.sent_id_1, self.sent_id_2,
