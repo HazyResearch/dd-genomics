@@ -21,15 +21,34 @@ def extract(sentence):
             acronym = dict()
             acronym["acronym"] = words[index]
             try:
-                definition_start = words.index(",", index + 1) + 1
+                comma_index = words.index(",", index + 1)
             except:
-                definition_start = index + 2
+                comma_index = len(words)
             try:
-                definition_end = words.index(";", index + 1)
+                semicolon_index = words.index(";", index + 1)
             except:
-                definition_end = len(words) - 1
+                semicolon_index = len(words)
+            try:
+                colon_index = words.index(":", index + 1)
+            except:
+                colon_index = len(words)
+            definition_start = min(
+                [comma_index, semicolon_index, colon_index]) + 1
+            if definition_start > len(words):
+                definition_start = index + 1
+            try:
+                definition_end = words.index(";", definition_start + 1)
+            except:
+                if words[-1] == ".":
+                    definition_end = len(words) - 1
+                else:
+                    definition_end = len(words)
             definition = " ".join(words[definition_start:definition_end])
             if words[index] not in merged_genes_dict:
+                index = definition_end + 1
+                continue
+            # If we didn't find a definition, give up
+            if definition.strip() == "":
                 index = definition_end + 1
                 continue
             acronym["doc_id"] = sentence.doc_id
@@ -70,7 +89,7 @@ def extract(sentence):
                             is_definition = False
                             break
                     definition = " ".join([w.word for w in window_words])
-                    # Only consider this acronym if the definition is valid 
+                    # Only consider this acronym if the definition is valid
                     if is_definition:
                         acronym = dict()
                         acronym["doc_id"] = word.doc_id
