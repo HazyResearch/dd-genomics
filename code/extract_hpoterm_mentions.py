@@ -113,39 +113,35 @@ def extract(sentence):
     mentions = []
     sentence_stems = set()
     for word in sentence.words:
-        if word.word.casefold() not in stopwords_dict:
-            sentence_stems.add(stemmer.stem(word.word))
-    possible_mentions = set()
-    for pheno_stems in hpoterms_dict:
+        word.stem = stemmer.stem(word.word)
+        # Only add if it's not a symbol
+        if not re.match("^(_|\W)+$", word.word) and \
+                word.word.casefold() not in stopwords_dict:
+            sentence_stems.add(word.stem)
+    possible_mentions_dict = dict()
+    for pheno_stems in sorted_hpoterms:
         intersect_size = len(sentence_stems.intersection(pheno_stems))
         if intersect_size > MENTION_THRESHOLD * len(pheno_stems):
-            to_add = True
-            to_remove = []
-            for mention in possible_mentions:
-                if pheno_stems.issubset(mention):
-                    to_add = False
-                    break
-                elif pheno_stems.issuperset(mention):
-                    to_remove.append(mention)
-            for mention in to_remove:
-                possible_mentions.remove(mention)
-            if to_add:
-                possible_mentions.add(pheno_stems)
-    # Create the mention objects for the possible mentions
-    for possible_mention in possible_mentions:
-        leftovers = set(possible_mention)
-        mention_words = []
-        for word in sentence.words:
-            stem = stemmer.stem(word.word)
-            if stem in possible_mention:
-                mention_words.append(word)
-                if stem in leftovers:
-                    leftovers.remove(stem)
-                    if len(leftovers) == 0:
-                        break
-        name = hpoterms_dict[possible_mention]
-        mention = Mention("HPOTERM", "|".join(name), mention_words)
-        mentions.append(mention)
+            curr_dict = possible_mentions_dict()
+            found = True
+            for stem in sorted(pheno_stems):
+                if stem not in curr_dict:
+                    curr_dict[stem] = dict()
+                    found = False
+                curr_dict = curr_dict[stem]
+            if not found:
+                leftovers = set(pheno_stems)
+                mention_words = []
+                for word in sentence.words:
+                    if word.stem in pheno_stems:
+                        mention_words.append(word)
+                        if word.stem in leftovers:
+                            leftovers.remove(word.stem)
+                            if len(leftovers) == 0:
+                                break
+                name = hpoterms_dict[pheno_stems]
+                mention = Mention("HPOTERM", "|".join(name), mention_words)
+                mentions.append(mention)
     if len(mentions) == 0:
         # Potentially generate a random mention that resembles real ones
         # This mention is supervised (as false) in the code calling this
@@ -172,6 +168,9 @@ def extract(sentence):
 # Load the dictionaries that we need
 stopwords_dict = load_dict("stopwords")
 hpoterms_dict = load_dict("hpoterms")
+# Sort the keys in decreasing order according to length. This speeds up the
+# extraction process
+sorted_hpoterms = sorted(hpoterms_dict.keys(), key=len, reverse=True)
 # Create supervision dictionary that only contains a fraction of the genes in
 # the gene dictionary. This is to avoid that we label as positive examples
 # everything that is in the dictionary
