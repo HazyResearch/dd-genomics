@@ -27,7 +27,7 @@ def main():
                     word = word[:-1]
                 if word[-1] == ",":
                     word = word[:-1]
-                if word.casefold() not in stopwords_dict:
+                if word.casefold() not in stopwords_dict or len(word) == 1:
                     if word.find("/") != - 1:
                         for part in word.split("/"):
                             name_stems.add(stemmer.stem(part))
