@@ -128,8 +128,8 @@ def extract(sentence):
                     break
                 elif pheno_stems.issuperset(mention):
                     to_remove.append(mention)
-                else:  # UNREACHED
-                    assert False
+                else:  # do nothing
+                    pass
             for mention in to_remove:
                 possible_mentions.remove(mention)
             if to_add:
