@@ -111,37 +111,46 @@ def add_features_to_all(mentions, sentence):
 def extract(sentence):
     global random_examples
     mentions = []
-    sentence_stems = set()
+    sentence_stems = []
     for word in sentence.words:
         word.stem = stemmer.stem(word.word)
         # Only add if it's not a symbol
         if not re.match("^(_|\W)+$", word.word) and \
-                word.word.casefold() not in stopwords_dict:
-            sentence_stems.add(word.stem)
-    possible_mentions_dict = dict()
+                (len(word.word) == 1 or
+                 word.word.casefold() not in stopwords_dict):
+            sentence_stems.append(word.stem)
+    sentence_stems_set = frozenset(sentence_stems)
+    sentence_available_word_indexes = set(
+        [x.in_sent_idx for x in sentence.words])
     for pheno_stems in sorted_hpoterms:
-        intersect_size = len(sentence_stems.intersection(pheno_stems))
+        intersect_size = len(sentence_stems_set.intersection(pheno_stems))
         if intersect_size >= MENTION_THRESHOLD * len(pheno_stems):
-            curr_dict = possible_mentions_dict
-            found = True
-            for stem in sorted(pheno_stems):
-                if stem not in curr_dict:
-                    curr_dict[stem] = dict()
-                    found = False
-                curr_dict = curr_dict[stem]
-            if not found:
-                leftovers = set(pheno_stems)
-                mention_words = []
-                for word in sentence.words:
-                    if word.stem in pheno_stems:
-                        mention_words.append(word)
-                        if word.stem in leftovers:
-                            leftovers.remove(word.stem)
-                            if len(leftovers) == 0:
-                                break
-                name = hpoterms_dict[pheno_stems]
-                mention = Mention("HPOTERM", "|".join(name), mention_words)
-                mentions.append(mention)
+            # Find the word objects of this mention
+            mention_words = []
+            for word in sentence.words:
+                if word.stem in pheno_stems and \
+                        word.word.casefold() not in \
+                        [x.word.casefold() for x in mention_words] and \
+                        word.in_sent_idx in sentence_available_word_indexes:
+                    mention_words.append(word)
+                    # We used this word for this mention, so remove it from the
+                    # list of words available for other possible mentions.
+                    try:
+                        sentence_stems.remove(word.stem)
+                        sentence_available_word_indexes.remove(
+                            word.in_sent_idx)
+                    except:
+                        pass
+                    # Early termination check
+                    if len(mention_words) == len(pheno_stems):
+                        break
+            # Create the mention object
+            mention = Mention(
+                "HPOTERM", "|".join(hpoterms_dict[frozenset(pheno_stems)]),
+                mention_words)
+            mentions.append(mention)
+            # Update as it may have changed
+            sentence_stems_set = frozenset(sentence_stems)
     if len(mentions) == 0:
         # Potentially generate a random mention that resembles real ones
         # This mention is supervised (as false) in the code calling this
@@ -170,7 +179,8 @@ stopwords_dict = load_dict("stopwords")
 hpoterms_dict = load_dict("hpoterms")
 # Sort the keys in decreasing order according to length. This speeds up the
 # extraction process
-sorted_hpoterms = sorted(hpoterms_dict.keys(), key=len, reverse=True)
+sorted_hpoterms = sorted([set(x) for x in hpoterms_dict], key=len,
+                         reverse=True)
 # Create supervision dictionary that only contains a fraction of the genes in
 # the gene dictionary. This is to avoid that we label as positive examples
 # everything that is in the dictionary
