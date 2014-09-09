@@ -38,6 +38,10 @@ def main():
                 gene = merged_genes_dict[gene]
             else:
                 gene = [gene, ]
+            # Skip sentences that are "( GENE )"
+            if sentence.words[0].word == "-LRB-" and \
+                    sentence.words[-1].word == "-RRB-":
+                        continue
             # Extract mentions from sentence
             mentions = extract(sentence)
             if len(mentions) > 1:

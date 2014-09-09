@@ -74,12 +74,24 @@ def supervise(mention, sentence):
         mention.is_correct = False
         return
     # Not correct if "T" and the next lemma is 'cell'.
-    if len(mention.words) == 1 and mention.words[0] == "T" and \
-            "WINDOW_RIGHT_1[cell]" in mention.features:
+    if len(mention.words) == 1 and mention.words[0].word == "T" and \
+            "WINDOW_RIGHT_1_[cell]" in mention.features:
+        mention.is_correct = False
+        return
+    if len(mention.words) == 1 and mention.words[0].word == "X" and \
+            "WINDOW_RIGHT_1_[chromosome]" in mention.features:
+        mention.is_correct = False
+        return
+    # A single letter and no English words in the sentence
+    if len(mention.words) == 1 and len(mention.words[0].word) == 1 and \
+            "NO_ENGLISH_WORDS_IN_SENTENCE" in mention.features:
         mention.is_correct = False
         return
     # Not correct if it's most probably a name.
     if "IS_BETWEEN_NAMES" in mention.features:
+        mention.is_correct = False
+        return
+    if "COMES_BEFORE_PERSON" in mention.features:
         mention.is_correct = False
         return
     # Comes after person and before "et", so it's probably a name
@@ -87,12 +99,21 @@ def supervise(mention, sentence):
             "WINDOW_RIGHT_1_[et]" in mention.features:
         mention.is_correct = False
         return
+    # Comes after person and before "," or ":", so it's probably a name
+    if "COMES_AFTER_PERSON" in mention.features and \
+            mention.words[-1].in_sent_idx + 1 < len(sentence.words) and \
+            sentence.words[mention.words[-1].in_sent_idx + 1].word \
+            in [",", ":"]:
+        mention.is_correct = False
+        return
+    if "IS_LOCATION" in mention.features and \
+            "COMES_BEFORE_LOCATION" in mention.features:
+        mention.is_correct = False
+        return
     # If it's "II", it's most probably wrong.
-    # If the sentence is less than 4 words, it probably doesn't contain
-    # enough information to convey anything useful for the supervision, so let
-    # the system learn what it is
-    if len(sentence.words) < 4:
-        mention.is_correct = None
+    if mention.words[0].word == "II":
+        mention.is_correct = False
+        return
 
 
 # Add features to a gene mention
@@ -129,9 +150,6 @@ def add_features(mention, sentence):
             mention.add_feature('IS_ENGLISH_WORD_UPP_CASE')
         else:
             mention.add_feature('IS_ENGLISH_WORD_LOW_CASE')
-    # The mention is a single letter
-    if len(mention.words) == 1 and len(mention.words[0].word) == 1:
-        mention.add_feature("IS_SINGLE_LETTER")
     # The NER is an organization, or a location, or a person
     # XXX (Matteo) 20140905 Taking out ORGANIZATION, as it seems to induce
     # false negatives.
@@ -204,21 +222,23 @@ def add_features(mention, sentence):
         mention.add_feature('EXT_KEYWORD_SHORTEST_PATH_[' + minw + ']' + minp)
         mention.add_feature('KEYWORD_SHORTEST_PATH_[' + minw + ']')
     # The lemma on the left of the mention, if present, provided it's
-    # alphanumeric
+    # alphanumeric but not a number
     idx = mention.wordidxs[0] - 1
     while idx >= 0 and \
             (not sentence.words[idx].lemma.isalnum() or
-             sentence.words[idx].lemma in stopwords_dict):
+             sentence.words[idx].lemma in stopwords_dict) and \
+            not re.match("^[0-9]+(.[0-9]+)?$", sentence.words[idx].word):
         idx -= 1
     if idx >= 0:
         mention.add_feature("WINDOW_LEFT_1_[{}]".format(
             sentence.words[idx].lemma))
     # The word on the right of the mention, if present, provided it's
-    # alphanumeric
+    # alphanumeric but not a number
     idx = mention.wordidxs[-1] + 1
     while idx < len(sentence.words) and \
             (not sentence.words[idx].lemma.isalnum() or
-             sentence.words[idx].lemma in stopwords_dict):
+             sentence.words[idx].lemma in stopwords_dict) and \
+            not re.match("^[0-9]+(.[0-9]+)?$", sentence.words[idx].word):
         idx += 1
     if idx < len(sentence.words):
         mention.add_feature("WINDOW_RIGHT_1_[{}]".format(
@@ -235,7 +255,9 @@ def add_features(mention, sentence):
     # This may be useful to push down weird/junk sentences
     no_english_words = True
     for word in sentence.words:
-        if word.word in english_dict:
+        if len(word.word) > 2 and \
+                (word.word in english_dict or
+                 word.word.casefold() in english_dict):
             no_english_words = False
             break
     if no_english_words:
@@ -243,9 +265,15 @@ def add_features(mention, sentence):
 
 
 # Add features that are related to the entire set of mentions candidates
+# Must be called after supervision!!!
 def add_features_to_all(mentions, sentence):
-    # Number of other mentions in the sentence
-    for i in range(1, len(mentions)):
+    # Number of distinct other mentions in the sentence that are not most
+    # probably false
+    not_names = set()
+    for mention in mentions:
+        if not mention.is_correct:
+            not_names.add(frozenset(mention.words))
+    for i in range(1, len(not_names)):
         for mention in mentions:
             mention.add_feature("{}_OTHER_MENTIONS_IN_SENTENCE".format(i))
 
@@ -369,15 +397,12 @@ if __name__ == "__main__":
                                 line_dict["definitions"][acronym]])
             # Get list of mentions candidates in this sentence
             mentions = extract(sentence)
-            # Add features that use information about other mentions
-            if len(mentions) > 1:
-                add_features_to_all(mentions, sentence)
             # Supervise according to the mention type
             for mention in mentions:
                 if mention.type == "RANDOM":
                     # this is a randomly generated example that we assume
                     # to be false
-                    mention.add_feature("IS_RANDOM")
+                    # mention.add_feature("IS_RANDOM")
                     mention.is_correct = False
                 elif "acronyms" in line_dict:
                     is_acronym = False
@@ -418,6 +443,12 @@ if __name__ == "__main__":
                                     random.random() < ACRONYMS_PROB:
                                 mention.is_correct = False
                                 false_acronyms += 1
-                else:
+                    else:  # Sentence contains acronym but not here
+                        supervise(mention, sentence)
+                else:  # not random and not acronyms in sentence
                     supervise(mention, sentence)
+            # Add features that use information about other mentions
+            if len(mentions) > 1:
+                add_features_to_all(mentions, sentence)
+            for mention in mentions:
                 print(mention.tsv_dump())
