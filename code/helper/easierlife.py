@@ -49,7 +49,7 @@ def get_dict_from_TSVline(line, keys, funcs):
     for i in range(len(tokens)):
         token = tokens[i]
         # skip the token if it's NULL
-        if token != "\\N":
+        if token != "":
             try:
                 line_dict[keys[i]] = funcs[i](token)
             except:
