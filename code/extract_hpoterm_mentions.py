@@ -121,7 +121,7 @@ def extract(sentence):
     possible_mentions_dict = dict()
     for pheno_stems in sorted_hpoterms:
         intersect_size = len(sentence_stems.intersection(pheno_stems))
-        if intersect_size > MENTION_THRESHOLD * len(pheno_stems):
+        if intersect_size >= MENTION_THRESHOLD * len(pheno_stems):
             curr_dict = possible_mentions_dict
             found = True
             for stem in sorted(pheno_stems):

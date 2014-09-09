@@ -12,6 +12,8 @@ from helper.easierlife import get_dict_from_TSVline, no_op, TSVstring2list
 
 SUPERVISION_PROB = 0.5
 SUPERVISION_GENEHPOTERMS_DICT_FRACTION = 0.4
+RANDOM_EXAMPLES_PROB = 0.01
+RANDOM_EXAMPLES_QUOTA = 1000
 
 
 # Perform distant supervision
