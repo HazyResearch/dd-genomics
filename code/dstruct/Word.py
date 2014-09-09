@@ -4,11 +4,12 @@
 Originally obtained from the 'pharm' repository, but modified.
 """
 
+
 class Word(object):
-  
+
     doc_id = None
     sent_id = None
-    insent_idx = None
+    in_sent_idx = None
     word = None
     pos = None
     ner = None
@@ -18,10 +19,11 @@ class Word(object):
     sent_id = None
     box = None
 
-    def __init__(self, _doc_id, _sent_id, _in_sent_idx, _word, _pos, _ner, _lemma, _dep_path, _dep_parent, _box):
+    def __init__(self, _doc_id, _sent_id, _in_sent_idx, _word, _pos, _ner,
+                 _lemma, _dep_path, _dep_parent, _box):
         self.doc_id = _doc_id
         self.sent_id = _sent_id
-        self.in_sent_idx = _in_sent_idx 
+        self.in_sent_idx = _in_sent_idx
         self.word = _word
         self.pos = _pos
         self.ner = _ner
@@ -29,11 +31,12 @@ class Word(object):
         self.dep_path = _dep_path
         self.box = _box
         self.lemma = _lemma
-        # If do not do the following, outputting an Array in the language will crash
+        # If do not do the following, outputting an Array in the language will
+        # crash
         # XXX (Matteo) This was in the pharm code, not sure what it means
         # I actually don't think this should go here.
-        #self.lemma = self.lemma.replace('"', "''") 
-        #self.lemma = self.lemma.replace('\\', "_") 
+        # self.lemma = self.lemma.replace('"', "''")
+        # self.lemma = self.lemma.replace('\\', "_")
 
     def __repr__(self):
         return self.word
@@ -44,4 +47,3 @@ class Word(object):
             return self.lemma
         else:
             return self.ner
-
