@@ -53,7 +53,7 @@ def get_dict_from_TSVline(line, keys, funcs):
             try:
                 line_dict[keys[i]] = funcs[i](token)
             except:
-                line_dict[keys[i]] = None
+                pass
     return line_dict
 
 
