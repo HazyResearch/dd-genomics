@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 
 import fileinput
-import math
 import random
 import re
 
@@ -93,7 +92,7 @@ def add_features(mention, sentence):
     # This may be useful to push down weird/junk sentences
     no_verb = True
     for word in sentence.words:
-        if re.search('^VB[A-Z]*$', word.pos):
+        if word.word.isalpha() and re.search('^VB[A-Z]*$', word.pos):
             no_verb = False
             break
     if no_verb:
@@ -119,7 +118,7 @@ def extract(sentence):
     possible_mentions = set()
     for pheno_stems in hpoterms_dict:
         intersect_size = len(sentence_stems.intersection(pheno_stems))
-        if intersect_size > math.ceil(MENTION_THRESHOLD * len(pheno_stems)):
+        if intersect_size > MENTION_THRESHOLD * len(pheno_stems):
             to_add = True
             to_remove = []
             for mention in possible_mentions:
@@ -128,8 +127,6 @@ def extract(sentence):
                     break
                 elif pheno_stems.issuperset(mention):
                     to_remove.append(mention)
-                else:  # do nothing
-                    pass
             for mention in to_remove:
                 possible_mentions.remove(mention)
             if to_add:
@@ -143,7 +140,7 @@ def extract(sentence):
             if stem in possible_mention:
                 mention_words.append(word)
                 if stem in leftovers:
-                    leftovers.remove(stemmer.stem(word.word))
+                    leftovers.remove(stem)
                     if len(leftovers) == 0:
                         break
         name = hpoterms_dict[possible_mention]
