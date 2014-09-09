@@ -47,9 +47,9 @@ def load_genes_dictionary(filename):
     return genes_dict
 
 
-# Load the HPOterms dictionary
+# Load the HPOterms original dictionary
 # Terms are converted to lower case
-def load_hpoterms_dictionary(filename):
+def load_hpoterms_orig_dictionary(filename):
     hpoterms_dict = dict()
     with open(filename, 'rt') as hpoterms_dict_file:
         for line in hpoterms_dict_file:
@@ -66,6 +66,19 @@ def load_hpoterms_dictionary(filename):
             variants = get_variants(description_words)
             for variant in variants:
                 hpoterms_dict[variant.casefold()] = name
+    return hpoterms_dict
+
+
+# Load the HPOterms 'mentions' dictionary (output of hpoterms2mentions.py
+def load_hpoterms_dictionary(filename):
+    hpoterms_dict = dict()
+    with open(filename, 'rt') as hpoterms_dict_file:
+        for line in hpoterms_dict_file:
+            hpoterm_id, name, stems = line[:-1].split("\t")
+            stems_set = frozenset(stems.split("|"))
+            if stems_set not in hpoterms_dict:
+                hpoterms_dict[stems_set] = []
+            hpoterms_dict[stems_set].append(name)
     return hpoterms_dict
 
 
@@ -115,7 +128,8 @@ GENES_DICT_FILENAME = BASE_DIR + "/dicts/hugo_synonyms.tsv"
 ENGLISH_DICT_FILENAME = BASE_DIR + "/dicts/english_words.tsv"
 GENEHPOTERM_DICT_FILENAME = BASE_DIR + \
     "/dicts/genes_to_hpo_terms_with_synonyms.tsv"
-HPOTERMS_DICT_FILENAME = BASE_DIR + "/dicts/hpo_terms.tsv"
+HPOTERMS_ORIG_DICT_FILENAME = BASE_DIR + "/dicts/hpo_terms.tsv"
+HPOTERMS_DICT_FILENAME = BASE_DIR + "/dicts/hpoterm_mentions.tsv"
 MED_ACRONS_DICT_FILENAME = BASE_DIR + "/dicts/med_acronyms_pruned.tsv"
 MERGED_GENES_DICT_FILENAME = BASE_DIR + "/dicts/merged_genes_dict.tsv"
 NIH_GRANTS_DICT_FILENAME = BASE_DIR + "/dicts/grant_codes_nih.tsv"
@@ -134,6 +148,8 @@ dictionaries["genes"] = [GENES_DICT_FILENAME, load_genes_dictionary]
 dictionaries["english"] = [ENGLISH_DICT_FILENAME, load_set_lower_case]
 dictionaries["genehpoterms"] = [GENEHPOTERM_DICT_FILENAME, load_set_pairs]
 dictionaries["hpoterms"] = [HPOTERMS_DICT_FILENAME, load_hpoterms_dictionary]
+dictionaries["hpoterms_orig"] = [HPOTERMS_ORIG_DICT_FILENAME,
+                                 load_hpoterms_orig_dictionary]
 dictionaries["nih_grants"] = [NIH_GRANTS_DICT_FILENAME, load_set]
 dictionaries["nsf_grants"] = [NSF_GRANTS_DICT_FILENAME, load_set]
 dictionaries["med_acrons"] = [MED_ACRONS_DICT_FILENAME,

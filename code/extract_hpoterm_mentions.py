@@ -1,15 +1,18 @@
 #! /usr/bin/env python3
 
 import fileinput
+import math
 import random
 import re
 
+from nltk.stem.snowball import SnowballStemmer
+
 from dstruct.Mention import Mention
 from dstruct.Sentence import Sentence
-from helper.easierlife import get_all_phrases_in_sentence, \
-    get_dict_from_TSVline, TSVstring2list, no_op
+from helper.easierlife import get_dict_from_TSVline, TSVstring2list, no_op
 from helper.dictionaries import load_dict
 
+MENTION_THRESHOLD = 2 / 3
 SUPERVISION_HPOTERMS_DICT_FRACTION = 0.5
 SUPERVISION_PROB = 0.5
 RANDOM_EXAMPLES_PROB = 0.01
@@ -75,7 +78,8 @@ def add_features(mention, sentence):
     minp = None
     minw = None
     for word2 in sentence.words:
-        if re.search('^VB[A-Z]*$', word2.pos) and word2.lemma != 'be':
+        if word2.word.isalpha() and re.search('^VB[A-Z]*$', word2.pos) \
+                and word2.lemma != 'be':
             p = sentence.get_word_dep_path(mention.wordidxs[0],
                                            word2.in_sent_idx)
             if len(p) < minl:
@@ -108,45 +112,68 @@ def add_features_to_all(mentions, sentence):
 def extract(sentence):
     global random_examples
     mentions = []
-    history = set()
-    words = sentence.words
-    for start, end in get_all_phrases_in_sentence(
-            sentence, max_variant_length):
-        if start in history or end in history:
-                continue
-        phrase = " ".join([word.word for word in words[start:end]])
-        phrase_caseless = phrase.casefold()
-        mention = None
-        # If the phrase is in the dictionary, then is a possible mention
-        if phrase_caseless in hpoterms_dict:
-            # Found a mention with this start and end: we can insert the
-            # indexes of this mention in the history, and break the loop on
-            # end and get to a new start
-            for i in range(start, end + 1):
-                history.add(i)
-            term = hpoterms_dict[phrase_caseless]
-            mention = Mention("HPOTERM", term, words[start:end])
-            # Add features
-            add_features(mention, sentence)
-            mentions.append(mention)
-        else:
-            # Potentially generate a random mention that resembles real ones
-            # This mention is supervised (as false) in the code calling this
-            # function
-            # XXX (Matteo) may need additional conditions to generate a mention
-            if random.random() < RANDOM_EXAMPLES_PROB and \
-                    random_examples < RANDOM_EXAMPLES_QUOTA:
-                mention = Mention("RANDOM", "random", words[start:end])
+    sentence_stems = set()
+    for word in sentence.words:
+        if word.word.casefold() not in stopwords_dict:
+            sentence_stems.add(stemmer.stem(word.word))
+    possible_mentions = set()
+    for pheno_stems in hpoterms_dict:
+        intersect_size = len(sentence_stems.intersection(pheno_stems))
+        if intersect_size > math.ceil(MENTION_THRESHOLD * len(pheno_stems)):
+            to_add = True
+            to_remove = []
+            for mention in possible_mentions:
+                if pheno_stems.issubset(mention):
+                    to_add = False
+                    break
+                elif pheno_stems.issuperset(mention):
+                    to_remove.append(mention)
+                else:  # UNREACHED
+                    assert False
+            for mention in to_remove:
+                possible_mentions.remove(mention)
+            if to_add:
+                possible_mentions.add(pheno_stems)
+    # Create the mention objects for the possible mentions
+    for possible_mention in possible_mentions:
+        leftovers = set(possible_mention)
+        mention_words = []
+        for word in sentence.words:
+            stem = stemmer.stem(word.word)
+            if stem in possible_mention:
+                mention_words.append(word)
+                if stem in leftovers:
+                    leftovers.remove(stemmer.stem(word.word))
+                    if len(leftovers) == 0:
+                        break
+        name = hpoterms_dict[possible_mention]
+        mention = Mention("HPOTERM", "|".join(name), mention_words)
+        mentions.append(mention)
+    if len(mentions) == 0:
+        # Potentially generate a random mention that resembles real ones
+        # This mention is supervised (as false) in the code calling this
+        # function
+        # XXX (Matteo) may need additional conditions to generate a mention
+        if random.random() < RANDOM_EXAMPLES_PROB and \
+                random_examples < RANDOM_EXAMPLES_QUOTA \
+                and len(sentence.words) > 1:
+            start, end = random.sample(range(len(sentence.words)), 2)
+            if start > end:
+                tmp = end
+                start = end
+                end = tmp
+            if end - start > 1:
+                mention = Mention(
+                    "RANDOM", "random", sentence.words[start:end])
                 random_examples += 1
                 # Add features
                 add_features(mention, sentence)
                 mentions.append(mention)
-                for i in range(start, end + 1):
-                    history.add(i)
     return mentions
 
 
 # Load the dictionaries that we need
+stopwords_dict = load_dict("stopwords")
 hpoterms_dict = load_dict("hpoterms")
 # Create supervision dictionary that only contains a fraction of the genes in
 # the gene dictionary. This is to avoid that we label as positive examples
@@ -161,11 +188,7 @@ for hpoterm in hpoterms_dict:
         supervision_hpoterms_dict[hpoterm] = hpoterms_dict[hpoterm]
     i += 1
 
-max_variant_length = 0
-for key in hpoterms_dict:
-    length = len(key.split())
-    if length > max_variant_length:
-        max_variant_length = length
+stemmer = SnowballStemmer("english")
 
 if __name__ == "__main__":
     # Process the input
@@ -185,12 +208,13 @@ if __name__ == "__main__":
                 line_dict["ners"], line_dict["lemmas"], line_dict["dep_paths"],
                 line_dict["dep_parents"], line_dict["bounding_boxes"])
             mentions = extract(sentence)
-            if len(mentions) > 1:
-                add_features_to_all(mentions, sentence)
             for mention in extract(sentence):
                 if mention.type != "RANDOM":
                     supervise(mention, sentence)
                 else:
-                    mention.add_feature("IS_RANDOM")
+                    # mention.add_feature("IS_RANDOM")
                     mention.is_correct = False
+            if len(mentions) > 1:
+                add_features_to_all(mentions, sentence)
+            for mention in mentions:
                 print(mention.tsv_dump())
