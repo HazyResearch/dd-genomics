@@ -47,6 +47,20 @@ def load_genes_dictionary(filename):
     return genes_dict
 
 
+# Load the HPO dag
+def load_hpodag_dictionary(filename):
+    hpodag_dict = dict()
+    with open(filename, 'rt') as hpodag_dict_file:
+        for line in hpodag_dict_file:
+            child, is_a, ancestor = line.strip().split("\t")
+            if child not in hpodag_dict:
+                hpodag_dict[child] = set()
+            hpodag_dict[child].add(ancestor)
+    # Add 'All'
+    hpodag_dict["HP:0000001"] = set(["HP:0000001", ])
+    return hpodag_dict
+
+
 # Load the HPOterms original dictionary
 # Terms are converted to lower case
 def load_hpoterms_orig_dictionary(filename):
@@ -128,6 +142,7 @@ GENES_DICT_FILENAME = BASE_DIR + "/dicts/hugo_synonyms.tsv"
 ENGLISH_DICT_FILENAME = BASE_DIR + "/dicts/english_words.tsv"
 GENEHPOTERM_DICT_FILENAME = BASE_DIR + \
     "/dicts/genes_to_hpo_terms_with_synonyms.tsv"
+HPODAG_DICT_FILENAME = BASE_DIR + "/dicts/hpo_dag.tsv"
 HPOTERMS_ORIG_DICT_FILENAME = BASE_DIR + "/dicts/hpo_terms.tsv"
 HPOTERMS_DICT_FILENAME = BASE_DIR + "/dicts/hpoterm_mentions.tsv"
 MED_ACRONS_DICT_FILENAME = BASE_DIR + "/dicts/med_acronyms_pruned.tsv"
@@ -147,6 +162,7 @@ dictionaries = dict()
 dictionaries["genes"] = [GENES_DICT_FILENAME, load_genes_dictionary]
 dictionaries["english"] = [ENGLISH_DICT_FILENAME, load_set_lower_case]
 dictionaries["genehpoterms"] = [GENEHPOTERM_DICT_FILENAME, load_set_pairs]
+dictionaries["hpodag"] = [HPODAG_DICT_FILENAME, load_hpodag_dictionary]
 dictionaries["hpoterms"] = [HPOTERMS_DICT_FILENAME, load_hpoterms_dictionary]
 dictionaries["hpoterms_orig"] = [HPOTERMS_ORIG_DICT_FILENAME,
                                  load_hpoterms_orig_dictionary]
