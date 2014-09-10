@@ -9504,7 +9504,7 @@ TCOF1	TCS|treacle	Treacher Collins-Franceschetti syndrome 1
 NUP50P3		nucleoporin 50 pseudogene 3
 RNU6-1022P		RNA, U6 small nuclear 1022, pseudogene
 MRT18		mental retardation, non-syndromic, autosomal recessive, 18
-ABCD1	ALDP|AMN|ALD|adrenoleukodystrophy	ATP-binding cassette, sub-family D (ALD), member 1
+ABCD1	ALDP|AMN|ALD	ATP-binding cassette, sub-family D (ALD), member 1|adrenoleukodystrophy
 ENTHD2	C17orf56|FLJ31528	ENTH domain containing 2
 GYG2P2		glycogenin 2 pseudogene 2
 MIR505	MIRN505|hsa-mir-505	microRNA 505
@@ -29404,7 +29404,7 @@ SRP14-AS1		SRP14 antisense RNA1 (head to head)
 FAUP1	FAU1P	FBR-MuSV-associated ubiquitously expressed (fox derived) pseudogene 1
 STK36	KIAA1278|FU	serine/threonine kinase 36|fused homolog (Drosophila)
 LINC01248		long intergenic non-protein coding RNA 1248
-PDCD4	H731	nuclear antigen H731|programmed cell death 4 (neoplastic transformation inhibitor)
+PDCD4	Pdcd4|H731	nuclear antigen H731|programmed cell death 4 (neoplastic transformation inhibitor)
 RPL12P34		ribosomal protein L12 pseudogene 34
 C6orf223	MGC45491	chromosome 6 open reading frame 223
 FAM120A	DNAPTP1|C9orf10|OSSA|KIAA0183	DNA polymerase-transactivated protein 1|oxidative stess-associated Src activator|family with sequence similarity 120A

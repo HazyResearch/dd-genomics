@@ -132,8 +132,12 @@ def add_features(mention, sentence):
             mention.add_feature('IS_MAIN_SYMBOL')
         elif entity_in_dict or mention.words[0].word in merged_genes_dict:
             # XXX (Matteo) this is not entirely foolproof
-            # The mention is a synonym symbol
-            mention.add_feature('IS_SYNONYM')
+            if mention.words[0].word.casefold() == mention.words[0].word:
+                # Long name
+                mention.add_feature("IS_LONG_NAME")
+            else:
+                # The mention is a synonym symbol
+                mention.add_feature('IS_SYNONYM')
     else:
         for entity in mention.entity.split("|"):
             if entity in merged_genes_dict:
@@ -212,7 +216,7 @@ def add_features(mention, sentence):
         if word2.lemma in GENE_KEYWORDS:
             p = sentence.get_word_dep_path(mention.wordidxs[0],
                                            word2.in_sent_idx)
-            mention.add_feature("KEYWORD_[" + word2.lemma + "]")
+            # mention.add_feature("KEYWORD_[" + word2.lemma + "]")
             if len(p) < minl:
                 minl = len(p)
                 minp = p
@@ -262,6 +266,8 @@ def add_features(mention, sentence):
             break
     if no_english_words:
         mention.add_feature("NO_ENGLISH_WORDS_IN_SENTENCE")
+    if mention.words[0].word == "II":
+        mention.add_feature("IS_ROMAN_II")
 
 
 # Add features that are related to the entire set of mentions candidates
@@ -402,7 +408,7 @@ if __name__ == "__main__":
                 if mention.type == "RANDOM":
                     # this is a randomly generated example that we assume
                     # to be false
-                    # mention.add_feature("IS_RANDOM")
+                    mention.add_feature("IS_RANDOM")
                     mention.is_correct = False
                 elif "acronyms" in line_dict:
                     is_acronym = False
