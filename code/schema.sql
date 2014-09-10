@@ -54,19 +54,44 @@
 --) DISTRIBUTED BY (doc_id);
 
 -- Acronym table
-DROP TABLE IF EXISTS acronyms CASCADE;
-CREATE TABLE acronyms (
+-- DROP TABLE IF EXISTS acronyms CASCADE;
+-- CREATE TABLE acronyms (
+-- 	-- document id
+-- 	doc_id text,
+-- 	-- sentence id
+-- 	sent_id int,
+-- 	-- word idx
+-- 	wordidx int,
+-- 	-- acronym
+-- 	acronym text,
+-- 	-- definition
+-- 	definition text
+-- ) DISTRIBUTED BY (doc_id);
+
+-- GeneRifs mentions
+DROP TABLE IF EXISTS generifs_mentions CASCADE;
+CREATE TABLE generifs_mentions (
+	-- id for random variable
+	id bigint,
 	-- document id
 	doc_id text,
 	-- sentence id
 	sent_id int,
-	-- word idx
-	wordidx int,
-	-- acronym
-	acronym text,
-	-- definition
-	definition text
-) DISTRIBUTED BY (doc_id);
+	-- indexes of the words composing the mention
+	wordidxs int[],
+	-- mention id
+	mention_id text,
+	-- mention type
+	type text,
+	-- entity
+	entity text,
+	-- words
+	words text[],
+	-- is this a correct mention?
+	is_correct boolean,
+	-- features for training
+	features text[]
+) DISTRIBUTED BY (mention_id);
 
 -- Gene mentions
 DROP TABLE IF EXISTS gene_mentions CASCADE;

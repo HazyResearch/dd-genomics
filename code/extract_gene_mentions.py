@@ -225,6 +225,8 @@ def add_features(mention, sentence):
     if minw:
         mention.add_feature('EXT_KEYWORD_SHORTEST_PATH_[' + minw + ']' + minp)
         mention.add_feature('KEYWORD_SHORTEST_PATH_[' + minw + ']')
+    else:
+        mention.add_feature("NO_KEYWORDS")
     # The lemma on the left of the mention, if present, provided it's
     # alphanumeric but not a number
     idx = mention.wordidxs[0] - 1
@@ -268,6 +270,9 @@ def add_features(mention, sentence):
         mention.add_feature("NO_ENGLISH_WORDS_IN_SENTENCE")
     if mention.words[0].word == "II":
         mention.add_feature("IS_ROMAN_II")
+     if len(mention.words) == 1 and mention.words[0].word == "T" and \
+             "WINDOW_RIGHT_1_[cell]" in mention.features:
+        mention.add_feature("IS_T_CELL")
 
 
 # Add features that are related to the entire set of mentions candidates

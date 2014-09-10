@@ -47,18 +47,43 @@ def load_genes_dictionary(filename):
     return genes_dict
 
 
-# Load the HPO dag
-def load_hpodag_dictionary(filename):
-    hpodag_dict = dict()
-    with open(filename, 'rt') as hpodag_dict_file:
-        for line in hpodag_dict_file:
-            child, is_a, ancestor = line.strip().split("\t")
-            if child not in hpodag_dict:
-                hpodag_dict[child] = set()
-            hpodag_dict[child].add(ancestor)
+# Load the HPO term levels
+def load_hpoterm_levels_dictionary(filename):
+    hpo_level_dict = dict()
+    with open(filename, 'rt') as hpo_level_dict_file:
+        for line in hpo_level_dict_file:
+            hpo_id, name, c, level = line.strip().split("\t")
+            level = int(level)
+            if level not in hpo_level_dict:
+                hpo_level_dict[level] = set()
+            hpo_level_dict[level].add(hpo_id)
+    return hpo_level_dict
+
+
+# Load the HPO parents
+def load_hpoparents_dictionary(filename):
+    hpoparents_dict = dict()
+    with open(filename, 'rt') as hpoparents_dict_file:
+        for line in hpoparents_dict_file:
+            child, is_a, parent = line.strip().split("\t")
+            if child not in hpoparents_dict:
+                hpoparents_dict[child] = set()
+            hpoparents_dict[child].add(parent)
     # Add 'All'
-    hpodag_dict["HP:0000001"] = set(["HP:0000001", ])
-    return hpodag_dict
+    hpoparents_dict["HP:0000001"] = set(["HP:0000001", ])
+    return hpoparents_dict
+
+
+# Load the HPO children
+def load_hpochildren_dictionary(filename):
+    hpochildren_dict = dict()
+    with open(filename, 'rt') as hpochildren_dict_file:
+        for line in hpochildren_dict_file:
+            child, is_a, parent = line.strip().split("\t")
+            if parent not in hpochildren_dict:
+                hpochildren_dict[parent] = set()
+            hpochildren_dict[parent].add(child)
+    return hpochildren_dict
 
 
 # Load the HPOterms original dictionary
@@ -142,9 +167,12 @@ GENES_DICT_FILENAME = BASE_DIR + "/dicts/hugo_synonyms.tsv"
 ENGLISH_DICT_FILENAME = BASE_DIR + "/dicts/english_words.tsv"
 GENEHPOTERM_DICT_FILENAME = BASE_DIR + \
     "/dicts/genes_to_hpo_terms_with_synonyms.tsv"
-HPODAG_DICT_FILENAME = BASE_DIR + "/dicts/hpo_dag.tsv"
+HPOPARENTS_DICT_FILENAME = BASE_DIR + "/dicts/hpo_dag.tsv"
 HPOTERMS_ORIG_DICT_FILENAME = BASE_DIR + "/dicts/hpo_terms.tsv"
-HPOTERMS_DICT_FILENAME = BASE_DIR + "/dicts/hpoterm_mentions.tsv"
+# NON PRUNED HPOTERMS_DICT_FILENAME = BASE_DIR + "/dicts/hpoterm_mentions.tsv"
+HPOTERMS_DICT_FILENAME = BASE_DIR + "/dicts/hpoterm_abnormalities_mentions.tsv"
+HPOTERM_PHENOTYPE_ABNORMALITIES_DICT_FILENAME = BASE_DIR + \
+    "/dicts/hpoterm_phenotype_abnormalities.tsv"
 MED_ACRONS_DICT_FILENAME = BASE_DIR + "/dicts/med_acronyms_pruned.tsv"
 MERGED_GENES_DICT_FILENAME = BASE_DIR + "/dicts/merged_genes_dict.tsv"
 NIH_GRANTS_DICT_FILENAME = BASE_DIR + "/dicts/grant_codes_nih.tsv"
@@ -162,8 +190,15 @@ dictionaries = dict()
 dictionaries["genes"] = [GENES_DICT_FILENAME, load_genes_dictionary]
 dictionaries["english"] = [ENGLISH_DICT_FILENAME, load_set_lower_case]
 dictionaries["genehpoterms"] = [GENEHPOTERM_DICT_FILENAME, load_set_pairs]
-dictionaries["hpodag"] = [HPODAG_DICT_FILENAME, load_hpodag_dictionary]
+dictionaries["hpoparents"] = [HPOPARENTS_DICT_FILENAME,
+                              load_hpoparents_dictionary]
+dictionaries["hpochildren"] = [HPOPARENTS_DICT_FILENAME,
+                               load_hpochildren_dictionary]
+dictionaries["hpolevels"] = [HPOTERMS_ORIG_DICT_FILENAME,
+                             load_hpoterm_levels_dictionary]
 dictionaries["hpoterms"] = [HPOTERMS_DICT_FILENAME, load_hpoterms_dictionary]
+dictionaries["hpoterm_phenotype_abnormalities"] = [
+    HPOTERM_PHENOTYPE_ABNORMALITIES_DICT_FILENAME, load_set]
 dictionaries["hpoterms_orig"] = [HPOTERMS_ORIG_DICT_FILENAME,
                                  load_hpoterms_orig_dictionary]
 dictionaries["nih_grants"] = [NIH_GRANTS_DICT_FILENAME, load_set]
@@ -181,8 +216,6 @@ dictionaries["neg_gene_mentions"] = [NEG_GENE_MENTIONS_DICT_FILENAME,
 
 # Load a dictionary using the appropriate filename and load function
 def load_dict(dict_name):
-    if dict_name not in dictionaries:
-        return None
     filename = dictionaries[dict_name][0]
     load = dictionaries[dict_name][1]
     return load(filename)

@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
 
 import fileinput
+import itertools
+import math
 import random
 import re
 
@@ -123,8 +125,7 @@ def extract(sentence):
     sentence_available_word_indexes = set(
         [x.in_sent_idx for x in sentence.words])
     for pheno_stems in sorted_hpoterms:
-        intersect_size = len(sentence_stems_set.intersection(pheno_stems))
-        if intersect_size >= MENTION_THRESHOLD * len(pheno_stems):
+        if pheno_stems.issubset(sentence_stems_set):
             # Find the word objects of this mention
             mention_words = []
             for word in sentence.words:
@@ -146,9 +147,11 @@ def extract(sentence):
                         break
             # Create the mention object
             mention = Mention(
-                "HPOTERM", "|".join(hpoterms_dict[frozenset(pheno_stems)]),
+                "HPOTERM", "|".join(
+                    hpoterm_mentions_dict[frozenset(pheno_stems)]),
                 mention_words)
             mentions.append(mention)
+            add_features(mention, sentence)
             # Update as it may have changed
             sentence_stems_set = frozenset(sentence_stems)
     if len(mentions) == 0:
@@ -177,9 +180,23 @@ def extract(sentence):
 # Load the dictionaries that we need
 stopwords_dict = load_dict("stopwords")
 hpoterms_dict = load_dict("hpoterms")
+
+hpoterm_mentions_dict = dict()
+for stem_set in hpoterms_dict:
+    if len(stem_set) <= 3:
+        if stem_set not in hpoterm_mentions_dict:
+            hpoterm_mentions_dict[stem_set] = []
+        hpoterm_mentions_dict[stem_set] += hpoterms_dict[stem_set]
+    else:
+        for subset in itertools.combinations(
+                stem_set, math.ceil(MENTION_THRESHOLD * len(stem_set))):
+            subset = frozenset(subset)
+            if subset not in hpoterm_mentions_dict:
+                hpoterm_mentions_dict[subset] = []
+            hpoterm_mentions_dict[subset] += hpoterms_dict[stem_set]
 # Sort the keys in decreasing order according to length. This speeds up the
 # extraction process
-sorted_hpoterms = sorted([set(x) for x in hpoterms_dict], key=len,
+sorted_hpoterms = sorted([set(x) for x in hpoterm_mentions_dict], key=len,
                          reverse=True)
 # Create supervision dictionary that only contains a fraction of the genes in
 # the gene dictionary. This is to avoid that we label as positive examples
