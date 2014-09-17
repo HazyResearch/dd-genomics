@@ -2885,7 +2885,7 @@ ALMS1P	ALMS1L	Alstrom syndrome 1 pseudogene
 DGAT2L7P		diacylglycerol O-acyltransferase 2-like 7, pseudogene
 TOB1-AS1		TOB1 antisense RNA 1
 IFI16	IFNGIP1|PYHIN2	interferon, gamma-inducible protein 16
-AGO2	EIF2C2|hAGO2|Q10	argonaute RISC catalytic component 2|argonaute 2
+AGO2	EIF2C2|hAGO2|Q10	argonaute RISC catalytic component 2|argonaute 2|Argonaute,2|argonaute,2
 ASB9P1		ankyrin repeat and SOCS box containing 9 pseudogene 1
 HIPK2		homeodomain interacting protein kinase 2
 RPS25P10		ribosomal protein S25 pseudogene 10
@@ -5580,7 +5580,7 @@ KRTAP19-7	KAP19.7	keratin associated protein 19-7
 SERPINA13P	SERPINA13|UNQ6121	serpin peptidase inhibitor, clade A (alpha-1 antiproteinase, antitrypsin), member 13, pseudogene
 MINOS1-NBL1		MINOS1-NBL1 readthrough
 FAM90A24P	FAM90A24	family with sequence similarity 90, member A24, pseudogene
-CASP1	IL1BC|ICE	interleukin 1, beta, convertase|caspase 1, apoptosis-related cysteine peptidase|caspase-1
+CASP1	IL1BC|ICE	interleukin 1, beta, convertase|caspase 1, apoptosis-related cysteine peptidase|caspase-1|caspase 1
 OR7E37P	hg533	olfactory receptor, family 7, subfamily E, member 37 pseudogene
 OR4D2		olfactory receptor, family 4, subfamily D, member 2
 TRS-GCT4-3	TRNAS17	transfer RNA serine 17 (anticodon GCU)
@@ -7538,7 +7538,7 @@ HNRNPA1P54		heterogeneous nuclear ribonucleoprotein A1 pseudogene 54
 RPS4XP22	RPS4P22	ribosomal protein S4X pseudogene 22
 SLC44A5	CTL5|MGC34032	solute carrier family 44, member 5
 GNRHR2P1		gonadotropin-releasing hormone (type 2) receptor 2 pseudogene 1
-ING1	p33ING1b|p33ING1|p33|p47ING1a|p24ING1c|p47	inhibitor of growth 1|inhibitor of growth family, member 1|growth inhibitor ING1|growth inhibitory protein ING1|tumor suppressor ING1
+ING1	p33ING1b|p33ING1|p33|p47ING1a|p24ING1c|p47|ING1b	inhibitor of growth 1|inhibitor of growth family, member 1|growth inhibitor ING1|growth inhibitory protein ING1|tumor suppressor ING1
 ZSWIM8	4832404P21Rik|KIAA0913	zinc finger, SWIM-type containing 8
 MIR3180-2	hsa-mir-3180-2	microRNA 3180-2
 RC3H1	RNF198|RP5-1198E17.5|KIAA2025|roquin	ring finger and CCCH-type domains 1|KIAA2025 protein
@@ -8034,7 +8034,7 @@ C19orf68	LOC374920	chromosome 19 open reading frame 68
 ZBTB26	ZNF481	zinc finger and BTB domain containing 26
 APOL5	APOLV	apolipoprotein L, 5
 OR13C3		olfactory receptor, family 13, subfamily C, member 3
-TYMS	TS|Tsase|TMS|HsT422	thymidylate synthetase
+TYMS	TS|Tsase|TMS|HsT422	thymidylate synthetase|thymidyltate synthase
 IGKV1-39		immunoglobulin kappa variable 1-39 (gene/pseudogene)
 EEF1B2P5		eukaryotic translation elongation factor 1 beta 2 pseudogene 5
 UGT1A13P		UDP glucuronosyltransferase 1 family, polypeptide A13 pseudogene
@@ -10828,7 +10828,7 @@ CT83	KK-LC-1|FLJ20611|FLJ22913|CXorf61	chromosome X open reading frame 61|cancer
 FBXL19	CXXC11|JHDM1C|DKFZp434K0410|Fbl19	F-box and leucine-rich repeat protein 19|jumonji C domain-containing histone demethylase 1C
 RN7SL198P		RNA, 7SL, cytoplasmic 198, pseudogene
 ACTG1P9	ACTGP9	actin, gamma 1 pseudogene 9
-TNF	TNF-alpha|TNFSF2|TNFA|DIF	tumor necrosis factor|TNF superfamily, member 2
+TNF	TNFSF2|TNFA|DIF	tumor necrosis factor|TNF superfamily, member 2|TNF-alpha
 RPS10P30		ribosomal protein S10 pseudogene 30
 PIRC42		piwi-interacting RNA cluster 42
 LRRC43	MGC35140	leucine rich repeat containing 43
@@ -12188,7 +12188,6 @@ METTL15P3		methyltransferase like 15 pseudogene 3
 MIR3908	hsa-mir-3908	microRNA 3908
 NGEF	ARHGEF27	ephexin|neuronal guanine nucleotide exchange factor
 MBD4	MED1	methyl-CpG binding domain protein 4
-Approved	Symbol|Previous|Symbols|Synonyms	
 PTENP1	PTEN2|PTH2|PTENpg1|psiPTEN|PTEN-rs	phosphatase and tensin homolog pseudogene 1|phosphatase and tensin homolog pseudogene 1 (functional)
 TRN-GTT16-2	TRNAN24	transfer RNA asparagine 24 (anticodon GUU)
 TRGV2	TCRGV2|VIS2	T cell receptor gamma variable 2|T-cell receptor, gamma, variable region V2
@@ -14527,7 +14526,7 @@ GSTA9P	GSTAP4|GSTA4P
 RPL8P1	dJ15D7.1|RPL2p|RPL8P	ribosomal protein L8 pseudogene 1
 C5orf51	LOC285636	chromosome 5 open reading frame 51
 ZNF554	FLJ34817	zinc finger protein 554
-AGO1	EIF2C1|hAGO1	argonaute 1|argonaute RISC catalytic component 1
+AGO1	EIF2C1|hAGO1	argonaute 1|argonaute RISC catalytic component 1|argonaute,1|Argonaute,1
 IDDM6		insulin-dependent diabetes mellitus 6
 RN7SL229P		RNA, 7SL, cytoplasmic 229, pseudogene
 DPPA3P2	STELLAR	developmental pluripotency associated 3 pseudogene 2
@@ -14990,7 +14989,7 @@ NXPE2	FLJ25224|FAM55B	neurexophilin and PC-esterase domain family, member 2
 MIR4540	hsa-mir-4540	microRNA 4540
 KLF11	TIEG2|Tieg3|MODY7	Kruppel-like factor 11
 RPL7P45		ribosomal protein L7 pseudogene 45
-FHIT	AP3Aase|FRA3B	fragile histidine triad
+FHIT	AP3Aase|FRA3B|Fhit	fragile histidine triad
 OR5AP2		olfactory receptor, family 5, subfamily AP, member 2
 RNU6-962P		RNA, U6 small nuclear 962, pseudogene
 KLHL38	C8ORFK36	kelch-like family member 38
@@ -17451,7 +17450,7 @@ MTND1P27		MT-ND1 pseudogene 27
 ZXDA	ZNF896	zinc finger protein 896|zinc finger, X-linked, duplicated A
 MTND4P9		MT-ND4 pseudogene 9
 DUXAP10		double homeobox A pseudogene 10
-FURIN	PCSK3|PACE|SPC1|FUR	furin (paired basic amino acid cleaving enzyme)
+FURIN	PCSK3|PACE|SPC1	FUR	furin (paired basic amino acid cleaving enzyme)|Furin
 IL17C	CX2|MGC126884|MGC138401|IL-17C|IL-21	interleukin 17C
 SNORA76A	SNORA50|ACA50	small nucleolar RNA, H/ACA box 76A|small nucleolar RNA, H/ACA box 50
 LY9	SLAMF3|CD229|hly9|mLY9	lymphocyte antigen 9
@@ -18857,7 +18856,7 @@ OR4K6P		olfactory receptor, family 4, subfamily K, member 6 pseudogene
 PLCXD2	FLJ31579	phosphatidylinositol-specific phospholipase C, X domain containing 2
 SYNPO2L	FLJ12921	synaptopodin 2-like
 RNU6-1261P		RNA, U6 small nuclear 1261, pseudogene
-NAA30	C14orf35|Mak3p|FLJ35355|NAT12|MAK3	N(alpha)-acetyltransferase 30, NatC catalytic subunit
+NAA30	C14orf35|Mak3p|FLJ35355|NAT12|MAK3|Naa30	N(alpha)-acetyltransferase 30, NatC catalytic subunit
 LCE2C	LEP11	late cornified envelope 2C
 CDIP1	C16orf5|CDIP|LITAFL	cell death involved p53-target|lipopolysaccharide-induced TNF factor-like|cell death-inducing p53 target 1
 RNU6-250P		RNA, U6 small nuclear 250, pseudogene
@@ -20156,7 +20155,7 @@ LCA5L	C21orf13|MGC33295	Leber congenital amaurosis 5-like
 CLEC4G	UNQ431|LSECtin	C-type lectin domain family 4, member G
 MIR149	MIRN149|hsa-mir-149	microRNA 149
 DENND2C	dJ1156J9.1|DKFZp686G0351|DKFZp779P1149|RP5-1156J9.1|FLJ37099	DENN/MADD domain containing 2C
-ORAI2	TMEM142B|FLJ12474|CBCIP2|FLJ14733|H_NH0514P08.8|C7orf19	ORAI calcium release-activated calcium modulator 2|CAP-binding protein complex interacting protein 2
+ORAI2	TMEM142B|FLJ12474|CBCIP2|FLJ14733|H_NH0514P08.8|C7orf19|CRACM2	ORAI calcium release-activated calcium modulator 2|CAP-binding protein complex interacting protein 2
 DFFB	CAD|CPAN|DFF-40|DFF40	DNA fragmentation factor, 40kDa, beta polypeptide (caspase-activated DNase)
 RN7SKP184		RNA, 7SK small nuclear pseudogene 184
 NADK2-AS1	NADKD1-AS1	NADK2 antisense RNA 1
@@ -20981,7 +20980,7 @@ TRD-GTC1-1	TRNAD10	transfer RNA aspartic acid 10 (anticodon GUC)
 CICP22		capicua transcriptional repressor pseudogene 22
 FGFBP3	MGC39320|C10orf13	fibroblast growth factor binding protein 3
 UBBP1		ubiquitin B pseudogene 1
-IFNG		interferon, gamma
+IFNG		interferon, gamma|Interferon gamma
 NPM1P8		nucleophosmin 1 (nucleolar phosphoprotein B23, numatrin) pseudogene 8
 RSL24D1P1	RSL24D1P|RPL30BP|dJ97D16.2|RPL24p	ribosomal protein L30B pseudogene|ribosomal L24 domain containing 1 pseudogene 1
 ANKRD20A16P		ankyrin repeat domain 20 family, member A16, pseudogene
@@ -21855,7 +21854,7 @@ FOXP2	CAGH44|TNRC10|SPCH1	CAG repeat protein 44|forkhead/winged-helix transcript
 LAMTOR5	MGC71071|HBXIP|XIP	HBx-interacting protein|late endosomal/lysosomal adaptor, MAPK and MTOR activator 5|hepatitis B virus x-interacting protein (9.6kD)
 SMDT1	DDDD|dJ186O1.1|C22orf32	single-pass membrane protein with aspartate-rich tail 1
 KRT17P4		
-IFNL3	IL28C|IL-28B|IL28B	interferon, lambda 3
+IFNL3	IL28C|IL-28B|IL28B	interferon, lambda 3|interferon lambda 3
 PLP2	MGC126187|A4|A4-LSB	proteolipid protein 2 (colonic epithelium-enriched)|A4 differentiation-dependent protein
 RPS27P29		ribosomal protein S27 pseudogene 29
 PRUNE2	A214N16.3|C9orf65|BMCC1|BNIPXL|KIAA0367|bA214N16.3	prune homolog 2 (Drosophila)|olfaxin
@@ -24922,7 +24921,7 @@ CDC42P3		cell division cycle 42 pseudogene 3
 LINC00934		long intergenic non-protein coding RNA 934
 SCRN2		secernin 2
 TRBV8-1	TCRBV8S1P|TCRBV30S1P|TRBV81	T cell receptor beta variable 8-1 (pseudogene)
-CLPTM1L	CRR9|FLJ14400	CLPTM1-like|cisplatin resistance related protein
+CLPTM1L	CRR9|FLJ14400|CLPTMIL	CLPTM1-like|cisplatin resistance related protein
 RFWD3	RNF201|FLJ10520	ring finger and WD repeat domain 3
 DMC1	LIM15	DNA meiotic recombinase 1
 SNORA2A	ACA2A	small nucleolar RNA, H/ACA box 2A
@@ -26134,7 +26133,7 @@ RPL7P38		ribosomal protein L7 pseudogene 38
 MSX2	HOX8|MSH|FPP|PFM1|CRS2|PFM	craniosynostosis, type 2|msh homeobox 2
 SATB2-AS1		SATB2 antisense RNA 1
 GPR156	GABABL|PGR28	G protein-coupled receptor 156
-SOCS1	Cish1|JAB|TIP3|SOCS-1|SSI-1	suppressor of cytokine signaling 1
+SOCS1	Cish1|JAB|TIP3|SOCS-1|SSI-1	suppressor of cytokine signaling 1|suppressor of cytokine signalling
 APLNR	APJ|FLJ90771|APJR|AGTRL1	APJ (apelin) receptor|apelin receptor
 TGIF2P3		TGFB-induced factor homeobox 2 pseudogene 3
 RN7SL815P		RNA, 7SL, cytoplasmic 815, pseudogene
@@ -27736,7 +27735,7 @@ RNU6-1127P		RNA, U6 small nuclear 1127, pseudogene
 ABL2	ABLL|ARG	c-abl oncogene 2, non-receptor tyrosine kinase|Abelson-related gene|v-abl Abelson murine leukemia viral oncogene homolog 2
 PPP1R14A	PPP1INL|CPI-17	17-kDa PKC-potentiated inhibitory protein of PP1|17-KDa protein|PKC-potentiated inhibitory protein of PP1|protein phosphatase 1, regulatory (inhibitor) subunit 14A
 ZNF441	FLJ38637	zinc finger protein 441
-TRIM5	RNF88|TRIM5alpha	tripartite motif containing 5|tripartite motif protein TRIM5|tripartite motif protein TRIM
+TRIM5	RNF88	tripartite motif containing 5|tripartite motif protein TRIM5|tripartite motif protein TRIM|TRIM5alpha
 GTF2H2	T-BTF2P44|p44|BTF2|BTF2P44|TFIIH	general transcription factor IIH, polypeptide 2, 44kDa
 HIST1H4L	H4/k|H4FK|H4.k	histone cluster 1, H4l
 RBBP4P3		retinoblastoma binding protein 4 pseudogene 3

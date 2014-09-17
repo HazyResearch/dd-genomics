@@ -19,6 +19,8 @@ class Mention(object):
     words = None
     features = None
     is_correct = None
+    right_lemma = ""
+    left_lemma = ""
 
     def __init__(self, _type, _entity, _words):
         self.doc_id = _words[0].doc_id

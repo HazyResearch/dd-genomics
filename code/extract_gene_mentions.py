@@ -14,8 +14,8 @@ from helper.dictionaries import load_dict
 from helper.easierlife import get_all_phrases_in_sentence, \
     get_dict_from_TSVline, TSVstring2list, TSVstring2dict, no_op
 
-RANDOM_EXAMPLES_PROB = 0.01
-RANDOM_EXAMPLES_QUOTA = 2000
+RANDOM_EXAMPLES_PROB = 0.001
+RANDOM_EXAMPLES_QUOTA = 0
 ACRONYMS_QUOTA = 2000
 ACRONYMS_PROB = 0.005
 false_acronyms = 0
@@ -24,27 +24,56 @@ random_examples = 0
 DOC_ELEMENTS = frozenset(
     ["figure", "table", "figures", "tables", "fig", "fig.", "figs", "figs."])
 INDIVIDUALS = frozenset(["individual", "individuals"])
+TYPES = frozenset(["group", "type", "class", "method"])
 
 GENE_KEYWORDS = frozenset([
-    "gene", "genes", "protein", "proteins", "DNA", "rRNA", "cell", "cells",
-    "tumor", "tumors", "domain", "sequence", "sequences", "alignment",
-    "expression", "mRNA", "knockout", "knockdown", "recruitment",
-    "hybridization", "isoform", "chromosome", "receptor", "receptors",
+    "gene", "protein", "tumor", "domain", "sequence", "sequences", "alignment",
+    "expression", "mrna", "rna", "rrna", "dna", "knockout", "knockdown",
+    "recruitment", "hybridization", "isoform", "receptor", "receptors",
     "mutation", "mutations", "molecule", "molecules", "enzyme", "peptide",
     "staining", "binding", "allele", "alignment", "region", "transcribe",
-    "deletion", "bind", "regulate", "overexpression", "intron", "level",
-    "promote", "T-cell", "inhibitor", "resistance", "serum", "DD-genotype",
-    "genotype", "interaction", "function", "marker", "activation",
-    "recruitment", "transcript", "antibody", "down-regulation",
-    "proliferation", "activate", "polymorphism", "sumoylation",
-    "enhancer"])
+    "deletion", "overexpression", "intron", "level", "T-cell",
+    "inhibitor", "resistance", "serum", "DD-genotype", "genotype",
+    "interaction", "function", "marker", "activation", "recruitment",
+    "transcript", "antibody", "down-regulation", "proliferation",
+    "polymorphism", "sumoylation", "enhancer", "histone", "hexons",
+    "transporter", "hexon", "biomarker", "repressor", "promoter", "carcinoma",
+    "haplotype", "haplotypes", "regulator", "downregulation", "lymphoma",
+    "sarcoma", "kinase", "cancer", "tumours", "tumour", "inducer" "morpheein",
+    "methylation", "fibrosarcoma", "protooncogene", "antigen" "antigene",
+    "pseudogene", "agonist", "phosphorylation", "inducer", "mutant",
+    "know-down", "knock-out", "excision", "hypermethylation",
+    "over-expression", "adaptor", "functionality", "effector", "determinant",
+    "motif", "factor", "release", "duplication", "variation", "kinesin",
+    "ribonuclease", "antagonist", "pathway", "retention", "oligomerization",
+    "subunit", "co-activator", "translocation", "sequestration", "activation",
+    "location", "breakdown", "up-regulation", "acetylation", "complex",
+    "ligand", "co-expression", "coexpression", "dysfunction", "transducer",
+    "nucleotide", "modification", "variant", "signaling", "complex",
+    "transcription", "human", "backbone", "oncoprotein", "locus", "moiety",
+    "cluster", "homology", "proto-oncogene", "mammalian", "anti-gene",
+    "transgene", "sirnas", "sirna", "siRNA", "siRNAs", "cleavage",
+    "polymorphism", "induction", "enrichment", "determinant"])
+
+
+def check_negative_example(mention, sentence):
+    example_key_1 = frozenset([sentence.doc_id, mention.entity])
+    example_key_2 = frozenset([sentence.doc_id, mention.words[0].word])
+    if (example_key_1 in neg_mentions_dict and
+            (neg_mentions_dict[example_key_1] is None or sentence.sent_id in
+             neg_mentions_dict[example_key_1])) or \
+            (example_key_2 in neg_mentions_dict and
+             (neg_mentions_dict[example_key_2] is None or sentence.sent_id
+              in neg_mentions_dict[example_key_2])):
+        mention.is_correct = False
 
 
 # Perform the supervision
-# We don't supervise anything as positive, except things that are in our
-# collection of positive labelled examples because we have the geneRifs that
-# will help us a lot since they are all positively labelled
 def supervise(mention, sentence):
+    # Not correct if it is in our collection of negative examples
+    check_negative_example(mention, sentence)
+    if mention.is_correct is False:
+        return
     # Correct if it is in our collection of positive examples
     example_key_1 = frozenset([sentence.doc_id, mention.entity])
     example_key_2 = frozenset([sentence.doc_id, mention.words[0].word])
@@ -56,30 +85,57 @@ def supervise(mention, sentence):
                     in pos_mentions_dict[example_key_2])):
         mention.is_correct = True
         return
+    if "IS_AFTER_TYPE" not in mention.features and \
+            "COMES_AFTER_LOCATION" not in mention.features and \
+            "COMES_AFTER_DOC_ELEMENT" not in mention.features:
+        if "EXT_KEYWORD_SHORTEST_PATH_[gene]@nn" in mention.features:
+            mention.is_correct = True
+        if "EXT_KEYWORD_SHORTEST_PATH_[protein]nn@" in mention.features:
+            mention.is_correct = True
+        if "EXT_KEYWORD_SHORTEST_PATH_[protein]nsubj@" in mention.features:
+            mention.is_correct = True
+        if "IS_LONG_NAME" in mention.features:
+            mention.is_correct = True
+            return
+        if "IS_HYPHENATED_SYMBOL" in mention.features:
+            mention.is_correct = True
+            return
+        if "EXT_KEYWORD_SHORTEST_PATH_[histone]@nn" in mention.features:
+            mention.is_correct = True
+            return
+        if "EXT_KEYWORD_SHORTEST_PATH_[receptor]nn" in mention.features:
+            mention.is_correct = True
+            return
+    if "EXT_KEYWORD_SHORTEST_PATH_[chromosome]@nn" in mention.features:
+        mention.is_correct = False
+        return
+    if "IS_YEAR_RIGHT" in mention.features:
+        mention.is_correct = False
+        return
     # Not correct if the previous word is one of the following keywords
     # denoting a figure, a table, or an individual
     if "IS_AFTER_DOC_ELEMENT" in mention.features:
         mention.is_correct = False
         return
-    if "IS_AFTER_INDIVIDUAL" in mention.features:
+    if "IS_AFTER_INDIVIDUAL" in mention.features and \
+            not mention.words[0].word.isalpha():
         mention.is_correct = False
         return
-    # Not correct if it is in our collection of negative examples
-    if (example_key_1 in neg_mentions_dict and
-            (neg_mentions_dict[example_key_1] is None or sentence.sent_id in
-                neg_mentions_dict[example_key_1])) or \
-            (example_key_2 in neg_mentions_dict and
-                (neg_mentions_dict[example_key_2] is None or sentence.sent_id
-                    in neg_mentions_dict[example_key_2])):
+    if "IS_AFTER_TYPE" in mention.features:
+        mention.is_correct = False
+        return
+    # Not correct if it is in a sentence that start with "Address(es)"
+    if "IS_ADDRESS_SENTENCE" in mention.features:
         mention.is_correct = False
         return
     # Not correct if "T" and the next lemma is 'cell'.
     if len(mention.words) == 1 and mention.words[0].word == "T" and \
-            "WINDOW_RIGHT_1_[cell]" in mention.features:
+            mention.right_lemma == "cell":
         mention.is_correct = False
         return
-    if len(mention.words) == 1 and mention.words[0].word == "X" and \
-            "WINDOW_RIGHT_1_[chromosome]" in mention.features:
+    if len(mention.words) == 1 and \
+            (mention.words[0].word == "X" or mention.words[0].word == "Y") and\
+            mention.right_lemma == "chromosome":
         mention.is_correct = False
         return
     # A single letter and no English words in the sentence
@@ -91,12 +147,9 @@ def supervise(mention, sentence):
     if "IS_BETWEEN_NAMES" in mention.features:
         mention.is_correct = False
         return
-    if "COMES_BEFORE_PERSON" in mention.features:
-        mention.is_correct = False
-        return
     # Comes after person and before "et", so it's probably a name
     if "COMES_AFTER_PERSON" in mention.features and \
-            "WINDOW_RIGHT_1_[et]" in mention.features:
+            mention.right_lemma == "et":
         mention.is_correct = False
         return
     # Comes after person and before "," or ":", so it's probably a name
@@ -106,6 +159,17 @@ def supervise(mention, sentence):
             in [",", ":"]:
         mention.is_correct = False
         return
+    if "COMES_AFTER_PERSON" in mention.features and \
+            "IS_HYPHENATE_SYMBOL" in mention.features:
+        mention.is_correct = False
+        return
+    if "COMES_AFTER_PERSON" in mention.features and \
+            "IS_PERSON" in mention.features:
+        mention.is_correct = False
+    if "IS_GENE_ONTOLOGY" in mention.features:
+        mention.is_correct = False
+        return
+    # Is a location and comes before a location so it's probably wrong
     if "IS_LOCATION" in mention.features and \
             "COMES_BEFORE_LOCATION" in mention.features:
         mention.is_correct = False
@@ -118,32 +182,18 @@ def supervise(mention, sentence):
 
 # Add features to a gene mention
 def add_features(mention, sentence):
-    # The mention is a main symbol, or a synonym, or a long name
-    if len(mention.words) == 1:
-        entity_is_word = False
-        entity_in_dict = False
-        for entity in mention.entity.split("|"):
-            if entity == mention.words[0].word:
-                entity_is_word = True
-            if entity in merged_genes_dict:
-                entity_in_dict = True
-        if entity_is_word and entity_in_dict:
-            # The mention is a 'main' symbol
-            mention.add_feature('IS_MAIN_SYMBOL')
-        elif entity_in_dict or mention.words[0].word in merged_genes_dict:
-            # XXX (Matteo) this is not entirely foolproof
-            if mention.words[0].word.casefold() == mention.words[0].word:
-                # Long name
-                mention.add_feature("IS_LONG_NAME")
-            else:
-                # The mention is a synonym symbol
-                mention.add_feature('IS_SYNONYM')
-    else:
-        for entity in mention.entity.split("|"):
-            if entity in merged_genes_dict:
-                # The mention is a long name
-                mention.add_feature('IS_LONG_NAME')
-                break
+    # There are no English words in the sentence
+    # This may be useful to push down weird/junk sentences
+    no_english_words = True
+    for word in sentence.words:
+        if len(word.word) > 2 and \
+                (word.word in english_dict or
+                 word.word.casefold() in english_dict):
+            no_english_words = False
+            break
+    if no_english_words:
+        mention.add_feature("NO_ENGLISH_WORDS_IN_SENTENCE")
+        return
     # The mention is a single word that is in the English dictionary
     # but we differentiate between lower case and upper case
     if len(mention.words) == 1 and \
@@ -151,9 +201,20 @@ def add_features(mention, sentence):
              mention.words[0].lemma.casefold() in english_dict) and \
             len(mention.words[0].word) > 2:
         if mention.words[0].word.isupper():
-            mention.add_feature('IS_ENGLISH_WORD_UPP_CASE')
-        else:
+            pass
+        #    mention.add_feature('IS_ENGLISH_WORD_UPP_CASE')
+        elif mention.words[0].word.islower():
             mention.add_feature('IS_ENGLISH_WORD_LOW_CASE')
+        elif mention.words[0].word[1:].islower():
+            mention.add_feature("IS_ENGLISH_WORD_CAPITALIZED")
+        else:
+            mention.add_feature('IS_ENGLISH_WORD_MIXED_CASE')
+    if len(mention.words) == 1 and mention.words[0].word.isalpha() and \
+            mention.words[0].word.casefold() != mention.words[0].word and \
+            not mention.words[0].word.isupper() and \
+            mention.words[0].word.casefold() not in english_dict and \
+            mention.words[0].lemma.casefold() not in english_dict:
+                mention.add_feature("IS_MIXED_CASE_NON_ENGLISH")
     # The NER is an organization, or a location, or a person
     # XXX (Matteo) 20140905 Taking out ORGANIZATION, as it seems to induce
     # false negatives.
@@ -163,34 +224,115 @@ def add_features(mention, sentence):
     # The word comes after an organization, or a location, or a person. We skip
     # commas as they may trick us
     comes_after = None
-    idx = mention.wordidxs[0] - 1
-    while idx >= 0 and sentence.words[idx].lemma == ",":
-        idx -= 1
-    if idx >= 0 and \
-            sentence.words[idx].ner in ["ORGANIZATION", "LOCATION", "PERSON"]:
-        mention.add_feature("COMES_AFTER_" + sentence.words[idx].ner)
-        comes_after = sentence.words[idx].ner
+    loc_idx = mention.wordidxs[0] - 1
+    while loc_idx >= 0 and sentence.words[loc_idx].lemma == ",":
+        loc_idx -= 1
+    if loc_idx >= 0 and \
+            sentence.words[loc_idx].ner in \
+            ["ORGANIZATION", "LOCATION", "PERSON"] and \
+            sentence.words[loc_idx].word not in merged_genes_dict:
+        # mention.add_feature("COMES_AFTER_" + sentence.words[loc_idx].ner)
+        comes_after = sentence.words[loc_idx].ner
     # The word comes before an organization, or a location, or a person. We
     # skip commas, as they may trick us.
     comes_before = None
-    idx = mention.wordidxs[-1] + 1
-    while idx < len(sentence.words) and sentence.words[idx].lemma == ",":
-        idx += 1
-    if idx < len(sentence.words) and \
-            sentence.words[idx].ner in ["ORGANIZATION", "LOCATION", "PERSON"]:
-        mention.add_feature("COMES_BEFORE_" + sentence.words[idx].ner)
-        comes_before = sentence.words[idx].ner
+    loc_idx = mention.wordidxs[-1] + 1
+    while loc_idx < len(sentence.words) and \
+            sentence.words[loc_idx].lemma == ",":
+        loc_idx += 1
+    if loc_idx < len(sentence.words) and \
+            sentence.words[loc_idx].ner in \
+            ["ORGANIZATION", "LOCATION", "PERSON"] and \
+            sentence.words[loc_idx].word not in merged_genes_dict:
+        # mention.add_feature("COMES_BEFORE_" + sentence.words[loc_idx].ner)
+        comes_before = sentence.words[loc_idx].ner
     # The word is between two words that are an organization, or a location or
     # a person
     if comes_before and comes_after:
-        mention.add_feature("IS_BETWEEN_" + comes_after + "_" + comes_before)
+        # mention.add_feature("IS_BETWEEN_" + comes_after + "_" + comes_before)
         mention.add_feature("IS_BETWEEN_NAMES")
+    elif comes_before:
+        mention.add_feature("COMES_BEFORE_" + comes_before)
+    elif comes_after:
+        mention.add_feature("COMES_AFTER_" + comes_after)
     # The word comes after a "document element" (e.g., table, or figure)
     prev_word = sentence.get_prev_wordobject(mention)
     if prev_word and prev_word.word.casefold() in DOC_ELEMENTS:
         mention.add_feature("IS_AFTER_DOC_ELEMENT")
-    if prev_word and prev_word.word.casefold() in INDIVIDUALS:
+    if prev_word and prev_word.word.casefold() in INDIVIDUALS and \
+            not mention.words[0].word.isalpha() and \
+            not len(mention.words[0].word) > 4:
         mention.add_feature("IS_AFTER_INDIVIDUAL")
+    if prev_word and prev_word.lemma.casefold() in TYPES and \
+            set(mention.words[0].word).issubset(set(["I", "V"])):
+        mention.add_feature("IS_AFTER_TYPE")
+    if len(mention.words) == 1:
+        entity_is_word = False
+        entity_in_dict = False
+        for entity in mention.entity.split("|"):
+            if entity == mention.words[0].word:
+                entity_is_word = True
+            if entity in merged_genes_dict:
+                entity_in_dict = True
+        if entity_is_word and entity_in_dict and \
+                "IS_BETWEEN_NAMES" not in mention.features and \
+                len(mention.words[0].word) > 1:
+            # The mention is a 'main' symbol
+            # mention.add_feature('IS_MAIN_SYMBOL')
+            if mention.words[0].word.isalnum() and \
+                    not mention.words[0].word.isalpha():
+                if len(mention.words[0].word) >= 4:
+                    mention.add_feature("IS_LONG_ALPHANUMERIC_MAIN_SYMBOL")
+                else:
+                    is_letter_plus_number = False
+                    try:
+                        int(mention.words[0].word[1:])
+                        is_letter_plus_number = True
+                    except:
+                        is_letter_plus_number = False
+                    if is_letter_plus_number:
+                        mention.add_feature("IS_LETTER_NUMBER_MAIN_SYMBOL")
+                    else:
+                        mention.add_feature(
+                            "IS_SHORT_ALPHANUMERIC_MAIN_SYMBOL")
+            elif len(mention.words[0].word) >= 4:
+                mention.add_feature("IS_LONG_MAIN_SYMBOL")
+                if "COMES_AFTER_PERSON" in mention.features:
+                    mention.features.remove("COMES_AFTER_PERSON")
+        elif entity_in_dict or mention.words[0].word in merged_genes_dict:
+            if len(mention.words[0].word) > 3 and \
+                    mention.words[0].word.casefold() == mention.words[0].word \
+                    and not re.match("^p[0-9]+$", mention.words[0].word):
+                # Long name
+                mention.add_feature("IS_LONG_NAME")
+                if "COMES_AFTER_PERSON" in mention.features:
+                    mention.features.remove("COMES_AFTER_PERSON")
+            elif "-" in mention.words[0].word and \
+                    "COMES_AFTER_PERSON" not in mention.features:
+                mention.add_feature("IS_HYPHENATED_SYMBOL")
+            elif mention.words[0].word.casefold().endswith("alpha") or \
+                    mention.words[0].word.casefold().endswith("beta") or \
+                    mention.words[0].word.casefold().endswith("gamma"):
+                mention.add_feature("ENDS_WITH_GREEK")
+            elif re.match("^p[0-9][0-9]$", mention.words[0].word):
+                mention.add_feature("IS_PXX_SYMBOL")
+            elif len(mention.words[0].word) == 1:
+                mention.add_feature("IS_SINGLE_LETTER")
+            elif mention.words[0].word.isalnum() and \
+                    not mention.words[0].word.isalpha():
+                if len(mention.words[0].word) >= 4:
+                    mention.add_feature(
+                        "IS_LONG_ALPHANUMERIC_ALTERN_SYMBOL")
+            elif len(mention.words[0].word) >= 5:
+                mention.add_featur("IS_LONG_ALTERN_SYMBOL")
+                # The mention is a synonym symbol
+            #    mention.add_feature('IS_SYNONYM')
+    else:
+        for entity in mention.entity.split("|"):
+            if entity in merged_genes_dict:
+                # The mention is a long name
+                mention.add_feature('IS_LONG_NAME')
+                break
     # The labels and the NERs on the shortest dependency path
     # between a verb and the mention word.
     minl = 100
@@ -207,7 +349,7 @@ def add_features(mention, sentence):
                 minw = word2.lemma
     if minw:
         mention.add_feature('EXT_VERB_PATH_[' + minw + ']' + minp)
-        mention.add_feature('VERB_PATH_[' + minw + ']')
+        # mention.add_feature('VERB_PATH_[' + minw + ']')
     # The keywords that appear in the sentence with the mention
     minl = 100
     minp = None
@@ -224,31 +366,9 @@ def add_features(mention, sentence):
     # Special feature for the keyword on the shortest dependency path
     if minw:
         mention.add_feature('EXT_KEYWORD_SHORTEST_PATH_[' + minw + ']' + minp)
-        mention.add_feature('KEYWORD_SHORTEST_PATH_[' + minw + ']')
-    else:
-        mention.add_feature("NO_KEYWORDS")
-    # The lemma on the left of the mention, if present, provided it's
-    # alphanumeric but not a number
-    idx = mention.wordidxs[0] - 1
-    while idx >= 0 and \
-            (not sentence.words[idx].lemma.isalnum() or
-             sentence.words[idx].lemma in stopwords_dict) and \
-            not re.match("^[0-9]+(.[0-9]+)?$", sentence.words[idx].word):
-        idx -= 1
-    if idx >= 0:
-        mention.add_feature("WINDOW_LEFT_1_[{}]".format(
-            sentence.words[idx].lemma))
-    # The word on the right of the mention, if present, provided it's
-    # alphanumeric but not a number
-    idx = mention.wordidxs[-1] + 1
-    while idx < len(sentence.words) and \
-            (not sentence.words[idx].lemma.isalnum() or
-             sentence.words[idx].lemma in stopwords_dict) and \
-            not re.match("^[0-9]+(.[0-9]+)?$", sentence.words[idx].word):
-        idx += 1
-    if idx < len(sentence.words):
-        mention.add_feature("WINDOW_RIGHT_1_[{}]".format(
-            sentence.words[idx].lemma))
+        # mention.add_feature('KEYWORD_SHORTEST_PATH_[' + minw + ']')
+    # else:
+        # mention.add_feature("NO_KEYWORDS")
     # The word appears many times (more than 4) in the sentence
     if len(mention.words) == 1 and \
             [w.word for w in sentence.words].count(mention.words[0].word) > 4:
@@ -270,23 +390,97 @@ def add_features(mention, sentence):
         mention.add_feature("NO_ENGLISH_WORDS_IN_SENTENCE")
     if mention.words[0].word == "II":
         mention.add_feature("IS_ROMAN_II")
-     if len(mention.words) == 1 and mention.words[0].word == "T" and \
-             "WINDOW_RIGHT_1_[cell]" in mention.features:
+    if sentence.words[0].word.casefold() in ["address", "addresses"]:
+        mention.add_feature("IS_ADDRESS_SENTENCE")
+    if mention.words[0].word == "BLAST":
+        mention.add_feature("IS_BLAST")
+    if "NO_ENGLISH_WORDS_IN_SENTENCE" not in mention.features:
+        # The lemma on the left of the mention, if present, provided it's
+        # alphanumeric but not a number
+        idx = mention.wordidxs[0] - 1
+        gene_on_left = None
+        gene_on_right = None
+        while idx >= 0 and \
+                ((((not sentence.words[idx].lemma.isalnum() and not
+                    sentence.words[idx] in merged_genes_dict) or
+                 (not sentence.words[idx].word.isupper() and
+                  sentence.words[idx].lemma in stopwords_dict)) and
+                 not re.match("^[0-9]+(.[0-9]+)?$", sentence.words[idx].word)
+                 and not sentence.words[idx] in merged_genes_dict) or
+                 len(sentence.words[idx].lemma) == 1):
+            idx -= 1
+        if idx >= 0:
+            mention.left_lemma = sentence.words[idx].lemma
+            if sentence.words[idx].word in merged_genes_dict:
+                # mention.add_feature("GENE_ON_LEFT")
+                gene_on_left = sentence.words[idx].word
+            try:
+                year = float(sentence.words[idx].word)
+                if round(year) == year and year > 1950 and year <= 2014:
+                    mention.add_feature("IS_YEAR_LEFT")
+                else:
+                    mention.add_feature("IS_NUMBER_LEFT")
+            except:
+                pass
+        # The word on the right of the mention, if present, provided it's
+        # alphanumeric but not a number
+        idx = mention.wordidxs[-1] + 1
+        while idx < len(sentence.words) and \
+            ((((not sentence.words[idx].lemma.isalnum() and not
+                sentence.words[idx] in merged_genes_dict) or
+                (not sentence.words[idx].word.isupper() and
+                 sentence.words[idx].lemma in stopwords_dict)) and
+                not re.match("^[0-9]+(.[0-9]+)?$", sentence.words[idx].word)
+                and not sentence.words[idx] in merged_genes_dict) or
+                len(sentence.words[idx].lemma) == 1):
+            idx += 1
+        if idx < len(sentence.words):
+            mention.right_lemma = sentence.words[idx].lemma
+            if sentence.words[idx].word in merged_genes_dict:
+                # mention.add_feature("GENE_ON_RIGHT")
+                gene_on_right = sentence.words[idx].word
+            try:
+                year = float(sentence.words[idx].word)
+                if round(year) == year and year > 1950 and year <= 2014:
+                    mention.add_feature("IS_YEAR_RIGHT")
+                else:
+                    mention.add_feature("IS_NUMBER_RIGHT")
+            except:
+                pass
+        if gene_on_left and gene_on_right:
+            mention.add_feature("IS_BETWEEN_GENES")
+        elif gene_on_left:
+            mention.add_feature("GENE_ON_LEFT")
+        elif gene_on_right:
+            mention.add_feature("GENE_ON_RIGHT")
+    if len(mention.words) == 1 and mention.words[0].word == "T" and \
+            mention.right_lemma == "cell":
         mention.add_feature("IS_T_CELL")
+    if len(mention.words) == 1 and mention.words[0].word == "X":
+        mention.add_feature("IS_X")
+    if len(mention.words) == 1 and mention.words[0].word == "F5":
+        mention.add_feature("IS_F5")
+    if len(mention.words) == 1 and mention.words[0].word == "GO":
+        try:
+            if sentence.words[mention.words[0].in_sent_idx + 1][0] == ":":
+                mention.add_feature("IS_GENE_ONTOLOGY")
+        except:
+            pass
 
 
 # Add features that are related to the entire set of mentions candidates
 # Must be called after supervision!!!
 def add_features_to_all(mentions, sentence):
-    # Number of distinct other mentions in the sentence that are not most
-    # probably false
-    not_names = set()
+    # Number of distinct other mentions in the sentence that are most probably
+    # true
+    true_mentions = 0
     for mention in mentions:
-        if not mention.is_correct:
-            not_names.add(frozenset(mention.words))
-    for i in range(1, len(not_names)):
+        if mention.is_correct:
+            true_mentions += 1
+    if true_mentions > 1:
         for mention in mentions:
-            mention.add_feature("{}_OTHER_MENTIONS_IN_SENTENCE".format(i))
+            mention.add_feature(
+                "{}_TRUE_MENTIONS_IN_SENTENCE".format(true_mentions))
 
 
 # Return a list of mention candidates extracted from the sentence
@@ -297,12 +491,17 @@ def extract(sentence):
     # contained a mention
     history = set()
     words = sentence.words
+    sentence_is_upper = False
+    if " ".join([x.word for x in words]).isupper():
+        sentence_is_upper = True
     # Scan all subsequences of the sentence
     for start, end in get_all_phrases_in_sentence(sentence,
                                                   max_mention_length):
         if start in history or end in history:
                 continue
         phrase = " ".join([word.word for word in words[start:end]])
+        if sentence_is_upper:
+            phrase = phrase.casefold()
         mention = None
         # If the phrase is in the dictionary, then is a mention candidate
         if phrase in merged_genes_dict:
@@ -340,7 +539,8 @@ def extract(sentence):
                 if word.word in merged_genes_dict:
                     in_merged_dict = True
                     break
-            if phrase.isalnum() and not is_number and not has_stop_words and \
+            if phrase.isalnum() and phrase.isupper() and len(phrase) > 2 \
+                    and not is_number and not has_stop_words and \
                     not has_verbs and not in_merged_dict and \
                     len(sentence.words) > 5 and \
                     random.random() < RANDOM_EXAMPLES_PROB and \
@@ -413,7 +613,7 @@ if __name__ == "__main__":
                 if mention.type == "RANDOM":
                     # this is a randomly generated example that we assume
                     # to be false
-                    mention.add_feature("IS_RANDOM")
+                    # mention.add_feature("IS_RANDOM")
                     mention.is_correct = False
                 elif "acronyms" in line_dict:
                     is_acronym = False
@@ -427,33 +627,29 @@ if __name__ == "__main__":
                                 line_dict["definitions"][
                                     mention.words[0].word]:
                             if definition in merged_genes_dict:
-                                mention.add_feature("COMES_WITH_LONG_NAME")
-                                mention.is_correct = True
+                                if "IS_BETWEEN_NAMES" not in mention.features \
+                                        and "NO_ENGLISH_WORDS_IN_SENTENCE" \
+                                        not in mention.features:
+                                    mention.add_feature("COMES_WITH_LONG_NAME")
+                                    mention.is_correct = True
                                 break
                         if not mention.is_correct:
                             mention.type = "ACRONYM"
                             mention.add_feature("NOT_KNOWN_ACRONYM")
                             mention.add_feature("NOT_KNOWN_ACRONYM_" +
                                                 mention.words[0].word)
-                            for definition in \
-                                    line_dict["definitions"][
-                                        mention.words[0].word]:
-                                mention.add_feature("NOT_KNOWN_ACRONYM_" +
-                                                    definition)
-                            for definition in \
-                                    line_dict["definitions"][
-                                        mention.words[0].word]:
-                                if definition.casefold() in med_acrons_dict:
-                                    mention.add_feature("IS_MED_ACRONYM")
-                                    break
-                            # Supervise anyway because it may be in set of
-                            # negative examples but not processed by the
-                            # following test
-                            supervise(mention, sentence)
-                            if false_acronyms < ACRONYMS_QUOTA and \
-                                    random.random() < ACRONYMS_PROB:
-                                mention.is_correct = False
-                                false_acronyms += 1
+                            # for definition in \
+                            #         line_dict["definitions"][
+                            #             mention.words[0].word]:
+                            #     mention.add_feature("NOT_KNOWN_ACRONYM_" +
+                            #                         definition)
+                            # for definition in \
+                            #         line_dict["definitions"][
+                            #             mention.words[0].word]:
+                            #     if definition.casefold() in med_acrons_dict:
+                            #         mention.add_feature("IS_MED_ACRONYM")
+                            #         break
+                            mention.is_correct = False
                     else:  # Sentence contains acronym but not here
                         supervise(mention, sentence)
                 else:  # not random and not acronyms in sentence

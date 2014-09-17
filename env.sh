@@ -19,7 +19,7 @@ export MEMORY="256g"
 export PARALLELISM=90
 
 # The number of sentences in the sentences table
-export SENTENCES=95027000
+export SENTENCES=95022507
 # The input batch size for extractors working on the sentences table
 export SENTENCES_BATCH_SIZE=`echo  "(" ${SENTENCES} "/" ${PARALLELISM} ") + 1" | bc`
 

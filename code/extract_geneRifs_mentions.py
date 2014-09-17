@@ -39,8 +39,10 @@ def main():
             else:
                 gene = [gene, ]
             # Skip sentences that are "( GENE )"
-            if sentence.words[0].word == "-LRB-" and \
-                    sentence.words[-1].word == "-RRB-":
+            if (sentence.words[0].word == "-LRB-" and
+                    sentence.words[-1].word == "-RRB-") or \
+               (sentence.words[0].word == "-LSB-" and
+                    sentence.words[-1].word == "-RSB-"):
                         continue
             # Extract mentions from sentence
             mentions = extract(sentence)
@@ -48,15 +50,24 @@ def main():
                 add_features_to_all(mentions, sentence)
                 # Check whether this mention contains the 'labelled' gene
                 # If so, supervise positively and print
+            found_main = False
+            not_main_mentions = []
             for mention in mentions:
                 mention.type = "GENERIFS"
                 add_features(mention, sentence)
-                for g in gene:
-                    if mention.entity.find(g) > -1 or \
-                            mention.words[0].word.find(g) > -1:
-                        mention.is_correct = True
-                        print(mention.tsv_dump())
-                        break
+                if "NOT_ENGLISH_WORDS_IN_SENTENCE" not in mention.features:
+                    for g in gene:
+                        if not found_main and \
+                                mention.words[0].word.find(g) > -1:
+                            found_main = True
+                            mention.is_correct = True
+                            print(mention.tsv_dump())
+                        if not found_main and mention.entity.find(g) > -1:
+                            mention.is_correct = True
+                            not_main_mentions.append(mention)
+            if not found_main:
+                for mention in not_main_mentions:
+                    print(mention.tsv_dump())
     return 0
 
 if __name__ == "__main__":

@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 
 import fileinput
-import random
 import re
 
 from dstruct.Mention import Mention
@@ -10,25 +9,14 @@ from dstruct.Relation import Relation
 from helper.dictionaries import load_dict
 from helper.easierlife import get_dict_from_TSVline, no_op, TSVstring2list
 
-SUPERVISION_PROB = 0.5
-SUPERVISION_GENEHPOTERMS_DICT_FRACTION = 0.4
 RANDOM_EXAMPLES_PROB = 0.01
 RANDOM_EXAMPLES_QUOTA = 1000
 
 
 # Perform distant supervision
 def supervise(relation, gene_mention, hpoterm_mention, sentence):
-    if random.random() < SUPERVISION_PROB:
-        in_supervision_mapping = False
-        for gene in gene_mention.entity.split("|"):
-            if frozenset([gene, hpoterm_mention.entity]) in \
-                    supervision_genehpoterms_dict:
-                in_supervision_mapping = True
-        if frozenset([gene_mention.words[0].word, hpoterm_mention.entity]) in \
-                supervision_genehpoterms_dict:
-            in_supervision_mapping = True
-        if in_supervision_mapping:
-            relation.is_correct = True
+    if "IN_GENE_HPOTERM_MAP" in relation.features:
+        relation.is_correct = True
 
 
 # Add features
@@ -40,19 +28,20 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
     hpoterm_end = hpoterm_mention.wordidxs[-1]
     start = min(gene_start, hpoterm_start)
     end = max(gene_end, hpoterm_end)
+    hpo_entity_id, hpo_entity_name = hpoterm_mention.entity.split("|")
     # Present in the existing HPO mapping
     in_mapping = False
     for gene in gene_mention.entity.split("|"):
-        if frozenset([gene, hpoterm_mention.entity]) in genehpoterms_dict:
-            relation.add_feature(
-                "IN_GENE_HPOTERM_MAP_{}_{}".format(
-                    gene, hpoterm_mention.entity))
+        if frozenset([gene, hpo_entity_id]) in genehpoterms_dict:
+            # relation.add_feature(
+                # "IN_GENE_HPOTERM_MAP_{}_{}".format(
+                #    gene, hpoterm_mention.entity))
             in_mapping = True
-    if frozenset([gene_mention.words[0].word, hpoterm_mention.entity]) in \
+    if frozenset([gene_mention.words[0].word, hpo_entity_id]) in \
             genehpoterms_dict:
-        relation.add_feature(
-            "IN_GENE_HPOTERM_MAP_{}_{}".format(
-                gene_mention.words[0].word, hpoterm_mention.entity))
+        # relation.add_feature(
+            # "IN_GENE_HPOTERM_MAP_{}_{}".format(
+            #    gene_mention.words[0].word, hpoterm_mention.entity))
         in_mapping = True
     if in_mapping:
         relation.add_feature("IN_GENE_HPOTERM_MAP")
@@ -66,31 +55,18 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
     relation.add_feature(
         "WORD_SEQ="+"_".join([w.lemma for w in sentence.words[start:end]]))
     # Left and right windows
-    if start > 0:
-        relation.add_feature(
-            "WINDOW_LEFT_1={}".format(sentence.words[start-1].lemma))
-    if end < len(sentence.words) - 1:
-        relation.add_feature("WINDOW_RIGHT_1={}".format(
-            sentence.words[end].lemma))
+    # if start > 0:
+    #    relation.add_feature(
+    #        "WINDOW_LEFT_1={}".format(sentence.words[start-1].lemma))
+    # if end < len(sentence.words) - 1:
+    #    relation.add_feature("WINDOW_RIGHT_1={}".format(
+    #        sentence.words[end].lemma))
     # Shortest dependency path between the two mentions
     relation.add_feature(sentence.dep_path(gene_mention, hpoterm_mention))
 
 
 # Load the gene<->hpoterm dictionary
 genehpoterms_dict = load_dict("genehpoterms")
-# Create supervision dictionary that only contains a fraction of the genes in
-# the gene dictionary. This is to avoid that we label as positive examples
-# everything that is in the dictionary
-supervision_genehpoterms_dict = set()
-to_sample = set(
-    random.sample(
-        range(len(genehpoterms_dict)),
-        int(len(genehpoterms_dict) * SUPERVISION_GENEHPOTERMS_DICT_FRACTION)))
-i = 0
-for pair in genehpoterms_dict:
-    if i in to_sample:
-        supervision_genehpoterms_dict.add(pair)
-    i += 1
 
 if __name__ == "__main__":
     # Process input

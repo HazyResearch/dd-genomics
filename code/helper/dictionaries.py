@@ -108,17 +108,40 @@ def load_hpoterms_orig_dictionary(filename):
     return hpoterms_dict
 
 
-# Load the HPOterms 'mentions' dictionary (output of hpoterms2mentions.py
+# Load the HPOterms 'mentions' dictionary (output of hpoterms2mentions.py)
+# Maps stem sets to hpo names
 def load_hpoterms_dictionary(filename):
-    hpoterms_dict = dict()
-    with open(filename, 'rt') as hpoterms_dict_file:
-        for line in hpoterms_dict_file:
+    _hpoterms_dict = dict()
+    with open(filename, 'rt') as _hpoterms_dict_file:
+        for line in _hpoterms_dict_file:
             hpoterm_id, name, stems = line[:-1].split("\t")
             stems_set = frozenset(stems.split("|"))
-            if stems_set not in hpoterms_dict:
-                hpoterms_dict[stems_set] = []
-            hpoterms_dict[stems_set].append(name)
-    return hpoterms_dict
+            if stems_set not in _hpoterms_dict:
+                _hpoterms_dict[stems_set] = set()
+            _hpoterms_dict[stems_set].add(name)
+    return _hpoterms_dict
+
+
+# Load the inverted HPOterms 'mentions' dictionary
+# Map hpo names to stem sets
+def load_hpoterms_inverted_dictionary(filename):
+    _hpoterms_dict = dict()
+    with open(filename, 'rt') as _hpoterms_dict_file:
+        for line in _hpoterms_dict_file:
+            hpoterm_id, name, stems = line[:-1].split("\t")
+            stems_set = frozenset(stems.split("|"))
+            _hpoterms_dict[name] = stems_set
+    return _hpoterms_dict
+
+
+# Load the HPO "name" to "id" dictionary
+def load_hponames_to_ids_dictionary(filename):
+    _hpoterms_dict = dict()
+    with open(filename, 'rt') as _hpoterms_dict_file:
+        for line in _hpoterms_dict_file:
+            hpoterm_id, name, stems = line[:-1].split("\t")
+            _hpoterms_dict[name] = hpoterm_id
+    return _hpoterms_dict
 
 
 # Load the medical acronyms dictionary
@@ -196,7 +219,11 @@ dictionaries["hpochildren"] = [HPOPARENTS_DICT_FILENAME,
                                load_hpochildren_dictionary]
 dictionaries["hpolevels"] = [HPOTERMS_ORIG_DICT_FILENAME,
                              load_hpoterm_levels_dictionary]
+dictionaries["hponames_to_ids"] = [HPOTERMS_DICT_FILENAME,
+                                   load_hponames_to_ids_dictionary]
 dictionaries["hpoterms"] = [HPOTERMS_DICT_FILENAME, load_hpoterms_dictionary]
+dictionaries["hpoterms_inverted"] = [HPOTERMS_DICT_FILENAME,
+                                     load_hpoterms_inverted_dictionary]
 dictionaries["hpoterm_phenotype_abnormalities"] = [
     HPOTERM_PHENOTYPE_ABNORMALITIES_DICT_FILENAME, load_set]
 dictionaries["hpoterms_orig"] = [HPOTERMS_ORIG_DICT_FILENAME,

@@ -7,6 +7,11 @@ from nltk.stem.snowball import SnowballStemmer
 
 from helper.dictionaries import load_dict
 
+ORDINALS = frozenset(
+    ["1st", "2nd", "3rd", "4th" "5th", "6th" "7th", "8th", "9th", "first",
+        "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth"
+        "ninth"])
+
 
 def main():
     # Load the dictionaries we need
@@ -44,7 +49,8 @@ def main():
                     if word[-1] == ":":
                         word = word[:-1]
                     # Only process non stop-words AND single letters
-                    if word.casefold() not in stopwords_dict or len(word) == 1:
+                    if (word.casefold() not in stopwords_dict and word not in
+                            ORDINALS) or len(word) == 1:
                         # split words that contain a "/"
                         if word.find("/") != - 1:
                             for part in word.split("/"):
