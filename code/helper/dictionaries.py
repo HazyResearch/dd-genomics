@@ -182,7 +182,7 @@ def load_set_pairs(filename):
     with open(filename, 'rt') as set_file:
         for line in set_file:
             tokens = line.rstrip().split("\t")
-            pair_set.add(frozenset(tokens))
+            pair_set.add(frozenset(tokens[0:2]))
     return pair_set
 
 # Dictionaries
