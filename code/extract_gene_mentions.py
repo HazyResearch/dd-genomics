@@ -324,7 +324,7 @@ def add_features(mention, sentence):
                     mention.add_feature(
                         "IS_LONG_ALPHANUMERIC_ALTERN_SYMBOL")
             elif len(mention.words[0].word) >= 5:
-                mention.add_featur("IS_LONG_ALTERN_SYMBOL")
+                mention.add_feature("IS_LONG_ALTERN_SYMBOL")
                 # The mention is a synonym symbol
             #    mention.add_feature('IS_SYNONYM')
     else:
