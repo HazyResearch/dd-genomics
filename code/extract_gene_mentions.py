@@ -16,8 +16,6 @@ from helper.easierlife import get_all_phrases_in_sentence, \
 
 RANDOM_EXAMPLES_PROB = 0.001
 RANDOM_EXAMPLES_QUOTA = 0
-ACRONYMS_QUOTA = 2000
-ACRONYMS_PROB = 0.005
 false_acronyms = 0
 random_examples = 0
 
@@ -65,6 +63,7 @@ def check_negative_example(mention, sentence):
             (example_key_2 in neg_mentions_dict and
              (neg_mentions_dict[example_key_2] is None or sentence.sent_id
               in neg_mentions_dict[example_key_2])):
+        mention.add_feature("IS_NEGATIVE_EXAMPLE")
         mention.is_correct = False
 
 
@@ -166,6 +165,7 @@ def supervise(mention, sentence):
     if "COMES_AFTER_PERSON" in mention.features and \
             "IS_PERSON" in mention.features:
         mention.is_correct = False
+        return
     if "IS_GENE_ONTOLOGY" in mention.features:
         mention.is_correct = False
         return
@@ -466,6 +466,8 @@ def add_features(mention, sentence):
                 mention.add_feature("IS_GENE_ONTOLOGY")
         except:
             pass
+    if len(mention.words) == 1:
+        mention.add_feature("SYMBOL_[{}]".format(mention.words[0].word))
 
 
 # Add features that are related to the entire set of mentions candidates

@@ -15,6 +15,8 @@ RANDOM_EXAMPLES_QUOTA = 1000
 
 # Perform distant supervision
 def supervise(relation, gene_mention, hpoterm_mention, sentence):
+    if gene_mention.is_correct is False or hpoterm_mention.is_correct is False:
+        relation.is_correct = False
     if "IN_GENE_HPOTERM_MAP" in relation.features:
         relation.is_correct = True
 
@@ -50,7 +52,7 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
     # correct (PERHAPS)
     for word in sentence.words[start:end]:
         if re.search('^VB[A-Z]*$', word.pos):
-            relation.add_feature("VERB_"+word.lemma)
+            relation.add_feature("VERB_" + word.lemma)
     # Word sequence between mentions
     relation.add_feature(
         "WORD_SEQ="+"_".join([w.lemma for w in sentence.words[start:end]]))

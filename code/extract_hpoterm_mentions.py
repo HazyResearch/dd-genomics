@@ -16,8 +16,6 @@ from helper.dictionaries import load_dict
 MENTION_THRESHOLD = 2 / 3
 SUPERVISION_PROB = 0.01
 SUPERVISION_QUOTA = 7500
-RANDOM_EXAMPLES_PROB = 0.01
-RANDOM_EXAMPLES_QUOTA = 100
 random_examples = 0
 supervised_examples = 0
 
@@ -75,6 +73,8 @@ def add_features(mention, sentence):
             idx -= 1
         if idx >= 0:
             mention.left_lemma = sentence.words[idx].lemma
+            mention.add_feature("WINDOW_LEFT_[{}]".format(
+                mention.left_lemma))
         # The word on the right of the mention, if present, provided it's
         # alphanumeric but not a number
         idx = mention.wordidxs[-1] + 1
@@ -86,6 +86,16 @@ def add_features(mention, sentence):
             idx += 1
         if idx < len(sentence.words):
             mention.right_lemma = sentence.words[idx].lemma
+            mention.add_feature("WINDOW_RIGHT_[{}]".format(
+                mention.right_lemma))
+        # The word "two on the left" of the mention, if present
+        if mention.wordidxs[0] > 1:
+            mention.add_feature("WINDOW_LEFT_2_[{}]".format(
+                sentence.words[mention.wordidxs[0] - 2].lemma))
+        # The word "two on the right" on the left of the mention, if present
+        if mention.wordidxs[-1] + 2 < len(sentence.words):
+            mention.add_feature("WINDOW_RIGHT_2_[{}]".format(
+                sentence.words[mention.wordidxs[-1] + 2].lemma))
     # The keywords that appear in the sentence with the mention
     minl = 100
     minp = None
@@ -230,26 +240,26 @@ def extract(sentence):
                             pass
                     # Update as it may have changed
                     sentence_stems_set = frozenset(sentence_stems)
-    if len(mentions) == 0:
-        # Potentially generate a random mention that resembles real ones
-        # This mention is supervised (as false) in the code calling this
-        # function
-        # XXX (Matteo) may need additional conditions to generate a mention
-        if random.random() < RANDOM_EXAMPLES_PROB and \
-                random_examples < RANDOM_EXAMPLES_QUOTA \
-                and len(sentence.words) > 1:
-            start, end = random.sample(range(len(sentence.words)), 2)
-            if start > end:
-                tmp = end
-                start = end
-                end = tmp
-            if end - start > 1:
-                mention = Mention(
-                    "RANDOM", "random", sentence.words[start:end])
-                random_examples += 1
-                # Add features
-                add_features(mention, sentence)
-                mentions.append(mention)
+    #if len(mentions) == 0:
+    #    # Potentially generate a random mention that resembles real ones
+    #    # This mention is supervised (as false) in the code calling this
+    #    # function
+    #    # XXX (Matteo) may need additional conditions to generate a mention
+    #    if random.random() < RANDOM_EXAMPLES_PROB and \
+    #            random_examples < RANDOM_EXAMPLES_QUOTA \
+    #            and len(sentence.words) > 1:
+    #        start, end = random.sample(range(len(sentence.words)), 2)
+    #        if start > end:
+    #            tmp = end
+    #            start = end
+    #            end = tmp
+    #        if end - start > 1:
+    #            mention = Mention(
+    #                "RANDOM", "random", sentence.words[start:end])
+    #            random_examples += 1
+    #            # Add features
+    #            add_features(mention, sentence)
+    #            mentions.append(mention)
     return mentions
 
 
