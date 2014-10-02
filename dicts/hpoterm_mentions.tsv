@@ -594,7 +594,7 @@ HP:0000746	Delusions	delus
 HP:0000748	Inappropriate laughter	laughter|inappropri
 HP:0000749	Paroxysmal bursts of laughter	laughter|paroxysm|burst
 HP:0000750	Delayed speech and language development	speech|develop|delay|languag
-HP:0000751	Personality changes	person
+HP:0000751	Personality changes	person|chang
 HP:0000752	Hyperactivity	hyperact
 HP:0000753	Autism with high cognitive abilities	abil|autism|high|cognit
 HP:0000756	Agoraphobia	agoraphobia
@@ -1181,7 +1181,7 @@ HP:0001566	Widely-spaced maxillary central incisors	incisor|central|widely-spac|
 HP:0001571	Multiple impacted teeth	impact|multipl|teeth
 HP:0001572	Macrodontia	macrodontia
 HP:0001574	Abnormality of the integument	abnorm|integu
-HP:0001575	Mood changes	mood
+HP:0001575	Mood changes	mood|chang
 HP:0001578	Hypercortisolism	hypercortisol
 HP:0001579	Primary hypercorticolism	primari|hypercorticol
 HP:0001580	Pigmented micronodular adrenocortical disease	adrenocort|diseas|pigment|micronodular
@@ -2550,7 +2550,7 @@ HP:0003438	Absent Achilles reflex	absent|reflex|achill
 HP:0003440	Horizontal sacrum	horizont|sacrum
 HP:0003443	Decreased size of nerve terminals	termin|nerv|size|decreas
 HP:0003444	EMG: chronic denervation signs	emg:|denerv|chronic|sign
-HP:0003445	EMG: neuropathic changes	emg:|neuropath
+HP:0003445	EMG: neuropathic changes	emg:|neuropath|chang
 HP:0003447	Axonal loss	loss|axon
 HP:0003448	Decreased sensory nerve conduction velocity	conduct|sensori|nerv|decreas|veloc
 HP:0003449	Cold-induced muscle cramps	cold-induc|muscl|cramp
@@ -7872,7 +7872,7 @@ HP:0011197	EEG with focal spike waves	eeg|focal|spike|wave
 HP:0011198	EEG with generalized epileptiform discharges	eeg|epileptiform|general|discharg
 HP:0011199	EEG with generalized sharp slow waves	eeg|general|slow|wave|sharp
 HP:0011200	EEG with generalized polymorphic epileptiform discharges	eeg|epileptiform|general|polymorph|discharg
-HP:0011201	EEG with changes in voltage	eeg|voltag
+HP:0011201	EEG with changes in voltage	eeg|voltag|chang
 HP:0011202	EEG with diffuse acceleration	eeg|acceler|diffus
 HP:0011203	EEG with abnormally slow frequencies	eeg|frequenc|slow|abnorm
 HP:0011204	EEG with continuous slow activity	eeg|slow|activ|continu
