@@ -293,7 +293,7 @@ for stem_set in hpoterms_dict:
             len(term_mandatory_stems)
         for subset in itertools.combinations(
                 optional_stems, optional_subset_size):
-            subset = frozenset(term_mandatory_stems | subset)
+            subset = frozenset(term_mandatory_stems | set(subset))
             if subset not in hpoterm_mentions_dict:
                 hpoterm_mentions_dict[subset] = set()
             hpoterm_mentions_dict[subset] |= hpoterms_dict[stem_set]
