@@ -282,7 +282,7 @@ for stem_set in hpoterms_dict:
     term_mandatory_stems = set()
     for stem in stem_set:
         if len(stem) == 1 or stem in mandatory_stems:
-            term_mandatory_stems.append(stem)
+            term_mandatory_stems.add(stem)
     optional_stems = stem_set - term_mandatory_stems
     if len(stem_set) <= 3 or len(optional_stems) <= 3:
         if stem_set not in hpoterm_mentions_dict:
