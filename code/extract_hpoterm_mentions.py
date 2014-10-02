@@ -3,7 +3,6 @@
 import fileinput
 import itertools
 import math
-import random
 import re
 
 from nltk.stem.snowball import SnowballStemmer
@@ -270,18 +269,31 @@ hpoterms_dict = load_dict("hpoterms")
 inverted_hpoterms = load_dict("hpoterms_inverted")
 hponames_to_ids = load_dict("hponames_to_ids")
 
+mandatory_stems = frozenset(
+    ("keratocytosi", "carcinoma", "pancreat", "oropharyng", "hyperkeratos",
+        "hyperkeratosi", "palmoplantar", "palmar", "genitalia", "labia",
+        "hyperplasia", "fontanell", "facial", "prelingu", "sensorineur",
+        "auditori", "neck", "incisor", "nervous", "ventricl", "cyst"))
+
 # Create the dictionary containing the sets of stems that we use to create the
 # mentions
 hpoterm_mentions_dict = dict()
 for stem_set in hpoterms_dict:
-    if len(stem_set) <= 3:
+    term_mandatory_stems = set()
+    for stem in stem_set:
+        if len(stem) == 1 or stem in mandatory_stems:
+            term_mandatory_stems.append(stem)
+    optional_stems = stem_set - term_mandatory_stems
+    if len(stem_set) <= 3 or len(optional_stems) <= 3:
         if stem_set not in hpoterm_mentions_dict:
             hpoterm_mentions_dict[stem_set] = set()
         hpoterm_mentions_dict[stem_set] |= hpoterms_dict[stem_set]
     else:
+        optional_subset_size = math.ceil(MENTION_THRESHOLD * len(stem_set)) - \
+            len(term_mandatory_stems)
         for subset in itertools.combinations(
-                stem_set, math.ceil(MENTION_THRESHOLD * len(stem_set))):
-            subset = frozenset(subset)
+                optional_stems, optional_subset_size):
+            subset = frozenset(term_mandatory_stems | subset)
             if subset not in hpoterm_mentions_dict:
                 hpoterm_mentions_dict[subset] = set()
             hpoterm_mentions_dict[subset] |= hpoterms_dict[stem_set]
