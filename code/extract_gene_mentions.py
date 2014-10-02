@@ -323,7 +323,7 @@ def add_features(mention, sentence):
                 if len(mention.words[0].word) >= 4:
                     mention.add_feature(
                         "IS_LONG_ALPHANUMERIC_ALTERN_SYMBOL")
-            elif len(mention.words[0].word) >= 5:
+            elif len(mention.words[0].word) >= 4:
                 mention.add_feature("IS_LONG_ALTERN_SYMBOL")
                 # The mention is a synonym symbol
             #    mention.add_feature('IS_SYNONYM')
@@ -466,9 +466,6 @@ def add_features(mention, sentence):
                 mention.add_feature("IS_GENE_ONTOLOGY")
         except:
             pass
-    if len(mention.words) == 1:
-        mention.add_feature("SYMBOL_[{}]".format(mention.words[0].word))
-
 
 # Add features that are related to the entire set of mentions candidates
 # Must be called after supervision!!!
