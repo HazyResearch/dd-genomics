@@ -2716,7 +2716,6 @@ SMR3A	PBI|PRL5|PROL5	submaxillary gland androgen regulated protein 3A
 MEF2BNB		MEF2B neighbor
 EIF5AP2		eukaryotic translation initiation factor 5A pseudogene 2
 RANP4		RAN, member RAS oncogene family pseudogene 4
-MS	MS1	multiple sclerosis
 SPATA31C1	FLJ36055|FAM75C1	SPATA31 subfamily C, member 1
 MTND1P35		MT-ND1 pseudogene 35
 RN7SL302P		RNA, 7SL, cytoplasmic 302, pseudogene
@@ -4516,7 +4515,7 @@ USP12	USP12L1	ubiquitin specific peptidase 12
 RPL23P2		ribosomal protein L23 pseudogene 2
 MIR302E	hsa-mir-302e|MIRN302E	microRNA 302e
 TLE2	GRG2|FLJ41188|ESG2|ESG	enhancer of split groucho 2|transducin-like enhancer of split 2 (E(sp1) homolog, Drosophila)|transducin-like enhancer of split 2
-SLC3A2	4T2HC|MDU1|CD98|CD98HC|4F2|NACAE|4F2HC	antigen identified by monoclonal antibodies 4F2, TRA1.10, TROP4, and T43|solute carrier family 3 (activators of dibasic and neutral amino acid transport), member 2|4F2 heavy chain|antigen defined by monoclonal antibody 4F2|monoclonal antibody 44D7|heavy chain|lymphocyte activation antigen 4F2 large subunit|4F2 cell-surface antigen heavy chain|CD98 heavy chain|solute carrier family 3 (amino acid transporter heavy chain), member 2
+SLC3A2	4T2HC|MDU1|CD98|CD98HC|4F2|NACAE|4F2HC	antigen identified by monoclonal antibodies 4F2, TRA1.10, TROP4, and T43|solute carrier family 3 (activators of dibasic and neutral amino acid transport), member 2|4F2 heavy chain|antigen defined by monoclonal antibody 4F2|monoclonal antibody 44D7|lymphocyte activation antigen 4F2 large subunit|4F2 cell-surface antigen heavy chain|CD98 heavy chain|solute carrier family 3 (amino acid transporter heavy chain), member 2
 S100A9	MRP14|LIAG|P14|CAGB|NIF|MIF|60B8AG|CGLB|CFAG|MAC387	S100 calcium binding protein A9
 RN7SL589P		RNA, 7SL, cytoplasmic 589, pseudogene
 CTRL		chymotrypsin-like
@@ -12623,7 +12622,7 @@ SULF2	HSULF-2|KIAA1247|SULF-2	sulfatase 2
 ABCF2P2		ATP-binding cassette, sub-family F (GCN20), member 2 pseudogene 2
 DMKN	ZD52F10	dermokine
 BNIP3P21		BCL2/adenovirus E1B 19kDa interacting protein 3 pseudogene 21
-SUPT7L	gamma|KIAA0764|STAF65|SPT7L	suppressor of Ty 7 (S. cerevisiae)-like
+SUPT7L	|KIAA0764|STAF65|SPT7L	suppressor of Ty 7 (S. cerevisiae)-like
 RN7SL679P		RNA, 7SL, cytoplasmic 679, pseudogene
 LRAT	LCA14	lecithin retinol acyltransferase (phosphatidylcholine--retinol O-acyltransferase)
 FBXO33	Fbx33	F-box protein 33
@@ -32338,7 +32337,7 @@ SPPL2C	IMP5	signal peptide peptidase like 2C|intramembrane protease 5
 NLRP2	FLJ20510|PYPAF2|CLR19.9|NBS1|NALP2|PAN1	NLR family, pyrin domain containing 2|nucleotide-binding oligomerization domain, leucine rich repeat and pyrin domain containing 2
 MMP15	MTMMP2|MT2-MMP|SMCP-2	matrix metallopeptidase 15 (membrane-inserted)
 MUS81	SLX3|FLJ44872	SLX3 structure-specific endonuclease subunit homolog (S. cerevisiae)|MUS81 endonuclease homolog (S. cerevisiae)|MUS81 structure-specific endonuclease subunit
-TBATA	FLJ32820|spatial|C10orf27	thymus, brain and testes associated
+TBATA	FLJ32820|C10orf27	thymus, brain and testes associated
 U2AF1L4	U2af26|U2AF1L3|MGC33901	U2 small nuclear RNA auxiliary factor 1-like 4
 KCNQ5-AS1		KCNQ5 antisense RNA 1
 RPSAP29		ribosomal protein SA pseudogene 29
