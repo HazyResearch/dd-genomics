@@ -71,9 +71,11 @@ def extract(sentence):
                     word.word.isalpha() and len(word.word) >= 2 and \
                     word.in_sent_idx > 0 and \
                     word.in_sent_idx < len(sentence.words) - 1 and \
-                    sentence.words[word.in_sent_idx - 1].word == "(" and \
-                    sentence.words[word.in_sent_idx + 1].word in [")", ";"
-                                                                  ","]:
+                    ((sentence.words[word.in_sent_idx - 1].word == "(" and
+                      sentence.words[word.in_sent_idx + 1].word in [
+                      ")", ";" ",", "]"]) or
+                     (sentence.words[word.in_sent_idx - 1].word == "[" and
+                      sentence.words[word.in_sent_idx + 1].word == "]")):
                 word_idx = word.in_sent_idx
                 window_size = len(word.word)
                 # Look for a sequence of words coming before this one whose

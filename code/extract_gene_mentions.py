@@ -84,10 +84,17 @@ def supervise(mention, sentence):
                     in pos_mentions_dict[example_key_2])):
         mention.is_correct = True
         return
+    if "IS_QUANTITY" in mention.features:
+        mention.is_correct = False
+        return
     if "IS_AFTER_TYPE" not in mention.features and \
             "COMES_AFTER_LOCATION" not in mention.features and \
             "COMES_AFTER_DOC_ELEMENT" not in mention.features:
         if "EXT_KEYWORD_SHORTEST_PATH_[gene]@nn" in mention.features:
+            mention.is_correct = True
+        if "EXT_KEYWORD_SHORTEST_PATH_[gene]nn@" in mention.features:
+            mention.is_correct = True
+        if "EXT_KEYWORD_SHORTEST_PATH_[promoter]nn@" in mention.features:
             mention.is_correct = True
         if "EXT_KEYWORD_SHORTEST_PATH_[protein]nn@" in mention.features:
             mention.is_correct = True
@@ -291,14 +298,19 @@ def add_features(mention, sentence):
                     except:
                         is_letter_plus_number = False
                     if is_letter_plus_number:
-                        mention.add_feature("IS_LETTER_NUMBER_MAIN_SYMBOL")
+                        mention.add_feature(
+                            "IS_LETTER_NUMBER_MAIN_SYMBOL_{}".format(
+                                mention.words[0].word))
                     else:
                         mention.add_feature(
                             "IS_SHORT_ALPHANUMERIC_MAIN_SYMBOL")
             elif len(mention.words[0].word) >= 4:
-                mention.add_feature("IS_LONG_MAIN_SYMBOL")
+                mention.add_feature("IS_LONG_MAIN_SYMBOL_{}".format(
+                    mention.words[0].word))
                 if "COMES_AFTER_PERSON" in mention.features:
                     mention.features.remove("COMES_AFTER_PERSON")
+                if "COMES_AFTER_ORGANIZATION" in mention.features:
+                    mention.features.remove("COMES_AFTER_ORGANIZATION")
         elif entity_in_dict or mention.words[0].word in merged_genes_dict:
             if len(mention.words[0].word) > 3 and \
                     mention.words[0].word.casefold() == mention.words[0].word \
@@ -307,6 +319,8 @@ def add_features(mention, sentence):
                 mention.add_feature("IS_LONG_NAME")
                 if "COMES_AFTER_PERSON" in mention.features:
                     mention.features.remove("COMES_AFTER_PERSON")
+                if "COMES_AFTER_ORGANIZATION" in mention.features:
+                    mention.features.remove("COMES_AFTER_ORGANIZATION")
             elif "-" in mention.words[0].word and \
                     "COMES_AFTER_PERSON" not in mention.features:
                 mention.add_feature("IS_HYPHENATED_SYMBOL")
@@ -324,7 +338,8 @@ def add_features(mention, sentence):
                     mention.add_feature(
                         "IS_LONG_ALPHANUMERIC_ALTERN_SYMBOL")
             elif len(mention.words[0].word) >= 4:
-                mention.add_feature("IS_LONG_ALTERN_SYMBOL")
+                mention.add_feature("IS_LONG_ALTERN_SYMBOL_{}".format(
+                    mention.words[0].word))
                 # The mention is a synonym symbol
             #    mention.add_feature('IS_SYNONYM')
     else:
@@ -395,6 +410,20 @@ def add_features(mention, sentence):
     if mention.words[0].word == "BLAST":
         mention.add_feature("IS_BLAST")
     if "NO_ENGLISH_WORDS_IN_SENTENCE" not in mention.features:
+        idx = mention.wordidxs[0] - 1
+        if idx >= 0:
+            if sentence.words[idx].word in ["+", "%"]:
+                mention.add_feature("IS_QUANTITY")
+        idx = mention.wordidx[-1] + 1
+        if idx < len(sentence.words):
+            if sentence.words[idx].word in ["+", "="]:
+                mention.add_feature("IS_QUANTITY")
+            if sentence.words[idx].word == ":":
+                try:
+                    float(sentence.words[idx + 1].word)
+                    mention.add_feature("IS_QUANTITY")
+                except:
+                    pass
         # The lemma on the left of the mention, if present, provided it's
         # alphanumeric but not a number
         idx = mention.wordidxs[0] - 1
@@ -411,15 +440,16 @@ def add_features(mention, sentence):
             idx -= 1
         if idx >= 0:
             mention.left_lemma = sentence.words[idx].lemma
-            if sentence.words[idx].word in merged_genes_dict:
+            if sentence.words[idx].word in merged_genes_dict and \
+                    len(sentence.words[idx].word) > 3:
                 # mention.add_feature("GENE_ON_LEFT")
                 gene_on_left = sentence.words[idx].word
             try:
                 year = float(sentence.words[idx].word)
                 if round(year) == year and year > 1950 and year <= 2014:
                     mention.add_feature("IS_YEAR_LEFT")
-                else:
-                    mention.add_feature("IS_NUMBER_LEFT")
+                # else:
+                #    mention.add_feature("IS_NUMBER_LEFT")
             except:
                 pass
         # The word on the right of the mention, if present, provided it's
@@ -436,15 +466,16 @@ def add_features(mention, sentence):
             idx += 1
         if idx < len(sentence.words):
             mention.right_lemma = sentence.words[idx].lemma
-            if sentence.words[idx].word in merged_genes_dict:
+            if sentence.words[idx].word in merged_genes_dict and \
+                    len(sentence.words[idx].word) > 3:
                 # mention.add_feature("GENE_ON_RIGHT")
                 gene_on_right = sentence.words[idx].word
             try:
                 year = float(sentence.words[idx].word)
                 if round(year) == year and year > 1950 and year <= 2014:
                     mention.add_feature("IS_YEAR_RIGHT")
-                else:
-                    mention.add_feature("IS_NUMBER_RIGHT")
+                # else:
+                #    mention.add_feature("IS_NUMBER_RIGHT")
             except:
                 pass
         if gene_on_left and gene_on_right:
@@ -466,6 +497,7 @@ def add_features(mention, sentence):
                 mention.add_feature("IS_GENE_ONTOLOGY")
         except:
             pass
+
 
 # Add features that are related to the entire set of mentions candidates
 # Must be called after supervision!!!
