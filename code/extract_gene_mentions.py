@@ -414,7 +414,7 @@ def add_features(mention, sentence):
         if idx >= 0:
             if sentence.words[idx].word in ["+", "%"]:
                 mention.add_feature("IS_QUANTITY")
-        idx = mention.wordidx[-1] + 1
+        idx = mention.wordidxs[-1] + 1
         if idx < len(sentence.words):
             if sentence.words[idx].word in ["+", "="]:
                 mention.add_feature("IS_QUANTITY")
