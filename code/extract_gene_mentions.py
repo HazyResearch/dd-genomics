@@ -51,7 +51,7 @@ GENE_KEYWORDS = frozenset([
     "transcription", "human", "backbone", "oncoprotein", "locus", "moiety",
     "cluster", "homology", "proto-oncogene", "mammalian", "anti-gene",
     "transgene", "sirnas", "sirna", "siRNA", "siRNAs", "cleavage",
-    "polymorphism", "induction", "enrichment", "determinant"])
+    "polymorphism", "induction", "enrichment", "determinant", "role"])
 
 
 def check_negative_example(mention, sentence):
@@ -686,7 +686,7 @@ if __name__ == "__main__":
                 else:  # not random and not acronyms in sentence
                     supervise(mention, sentence)
             # Add features that use information about other mentions
-            if len(mentions) > 1:
-                add_features_to_all(mentions, sentence)
+            # if len(mentions) > 1:
+            #    add_features_to_all(mentions, sentence)
             for mention in mentions:
                 print(mention.tsv_dump())
