@@ -186,9 +186,9 @@ def supervise(mention, sentence):
             "COMES_BEFORE_LOCATION" in mention.features:
         mention.is_correct = False
         return
-    if "IS_QUANTITY":
-        mention.is_correct = False
-        return
+    #if "IS_QUANTITY":
+    #    mention.is_correct = False
+    #    return
     # If it's "II", it's most probably wrong.
     if mention.words[0].word == "II":
         mention.is_correct = False
@@ -419,19 +419,19 @@ def add_features(mention, sentence):
         mention.add_feature("IS_BLAST")
     if "NO_ENGLISH_WORDS_IN_SENTENCE" not in mention.features:
         idx = mention.wordidxs[0] - 1
-        if idx >= 0:
-            if sentence.words[idx].word == "%":
-                mention.add_feature("IS_QUANTITY")
-        idx = mention.wordidxs[-1] + 1
-        if idx < len(sentence.words):
-            if sentence.words[idx].word == "=":
-                mention.add_feature("IS_QUANTITY")
-            if sentence.words[idx].word == ":":
-                try:
-                    float(sentence.words[idx + 1].word)
-                    mention.add_feature("IS_QUANTITY")
-                except:
-                    pass
+       # if idx >= 0:
+       #     if sentence.words[idx].word == "%":
+       #         mention.add_feature("IS_QUANTITY")
+       # idx = mention.wordidxs[-1] + 1
+       # if idx < len(sentence.words):
+       #     if sentence.words[idx].word == "=":
+       #         mention.add_feature("IS_QUANTITY")
+       #     if sentence.words[idx].word == ":":
+       #         try:
+       #             float(sentence.words[idx + 1].word)
+       #             mention.add_feature("IS_QUANTITY")
+       #         except:
+       #             pass
         # The lemma on the left of the mention, if present, provided it's
         # alphanumeric but not a number
         idx = mention.wordidxs[0] - 1
