@@ -9,14 +9,12 @@ from dstruct.Relation import Relation
 from helper.dictionaries import load_dict
 from helper.easierlife import get_dict_from_TSVline, no_op, TSVstring2list
 
-RANDOM_EXAMPLES_PROB = 0.01
-RANDOM_EXAMPLES_QUOTA = 1000
-
 
 # Perform distant supervision
 def supervise(relation, gene_mention, hpoterm_mention, sentence):
     if gene_mention.is_correct is False or hpoterm_mention.is_correct is False:
         relation.is_correct = False
+        return
     if "IN_GENE_HPOTERM_MAP" in relation.features:
         relation.is_correct = True
 
@@ -54,8 +52,8 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
         if re.search('^VB[A-Z]*$', word.pos):
             relation.add_feature("VERB_" + word.lemma)
     # Word sequence between mentions
-    relation.add_feature(
-        "WORD_SEQ="+"_".join([w.lemma for w in sentence.words[start:end]]))
+    #relation.add_feature(
+    #    "WORD_SEQ="+"_".join([w.lemma for w in sentence.words[start:end]]))
     # Left and right windows
     # if start > 0:
     #    relation.add_feature(
