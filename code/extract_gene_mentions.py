@@ -84,8 +84,6 @@ def supervise(mention, sentence):
                     in pos_mentions_dict[example_key_2])):
         mention.is_correct = True
         return
-    if "IS_QUANTITY" in mention.features:
-        mention.is_correct = False
     if "IS_AFTER_TYPE" not in mention.features and \
             "COMES_AFTER_LOCATION" not in mention.features and \
             "COMES_AFTER_DOC_ELEMENT" not in mention.features:
@@ -105,6 +103,9 @@ def supervise(mention, sentence):
             mention.is_correct = True
             return
         if "IS_LONG_NAME" in mention.features:
+            mention.is_correct = True
+            return
+        if "IS_LONG_ALPHANUMERIC_MAIN_SYMBOL" in mention.features:
             mention.is_correct = True
             return
         if "IS_HYPHENATED_SYMBOL" in mention.features:
@@ -542,7 +543,7 @@ def extract(sentence):
             phrase = phrase.casefold()
         mention = None
         # If the phrase is in the dictionary, then is a mention candidate
-        if phrase in merged_genes_dict:
+        if len(phrase) > 1 and phrase in merged_genes_dict:
             mention = Mention("GENE",
                               "|".join(merged_genes_dict[phrase]),
                               words[start:end])

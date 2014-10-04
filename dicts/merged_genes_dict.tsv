@@ -7599,7 +7599,7 @@ RNU6-685P		RNA, U6 small nuclear 685, pseudogene
 MECOM	EVI1|PRDM3|MDS1-EVI1|MDS1	myelodysplasia syndrome 1|MDS1 and EVI1 complex locus
 CAPZA1		capping protein (actin filament) muscle Z-line, alpha 1
 RPL21P39		ribosomal protein L21 pseudogene 39
-NDUFB6	B17|CI	NADH-ubiquinone oxidoreductase beta subunit, 6|NADH dehydrogenase (ubiquinone) 1 beta subcomplex, 6, 17kDa|NADH-ubiquinone oxidoreductase B17 subunit|complex I, mitochondrial respiratory chain, B17 subunit
+NDUFB6	B17	NADH-ubiquinone oxidoreductase beta subunit, 6|NADH dehydrogenase (ubiquinone) 1 beta subcomplex, 6, 17kDa|NADH-ubiquinone oxidoreductase B17 subunit|complex I, mitochondrial respiratory chain, B17 subunit
 THNSL2	FLJ10916	threonine synthase-like 2 (S. cerevisiae)
 RN7SL388P		RNA, 7SL, cytoplasmic 388, pseudogene
 MIR7641-1	hsa-mir-7641-1	microRNA 7641-1
@@ -8612,7 +8612,7 @@ RN7SKP170		RNA, 7SK small nuclear pseudogene 170
 RNU7-72P	U7.72	RNA, U7 small nuclear 72 pseudogene
 RNU6-527P		RNA, U6 small nuclear 527, pseudogene
 IGHV4-59		immunoglobulin heavy variable 4-59
-RPTOR	Mip1|KOG1|KIAA1303|raptor	regulatory associated protein of mTOR|regulatory associated protein of MTOR, complex 1
+RPTOR	Mip1|KOG1|KIAA1303	regulatory associated protein of mTOR|regulatory associated protein of MTOR, complex 1
 RNU6-526P		RNA, U6 small nuclear 526, pseudogene
 LRRC36	FLJ11004	leucine rich repeat containing 36
 PTPN17		protein tyrosine phosphatase, non-receptor type 17
@@ -9403,7 +9403,7 @@ RNA5SP21	RN5S21	RNA, 5S ribosomal pseudogene 21
 TRAV41	TCRAV41S1|TCRAV19S1	T cell receptor alpha variable 41
 LAMC2	nicein-100kDa|kalinin-105kDa|LAMNB2|EBR2A|BM600-100kDa|EBR2|LAMB2T	laminin, gamma 2
 CYCSP51	HCP1	cytochrome c, somatic pseudogene 51
-NOVA2	ANOVA|NOVA3	neuro-oncological ventral antigen 3|neuro-oncological ventral antigen 2
+NOVA2	NOVA3	neuro-oncological ventral antigen 3|neuro-oncological ventral antigen 2
 MBL2	MBL|COLEC1	mannose-binding lectin (protein C) 2, soluble
 PTPRQ	DFNB84	protein tyrosine phosphatase, receptor type, Q
 IFNA22P	IFNAP22	interferon, alpha 22, pseudogene
@@ -11864,7 +11864,7 @@ CBR1	SDR21C1|CBR	short chain dehydrogenase/reductase family 21C, member 1|carbon
 RELB	REL-B	v-rel reticuloendotheliosis viral oncogene homolog B|v-rel avian reticuloendotheliosis viral oncogene homolog B
 PRPH	PRPH1|NEF4	peripherin
 C7orf66		chromosome 7 open reading frame 66
-ARHGEF40	solo|FLJ10357	Rho guanine nucleotide exchange factor (GEF) 40
+ARHGEF40	FLJ10357	Rho guanine nucleotide exchange factor (GEF) 40
 SNX18P21		sorting nexin 18 pseudogene 21
 LRRC71	FLJ32884|C1orf92	leucine rich repeat containing 71
 SLC40A1	HFE4|IREG1|SLC11A3|FPN1|MTP1	solute carrier family 40 (iron-regulated transporter), member 1|ferroportin 1
@@ -14177,7 +14177,7 @@ RNU6-710P		RNA, U6 small nuclear 710, pseudogene
 MIR4472-2	hsa-mir-4472-2	microRNA 4472-2
 HOXB8	HOX2|HOX2D	homeobox B8
 HSD17B1P1	HSD17BP1|EDHB17|EDH17B1|SDR28C1P1	hydroxysteroid (17-beta) dehydrogenase 1 pseudogene 1
-MT-CO2	COX2|MTCO2|CO2	mitochondrially encoded cytochrome c oxidase II
+MT-CO2	COX2|MTCO2	mitochondrially encoded cytochrome c oxidase II
 RPL5P18		ribosomal protein L5 pseudogene 18
 SNX15		sorting nexin 15
 MAMDC2	MGC21981	MAM domain containing 2
@@ -17280,7 +17280,7 @@ RPL41P6		ribosomal protein L41 pseudogene 6
 TFDP2	Dp-2	transcription factor Dp-2 (E2F dimerization partner 2)
 MAPK8IPP	PRKM8IPP	mitogen-activated protein kinase 8 interacting protein, pseudogene
 OR11K2P		olfactory receptor, family 11, subfamily K, member 2 pseudogene
-CTNNB1	armadillo|CTNNB|beta-catenin	catenin (cadherin-associated protein), beta 1, 88kDa
+CTNNB1	CTNNB|beta-catenin	catenin (cadherin-associated protein), beta 1, 88kDa
 POLR3GL	MGC3200|flj32422	polymerase (RNA) III (DNA directed) polypeptide G (32kD)-like
 HKR1	ZNF875	oncogene HKR1|HKR1, GLI-Kruppel zinc finger family member
 PARD6A	TIP-40|TAX40|PAR6alpha|PAR-6A|PAR-6	par-6 partitioning defective 6 homolog alpha (C. elegans)|par-6 family cell polarity regulator alpha
@@ -22878,7 +22878,7 @@ UQCRHP4		ubiquinol-cytochrome c reductase hinge protein pseudogene 4
 CPA2		carboxypeptidase A2 (pancreatic)
 ZNF512	KIAA1805	zinc finger protein 512
 MYO1F		myosin IF
-CD82	R2|ST6|KAI1|TSPAN27|IA4	suppression of tumorigenicity 6|R2 leukocyte antigen|CD82 molecule
+CD82	ST6|KAI1|TSPAN27|IA4	suppression of tumorigenicity 6|R2 leukocyte antigen|CD82 molecule
 SCT		prepro-secretin|secretin
 SYPL2	Mg29	synaptophysin-like 2|mitsugumin-29
 IGHD4-11	IGHD411|DA1	immunoglobulin heavy diversity 4-11 (non-functional)
@@ -23530,7 +23530,7 @@ A4GALT	P(k)|A14GALT|Gb3S	alpha 1,4-galactosyltransferase|globotriaosylceramide s
 PGAM1P6		phosphoglycerate mutase 1 pseudogene 6
 RHEBP3		Ras-homolog enriched in brain pseudogene 3
 MIR585	hsa-mir-585|MIRN585	microRNA 585
-IGLL3P	16.1|IGLL3	immunoglobulin lambda-like polypeptide 3, pseudogene
+IGLL3P	IGLL3	immunoglobulin lambda-like polypeptide 3, pseudogene
 TEX21P		testis expressed 21, pseudogene
 RPL21P10		ribosomal protein L21 pseudogene 10
 FAM73B	FLJ00199|C9orf54|FLJ14596	family with sequence similarity 73, member B
@@ -28028,7 +28028,7 @@ MS4A3	HTM4|CD20L	membrane-spanning 4-domains, subfamily A, member 3 (hematopoiet
 RPL18AP12		ribosomal protein L18a pseudogene 12
 HMGA1P3	HMGIYL3|HMGA1L3	high mobility group AT-hook 1 pseudogene 3
 HSD3B7	C(27)-3BETA-HSD|SDR11E3	hydroxy-delta-5-steroid dehydrogenase, 3 beta- and steroid delta-isomerase 7|short chain dehydrogenase/reductase family 11E, member 3
-WDPCP	C2orf86|fritz|BBS15|hFrtz	WD repeat containing planar cell polarity effector
+WDPCP	C2orf86|BBS15|hFrtz	WD repeat containing planar cell polarity effector
 ZNF544	AF020591	zinc finger protein AF020591|zinc finger protein 544
 GOLPH3	GOPP1|GPP34|MIDAS	coat-protein|golgi-associated protein|golgi phosphoprotein 3 (coat-protein)|golgi peripheral membrane protein 1, 34 kDa|golgi protein
 FDPSP10		farnesyl diphosphate synthase pseudogene 10
@@ -31149,7 +31149,7 @@ C12orf75	AGD3|OCC-1|OCC1	chromosome 12 open reading frame 75
 CNTNAP3B		contactin associated protein-like 3B
 RMD1		rippling muscle disease 1
 FBXO27	Fbg5|Fbx27	F-box protein 27
-CACFD1	D9S2135|flower|C9orf7	calcium channel flower domain containing 1
+CACFD1	D9S2135|C9orf7	calcium channel flower domain containing 1
 EN2		engrailed homeobox 2
 ACTN1		actinin, alpha 1
 COMP	EPD1|MED|THBS5|PSACH|EDM1	cartilage oligomeric matrix protein|thrombospondin-5
