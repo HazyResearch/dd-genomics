@@ -13,10 +13,6 @@ from helper.easierlife import get_dict_from_TSVline, TSVstring2list, no_op
 from helper.dictionaries import load_dict
 
 MENTION_THRESHOLD = 3 / 4
-SUPERVISION_PROB = 0.01
-SUPERVISION_QUOTA = 7500
-random_examples = 0
-supervised_examples = 0
 
 HPOTERM_KEYWORDS = frozenset(
     ["syndrome", "gene", "association", "apoptosis", "genotype", "disease",
@@ -35,14 +31,9 @@ def supervise(mention, sentence):
     if "IS_EXACT_NAME" in mention.features:
         mention.is_correct = True
         return
-    if "HAS_ALL_STEMS" in mention.features:
-        mention.is_correct = True
-        return
-    # global supervised_examples
-    # if random.random() < SUPERVISION_PROB and \
-    #         supervised_examples < SUPERVISION_QUOTA:
-    #     mention.is_correct = True
-    #     supervised_examples += 1
+    # if "HAS_ALL_STEMS" in mention.features:
+    #    mention.is_correct = True
+    #    return
 
 
 # Add features
@@ -137,24 +128,21 @@ def add_features(mention, sentence):
             break
     if no_verb:
         mention.add_feature("NO_VERB_IN_SENTENCE")
-    if mention.type != "RANDOM":
-        # The lemmas in the mention are a subset of the word in the name (not
-        # just the stems)
-        mention_lemmas = set([x.lemma.casefold() for x in mention.words])
-        name_words = set([x.casefold() for x in
-                          mention.entity.split("|")[1].split()])
+    mention_lemmas = set([x.lemma.casefold() for x in mention.words])
+    name_words = set([x.casefold() for x in
+                      mention.entity.split("|")[1].split()])
+    if mention_lemmas == name_words:
         # The mention is exactly the hpo name
-        if mention_lemmas == name_words:
-            mention.add_feature("IS_EXACT_NAME")
-        else:
-            # The number of words in the mention is exactly the same as the
-            # size of the complete set of stems for this entity
-            if len(mention.words) == \
-                    len(inverted_hpoterms[mention.entity.split("|")[1]]):
-                mention.add_feature("HAS_ALL_STEMS")
-            # The lemmas in the mention are a subset of the name
-            if mention_lemmas.issubset(name_words):
-                mention.add_feature("IS_SUBSET_OF_NAME")
+        mention.add_feature("IS_EXACT_NAME")
+    else:
+        # The number of words in the mention is exactly the same as the
+        # size of the complete set of stems for this entity
+        if len(mention.words) == \
+                len(inverted_hpoterms[mention.entity.split("|")[1]]):
+            mention.add_feature("HAS_ALL_STEMS")
+        # The lemmas in the mention are a subset of the name
+        if mention_lemmas.issubset(name_words):
+            mention.add_feature("IS_SUBSET_OF_NAME")
 
 
 # Add features that are related to the entire set of mentions candidates
@@ -164,7 +152,6 @@ def add_features_to_all(mentions, sentence):
 
 # Return a list of mentions from the sentence
 def extract(sentence):
-    global random_examples
     mentions = []
     # The list of stems in the sentence
     sentence_stems = []
@@ -200,6 +187,39 @@ def extract(sentence):
                         mention_stems.add(word.stem)
                 this_stem_set_mentions_words[hpo_name] = mention_words
                 this_stem_set_mentions_stems[hpo_name] = mention_stems
+            keys = this_stem_set_mentions_words.keys()
+            # Check whether the name contain words of a single letter. If that
+            # is the case we want them to be immediately followed or preceded
+            # in the mention by another word in the mention.
+            for hpo_name in keys:
+                for stem in inverted_hpoterms[hpo_name]:
+                    if len(stem) == 1:
+                        index = 0
+                        while index < len(
+                                this_stem_set_mentions_words[hpo_name]):
+                            if this_stem_set_mentions_words[hpo_name][
+                                    index].stem == stem:
+                                break
+                            else:
+                                index += 1
+                        is_next_immediate = False
+                        if index < len(this_stem_set_mentions_words[hpo_name])\
+                                - 1:
+                            if this_stem_set_mentions_words[hpo_name][
+                                    index+1].in_sent_idx == \
+                                    this_stem_set_mentions_words[hpo_name][
+                                    index].in_sent_idx + 1:
+                                is_next_immediate = True
+                        is_previous_immediate = False
+                        if index > 0:
+                            if this_stem_set_mentions_words[hpo_name][
+                                    index-1].in_sent_idx == \
+                                    this_stem_set_mentions_words[hpo_name][
+                                    index].in_sent_idx - 1:
+                                is_previous_immediate = True
+                        if not is_next_immediate or not is_previous_immediate:
+                            del this_stem_set_mentions_words[hpo_name]
+                            del this_stem_set_mentions_stems[hpo_name]
             for hpo_name in sorted(
                     this_stem_set_mentions_words.keys(),
                     key=lambda x: len(this_stem_set_mentions_words[x]) /
@@ -242,26 +262,6 @@ def extract(sentence):
                             pass
                     # Update as it may have changed
                     sentence_stems_set = frozenset(sentence_stems)
-    #if len(mentions) == 0:
-    #    # Potentially generate a random mention that resembles real ones
-    #    # This mention is supervised (as false) in the code calling this
-    #    # function
-    #    # XXX (Matteo) may need additional conditions to generate a mention
-    #    if random.random() < RANDOM_EXAMPLES_PROB and \
-    #            random_examples < RANDOM_EXAMPLES_QUOTA \
-    #            and len(sentence.words) > 1:
-    #        start, end = random.sample(range(len(sentence.words)), 2)
-    #        if start > end:
-    #            tmp = end
-    #            start = end
-    #            end = tmp
-    #        if end - start > 1:
-    #            mention = Mention(
-    #                "RANDOM", "random", sentence.words[start:end])
-    #            random_examples += 1
-    #            # Add features
-    #            add_features(mention, sentence)
-    #            mentions.append(mention)
     return mentions
 
 
@@ -271,6 +271,7 @@ stopwords_dict = load_dict("stopwords")
 hpoterms_dict = load_dict("hpoterms")
 inverted_hpoterms = load_dict("hpoterms_inverted")
 hponames_to_ids = load_dict("hponames_to_ids")
+# hpodag = load_dict("hpoparents")
 
 mandatory_stems = frozenset(
     ("keratocytosi", "carcinoma", "pancreat", "oropharyng", "hyperkeratos",
