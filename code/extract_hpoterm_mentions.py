@@ -135,10 +135,19 @@ def add_features(mention, sentence):
         # The mention is exactly the hpo name
         mention.add_feature("IS_EXACT_NAME")
     else:
-        # The number of words in the mention is exactly the same as the
-        # size of the complete set of stems for this entity
-        if len(mention.words) == \
+        mention_wordidxs = sorted(map(lambda x: x.in_sent_idx, mention.words))
+        curr = mention_wordidxs[0]
+        for i in mention_wordidxs[1:]:
+            if i == curr + 1:
+                curr = i
+            else:
+                break
+        if curr == mention_wordidxs[-1]:
+            mention.add_feature("WORDS_ARE_CONSECUTIVE")
+        elif len(mention.words) == \
                 len(inverted_hpoterms[mention.entity.split("|")[1]]):
+            # The number of words in the mention is exactly the same as the
+            # size of the complete set of stems for this entity
             mention.add_feature("HAS_ALL_STEMS")
         # The lemmas in the mention are a subset of the name
         if mention_lemmas.issubset(name_words):
