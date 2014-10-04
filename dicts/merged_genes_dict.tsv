@@ -877,7 +877,7 @@ KRTAP4-4	KAP4.4|KRTAP4-13|KAP4.13	keratin associated protein 4-4
 GAPDHP69	GAPDL14|GAPDHL14	glyceraldehyde 3 phosphate dehydrogenase pseudogene 69
 RPS6P13		ribosomal protein S6 pseudogene 13
 LINC00264	C10orf50|NCRNA00264|bA128B16.2	long intergenic non-protein coding RNA 264
-SBDS	SDS|SWDS|FLJ10917|CGI-97	Shwachman-Bodian-Diamond syndrome
+SBDS	SWDS|FLJ10917|CGI-97	Shwachman-Bodian-Diamond syndrome
 SUV420H1	CGI-85|KMT5B	suppressor of variegation 4-20 homolog 1 (Drosophila)
 NUDT17	FLJ34433	nudix (nucleoside diphosphate linked moiety X)-type motif 17
 RPL6P15		ribosomal protein L6 pseudogene 15
@@ -1320,7 +1320,7 @@ MYO16-AS2		MYO16 antisense RNA 2
 TMSB4XP4	TMSL4	thymosin beta 4, X-linked pseudogene 4
 PNPLA6	iPLA2delta|SPG39|sws|NTE	patatin-like phospholipase domain containing 6|neuropathy target esterase
 TNFRSF9	CD137|ILA|4-1BB	tumor necrosis factor receptor superfamily, member 9
-MAPT	MSTD|FTDP-17|MAPTL|TAU|MTBT2|PPND|tau|FLJ31424|DDPAC|MTBT1|MGC138549|PPP1R103	microtubule-associated protein tau|G protein beta1/gamma2 subunit-interacting factor 1|microtubule-associated protein tau, isoform 4
+MAPT	MSTD|FTDP-17|MAPTL|TAU|MTBT2|PPND|FLJ31424|DDPAC|MTBT1|MGC138549|PPP1R103	microtubule-associated protein tau|G protein beta1/gamma2 subunit-interacting factor 1|microtubule-associated protein tau, isoform 4
 PINLYP		phospholipase A2 inhibitor and LY6/PLAUR domain containing
 CT45A3	CT45-3|CT45.3	cancer/testis antigen CT45-3|cancer/testis antigen family 45, member A3
 IGLV4-3		immunoglobulin lambda variable 4-3
@@ -1816,7 +1816,7 @@ RPS3AP40		ribosomal protein S3a pseudogene 40
 TTTY17A	TTTY17|NCRNA00140	testis-specific transcript, Y-linked 17A (non-protein coding)|non-protein coding RNA 140
 TRAV26-2	TCRAV4S1|TRAV262|TCRAV26S2	T cell receptor alpha variable 26-2
 RNU6-47P	RNU6-47	RNA, U6 small nuclear 47, pseudogene|RNA, U6 small nuclear 47
-SDS	SDH	serine dehydratase
+#SDS	SDH	serine dehydratase
 WWC3	KIAA1280|BM042	WWC family member 3
 RNU4-75P		RNA, U4 small nuclear 75, pseudogene
 FRA7G	D7S486	fragile site, aphidicolin type, common, fra(7)(q31.2)
@@ -3498,7 +3498,7 @@ CYP2C23P	CYP2C62P	cytochrome P450, family 2, subfamily C, polypeptide 23, pseudo
 SECISBP2L	KIAA0256	SECIS binding protein 2-like
 HOXD13	HOX4I|SPD	homeobox D13
 PRPSAP1	PAP39	phosphoribosyl pyrophosphate synthetase-associated protein 1
-FBRS	FBS1|FBS|FLJ11618	fibrosin
+FBRS	FBS1|FLJ11618	fibrosin
 MAGEA13P	LOC139363	melanoma antigen family A, 13 pseudogene
 THUMPD1	FLJ20274	THUMP domain containing 1
 ENKD1	DKFZP434A1319|C16orf48	enkurin domain containing 1
@@ -5323,7 +5323,7 @@ TEAD3	ETFR-1|TEF-5|TEAD5	TEA domain family member 3
 HSP90AA6P		heat shock protein 90kDa alpha (cytosolic), class A member 6, pseudogene
 LYL1	bHLHa18	lymphoblastic leukemia derived sequence 1|lymphoblastic leukemia associated hematopoiesis regulator 1
 RN7SL398P		RNA, 7SL, cytoplasmic 398, pseudogene
-PLXNA3	6.3|Plxn3|XAP-6|PLXN4|SEX	plexin A3
+PLXNA3	Plxn3|XAP-6|PLXN4|SEX	plexin A3
 FAM95A	DKFZp434H0923	family with sequence similarity 95, member A
 RNU6-688P		RNA, U6 small nuclear 688, pseudogene
 LINC00330	NCRNA00330	long intergenic non-protein coding RNA 330
@@ -5520,7 +5520,7 @@ C19orf33	IMUP-2|IMUP-1|IMUP|H2RSP	immortalization-upregulated protein|hepatocyte
 RPL15P20		ribosomal protein L15 pseudogene 20
 UHRF2	URF2|NIRF|MGC33463|RNF107	Np95-like ring finger protein|ubiquitin-like with PHD and ring finger domains 2, E3 ubiquitin protein ligase
 ENPP1	PDNP1|NPPS|PC-1|PCA1|M6S1	ectonucleotide pyrophosphatase/phosphodiesterase 1
-RHOD	ARHD|Rho|RhoD|RhoHP1	Rho-related protein HP1|ras homolog family member D|Rho-related GTP-binding protein RhoD
+RHOD	ARHD|RhoD|RhoHP1	Rho-related protein HP1|ras homolog family member D|Rho-related GTP-binding protein RhoD
 F8A3		coagulation factor VIII-associated 3
 MRPL11P2		mitochondrial ribosomal protein L11 pseudogene 2
 LYPLA2	APT-2	lysophospholipase II
@@ -5978,7 +5978,7 @@ KLHL13	KIAA1309|FLJ10262|BKLHD2	kelch-like family member 13
 INTS4	MST093|INT4|MGC16733	integrator complex subunit 4
 C9orf53	bA149I2.3	chromosome 9 open reading frame 53
 PREPL	KIAA0436	prolyl endopeptidase-like
-RANGAP1	KIAA1835|Fug1|SD	Ran GTPase activating protein 1
+RANGAP1	KIAA1835|Fug1	Ran GTPase activating protein 1
 AOX2P	AOH2|AOX2	aldehyde oxidase 2 pseudogene
 MAGEE1	DAMAGE|KIAA1587	melanoma antigen family E, 1
 GOLGA2P2Y	GOLGA2LY1|GOLGA2P2	golgin A2 pseudogene 2, Y-linked
@@ -17369,7 +17369,7 @@ OR7E11P	OR11-2|OR7E144P	olfactory receptor, family 7, subfamily E, member 11 pse
 NUP210P1	C3orf46	nucleoporin 210kDa pseudogene 1
 RPL36P7		ribosomal protein L36 pseudogene 7
 LINC01011	DKFZp686I15217	long intergenic non-protein coding RNA 1011
-FBXO8	FBX8|FBS	F-box protein 8
+FBXO8	FBX8	F-box protein 8
 TMEM214	FLJ20254	transmembrane protein 214
 SNORD14E		small nucleolar RNA, C/D box 14E
 ACN9	DC11	ACN9 homolog (S. cerevisiae)
@@ -24840,7 +24840,7 @@ SHFM1	SHSF1|Shfdg1|ECD|DSS1|SEM1|SHFD1	deleted in split-hand/foot 1|split hand/f
 MIR3122	hsa-mir-3122	microRNA 3122
 RNA5SP399	RN5S399	RNA, 5S ribosomal pseudogene 399
 RNU1-6P	RNU1-6	RNA, U1 small nuclear 6, pseudogene
-NAA50	San|NAT5|NAT13|FLJ13194|MAK3	N(alpha)-acetyltransferase 50, NatE catalytic subunit
+NAA50	NAT5|NAT13|FLJ13194|MAK3	N(alpha)-acetyltransferase 50, NatE catalytic subunit
 LETM1		Mdm38 homolog (yeast)|leucine zipper-EF-hand containing transmembrane protein 1
 VRK1		vaccinia related kinase 1
 RNU7-32P	U7.32	RNA, U7 small nuclear 32 pseudogene
@@ -28570,7 +28570,7 @@ CLSPN		claspin
 DEFB128	DEFB-28	defensin, beta 128|defensin, beta 28
 LINC01125		long intergenic non-protein coding RNA 1125
 TMED6	MGC23911	transmembrane emp24 protein transport domain containing 6
-MLPH	Slac-2a|ln|exophilin-3|l(1)-3Rk|l1Rk3	melanophilin|melanophilin
+MLPH	Slac-2a|exophilin-3|l(1)-3Rk|l1Rk3	melanophilin|melanophilin
 RPS10P27		ribosomal protein S10 pseudogene 27
 MIR1288	hsa-mir-1288|MIRN1288	microRNA 1288
 LINC01005		long intergenic non-protein coding RNA 1005
@@ -29924,7 +29924,7 @@ ENTPD2	CD39L1|NTPDase-2	CD39-like-1|ecto-ATPase|ectonucleoside triphosphate diph
 RNU6-875P		RNA, U6 small nuclear 875, pseudogene
 PABPC1P9		poly(A) binding protein, cytoplasmic 1 pseudogene 9
 PIRC34		piwi-interacting RNA cluster 34
-YES1	Yes|HsT441|c-yes	v-yes-1 Yamaguchi sarcoma viral oncogene homolog 1
+YES1	HsT441|c-yes	v-yes-1 Yamaguchi sarcoma viral oncogene homolog 1
 RPS12P16		ribosomal protein S12 pseudogene 16
 NEFLL2		neurofilament, light polypeptide-like 2
 SEC11B	SEC11L2|SPCS4B	SEC11 homolog B, pseudogene (S. cerevisiae)|SEC11 homolog B (S. cerevisiae)
@@ -31216,7 +31216,7 @@ FAM114A2	133K02|C5orf3	family with sequence similarity 114, member A2
 RPS5P7		ribosomal protein S5 pseudogene 7
 ERVK-17		endogenous retrovirus group K, member 17
 MYH1	MYHSA1|MYHa|MyHC-2X/D|MGC133384	myosin, heavy chain 1, skeletal muscle, adult|myosin heavy chain IIx/d
-DUOXA1	mol|NIP|FLJ32334|NUMBIP	dual oxidase maturation factor 1
+DUOXA1	NIP|FLJ32334|NUMBIP	dual oxidase maturation factor 1
 RNU7-43P	RNU7-118P|U7.43	RNA, U7 small nuclear 43 pseudogene
 DBF4	ZDBF1|DBF4A|ASK|chif	DBF4 homolog (S. cerevisiae)|activator of S phase kinase|chiffon homolog (Drosophila)|DBF4 zinc finger|zinc finger, DBF-type containing 1
 CDH16		cadherin 16, KSP-cadherin
@@ -31268,7 +31268,7 @@ MEIS2	HsT18361|MRG1	Meis homeobox 2
 FTH1P2	FTHL2	ferritin, heavy polypeptide 1 pseudogene 2
 RPL19P12		ribosomal protein L19 pseudogene 12
 KLK10	PRSSL1|NES1	protease, serine-like 1|kallikrein-related peptidase 10
-STMN1	SMN|PP17|Lag|C1orf215|PR22|FLJ32206|LAP18|OP18|PP19	stathmin 1|oncoprotein 18
+STMN1	SMN|PP17|C1orf215|PR22|FLJ32206|LAP18|OP18|PP19	stathmin 1|oncoprotein 18
 EJM2	EIG7	epilepsy, juvenile myoclonic 2
 DMTF1	MRUL|DMP1|DMTF|hDMP1	cyclin D-binding Myb-like protein|cyclin D binding myb-like transcription factor 1
 SND1-IT1	NSG-X|C7orf54|NAG8	nasopharyngeal carcinoma associated gene protein-8|SND1 intronic transcript 1 (non-protein coding)
@@ -32261,7 +32261,7 @@ SALRNA2	SAL-RNA2|XLOC_025931	senescence associated long non-coding RNA 2
 RNA5SP306	RN5S306	RNA, 5S ribosomal pseudogene 306
 VWA8P1		von Willebrand factor A domain containing 8 pseudogene 1
 APELA	Ende|tdl|ELA	apelin receptor early endogenous ligand
-GEN1	FLJ40869|Gen	GEN1 Holliday junction 5' flap endonuclease|Gen endonuclease homolog 1 (Drosophila)
+GEN1	FLJ40869	GEN1 Holliday junction 5' flap endonuclease|Gen endonuclease homolog 1 (Drosophila)
 PRG4	FLJ32635|bG174L6.2|SZP|CACP|HAPO|JCAP|MSF	articular superficial zone protein|camptodactyly, arthropathy, coxa vara, pericarditis syndrome|bG174L6.2 (MSF: megakaryocyte stimulating factor )|lubricin|Jacobs camptodactyly-arthropathy-pericarditis syndrome|megakaryocyte stimulating factor|proteoglycan 4
 RPS10P2	dJ858M22.1	ribosomal protein S10 pseudogene 2
 GNA13	MGC46138|G13	guanine nucleotide binding protein (G protein), alpha 13
@@ -32641,7 +32641,7 @@ ZNF543	DKFZp434H055	zinc finger protein 543
 CHODL	PRED12|FLJ12627|MT75|C21orf68	chondrolectin
 PKP1	B6P	plakophilin 1 (ectodermal dysplasia/skin fragility syndrome)
 OFD1P2Y	OFD1P2|OFDYP2|OFD1PY2	OFD1 pseudogene 2, Y-linked
-SLC17A5	NSD|SIALIN|SIASD|SD|ISSD|AST|SLD	solute carrier family 17 (acidic sugar transporter), member 5|solute carrier family 17 (anion/sugar transporter), member 5
+SLC17A5	NSD|SIALIN|SIASD|ISSD|AST|SLD	solute carrier family 17 (acidic sugar transporter), member 5|solute carrier family 17 (anion/sugar transporter), member 5
 AFG3L2	SCA28|SPAX5	AFG3-like AAA ATPase 2|spinocerebellar ataxia 28|AFG3 ATPase family member 3-like 2 (S. cerevisiae)
 GNAS-AS1	GNASAS|NESPAS|NCRNA00075|SANG|NESP-AS|GNAS-AS|GNAS1AS	GNAS antisense RNA 1|GNAS antisense|non-protein coding RNA 75
 HIGD1AP9		HIG1 hypoxia inducible domain family, member 1A pseudogene 9
@@ -33379,7 +33379,7 @@ PEX2	PAF-1|PXMP3|ZWS3|PMP35|RNF72	peroxin 2|peroxisomal biogenesis factor 2|Zell
 RWDD3	DKFZP566K023	RWD domain containing 3
 APOPT1	APOP-1|C14orf153|MGC2562	apoptogenic 1, mitochondrial|apoptogenic protein 1
 RANBP6		RAN binding protein 6
-SSB	La/SSB|LARP3|La	Sjogren syndrome antigen B (autoantigen La)|La ribonucleoprotein domain family, member 3
+SSB	La/SSB|LARP3	Sjogren syndrome antigen B (autoantigen La)|La ribonucleoprotein domain family, member 3
 OR5M1	OST050	olfactory receptor, family 5, subfamily M, member 1
 MIR199B	hsa-mir-199b|MIRN199B	microRNA 199b
 FSCN1	FLJ38511|p55|SNL	actin bundling protein|fascin homolog 1, actin-bundling protein (Strongylocentrotus purpuratus)|fascin actin-bundling protein 1|Singed, drosophila, homolog-like
@@ -35584,7 +35584,7 @@ IGLV2-34		immunoglobulin lambda variable 2-34 (pseudogene)
 KCNS2	Kv9.2	potassium voltage-gated channel, delayed-rectifier, subfamily S, member 2
 HCP5P14		HLA complex P5 pseudogene 14
 PSMD7	S12|P40|MOV34|Rpn8	proteasome (prosome, macropain) 26S subunit, non-ATPase, 7|Mov34 homolog
-ARHGEF7	P50|DKFZp686C12170|KIAA0142|BETA-PIX|PAK3|P85|PIXB|COOL1|Nbla10314|P50BP|P85COOL1|DKFZp761K1021|P85SPR	SH3 domain-containing proline-rich protein|guanine nucleotide exchange factor 7|rho|PAK-interacting exchange factor beta|Rho guanine nucleotide exchange factor (GEF) 7
+ARHGEF7	P50|DKFZp686C12170|KIAA0142|BETA-PIX|PAK3|P85|PIXB|COOL1|Nbla10314|P50BP|P85COOL1|DKFZp761K1021|P85SPR	SH3 domain-containing proline-rich protein|guanine nucleotide exchange factor 7|PAK-interacting exchange factor beta|Rho guanine nucleotide exchange factor (GEF) 7
 PLD6		phospholipase D family, member 6
 TRS-AGA2-4	TRS2|TRNAS2|TRNS	transfer RNA serine 2 (anticodon AGA)
 TMEM215		transmembrane protein 215
