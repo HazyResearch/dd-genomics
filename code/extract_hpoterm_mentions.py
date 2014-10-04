@@ -196,7 +196,7 @@ def extract(sentence):
                         mention_stems.add(word.stem)
                 this_stem_set_mentions_words[hpo_name] = mention_words
                 this_stem_set_mentions_stems[hpo_name] = mention_stems
-            keys = this_stem_set_mentions_words.keys()
+            keys = list(this_stem_set_mentions_words.keys())
             # Check whether the name contain words of a single letter. If that
             # is the case we want them to be immediately followed or preceded
             # in the mention by another word in the mention.
@@ -227,6 +227,8 @@ def extract(sentence):
                                     index].in_sent_idx - 1:
                                 is_previous_immediate = True
                         if not is_next_immediate or not is_previous_immediate:
+                            print(this_stem_set_mentions_stems[hpo_name])
+                            print(sentence)
                             del this_stem_set_mentions_words[hpo_name]
                             del this_stem_set_mentions_stems[hpo_name]
             for hpo_name in sorted(
