@@ -86,20 +86,24 @@ def supervise(mention, sentence):
         return
     if "IS_QUANTITY" in mention.features:
         mention.is_correct = False
-        return
     if "IS_AFTER_TYPE" not in mention.features and \
             "COMES_AFTER_LOCATION" not in mention.features and \
             "COMES_AFTER_DOC_ELEMENT" not in mention.features:
         if "EXT_KEYWORD_SHORTEST_PATH_[gene]@nn" in mention.features:
             mention.is_correct = True
+            return
         if "EXT_KEYWORD_SHORTEST_PATH_[gene]nn@" in mention.features:
             mention.is_correct = True
+            return
         if "EXT_KEYWORD_SHORTEST_PATH_[promoter]nn@" in mention.features:
             mention.is_correct = True
+            return
         if "EXT_KEYWORD_SHORTEST_PATH_[protein]nn@" in mention.features:
             mention.is_correct = True
+            return
         if "EXT_KEYWORD_SHORTEST_PATH_[protein]nsubj@" in mention.features:
             mention.is_correct = True
+            return
         if "IS_LONG_NAME" in mention.features:
             mention.is_correct = True
             return
@@ -179,6 +183,9 @@ def supervise(mention, sentence):
     # Is a location and comes before a location so it's probably wrong
     if "IS_LOCATION" in mention.features and \
             "COMES_BEFORE_LOCATION" in mention.features:
+        mention.is_correct = False
+        return
+    if "IS_QUANTITY":
         mention.is_correct = False
         return
     # If it's "II", it's most probably wrong.
@@ -412,11 +419,11 @@ def add_features(mention, sentence):
     if "NO_ENGLISH_WORDS_IN_SENTENCE" not in mention.features:
         idx = mention.wordidxs[0] - 1
         if idx >= 0:
-            if sentence.words[idx].word in ["+", "%"]:
+            if sentence.words[idx].word == "%":
                 mention.add_feature("IS_QUANTITY")
         idx = mention.wordidxs[-1] + 1
         if idx < len(sentence.words):
-            if sentence.words[idx].word in ["+", "="]:
+            if sentence.words[idx].word == "=":
                 mention.add_feature("IS_QUANTITY")
             if sentence.words[idx].word == ":":
                 try:

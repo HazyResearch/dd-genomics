@@ -1536,7 +1536,7 @@ GTF3AP5		general transcription factor IIIA pseudogene 5
 BAP1	KIAA0272|UCHL2|hucep-6	BRCA1 associated protein-1 (ubiquitin carboxy-terminal hydrolase)|ubiquitin carboxyl-terminal esterase L2 (ubiquitin thiolesterase)
 CCND3P1	CCND3P	cyclin D3 pseudogene
 MIR4753	hsa-mir-4753	microRNA 4753
-TMEM121	MGC4659|hole	transmembrane protein 121
+TMEM121	MGC4659	transmembrane protein 121
 MRX57		mental retardation, X-linked 57
 CHL1	CALL|L1CAM2|FLJ44930|MGC132578	close homolog of L1|neural cell adhesion molecule|cell adhesion molecule L1-like
 HCP5P13		HLA complex P5 pseudogene 13
@@ -9969,7 +9969,7 @@ RN7SL462P		RNA, 7SL, cytoplasmic 462, pseudogene
 IGHG4		immunoglobulin heavy constant gamma 4 (G4m marker)
 HSPA8P14		heat shock 70kDa protein 8 pseudogene 14
 TMEM198B		transmembrane protein 198B, pseudogene
-IGLL2P	IGLL1P|FLAMBDA1|IGLL2|16.2	immunoglobulin lambda-like polypeptide 2, pseudogene
+IGLL2P	IGLL1P|FLAMBDA1|IGLL2	immunoglobulin lambda-like polypeptide 2, pseudogene
 NMT2		N-myristoyltransferase 2
 RNU7-83P	U7.83	RNA, U7 small nuclear 83 pseudogene
 PCDHA10	CNRN8|CRNR8|CNR8|CNRS8|PCDH-ALPHA10	ortholog to mouse CNR8|protocadherin alpha 10|KIAA0345-like 4
@@ -23594,7 +23594,7 @@ MIR3664	hsa-mir-3664	microRNA 3664
 SIGLEC25P	SIGLECP9	sialic acid binding Ig-like lectin 25, pseudogene
 MIR6505	hsa-mir-6505	microRNA 6505
 PRAMEF9		PRAME family member 9
-AP5Z1	SPG48|zeta|KIAA0415	adaptor-related protein complex 5, zeta 1 subunit
+AP5Z1	SPG48|KIAA0415	adaptor-related protein complex 5, zeta 1 subunit
 CBX1	HP1Hs-beta|CBX|M31|HP1-BETA|MOD1	HP1 beta homolog (Drosophila )|chromobox homolog 1
 ALAD	ALADH|PBGS	porphobilinogen synthase|aminolevulinate dehydratase
 SNORA72	RNU72|U72	small nucleolar RNA, H/ACA box 72
@@ -27294,7 +27294,7 @@ RN7SKP195		RNA, 7SK small nuclear pseudogene 195
 PPIAP14	PPIP4	peptidylprolyl isomerase A (cyclophilin A) pseudogene 14
 RN7SL585P		RNA, 7SL, cytoplasmic 585, pseudogene
 ZBTB17	pHZ-67|ZNF60|ZNF151|MIZ1	zinc finger and BTB domain containing 17
-IGLL1	14.1|IGL5|IGVPB|IGLL|CD179B	immunoglobulin lambda-like polypeptide 1
+IGLL1	IGL5|IGVPB|IGLL|CD179B	immunoglobulin lambda-like polypeptide 1
 RNU7-114P		RNA, U7 small nuclear 114 pseudogene
 NPM1P46		nucleophosmin 1 (nucleolar phosphoprotein B23, numatrin) pseudogene 46
 RAB21	KIAA0118	RAB21, member RAS oncogene family
@@ -32665,7 +32665,7 @@ ST13P2		suppression of tumorigenicity 13 (colon carcinoma) (Hsp70 interacting pr
 MT3	GIF	metallothionein 3
 KIAA1429	fSAP121|DKFZP434I116	functional spliceosome-associated protein 121|KIAA1429
 RNU4-87P		RNA, U4 small nuclear 87, pseudogene
-PNO1	RRP20|KHRBP1	RNA binding protein|partner of NOB1 homolog (S. cerevisiae)
+PNO1	RRP20|KHRBP1	partner of NOB1 homolog (S. cerevisiae)
 LINC01100		long intergenic non-protein coding RNA 1100
 FNTA	FPTA|PGGT1A|PTAR2	protein prenyltransferase alpha subunit repeat containing 2|farnesyltransferase, CAAX box, alpha
 MIR1199	hsa-mir-1199	microRNA 1199
@@ -33375,7 +33375,7 @@ OR4K12P	OR21-2	olfactory receptor, family 4, subfamily K, member 12 pseudogene
 PGBD2		piggyBac transposable element derived 2
 ERGIC3	C20orf47|SDBCAG84|Erv46|PRO0989|NY-BR-84|CGI-54	ERGIC and golgi 3
 RPL7AP54		ribosomal protein L7a pseudogene 54
-PEX2	PAF-1|PXMP3|ZWS3|PMP35|RNF72	peroxin 2|peroxisomal biogenesis factor 2|Zellweger syndrome
+PEX2	PAF-1|PXMP3|ZWS3|PMP35|RNF72	peroxin 2|peroxisomal biogenesis factor 2|Zellweger syndrome 2
 RWDD3	DKFZP566K023	RWD domain containing 3
 APOPT1	APOP-1|C14orf153|MGC2562	apoptogenic 1, mitochondrial|apoptogenic protein 1
 RANBP6		RAN binding protein 6
