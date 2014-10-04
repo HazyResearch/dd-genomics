@@ -102,7 +102,13 @@ def supervise(mention, sentence):
         if "EXT_KEYWORD_SHORTEST_PATH_[protein]nsubj@" in mention.features:
             mention.is_correct = True
             return
+        if "EXT_KEYWORD_SHORTEST_PATH_[mrna]nn@" in mention.features:
+            mention.is_correct = True
+            return
         if "IS_LONG_NAME" in mention.features:
+            mention.is_correct = True
+            return
+        if "EXT_KEYWORD_SHORTEST_PATH_[receptor]@nn" in mention.features:
             mention.is_correct = True
             return
         if "IS_LONG_ALPHANUMERIC_MAIN_SYMBOL" in mention.features:
@@ -186,6 +192,11 @@ def supervise(mention, sentence):
             "COMES_BEFORE_LOCATION" in mention.features:
         mention.is_correct = False
         return
+    if mention.entity =="PROC":
+        for feature in mention.features:
+            if feature.startswith("EXT_VERB_PATH_[use]"):
+                mention.is_correct = False
+                return
     #if "IS_QUANTITY":
     #    mention.is_correct = False
     #    return
@@ -307,13 +318,13 @@ def add_features(mention, sentence):
                         is_letter_plus_number = False
                     if is_letter_plus_number:
                         mention.add_feature(
-                            "IS_LETTER_NUMBER_MAIN_SYMBOL_{}".format(
+                            "IS_LETTER_NUMBER_MAIN_SYMBOL_[{}]".format(
                                 mention.words[0].word))
                     else:
                         mention.add_feature(
                             "IS_SHORT_ALPHANUMERIC_MAIN_SYMBOL")
             elif len(mention.words[0].word) >= 4:
-                mention.add_feature("IS_LONG_MAIN_SYMBOL_{}".format(
+                mention.add_feature("IS_LONG_MAIN_SYMBOL_[{}]".format(
                     mention.words[0].word))
                 if "COMES_AFTER_PERSON" in mention.features:
                     mention.features.remove("COMES_AFTER_PERSON")
@@ -337,16 +348,18 @@ def add_features(mention, sentence):
                     mention.words[0].word.casefold().endswith("gamma"):
                 mention.add_feature("ENDS_WITH_GREEK")
             elif re.match("^p[0-9][0-9]$", mention.words[0].word):
-                mention.add_feature("IS_PXX_SYMBOL")
+                mention.add_feature("IS_PXX_SYMBOL_[{}]".format(
+                    mention.words[0].word))
             elif len(mention.words[0].word) == 1:
                 mention.add_feature("IS_SINGLE_LETTER")
             elif mention.words[0].word.isalnum() and \
                     not mention.words[0].word.isalpha():
                 if len(mention.words[0].word) >= 4:
                     mention.add_feature(
-                        "IS_LONG_ALPHANUMERIC_ALTERN_SYMBOL")
+                        "IS_LONG_ALPHANUMERIC_ALTERN_SYMBOL_[{}]".format(
+                            mention.words[0].word))
             elif len(mention.words[0].word) >= 4:
-                mention.add_feature("IS_LONG_ALTERN_SYMBOL_{}".format(
+                mention.add_feature("IS_LONG_ALTERN_SYMBOL_[{}]".format(
                     mention.words[0].word))
                 # The mention is a synonym symbol
             #    mention.add_feature('IS_SYNONYM')
