@@ -12,7 +12,7 @@ from dstruct.Sentence import Sentence
 from helper.easierlife import get_dict_from_TSVline, TSVstring2list, no_op
 from helper.dictionaries import load_dict
 
-MENTION_THRESHOLD = 2 / 3
+MENTION_THRESHOLD = 3 / 4
 SUPERVISION_PROB = 0.01
 SUPERVISION_QUOTA = 7500
 random_examples = 0
@@ -166,6 +166,7 @@ def add_features_to_all(mentions, sentence):
 def extract(sentence):
     global random_examples
     mentions = []
+    # The list of stems in the sentence
     sentence_stems = []
     for word in sentence.words:
         word.stem = stemmer.stem(word.word)
@@ -175,6 +176,7 @@ def extract(sentence):
                  word.word.casefold() not in stopwords_dict):
             sentence_stems.append(word.stem)
     sentence_stems_set = frozenset(sentence_stems)
+    # Word indexes not already used for a mention
     sentence_available_word_indexes = set(
         [x.in_sent_idx for x in sentence.words])
     for pheno_stems in sorted_hpoterms:
@@ -192,22 +194,23 @@ def extract(sentence):
                             word.lemma.casefold() not in \
                             [x.lemma.casefold() for x in mention_words] and \
                             word.in_sent_idx in \
-                            sentence_available_word_indexes:
+                            sentence_available_word_indexes and \
+                            word.stem not in mention_stems:
                         mention_words.append(word)
                         mention_stems.add(word.stem)
                 this_stem_set_mentions_words[hpo_name] = mention_words
                 this_stem_set_mentions_stems[hpo_name] = mention_stems
             for hpo_name in sorted(
                     this_stem_set_mentions_words.keys(),
-                    key=lambda x: len(this_stem_set_mentions_words[x]),
+                    key=lambda x: len(this_stem_set_mentions_words[x]) /
+                    len(inverted_hpoterms[x]),
                     reverse=True):
                 words_to_remove = []
                 for word in sentence.words:
                     if word.stem in sentence_stems and \
-                            word.stem in \
-                            this_stem_set_mentions_stems[hpo_name]:
+                            word in this_stem_set_mentions_words[hpo_name]:
                         # We used this word for this mention, so flag it to be
-                        # removed it from the list of words available for other
+                        # removed from the list of words available for other
                         # possible mentions.
                         words_to_remove.append(word)
                         # Early termination
@@ -217,7 +220,7 @@ def extract(sentence):
                 # If the following test passes, we found all the words used by
                 # this mention, which means that they weren't used by some
                 # longer mentions, which is good and means we can create the
-                # mention, as long as we haven't already create a mention with
+                # mention, as long as we haven't already created a mention with
                 # the same hpo_id
                 if len(words_to_remove) == \
                         len(this_stem_set_mentions_words[hpo_name]) and \
@@ -273,7 +276,9 @@ mandatory_stems = frozenset(
     ("keratocytosi", "carcinoma", "pancreat", "oropharyng", "hyperkeratos",
         "hyperkeratosi", "palmoplantar", "palmar", "genitalia", "labia",
         "hyperplasia", "fontanell", "facial", "prelingu", "sensorineur",
-        "auditori", "neck", "incisor", "nervous", "ventricl", "cyst"))
+        "auditori", "neck", "incisor", "nervous", "ventricl", "cyst",
+        "aplasia", "hypoplasia", "c-reactiv", "papillari",
+        "beta-glucocerebrosidas"))
 
 # Create the dictionary containing the sets of stems that we use to create the
 # mentions
@@ -284,7 +289,7 @@ for stem_set in hpoterms_dict:
         if len(stem) == 1 or stem in mandatory_stems:
             term_mandatory_stems.add(stem)
     optional_stems = stem_set - term_mandatory_stems
-    if len(stem_set) <= 3 or len(optional_stems) <= 3:
+    if len(stem_set) <= 4 or len(optional_stems) <= 2:
         if stem_set not in hpoterm_mentions_dict:
             hpoterm_mentions_dict[stem_set] = set()
         hpoterm_mentions_dict[stem_set] |= hpoterms_dict[stem_set]
