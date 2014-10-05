@@ -611,7 +611,7 @@ if __name__ == "__main__":
                             is_acronym = True
                             break
                     # Only process as acronym if that's the case
-                    if is_acronym:
+                    if is_acronym and mention.is_correct is None:
                         approx_long_name = False
                         for definition in \
                                 line_dict["definitions"][
