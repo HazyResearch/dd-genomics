@@ -26,11 +26,11 @@ TYPES = frozenset(["group", "type", "class", "method"])
 
 GENE_KEYWORDS = frozenset([
     "gene", "protein", "tumor", "domain", "sequence", "sequences", "alignment",
-    "expression", "mrna", "rna", "rrna", "dna", "knockout", "knockdown",
-    "recruitment", "hybridization", "isoform", "receptor", "receptors",
-    "mutation", "mutations", "molecule", "molecules", "enzyme", "peptide",
-    "staining", "binding", "allele", "alignment", "region", "transcribe",
-    "deletion", "overexpression", "intron", "level", "T-cell",
+    "expression", "mrna", "rna", "rrna", "dna", "cdna", "knockout",
+    "knockdown", "recruitment", "hybridization", "isoform", "receptor",
+    "receptors", "mutation", "mutations", "molecule", "molecules", "enzyme",
+    "peptide", "staining", "binding", "allele", "alignment", "region",
+    "transcribe", "deletion", "overexpression", "intron", "level", "T-cell",
     "inhibitor", "resistance", "serum", "DD-genotype", "genotype",
     "interaction", "function", "marker", "activation", "recruitment",
     "transcript", "antibody", "down-regulation", "proliferation",
@@ -83,6 +83,9 @@ def supervise(mention, sentence):
                 (pos_mentions_dict[example_key_2] is None or sentence.sent_id
                     in pos_mentions_dict[example_key_2])):
         mention.is_correct = True
+        return
+    if "IS_DNA_TRIPLET" in mention.features:
+        mention.is_correct = False
         return
     if "IS_AFTER_TYPE" not in mention.features and \
             "COMES_AFTER_LOCATION" not in mention.features and \
@@ -192,12 +195,12 @@ def supervise(mention, sentence):
             "COMES_BEFORE_LOCATION" in mention.features:
         mention.is_correct = False
         return
-    if mention.entity =="PROC":
+    if mention.entity == "PROC":
         for feature in mention.features:
             if feature.startswith("EXT_VERB_PATH_[use]"):
                 mention.is_correct = False
                 return
-    #if "IS_QUANTITY":
+    # if "IS_QUANTITY":
     #    mention.is_correct = False
     #    return
     # If it's "II", it's most probably wrong.
@@ -431,20 +434,29 @@ def add_features(mention, sentence):
     if mention.words[0].word == "BLAST":
         mention.add_feature("IS_BLAST")
     if "NO_ENGLISH_WORDS_IN_SENTENCE" not in mention.features:
-        idx = mention.wordidxs[0] - 1
-       # if idx >= 0:
-       #     if sentence.words[idx].word == "%":
-       #         mention.add_feature("IS_QUANTITY")
-       # idx = mention.wordidxs[-1] + 1
-       # if idx < len(sentence.words):
-       #     if sentence.words[idx].word == "=":
-       #         mention.add_feature("IS_QUANTITY")
-       #     if sentence.words[idx].word == ":":
-       #         try:
-       #             float(sentence.words[idx + 1].word)
-       #             mention.add_feature("IS_QUANTITY")
-       #         except:
-       #             pass
+        if len(mention.words[0].word) == 3 and \
+                set(mention.words[0].word) <= set("ACGT"):
+            idx = mention.wordidxs[0] - 1
+            if idx > 0:
+                if set(sentence.words[idx].word) <= set("ACGT"):
+                    mention.add_feature("IS_DNA_TRIPLET")
+            idx = mention.wordidxs[-1] + 1
+            if idx < len(sentence.words):
+                if set(sentence.words[idx].word) <= set("ACGT"):
+                    mention.add_feature("IS_DNA_TRIPLET")
+        # if idx >= 0:
+        #     if sentence.words[idx].word == "%":
+        #         mention.add_feature("IS_QUANTITY")
+        # idx = mention.wordidxs[-1] + 1
+        # if idx < len(sentence.words):
+        #     if sentence.words[idx].word == "=":
+        #         mention.add_feature("IS_QUANTITY")
+        #     if sentence.words[idx].word == ":":
+        #         try:
+        #             float(sentence.words[idx + 1].word)
+        #             mention.add_feature("IS_QUANTITY")
+        #         except:
+        #             pass
         # The lemma on the left of the mention, if present, provided it's
         # alphanumeric but not a number
         idx = mention.wordidxs[0] - 1
@@ -518,6 +530,27 @@ def add_features(mention, sentence):
                 mention.add_feature("IS_GENE_ONTOLOGY")
         except:
             pass
+    start = mention.words[0].in_sent_idx
+    end = mention.words[-1].in_sent_idx
+    for ngram in range(1, 4):
+        if start - ngram >= 0:
+            mention.add_feature("PREV_{}_GRAM_[{}]".format(
+                ngram, "_".join(map(
+                    lambda x: x.lemma.casefold(),
+                    sentence.words[start-ngram:start]))))
+            mention.add_feature("PREV_{}_GRAM_POS_[{}]".format(
+                ngram, "_".join(map(
+                    lambda x: x.pos,
+                    sentence.words[start-ngram:start]))))
+        if end + ngram <= len(sentence.words):
+            mention.add_feature("NEXT_{}_GRAM_[{}]".format(
+                ngram, "_".join(map(
+                    lambda x: x.lemma.casefold(),
+                    sentence.words[end:end+ngram]))))
+            mention.add_feature("NEXT_{}_GRAM_POS_[{}]".format(
+                ngram, "_".join(map(
+                    lambda x: x.pos,
+                    sentence.words[end:end+ngram]))))
 
 
 # Add features that are related to the entire set of mentions candidates
