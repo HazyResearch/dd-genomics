@@ -87,6 +87,11 @@ def supervise(mention, sentence):
     if "IS_DNA_TRIPLET" in mention.features:
         mention.is_correct = False
         return
+    # Not correct if the previous word is one of the following keywords
+    # denoting a figure, a table, or an individual
+    if "IS_AFTER_DOC_ELEMENT" in mention.features:
+        mention.is_correct = False
+        return
     if "IS_AFTER_TYPE" not in mention.features and \
             "COMES_AFTER_LOCATION" not in mention.features and \
             "COMES_AFTER_DOC_ELEMENT" not in mention.features:
@@ -130,11 +135,6 @@ def supervise(mention, sentence):
         mention.is_correct = False
         return
     if "IS_YEAR_RIGHT" in mention.features:
-        mention.is_correct = False
-        return
-    # Not correct if the previous word is one of the following keywords
-    # denoting a figure, a table, or an individual
-    if "IS_AFTER_DOC_ELEMENT" in mention.features:
         mention.is_correct = False
         return
     if "IS_AFTER_INDIVIDUAL" in mention.features and \
@@ -325,7 +325,8 @@ def add_features(mention, sentence):
                                 mention.words[0].word))
                     else:
                         mention.add_feature(
-                            "IS_SHORT_ALPHANUMERIC_MAIN_SYMBOL")
+                            "IS_SHORT_ALPHANUMERIC_MAIN_SYMBOL_[{}]".format(
+                                mention.words[0].word))
             elif len(mention.words[0].word) >= 4:
                 mention.add_feature("IS_LONG_MAIN_SYMBOL_[{}]".format(
                     mention.words[0].word))
@@ -531,7 +532,7 @@ def add_features(mention, sentence):
         except:
             pass
     start = mention.words[0].in_sent_idx
-    end = mention.words[-1].in_sent_idx
+    end = mention.words[-1].in_sent_idx + 1
     for ngram in range(1, 4):
         if start - ngram >= 0:
             mention.add_feature("PREV_{}_GRAM_[{}]".format(
@@ -708,6 +709,7 @@ if __name__ == "__main__":
                             break
                     # Only process as acronym if that's the case
                     if is_acronym:
+                        definition_contains_protein_gene = False
                         for definition in \
                                 line_dict["definitions"][
                                     mention.words[0].word]:
@@ -718,7 +720,19 @@ if __name__ == "__main__":
                                     mention.add_feature("COMES_WITH_LONG_NAME")
                                     mention.is_correct = True
                                 break
-                        if not mention.is_correct:
+                            else:
+                                try:
+                                    definition.index("gene")
+                                    definition_contains_protein_gene = True
+                                except:
+                                    pass
+                                try:
+                                    definition.index("protein")
+                                    definition_contains_protein_gene = True
+                                except:
+                                    pass
+                        if not mention.is_correct and \
+                                not definition_contains_protein_gene:
                             mention.type = "ACRONYM"
                             mention.add_feature("NOT_KNOWN_ACRONYM")
                             mention.add_feature("NOT_KNOWN_ACRONYM_" +
