@@ -7,7 +7,7 @@ import fileinput
 import sys
 
 from dstruct.Sentence import Sentence
-from extract_gene_mentions import extract, add_features, add_features_to_all
+from extract_gene_mentions import extract, add_features
 from helper.easierlife import get_dict_from_TSVline, TSVstring2list, no_op
 from helper.dictionaries import load_dict
 
@@ -46,10 +46,8 @@ def main():
                         continue
             # Extract mentions from sentence
             mentions = extract(sentence)
-            if len(mentions) > 1:
-                add_features_to_all(mentions, sentence)
-                # Check whether this mention contains the 'labelled' gene
-                # If so, supervise positively and print
+            # Check whether this mention contains the 'labelled' gene
+            # If so, supervise positively and print
             found_main = False
             not_main_mentions = []
             for mention in mentions:
