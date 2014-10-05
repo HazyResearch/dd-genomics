@@ -51,7 +51,7 @@ def load_long_names_dictionary(filename):
     long_names_dict = dict()
     with open(filename, 'rt') as long_names_dict_file:
         for line in long_names_dict_file:
-            tokens = line.strip().split("\t")
+            tokens = line[:-1].split("\t")
             symbol = tokens[0]
             alternate_symbols = tokens[1].split("|")
             names = tokens[2].split("|")
