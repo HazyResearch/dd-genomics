@@ -562,6 +562,7 @@ stopwords_dict = load_dict("stopwords")
 pos_mentions_dict = load_dict("pos_gene_mentions")
 neg_mentions_dict = load_dict("neg_gene_mentions")
 med_acrons_dict = load_dict("med_acrons")
+long_names_dict = load_dict("long_names")
 max_mention_length = 0
 for key in merged_genes_dict:
     length = len(key.split())
@@ -603,7 +604,7 @@ if __name__ == "__main__":
             mentions = extract(sentence)
             # Supervise according to the mention type
             for mention in mentions:
-                elif "acronyms" in line_dict:
+                if "acronyms" in line_dict:
                     is_acronym = False
                     for acronym in line_dict["acronyms"]:
                         if mention.words[0].word == acronym:
@@ -611,7 +612,7 @@ if __name__ == "__main__":
                             break
                     # Only process as acronym if that's the case
                     if is_acronym:
-                        definition_contains_protein_gene = False
+                        approx_long_name = False
                         for definition in \
                                 line_dict["definitions"][
                                     mention.words[0].word]:
@@ -619,24 +620,40 @@ if __name__ == "__main__":
                                 if "IS_BETWEEN_NAMES" not in mention.features \
                                         and "NO_ENGLISH_WORDS_IN_SENTENCE" \
                                         not in mention.features:
-                                    mention.add_feature("COMES_WITH_LONG_NAME")
+                                    mention.add_feature(
+                                        "COMES_WITH_EXACT_LONG_NAME")
                                     mention.is_correct = True
                                 break
                             else:
-                                try:
-                                    definition.index("gene")
-                                    definition_contains_protein_gene = True
-                                except:
-                                    pass
-                                try:
-                                    definition.index("protein")
-                                    definition_contains_protein_gene = True
-                                except:
-                                    pass
-                        if not mention.is_correct and \
-                                not definition_contains_protein_gene:
+                                for ln_definition in long_names_dict[
+                                        mention.words[0].word]:
+                                    tokens = ln_definition.split()
+                                    new_tokens = []
+                                    for token in tokens:
+                                        if "-" in token:
+                                            this_token_split = token.split("-")
+                                            new_tokens += this_token_split
+                                        elif token.isalnum():
+                                            new_tokens.append(token)
+                                    ln_tokens = frozenset(new_tokens)
+                                    tokens = definition.split()
+                                    new_tokens = []
+                                    for token in tokens:
+                                        if "-" in token:
+                                            this_token_split = token.split("-")
+                                            new_tokens += this_token_split
+                                        elif token.isalnum():
+                                            new_tokens.append(token)
+                                    def_tokens = frozenset(new_tokens)
+                                    intersect_size = len(def_tokens &
+                                                         ln_tokens)
+                                    if intersect_size / len(def_tokens) > 0.6:
+                                        mention.add_feature(
+                                            "COMES_WITH_APPROX_LONG_NAME_[{}]".
+                                            format(mention.words[0].word))
+                                        approx_long_name = True
+                        if mention.is_correct and not approx_long_name:
                             mention.type = "ACRONYM"
-                            mention.add_feature("NOT_KNOWN_ACRONYM")
                             mention.add_feature("NOT_KNOWN_ACRONYM_" +
                                                 mention.words[0].word)
                             mention.is_correct = False

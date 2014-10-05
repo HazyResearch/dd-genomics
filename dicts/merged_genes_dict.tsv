@@ -16190,7 +16190,7 @@ TRP-TGG3-2	TRNAP19	transfer RNA proline 19 (anticodon UGG)
 HMGN1P21		high mobility group nucleosome binding domain 1 pseudogene 21
 BCL11B	CTIP-2|CTIP2|hRIT1-alpha|ZNF856B	B-cell CLL/lymphoma 11B (zinc finger protein)
 CFH	FHL1|HF2|HF1|HUS|ARMD4|HF|ARMS1	complement factor H|age-related maculopathy susceptibility 1|H factor 2 (complement)|beta-1H
-ROS1	ROS|c-ros-1|MCF3	c-ros oncogene 1 , receptor tyrosine kinase
+ROS1	c-ros-1|MCF3	c-ros oncogene 1 , receptor tyrosine kinase
 RNU7-138P		RNA, U7 small nuclear 138 pseudogene
 EVC	DWF-1	Ellis van Creveld syndrome
 SCN4A	SkM1|Nav1.4|HYPP|HYKPP	sodium channel, voltage-gated, type IV, alpha subunit
@@ -20280,7 +20280,7 @@ TRE-TTC15-1	TRNAE33P	transfer RNA glutamic acid 33 (anticodon UUC) pseudogene
 MIR3178	hsa-mir-3178	microRNA 3178
 TRY-GTA10-1	TRNAY11	transfer RNA tyrosine 11 (anticodon GUA)
 TRAV8-6		T cell receptor alpha variable 8-6
-SH3PXD2A	SH3MD1|FISH|KIAA0418	five SH3 domains|SH3 and PX domains 2A
+SH3PXD2A	SH3MD1|KIAA0418	five SH3 domains|SH3 and PX domains 2A
 RPS21P2		ribosomal protein S21 pseudogene 2
 GJA4	CX37	connexin 37|gap junction protein, alpha 4, 37kDa
 TMEM11	C17orf35|PMI|PM1	transmembrane protein 11
@@ -34805,7 +34805,7 @@ HCG9P2	HCGIX-2	HLA complex group 9 pseudogene 2
 PSMB5	X|MB1	proteasome (prosome, macropain) subunit, beta type, 5
 PLOD2	LH2	procollagen-lysine, 2-oxoglutarate 5-dioxygenase 2|lysyl hydroxlase 2
 RNU6-358P		RNA, U6 small nuclear 358, pseudogene
-GAPDH	GAPD	glyceraldehyde-3-phosphate dehydrogenase
+GAPDH	GAPD	glyceraldehyde-3-phosphate dehydrogenase|glyceraldehyde 3phosphate dehydrogenase|glyceraldehyde phosphate dehydrogenase|glyceraldehyde-3-phosphate-dehydrogenase
 RPS26P15		ribosomal protein S26 pseudogene 15
 ZNF808		zinc finger protein 808
 ZNF579	FLJ35453	zinc finger protein 579

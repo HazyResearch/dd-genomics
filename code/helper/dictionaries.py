@@ -22,7 +22,7 @@ def load_merged_genes_dictionary(filename):
     merged_genes_dict = dict()
     with open(filename, 'rt') as merged_genes_dict_file:
         for line in merged_genes_dict_file:
-            tokens = line[:-1].split("\t")
+            tokens = line.strip().split("\t")
             symbol = tokens[0]
             alternate_symbols = tokens[1].split("|")
             names = tokens[2].split("|")
@@ -45,6 +45,20 @@ def load_genes_dictionary(filename):
             for synonym in tokens[1].split(","):
                 genes_dict[synonym] = symbol
     return genes_dict
+
+
+def load_long_names_dictionary(filename):
+    long_names_dict = dict()
+    with open(filename, 'rt') as long_names_dict_file:
+        for line in long_names_dict_file:
+            tokens = line.strip().split("\t")
+            symbol = tokens[0]
+            alternate_symbols = tokens[1].split("|")
+            names = tokens[2].split("|")
+            for sym in [symbol, ] + alternate_symbols:
+                if sym not in long_names_dict:
+                    long_names_dict[sym] = []
+                long_names_dict[sym] += names
 
 
 # Load the HPO term levels
@@ -234,6 +248,8 @@ dictionaries["med_acrons"] = [MED_ACRONS_DICT_FILENAME,
                               load_medacrons_dictionary]
 dictionaries["merged_genes"] = [MERGED_GENES_DICT_FILENAME,
                                 load_merged_genes_dictionary]
+dictionaries["long_names"] = [MERGED_GENES_DICT_FILENAME,
+                              load_long_names_dictionary]
 dictionaries["stopwords"] = [STOPWORDS_DICT_FILENAME, load_set]
 dictionaries["pos_gene_mentions"] = [POS_GENE_MENTIONS_DICT_FILENAME,
                                      load_examples_dictionary]
