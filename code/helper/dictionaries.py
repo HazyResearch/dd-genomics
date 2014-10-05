@@ -22,7 +22,7 @@ def load_merged_genes_dictionary(filename):
     merged_genes_dict = dict()
     with open(filename, 'rt') as merged_genes_dict_file:
         for line in merged_genes_dict_file:
-            tokens = line[:-1]split("\t")
+            tokens = line[:-1].split("\t")
             symbol = tokens[0]
             alternate_symbols = tokens[1].split("|")
             names = tokens[2].split("|")
