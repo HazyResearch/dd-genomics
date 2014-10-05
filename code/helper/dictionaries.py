@@ -61,6 +61,20 @@ def load_long_names_dictionary(filename):
                 long_names_dict[sym] += names
     return long_names_dict
 
+def load_inverted_long_names_dictionary(filename):
+    long_names_dict = dict()
+    with open(filename, 'rt') as long_names_dict_file:
+        for line in long_names_dict_file:
+            tokens = line[:-1].split("\t")
+            symbol = tokens[0]
+            alternate_symbols = tokens[1].split("|")
+            names = tokens[2].split("|")
+            for name in names:
+                if name not in long_names_dict:
+                    long_names_dict[name] = []
+                long_names_dict[name].append(symbol)
+    return long_names_dict
+
 
 # Load the HPO term levels
 def load_hpoterm_levels_dictionary(filename):
@@ -251,6 +265,8 @@ dictionaries["merged_genes"] = [MERGED_GENES_DICT_FILENAME,
                                 load_merged_genes_dictionary]
 dictionaries["long_names"] = [MERGED_GENES_DICT_FILENAME,
                               load_long_names_dictionary]
+dictionaries["inverted_long_names"] = [MERGED_GENES_DICT_FILENAME,
+                                       load_inverted_long_names_dictionary]
 dictionaries["stopwords"] = [STOPWORDS_DICT_FILENAME, load_set]
 dictionaries["pos_gene_mentions"] = [POS_GENE_MENTIONS_DICT_FILENAME,
                                      load_examples_dictionary]

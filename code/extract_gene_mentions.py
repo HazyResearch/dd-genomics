@@ -338,6 +338,14 @@ def add_features(mention, sentence):
                     mention.features.remove("COMES_AFTER_PERSON")
                 if "COMES_AFTER_ORGANIZATION" in mention.features:
                     mention.features.remove("COMES_AFTER_ORGANIZATION")
+            elif " ".join([word.word for word in mention.words]) in \
+                    inverted_long_names:
+                # Long name
+                mention.add_feature("IS_LONG_NAME")
+                if "COMES_AFTER_PERSON" in mention.features:
+                    mention.features.remove("COMES_AFTER_PERSON")
+                if "COMES_AFTER_ORGANIZATION" in mention.features:
+                    mention.features.remove("COMES_AFTER_ORGANIZATION")
             elif "-" in mention.words[0].word and \
                     "COMES_AFTER_PERSON" not in mention.features:
                 mention.add_feature("IS_HYPHENATED_SYMBOL")
@@ -361,11 +369,23 @@ def add_features(mention, sentence):
                     mention.words[0].word))
                 # The mention is a synonym symbol
             #    mention.add_feature('IS_SYNONYM')
+    elif " ".join([word.word for word in mention.words]) in \
+            inverted_long_names:
+        # Long name
+        mention.add_feature("IS_LONG_NAME")
+        if "COMES_AFTER_PERSON" in mention.features:
+            mention.features.remove("COMES_AFTER_PERSON")
+        if "COMES_AFTER_ORGANIZATION" in mention.features:
+            mention.features.remove("COMES_AFTER_ORGANIZATION")
     else:
         for entity in mention.entity.split("|"):
             if entity in merged_genes_dict:
                 # The mention is a long name
                 mention.add_feature('IS_LONG_NAME')
+                if "COMES_AFTER_PERSON" in mention.features:
+                    mention.features.remove("COMES_AFTER_PERSON")
+                if "COMES_AFTER_ORGANIZATION" in mention.features:
+                    mention.features.remove("COMES_AFTER_ORGANIZATION")
                 break
     # The labels and the NERs on the shortest dependency path
     # between a verb and the mention word.
@@ -563,6 +583,7 @@ pos_mentions_dict = load_dict("pos_gene_mentions")
 neg_mentions_dict = load_dict("neg_gene_mentions")
 med_acrons_dict = load_dict("med_acrons")
 long_names_dict = load_dict("long_names")
+inverted_long_names = load_dict("inverted_long_names")
 max_mention_length = 0
 for key in merged_genes_dict:
     length = len(key.split())
@@ -611,7 +632,7 @@ if __name__ == "__main__":
                             is_acronym = True
                             break
                     # Only process as acronym if that's the case
-                    if is_acronym and mention.is_correct is None:
+                    if is_acronym and "IS_LONG_NAME" not in mention.features:
                         approx_long_name = False
                         for definition in \
                                 line_dict["definitions"][
