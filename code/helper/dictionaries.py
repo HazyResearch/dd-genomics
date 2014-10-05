@@ -59,6 +59,7 @@ def load_long_names_dictionary(filename):
                 if sym not in long_names_dict:
                     long_names_dict[sym] = []
                 long_names_dict[sym] += names
+    return long_names_dict
 
 
 # Load the HPO term levels
