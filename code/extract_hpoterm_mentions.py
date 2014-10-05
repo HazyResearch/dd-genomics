@@ -226,9 +226,9 @@ def extract(sentence):
                                     this_stem_set_mentions_words[hpo_name][
                                     index].in_sent_idx - 1:
                                 is_previous_immediate = True
-                        if not is_next_immediate or not is_previous_immediate:
-                            print(this_stem_set_mentions_stems[hpo_name])
-                            print(sentence)
+                        if not is_next_immediate and not is_previous_immediate:
+                            print("BLABLA", this_stem_set_mentions_stems[hpo_name])
+                            print("BLABLA", sentence)
                             del this_stem_set_mentions_words[hpo_name]
                             del this_stem_set_mentions_stems[hpo_name]
             for hpo_name in sorted(

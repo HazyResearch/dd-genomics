@@ -636,6 +636,9 @@ if __name__ == "__main__":
                                         elif token.isalnum():
                                             new_tokens.append(token)
                                     ln_tokens = frozenset(new_tokens)
+                                    if len(ln_tokens) == 0:
+                                        ln_tokens = frozenset(
+                                            [ln_definition, ])
                                     tokens = definition.split()
                                     new_tokens = []
                                     for token in tokens:
@@ -645,6 +648,8 @@ if __name__ == "__main__":
                                         elif token.isalnum():
                                             new_tokens.append(token)
                                     def_tokens = frozenset(new_tokens)
+                                    if len(def_tokens) == 0:
+                                        def_tokens = frozenset([definition, ])
                                     intersect_size = len(def_tokens &
                                                          ln_tokens)
                                     if intersect_size / len(def_tokens) > 0.6:
