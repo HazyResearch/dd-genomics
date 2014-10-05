@@ -678,7 +678,7 @@ if __name__ == "__main__":
                                             "COMES_WITH_APPROX_LONG_NAME_[{}]".
                                             format(mention.words[0].word))
                                         approx_long_name = True
-                        if mention.is_correct and not approx_long_name:
+                        if mention.is_correct is None and not approx_long_name:
                             mention.type = "ACRONYM"
                             mention.add_feature("NOT_KNOWN_ACRONYM_" +
                                                 mention.words[0].word)
