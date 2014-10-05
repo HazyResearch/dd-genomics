@@ -5,7 +5,6 @@
 #
 
 import fileinput
-import random
 import re
 
 from dstruct.Mention import Mention
@@ -13,11 +12,6 @@ from dstruct.Sentence import Sentence
 from helper.dictionaries import load_dict
 from helper.easierlife import get_all_phrases_in_sentence, \
     get_dict_from_TSVline, TSVstring2list, TSVstring2dict, no_op
-
-RANDOM_EXAMPLES_PROB = 0.001
-RANDOM_EXAMPLES_QUOTA = 0
-false_acronyms = 0
-random_examples = 0
 
 DOC_ELEMENTS = frozenset(
     ["figure", "table", "figures", "tables", "fig", "fig.", "figs", "figs."])
@@ -518,11 +512,6 @@ def add_features(mention, sentence):
             mention.add_feature("GENE_ON_LEFT")
         elif gene_on_right:
             mention.add_feature("GENE_ON_RIGHT")
-    if len(mention.words) == 1 and mention.words[0].word == "T" and \
-            mention.right_lemma == "cell":
-        mention.add_feature("IS_T_CELL")
-    if len(mention.words) == 1 and mention.words[0].word == "X":
-        mention.add_feature("IS_X")
     if len(mention.words) == 1 and mention.words[0].word == "F5":
         mention.add_feature("IS_F5")
     if len(mention.words) == 1 and mention.words[0].word == "GO":
@@ -531,42 +520,6 @@ def add_features(mention, sentence):
                 mention.add_feature("IS_GENE_ONTOLOGY")
         except:
             pass
-    start = mention.words[0].in_sent_idx
-    end = mention.words[-1].in_sent_idx + 1
-    for ngram in range(1, 4):
-        if start - ngram >= 0:
-            mention.add_feature("PREV_{}_GRAM_[{}]".format(
-                ngram, "_".join(map(
-                    lambda x: x.lemma.casefold(),
-                    sentence.words[start-ngram:start]))))
-            mention.add_feature("PREV_{}_GRAM_POS_[{}]".format(
-                ngram, "_".join(map(
-                    lambda x: x.pos,
-                    sentence.words[start-ngram:start]))))
-        if end + ngram <= len(sentence.words):
-            mention.add_feature("NEXT_{}_GRAM_[{}]".format(
-                ngram, "_".join(map(
-                    lambda x: x.lemma.casefold(),
-                    sentence.words[end:end+ngram]))))
-            mention.add_feature("NEXT_{}_GRAM_POS_[{}]".format(
-                ngram, "_".join(map(
-                    lambda x: x.pos,
-                    sentence.words[end:end+ngram]))))
-
-
-# Add features that are related to the entire set of mentions candidates
-# Must be called after supervision!!!
-def add_features_to_all(mentions, sentence):
-    # Number of distinct other mentions in the sentence that are most probably
-    # true
-    true_mentions = 0
-    for mention in mentions:
-        if mention.is_correct:
-            true_mentions += 1
-    if true_mentions > 1:
-        for mention in mentions:
-            mention.add_feature(
-                "{}_TRUE_MENTIONS_IN_SENTENCE".format(true_mentions))
 
 
 # Return a list of mention candidates extracted from the sentence
@@ -599,47 +552,6 @@ def extract(sentence):
             # Add to history
             for i in range(start, end):
                 history.add(i)
-        else:  # Potentially generate a random mention
-            # Check whether it's a number, we do not want to generate a mention
-            # with it.
-            is_number = False
-            try:
-                float(phrase)
-            except:
-                pass
-            else:
-                is_number = True
-            has_stop_words = False
-            has_verbs = False
-            in_merged_dict = False
-            for word in words[start:end]:
-                if word.word in stopwords_dict:
-                    has_stop_words = True
-                    break
-                if word.pos.startswith("VB"):
-                    has_verbs = True
-                    break
-                # XXX (Matteo) Not perfect. A subset of phrase may be in the
-                # dict and we're not checking for this. Low probability, I'd
-                # say.
-                if word.word in merged_genes_dict:
-                    in_merged_dict = True
-                    break
-            if phrase.isalnum() and phrase.isupper() and len(phrase) > 2 \
-                    and not is_number and not has_stop_words and \
-                    not has_verbs and not in_merged_dict and \
-                    len(sentence.words) > 5 and \
-                    random.random() < RANDOM_EXAMPLES_PROB and \
-                    random_examples < RANDOM_EXAMPLES_QUOTA:
-                # Generate a mention that somewhat resembles what a gene may
-                # look like,
-                # or at least its role in the sentence.
-                # This mention is supervised (as false) in the code calling
-                # this function
-                mention = Mention("RANDOM", phrase, sentence.words[start:end])
-                add_features(mention, sentence)
-                random_examples += 1
-                mentions.append(mention)
     return mentions
 
 
@@ -650,11 +562,6 @@ stopwords_dict = load_dict("stopwords")
 pos_mentions_dict = load_dict("pos_gene_mentions")
 neg_mentions_dict = load_dict("neg_gene_mentions")
 med_acrons_dict = load_dict("med_acrons")
-# XXX (Matteo) This dictionaries were used when we didn't have geneRifs to
-# label mention candidates as positive. Now they're no longer needed. See also
-# comment in supervise().
-# nih_grants_dict = load_dict("nih_grants")
-# nsf_grants_dict = load_dict("nsf_grants")
 max_mention_length = 0
 for key in merged_genes_dict:
     length = len(key.split())
@@ -696,11 +603,6 @@ if __name__ == "__main__":
             mentions = extract(sentence)
             # Supervise according to the mention type
             for mention in mentions:
-                if mention.type == "RANDOM":
-                    # this is a randomly generated example that we assume
-                    # to be false
-                    # mention.add_feature("IS_RANDOM")
-                    mention.is_correct = False
                 elif "acronyms" in line_dict:
                     is_acronym = False
                     for acronym in line_dict["acronyms"]:
@@ -737,24 +639,10 @@ if __name__ == "__main__":
                             mention.add_feature("NOT_KNOWN_ACRONYM")
                             mention.add_feature("NOT_KNOWN_ACRONYM_" +
                                                 mention.words[0].word)
-                            # for definition in \
-                            #         line_dict["definitions"][
-                            #             mention.words[0].word]:
-                            #     mention.add_feature("NOT_KNOWN_ACRONYM_" +
-                            #                         definition)
-                            # for definition in \
-                            #         line_dict["definitions"][
-                            #             mention.words[0].word]:
-                            #     if definition.casefold() in med_acrons_dict:
-                            #         mention.add_feature("IS_MED_ACRONYM")
-                            #         break
                             mention.is_correct = False
                     else:  # Sentence contains acronym but not here
                         supervise(mention, sentence)
                 else:  # not random and not acronyms in sentence
                     supervise(mention, sentence)
-            # Add features that use information about other mentions
-            # if len(mentions) > 1:
-            #    add_features_to_all(mentions, sentence)
             for mention in mentions:
                 print(mention.tsv_dump())
