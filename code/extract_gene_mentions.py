@@ -205,6 +205,7 @@ def supervise(mention, sentence):
         return
     if "COMES_BEFORE_ET" in mention.features:
         mention.is_correct = False
+        return
     if mention.entity == "PROC":
         for feature in mention.features:
             if feature.startswith("EXT_VERB_PATH_[use]"):
