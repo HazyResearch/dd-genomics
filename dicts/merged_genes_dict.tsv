@@ -4958,7 +4958,8 @@ RBBP7	RbAp46	G1/S transition control protein-binding protein RbAp46|retinoblasto
 RNU7-200P		RNA, U7 small nuclear 200 pseudogene
 UGT2A3P7		UDP glucuronosyltransferase 2 family, polypeptide A3 pseudogene 7
 PRKACB	PKACb	protein kinase, cAMP-dependent, catalytic, beta
-FADD	MORT1|GIG3	Fas (TNFRSF6)-associated via death domain|growth-inhibiting gene 3 protein|Fas-associating protein with death domain|Fas-associating death domain-containing protein|mediator of receptor-induced toxicity
+FADD	MORT1|GIG3	Fas (TNFRSF6)-associated via death domain|growth-inhibiting gene 3 protein|Fas-associating protein with death domain|Fas-associating death|fas — associated death domain protein
+domain-containing protein|mediator of receptor-induced toxicity|
 GCLC	GCS|GLCL|GLCLC	glutamate-cysteine ligase, catalytic subunit
 OR5K3		olfactory receptor, family 5, subfamily K, member 3
 DUTP8		deoxyuridine triphosphatase pseudogene 8
@@ -12904,7 +12905,7 @@ ERVK3-4	HML6-c11	endogenous retrovirus group K3, member 4
 FMR3		fragile X mental retardation associated 3
 EFNA4	LERK4|EPLG4	ephrin-A4
 IGHVOR15@		immunoglobulin heavy variable orphans on chromosome 15
-GORAB	SCYL1BP1|FLJ11752|NTKL-BP1|GO	golgin, RAB6-interacting|gerodermia osteodysplastica
+GORAB	SCYL1BP1|FLJ11752|NTKL-BP1	golgin, RAB6-interacting|gerodermia osteodysplastica
 B4GALT7	XGALT-1|beta4Gal-T7	galactosyltransferase I|xylosylprotein beta 1,4-galactosyltransferase, polypeptide 7
 RN7SKP130		RNA, 7SK small nuclear pseudogene 130
 ARHGAP25	KIAA0053	Rho GTPase activating protein 25
@@ -18345,7 +18346,7 @@ BNIP3P38		BCL2/adenovirus E1B 19kDa interacting protein 3 pseudogene 38
 BARD1		BRCA1 associated RING domain 1
 MIR6764	hsa-mir-6764	microRNA 6764
 PGM1		phosphoglucomutase 1
-MERTK	mer|RP38	c-mer proto-oncogene tyrosine kinase
+MERTK	RP38	c-mer proto-oncogene tyrosine kinase
 KCTD14	MGC2376	potassium channel tetramerization domain containing 14|potassium channel tetramerisation domain containing 14
 EIF4EBP2P2		eukaryotic translation initiation factor 4E binding protein 2 pseudogene 2
 TRK-CTT10-1	TRNAK30	transfer RNA lysine 30 (anticodon CUU)
@@ -33746,7 +33747,7 @@ KIAA1191	FLJ21022	KIAA1191
 SNRNP25	C16orf33	U11/U12 snRNP 25K|small nuclear ribonucleoprotein 25kDa (U11/U12)
 ENPP7P7		ectonucleotide pyrophosphatase/phosphodiesterase 7 pseudogene 7
 TSPAN6	TSPAN-6|TM4SF6|T245	tetraspanin 6
-TRADD	Hs.89862	TNFRSF1A-associated via death domain
+TRADD	Hs.89862	TNFRSF1A-associated via death domain|tnf-receptor 1 associated death domain protein
 HSD17B11	SDR16C2|17-BETA-HSD11|DHRS8|PAN1B|RetSDR2|17-BETA-HSDXI	retinal short-chain dehydrogenase/reductase 2|hydroxysteroid (17-beta) dehydrogenase 11|short chain dehydrogenase/reductase family 16C, member 2
 SPANXN2	CT11.7|SPANX-N2	SPANX family, member N2|cancer/testis antigen family 11, member 7
 MIR629	MIRN629|hsa-mir-629	microRNA 629

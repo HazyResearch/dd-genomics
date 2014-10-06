@@ -104,7 +104,13 @@ def supervise(mention, sentence):
         if "EXT_KEYWORD_SHORTEST_PATH_[protein]nsubj@" in mention.features:
             mention.is_correct = True
             return
+        if "EXT_KEYWORD_SHORTEST_PATH_[binding]prep_with@" in mention.features:
+            mention.is_correct = True
+            return
         if "EXT_KEYWORD_SHORTEST_PATH_[mrna]nn@" in mention.features:
+            mention.is_correct = True
+            return
+        if "EXT_KEYWORD_SHORTEST_PATH_[activation]nn@" in mention.features:
             mention.is_correct = True
             return
         if "IS_LONG_NAME" in mention.features:
@@ -189,11 +195,28 @@ def supervise(mention, sentence):
             "COMES_BEFORE_LOCATION" in mention.features:
         mention.is_correct = False
         return
+    if "COMES_BEFORE_ET" in mention.features:
+        mention.is_correct = False
     if mention.entity == "PROC":
         for feature in mention.features:
             if feature.startswith("EXT_VERB_PATH_[use]"):
                 mention.is_correct = False
                 return
+    for feature in mention.features:
+        if feature.startswith("EXT_VERB_PATH_[write]") and "paper" in feature:
+                mention.is_correct = False
+                return
+        if feature.startswith("EXT_VERB_PATH_[contribute]") and \
+                "reagent" in feature:
+            mention.is_correct = False
+            return
+        if feature.startswith("EXT_VERB_PATH_[perform]") and \
+                "experiment" in feature:
+            mention.is_correct = False
+            return
+    if "IS_CONTRIBUTION_PHRASE" in mention.features:
+        mention.is_correct = False
+        return
     # if "IS_QUANTITY":
     #    mention.is_correct = False
     #    return
@@ -217,6 +240,15 @@ def add_features(mention, sentence):
     if no_english_words:
         mention.add_feature("NO_ENGLISH_WORDS_IN_SENTENCE")
         return
+    phrase = " ".join([x.word for x in sentence.words])
+    if phrase.startswith("Performed the experiments :") or \
+            phrase.startswith("Wrote the paper :") or \
+            phrase.startswith("W'rote the paper :") or \
+            phrase.startswith("Wlrote the paper") or \
+            phrase.startswith("Contributed reagents") or \
+            phrase.startswith("	Analyzed the data :"):
+                mention.add_feature("IS_CONTRIBUTION_PHRASE")
+
     # The mention is a single word that is in the English dictionary
     # but we differentiate between lower case and upper case
     if len(mention.words) == 1 and \
@@ -269,6 +301,8 @@ def add_features(mention, sentence):
             sentence.words[loc_idx].word not in merged_genes_dict:
         # mention.add_feature("COMES_BEFORE_" + sentence.words[loc_idx].ner)
         comes_before = sentence.words[loc_idx].ner
+    if loc_idx < len(sentence.words) and sentence.words[loc_idx] == "et":
+        mention.add_feature("COMES_BEFORE_ET")
     # The word is between two words that are an organization, or a location or
     # a person
     if comes_before and comes_after:
@@ -465,19 +499,23 @@ def add_features(mention, sentence):
             if idx < len(sentence.words):
                 if set(sentence.words[idx].word) <= set("ACGT"):
                     mention.add_feature("IS_DNA_TRIPLET")
-        # if idx >= 0:
-        #     if sentence.words[idx].word == "%":
-        #         mention.add_feature("IS_QUANTITY")
-        # idx = mention.wordidxs[-1] + 1
-        # if idx < len(sentence.words):
-        #     if sentence.words[idx].word == "=":
-        #         mention.add_feature("IS_QUANTITY")
-        #     if sentence.words[idx].word == ":":
-        #         try:
-        #             float(sentence.words[idx + 1].word)
-        #             mention.add_feature("IS_QUANTITY")
-        #         except:
-        #             pass
+        idx = mention.wordidxs[0] - 1
+        if idx >= 0:
+            if sentence.words[idx].word == "%":
+                mention.add_feature("IS_QUANTITY_[{}]".format(
+                    mention.words[0].word))
+        idx = mention.wordidxs[-1] + 1
+        if idx < len(sentence.words):
+            if sentence.words[idx].word == "=":
+                mention.add_feature("IS_QUANTITY_[{}]".format(
+                    mention.words[0].word))
+            if sentence.words[idx].word == ":":
+                try:
+                    float(sentence.words[idx + 1].word)
+                    mention.add_feature("IS_QUANTITY_[{}]".format(
+                        mention.words[0].word))
+                except:
+                    pass
         # The lemma on the left of the mention, if present, provided it's
         # alphanumeric but not a number
         idx = mention.wordidxs[0] - 1
@@ -642,7 +680,7 @@ if __name__ == "__main__":
                     if is_acronym and \
                             "NO_ENGLISH_WORDS_IN_SENTENCE" not in \
                             mention.features:
-                        approx_long_name = False
+                        contains_gene_protein = False
                         try:
                             defs = line_dict["definitions"][
                                 mention.words[0].word]
@@ -658,39 +696,23 @@ if __name__ == "__main__":
                                     mention.is_correct = True
                                 break
                             else:
-                                for ln_definition in long_names_dict[
-                                        mention.words[0].word]:
-                                    tokens = ln_definition.split()
-                                    new_tokens = []
-                                    for token in tokens:
-                                        if "-" in token:
-                                            this_token_split = token.split("-")
-                                            new_tokens += this_token_split
-                                        elif token.isalnum():
-                                            new_tokens.append(token)
-                                    ln_tokens = frozenset(new_tokens)
-                                    if len(ln_tokens) == 0:
-                                        ln_tokens = frozenset(
-                                            [ln_definition, ])
-                                    tokens = definition.split()
-                                    new_tokens = []
-                                    for token in tokens:
-                                        if "-" in token:
-                                            this_token_split = token.split("-")
-                                            new_tokens += this_token_split
-                                        elif token.isalnum():
-                                            new_tokens.append(token)
-                                    def_tokens = frozenset(new_tokens)
-                                    if len(def_tokens) == 0:
-                                        def_tokens = frozenset([definition, ])
-                                    intersect_size = len(def_tokens &
-                                                         ln_tokens)
-                                    if intersect_size / len(def_tokens) > 0.6:
-                                        mention.add_feature(
-                                            "COMES_WITH_APPROX_LONG_NAME_[{}]".
-                                            format(mention.words[0].word))
-                                        approx_long_name = True
-                        if mention.is_correct is None and not approx_long_name:
+                                try:
+                                    definition.index(" gene")
+                                    contains_gene_protein = True
+                                except:
+                                    pass
+                                try:
+                                    definition.index(" protein")
+                                    contains_gene_protein = True
+                                except:
+                                    pass
+                        if mention.is_correct is None \
+                                and contains_gene_protein:
+                            mention.add_feature("
+                                    DEF_CONTAINS_GENE_PROT_[{}]".format(
+                                        mention.words[0].word))
+                        if mention.is_correct is None and \
+                                not contains_gene_protein:
                             mention.type = "ACRONYM"
                             mention.add_feature("NOT_KNOWN_ACRONYM_" +
                                                 mention.words[0].word)
