@@ -203,8 +203,10 @@ def extract(sentence):
             for hpo_name in keys:
                 is_previous_immediate = False
                 is_next_immediate = False
+                has_word_with_length_one = False
                 for stem in inverted_hpoterms[hpo_name]:
                     if len(stem) == 1:
+                        has_word_with_length_one = True
                         index = 0
                         while index < len(
                                 this_stem_set_mentions_words[hpo_name]):
@@ -228,7 +230,8 @@ def extract(sentence):
                                     index].in_sent_idx - 1:
                                 is_previous_immediate = True
                                 break
-                if not is_next_immediate and not is_previous_immediate:
+                if has_word_with_length_one and not is_next_immediate and \
+                        not is_previous_immediate:
                     del this_stem_set_mentions_words[hpo_name]
                     del this_stem_set_mentions_stems[hpo_name]
             for hpo_name in sorted(
