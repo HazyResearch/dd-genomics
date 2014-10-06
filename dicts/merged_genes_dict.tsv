@@ -21467,7 +21467,7 @@ RN7SL103P		RNA, 7SL, cytoplasmic 103, pseudogene
 WWC3-AS1		WWC3 antisense RNA 1
 SI		sucrase-isomaltase (alpha-glucosidase)|Oligosaccharide alpha-1,6-glucosidase
 TSGA13		testis specific, 13
-GLI3	PHS|PAPA1|GCPS|PAP-A|PPDIV|PAPA|PAPB|ACLS	zinc finger protein GLI3|oncogene GLI3|GLI family zinc finger 3|DNA-binding protein
+GLI3	PHS|PAPA1|GCPS|PAP-A|PPDIV|PAPA|PAPB|ACLS	zinc finger protein GLI3|oncogene GLI3|GLI family zinc finger 3
 CIB3	KIP3	calcium and integrin binding family member 3
 FOXD2-AS1	MGC12982	FOXD2 antisense RNA 1 (head to head)
 MIR655	MIRN655|hsa-mir-655	microRNA 655
@@ -24245,7 +24245,7 @@ RNU6-184P		RNA, U6 small nuclear 184, pseudogene
 TSSK2	STK22B|SPOGA2|FLJ38613	testis-specific serine kinase 2
 RNU6-59P	RNU6-59	RNA, U6 small nuclear 59, pseudogene
 DNAJB1	Hsp40|HSPF1|Sis1|RSPH16B	DnaJ (Hsp40) homolog, subfamily B, member 1|radial spoke 16 homolog B (Chlamydomonas)
-GC	VDBP|hDBP|DBP	group-specific component (vitamin D binding protein)|Vitamin D binding protein
+GC	VDBP|hDBP|DBP	group-specific component (vitamin D binding protein)|Vitamin D binding protein|vitamin d binding protein
 METTL7B	MGC17301|ALDI	methyltransferase like 7B|associated with lipid droplets 1
 RNU6ATAC35P		RNA, U6atac small nuclear 35, pseudogene
 BCAM	LU|CD239	basal cell adhesion molecule (Lutheran blood group)
@@ -28903,7 +28903,7 @@ MIR6781	hsa-mir-6781	microRNA 6781
 TRF-GAA5-1	TRNAF4	transfer RNA phenylalanine 4 (anticodon GAA)
 PCDHB1	PCDH-BETA1	protocadherin beta 1
 OR52D1		olfactory receptor, family 52, subfamily D, member 1
-TBP	GTF2D1|SCA17|TFIID	TATA box binding protein
+TBP	GTF2D1|SCA17|TFIID	TATA box binding protein|TATA-box binding protein
 OR4A11P		olfactory receptor, family 4, subfamily A, member 11 pseudogene
 CYB561	CYB561A1|FRRS2	cytochrome b561 family, member A1|cytochrome b561|ferric-chelate reductase 2
 OR2R1P	OR2R1|OST058	olfactory receptor, family 2, subfamily R, member 1, pseudogene
@@ -30789,7 +30789,7 @@ SSX6	SSXP2|psiSSX2	synovial sarcoma, X breakpoint 6 (pseudogene)
 GAPDHP67	GAPDL12|GAPDHL12	glyceraldehyde 3 phosphate dehydrogenase pseudogene 67
 DNAJA1P5		DnaJ (Hsp40) homolog, subfamily A, member 1 pseudogene 5
 SRRM2	Cwc21|SRL300|SRm300|KIAA0324	serine/arginine repetitive matrix 2
-TBX3	TBX3-ISO|XHL|UMS	T-box 3
+TBX3	TBX3-ISO|XHL|UMS	T-box 3|t — box transcription factor 3|t - box transcription factor 3
 TRN-GTT18-1		
 KRT8P13		keratin 8 pseudogene 13
 TPM4P1		tropomyosin 4 pseudogene 1

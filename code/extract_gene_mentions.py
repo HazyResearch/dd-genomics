@@ -16,7 +16,8 @@ from helper.easierlife import get_all_phrases_in_sentence, \
     get_dict_from_TSVline, TSVstring2list, TSVstring2dict, no_op
 
 DOC_ELEMENTS = frozenset(
-    ["figure", "table", "figures", "tables", "fig", "fig.", "figs", "figs."])
+    ["figure", "table", "figures", "tables", "fig", "fig.", "figs", "figs.",
+     "file", "movie"])
 INDIVIDUALS = frozenset(["individual", "individuals"])
 TYPES = frozenset(["group", "type", "class", "method"])
 
@@ -119,6 +120,27 @@ def supervise(mention, sentence):
             mention.is_correct = True
             return
         if "EXT_KEYWORD_SHORTEST_PATH_[activation]nn@" in mention.features:
+            mention.is_correct = True
+            return
+        if "EXT_KEYWORD_SHORTEST_PATH_[methylation]prep_of@" in \
+                mention.features:
+            mention.is_correct = True
+            return
+        if "EXT_KEYWORD_SHORTEST_PATH_[antibody]nn@" in mention.features:
+            mention.is_correct = True
+            return
+        if "EXT_KEYWORD_SHORTEST_PATH_[polymorphism]prep_of@" in \
+                mention.features:
+            mention.is_correct = True
+            return
+        if "EXT_KEYWORD_SHORTEST_PATH_[gene]appos@" in mention.features:
+            mention.is_correct = True
+            return
+        if "EXT_KEYWORD_SHORTEST_PATH_[enzyme]@nn" in mention.features:
+            mention.is_correct = True
+            return
+        if "EXT_KEYWORD_SHORTEST_PATH_[phosphorylation]prep_of@" in \
+                mention.features:
             mention.is_correct = True
             return
         if "IS_LONG_NAME" in mention.features:
