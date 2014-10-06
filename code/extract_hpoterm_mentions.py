@@ -201,6 +201,8 @@ def extract(sentence):
             # is the case we want them to be immediately followed or preceded
             # in the mention by another word in the mention.
             for hpo_name in keys:
+                is_previous_immediate = False
+                is_next_immediate = False
                 for stem in inverted_hpoterms[hpo_name]:
                     if len(stem) == 1:
                         index = 0
@@ -211,7 +213,6 @@ def extract(sentence):
                                 break
                             else:
                                 index += 1
-                        is_next_immediate = False
                         if index < len(this_stem_set_mentions_words[hpo_name])\
                                 - 1:
                             if this_stem_set_mentions_words[hpo_name][
@@ -220,7 +221,6 @@ def extract(sentence):
                                     index].in_sent_idx + 1:
                                 is_next_immediate = True
                                 break
-                        is_previous_immediate = False
                         if index > 0:
                             if this_stem_set_mentions_words[hpo_name][
                                     index-1].in_sent_idx == \
