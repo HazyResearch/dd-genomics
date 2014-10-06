@@ -290,6 +290,13 @@ def add_features(mention, sentence):
             set(mention.words[0].word).issubset(set(["I", "V"])):
         mention.add_feature("IS_AFTER_TYPE")
     if len(mention.words) == 1:
+        if mention.words[0].word in inverted_long_names:
+            # Long name
+            mention.add_feature("IS_LONG_NAME")
+            if "COMES_AFTER_PERSON" in mention.features:
+                mention.features.remove("COMES_AFTER_PERSON")
+            if "COMES_AFTER_ORGANIZATION" in mention.features:
+                mention.features.remove("COMES_AFTER_ORGANIZATION")
         entity_is_word = False
         entity_in_dict = False
         for entity in mention.entity.split("|"):
@@ -338,8 +345,7 @@ def add_features(mention, sentence):
                     mention.features.remove("COMES_AFTER_PERSON")
                 if "COMES_AFTER_ORGANIZATION" in mention.features:
                     mention.features.remove("COMES_AFTER_ORGANIZATION")
-            elif " ".join([word.word for word in mention.words]) in \
-                    inverted_long_names:
+            elif mention.words[0].word in inverted_long_names:
                 # Long name
                 mention.add_feature("IS_LONG_NAME")
                 if "COMES_AFTER_PERSON" in mention.features:
@@ -625,18 +631,22 @@ if __name__ == "__main__":
             mentions = extract(sentence)
             # Supervise according to the mention type
             for mention in mentions:
-                if "acronyms" in line_dict:
+                if "acronyms" in line_dict and \
+                        "IS_LONG_NAME" not in mention.features:
                     is_acronym = False
                     for acronym in line_dict["acronyms"]:
                         if mention.words[0].word == acronym:
                             is_acronym = True
                             break
                     # Only process as acronym if that's the case
-                    if is_acronym and "IS_LONG_NAME" not in mention.features:
+                    if is_acronym:
                         approx_long_name = False
-                        for definition in \
-                                line_dict["definitions"][
-                                    mention.words[0].word]:
+                        try:
+                            defs = line_dict["definitions"][
+                                mention.words[0].word]
+                        except:
+                            continue
+                        for definition in defs:
                             if definition in merged_genes_dict:
                                 if "IS_BETWEEN_NAMES" not in mention.features \
                                         and "NO_ENGLISH_WORDS_IN_SENTENCE" \
