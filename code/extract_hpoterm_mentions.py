@@ -219,6 +219,7 @@ def extract(sentence):
                                     this_stem_set_mentions_words[hpo_name][
                                     index].in_sent_idx + 1:
                                 is_next_immediate = True
+                                break
                         is_previous_immediate = False
                         if index > 0:
                             if this_stem_set_mentions_words[hpo_name][
@@ -226,9 +227,10 @@ def extract(sentence):
                                     this_stem_set_mentions_words[hpo_name][
                                     index].in_sent_idx - 1:
                                 is_previous_immediate = True
-                        if not is_next_immediate and not is_previous_immediate:
-                            del this_stem_set_mentions_words[hpo_name]
-                            del this_stem_set_mentions_stems[hpo_name]
+                                break
+                if not is_next_immediate and not is_previous_immediate:
+                    del this_stem_set_mentions_words[hpo_name]
+                    del this_stem_set_mentions_stems[hpo_name]
             for hpo_name in sorted(
                     this_stem_set_mentions_words.keys(),
                     key=lambda x: len(this_stem_set_mentions_words[x]) /
