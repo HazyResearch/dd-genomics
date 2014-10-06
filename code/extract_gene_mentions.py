@@ -708,9 +708,9 @@ if __name__ == "__main__":
                                     pass
                         if mention.is_correct is None \
                                 and contains_gene_protein:
-                            mention.add_feature("
-                                    DEF_CONTAINS_GENE_PROT_[{}]".format(
-                                        mention.words[0].word))
+                            mention.add_feature(
+                                "DEF_CONTAINS_GENE_PROT_[{}]".format(
+                                    mention.words[0].word))
                         if mention.is_correct is None and \
                                 not contains_gene_protein:
                             mention.type = "ACRONYM"
