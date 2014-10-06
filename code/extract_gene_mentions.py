@@ -715,12 +715,11 @@ if __name__ == "__main__":
                                     contains_gene_protein = True
                                 except:
                                     pass
-                                for ln_def in inverted_long_names[
+                                for ln_def in long_names_dict[
                                         mention.words[0].word]:
                                     if Levenshtein.ratio(definition, ln_def) >\
                                             0.75:
                                         has_high_levenshtein = True
-
                         if mention.is_correct is None and \
                                 has_high_levenshtein:
                             mention.add_feature(
