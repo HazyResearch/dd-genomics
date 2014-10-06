@@ -44,7 +44,8 @@ def extract(sentence):
                 else:
                     definition_end = len(words)
             definition = " ".join(words[definition_start:definition_end])
-            if words[index] not in merged_genes_dict:
+            if words[index] not in merged_genes_dict or \
+                    words[index] in inverted_long_names:
                 index = definition_end + 1
                 continue
             # If we didn't find a definition, give up
@@ -67,7 +68,9 @@ def extract(sentence):
             # least 2 and it comes between "(" and ")" or "(" and ";" # or "("
             # and "," and is not the first world of the sentence and not the
             # last.
-            if word.word in merged_genes_dict and word.word.isupper() and \
+            if word.word in merged_genes_dict and \
+                    word.word not in inverted_long_names and \
+                    word.word.isupper() and \
                     word.word.isalpha() and len(word.word) >= 2 and \
                     word.in_sent_idx > 0 and \
                     word.in_sent_idx < len(sentence.words) - 1 and \
@@ -107,6 +110,7 @@ def extract(sentence):
 
 # Load the genes dictionary
 merged_genes_dict = load_dict("merged_genes")
+inverted_long_names = load_dict("inverted_long_names")
 
 if __name__ == "__main__":
     # Process the input
