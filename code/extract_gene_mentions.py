@@ -101,7 +101,7 @@ def supervise(mention, sentence):
         if "EXT_KEYWORD_SHORTEST_PATH_[protein]nn@" in mention.features:
             mention.is_correct = True
             return
-        if "EXT_KEYWORD_SHORTEST_PATH_[protein]nn@nn" in mention.fetures:
+        if "EXT_KEYWORD_SHORTEST_PATH_[protein]nn@nn" in mention.features:
             mention.is_correct = True
             return
         if "EXT_KEYWORD_SHORTEST_PATH_[protein]nsubj@" in mention.features:
