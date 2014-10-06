@@ -7,6 +7,8 @@
 import fileinput
 import re
 
+import Levenshtein
+
 from dstruct.Mention import Mention
 from dstruct.Sentence import Sentence
 from helper.dictionaries import load_dict
@@ -687,6 +689,7 @@ if __name__ == "__main__":
                             "NO_ENGLISH_WORDS_IN_SENTENCE" not in \
                             mention.features:
                         contains_gene_protein = False
+                        has_high_levenshtein = False
                         try:
                             defs = line_dict["definitions"][
                                 mention.words[0].word]
@@ -712,8 +715,20 @@ if __name__ == "__main__":
                                     contains_gene_protein = True
                                 except:
                                     pass
-                        if mention.is_correct is None \
-                                and contains_gene_protein:
+                                for ln_def in inverted_long_names[
+                                        mention.words[0].word]:
+                                    if Levenshtein.ratio(definition, ln_def) >\
+                                            0.75:
+                                        has_high_levenshtein = True
+
+                        if mention.is_correct is None and \
+                                has_high_levenshtein:
+                            mention.add_feature(
+                                "DEF_HAS_HIGH_LEVENSHTEIN_[{}]".format(
+                                    mention.words[0].word))
+                            supervise(mention, sentence)
+                        if mention.is_correct is None and \
+                                contains_gene_protein:
                             mention.add_feature(
                                 "DEF_CONTAINS_GENE_PROT_[{}]".format(
                                     mention.words[0].word))
