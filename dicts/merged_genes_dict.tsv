@@ -5081,7 +5081,7 @@ MIR548AY	hsa-mir-548ay	microRNA 548ay
 ZNF680	FLJ90430	zinc finger protein 680|hypothetical protein FLJ90430
 TRIM51BP	SPRYD5P|SPRYD5P1	tripartite motif-containing 51B, pseudogene
 RPL37P15		ribosomal protein L37 pseudogene 15
-PLXDC1	TEM3|TEM7	plexin domain containing 1|tumor endothelial marker 7 precursor
+PLXDC1	TEM3|TEM7	plexin domain containing 1|tumor endothelial marker 7 precursor|tumor endothelial marker 7
 SSU72P3		SSU72 pseudogene 3
 IGKV1OR-3	IGKV1/OR-3|IGKVPZ3	immunoglobulin kappa variable 1/OR-3 (pseudogene)
 GATA4		GATA binding protein 4
@@ -11380,7 +11380,7 @@ MIR4536-2	hsa-mir-4536-2	microRNA 4536-2
 ZNF658B		zinc finger protein 658B, pseudogene
 TRA-AGC10-1	TRNAA18	transfer RNA alanine 18 (anticodon AGC)
 KCNE3	HOKPP|MiRP2	potassium voltage-gated channel, Isk-related family, member 3
-CTCFL	CT27|BORIS|dJ579F20.2	CCCTC-binding factor (zinc finger protein)-like|cancer/testis antigen 27
+CTCFL	CT27|BORIS|dJ579F20.2	CCCTC-binding factor (zinc finger protein)-like|cancer/testis antigen 27|brother of the regulator of imprinted sites
 RNU6-148P		RNA, U6 small nuclear 148, pseudogene
 SPG7	CAR|SPG5C|CMAR	spastic paraplegia 7 (pure and complicated autosomal recessive)|paraplegin
 CNIH3	FLJ38993|CNIH-3	cornichon homolog 3 (Drosophila)|cornichon family AMPA receptor auxiliary protein 3
@@ -13475,7 +13475,7 @@ KLHDC8B	MGC35097	kelch domain containing 8B
 IGHV3-38-3	IGHV3-d|IGHV3-D	immunoglobulin heavy variable 3-38-3 (non-functional)|immunoglobulin heavy variable 3-D (provisional)
 CYLC2		cylicin, basic protein of sperm head cytoskeleton 2
 MIR4671	hsa-mir-4671	microRNA 4671
-HSP90AA1	HSP90N|Hsp90|FLJ31884|HSPC1|HSPCA|Hsp89	heat shock protein 90kDa alpha (cytosolic), class A member 1
+HSP90AA1	HSP90N|Hsp90|FLJ31884|HSPC1|HSPCA|Hsp89	heat shock protein 90kDa alpha (cytosolic), class A member 1|heat shock protein 90|hs protein 90
 RN7SL70P		RNA, 7SL, cytoplasmic 70, pseudogene
 FNBP1L	C1orf39|FLJ20275|TOCA1	formin binding protein 1-like
 TCN2	D22S676|D22S750|TC2	transcobalamin II|macrocytic anemia
