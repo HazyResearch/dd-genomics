@@ -639,7 +639,9 @@ if __name__ == "__main__":
                             is_acronym = True
                             break
                     # Only process as acronym if that's the case
-                    if is_acronym:
+                    if is_acronym and \
+                            "NO_ENGLISH_WORDS_IN_SENTENCE" not in \
+                            mention.features:
                         approx_long_name = False
                         try:
                             defs = line_dict["definitions"][
