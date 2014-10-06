@@ -711,6 +711,7 @@ if __name__ == "__main__":
                             mention.add_feature(
                                 "DEF_CONTAINS_GENE_PROT_[{}]".format(
                                     mention.words[0].word))
+                            supervise(mention, sentence)
                         if mention.is_correct is None and \
                                 not contains_gene_protein:
                             mention.type = "ACRONYM"
