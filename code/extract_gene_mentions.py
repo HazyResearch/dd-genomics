@@ -643,7 +643,8 @@ def extract(sentence):
                               "|".join(merged_genes_dict[phrase]),
                               words[start:end])
             add_features(mention, sentence)
-            mentions.append(mention)
+            if "NO_ENGLISH_WORDS_IN_SENTENCE" not in mention.features:
+                mentions.append(mention)
             # Add to history
             for i in range(start, end):
                 history.add(i)
