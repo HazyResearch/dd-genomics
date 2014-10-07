@@ -53,7 +53,7 @@ def main():
             for mention in mentions:
                 mention.type = "GENERIFS"
                 add_features(mention, sentence)
-                if "NOT_ENGLISH_WORDS_IN_SENTENCE" not in mention.features:
+                if "NO_ENGLISH_WORDS_IN_SENTENCE" not in mention.features:
                     for g in gene:
                         if not found_main and \
                                 mention.words[0].word.find(g) > -1:
