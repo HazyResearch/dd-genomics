@@ -340,7 +340,7 @@ MIR6757	hsa-mir-6757	microRNA 6757
 DNM1P41	DNM1DN11-6|DNM1DN11@	DNM1 pseudogene 41
 SEPT6	KIAA0128|MGC16619|SEPT2|SEP2|MGC20339	septin 6
 TMC2	dJ686C3.3|C20orf145	transmembrane channel-like 2
-CYLD	CYLD1|KIAA0849|USPL2	ubiquitin specific peptidase like 2|cylindromatosis (turban tumor syndrome)
+CYLD	CYLD1|KIAA0849|USPL2	ubiquitin specific peptidase like 2|cylindromatosis (turban tumor syndrome)|cylindromatosis
 MRS2P1	MRS2LP1	MRS2 pseudogene 1|MRS2-like, magnesium homeostasis factor (S. cerevisiae) pseudogene 1
 OR4M1		olfactory receptor, family 4, subfamily M, member 1
 TRBV12-1	TCRBV12S1|TRBV121|TCRBV8S4P	T cell receptor beta variable 12-1 (pseudogene)
@@ -28903,7 +28903,7 @@ MIR6781	hsa-mir-6781	microRNA 6781
 TRF-GAA5-1	TRNAF4	transfer RNA phenylalanine 4 (anticodon GAA)
 PCDHB1	PCDH-BETA1	protocadherin beta 1
 OR52D1		olfactory receptor, family 52, subfamily D, member 1
-TBP	GTF2D1|SCA17|TFIID	TATA box binding protein|TATA-box binding protein
+TBP	GTF2D1|SCA17|TFIID	TATA box binding protein|TATA-box binding protein|TATA-binding protein
 OR4A11P		olfactory receptor, family 4, subfamily A, member 11 pseudogene
 CYB561	CYB561A1|FRRS2	cytochrome b561 family, member A1|cytochrome b561|ferric-chelate reductase 2
 OR2R1P	OR2R1|OST058	olfactory receptor, family 2, subfamily R, member 1, pseudogene

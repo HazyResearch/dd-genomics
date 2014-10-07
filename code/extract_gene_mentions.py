@@ -48,7 +48,8 @@ GENE_KEYWORDS = frozenset([
     "transcription", "human", "backbone", "oncoprotein", "locus", "moiety",
     "cluster", "homology", "proto-oncogene", "mammalian", "anti-gene",
     "transgene", "sirnas", "sirna", "siRNA", "siRNAs", "cleavage",
-    "polymorphism", "induction", "enrichment", "determinant", "role"])
+    "polymorphism", "induction", "enrichment", "determinant", "role",
+    "inhibition"])
 
 
 def check_negative_example(mention, sentence):
