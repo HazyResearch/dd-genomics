@@ -1257,7 +1257,7 @@ HP:0001700	Myocardial necrosis	myocardi|necrosi
 HP:0001701	Pericarditis	pericarditis
 HP:0001702	Abnormality of the tricuspid valve	valv|abnorm|tricuspid
 HP:0001704	Tricuspid valve prolapse	valv|tricuspid|prolaps
-HP:0001705	Right ventricular outlet obstruction outlet|ventricular|obstruct|right
+HP:0001705	Right ventricular outlet obstruction	outlet|ventricular|obstruct|right
 HP:0001706	Endocardial fibroelastosis	endocardi|fibroelastosi
 HP:0001707	Abnormality of the right ventricle	abnorm|ventricl|right
 HP:0001708	Right ventricular failure	failur|ventricular|right
@@ -1930,7 +1930,7 @@ HP:0002623	Overriding aorta	overrid|aorta
 HP:0002624	Venous abnormality	abnorm|venous
 HP:0002625	Deep venous thrombosis	deep|venous|thrombosi
 HP:0002626	Venous varicosities of celiac and mesenteric vessels	celiac|varicos|vessel|venous|mesenter
-HP:0002627	Right aortic arch with mirror image branching branch|arch|aortic|mirror|imag|right
+HP:0002627	Right aortic arch with mirror image branching	branch|arch|aortic|mirror|imag|right
 HP:0002629	Gastrointestinal arteriovenous malformation	arterioven|malform|gastrointestin
 HP:0002630	Fat malabsorption	fat|malabsorpt
 HP:0002631	Ascending aortic aneurysm	ascend|aortic|aneurysm
@@ -2301,7 +2301,7 @@ HP:0003134	Abnormality of peripheral nerve conduction	peripher|abnorm|conduct|ne
 HP:0003137	Prolinuria	prolinuria
 HP:0003138	Increased blood urea nitrogen (BUN)	nitrogen|urea|increas|bun|blood
 HP:0003139	Panhypogammaglobulinemia	panhypogammaglobulinemia
-HP:0003140	T-wave inversion in the right precordial leads lead|precordi|t-wave|invers|right
+HP:0003140	T-wave inversion in the right precordial leads	lead|precordi|t-wave|invers|right
 HP:0003141	Hyperbetalipoproteinemia	hyperbetalipoproteinemia
 HP:0003142	Excessive purine production	excess|purin|product
 HP:0003144	Increased serum serotonin	serotonin|increas|serum
@@ -2454,7 +2454,7 @@ HP:0003334	Elevated circulating catecholamine level	level|elev|circul|catecholam
 HP:0003335	Low gonadotropins (secondary hypogonadism)	low|gonadotropin|secondari|hypogonad
 HP:0003336	Abnormal enchondral ossification	enchondr|abnorm|ossif
 HP:0003337	Reduced prothrombin consumption	consumpt|reduc|prothrombin
-HP:0003338	Focal necrosis of right ventricular muscle cells cell|muscl|focal|necrosi|ventricular|right
+HP:0003338	Focal necrosis of right ventricular muscle cells	cell|muscl|focal|necrosi|ventricular|right
 HP:0003339	Pyrimidine-responsive megaloblastic anemia	pyrimidine-respons|anemia|megaloblast
 HP:0003341	Junctional split	split|junction
 HP:0003343	Glutathione synthetase deficiency	synthetas|glutathion|defici
@@ -3526,7 +3526,7 @@ HP:0005134	Absence of the pulmonary valve	valv|absenc|pulmonari
 HP:0005135	EKG: T-wave abnormalities	abnorm|t-wave|ekg
 HP:0005136	Premature calcification of mitral annulus	prematur|mitral|annulus|calcif
 HP:0005141	Episodes of ventricular tachycardia	episod|tachycardia|ventricular
-HP:0005143	Anomalous origin of right pulmonary artery from ascending aorta pulmonari|anomal|origin|aorta|ascend|arteri|right
+HP:0005143	Anomalous origin of right pulmonary artery from ascending aorta	pulmonari|anomal|origin|aorta|ascend|arteri|right
 HP:0005144	Left ventricular septal hypertrophy	septal|hypertrophi|ventricular|left
 HP:0005145	Coronary artery stenosis	arteri|coronari|stenosi
 HP:0005146	Cardiac valve calcification	valv|cardiac|calcif
@@ -3644,7 +3644,7 @@ HP:0005294	Arterial dissection	arteri|dissect
 HP:0005295	Pseudocoarctation of the aorta	aorta|pseudocoarct
 HP:0005296	Occlusive vascular disease	occlus|vascular|diseas
 HP:0005297	Premature occlusive vascular disease	prematur|occlus|vascular|diseas
-HP:0005298	Atrioventricular canal defect with right ventricle aorta and pulmonary atresia defect|pulmonari|aorta|atresia|atrioventricular|ventricl|canal|right
+HP:0005298	Atrioventricular canal defect with right ventricle aorta and pulmonary atresia	defect|pulmonari|aorta|atresia|atrioventricular|ventricl|canal|right
 HP:0005299	Premature peripheral vascular disease	peripher|prematur|vascular|diseas
 HP:0005300	Nodular inflammatory vasculitis	nodular|inflammatori|vascul
 HP:0005301	Persistent left superior vena cava	persist|superior|cava|vena|left
@@ -8112,10 +8112,10 @@ HP:0011544	L-looping of the right ventricle	ventricl|l-loop|right
 HP:0011545	Abnormal connection of the cardiac segments	connect|cardiac|segment|abnorm
 HP:0011546	Abnormal atrioventricular connection	connect|abnorm|atrioventricular
 HP:0011547	Absent left sided atrioventricular connection	side|connect|absent|atrioventricular|left
-HP:0011548	Absent right sided atrioventricular connection connect|absent|atrioventricular|side|right
+HP:0011548	Absent right sided atrioventricular connection	connect|absent|atrioventricular|side|right
 HP:0011549	Univentricular heart with absent left sided atrioventricular connection	connect|absent|univentricular|side|heart|left|atrioventricular
-HP:0011550	Biventricular heart with straddling right sided atrioventricular valve and absent left sided atrioventricular connection connect|absent|side|valv|heart|biventricular|left|atrioventricular|straddl|right
-HP:0011551	Right sided atrium to left ventricle and absent left sided atrioventricular connection connect|absent|side|atrium|left|atrioventricular|ventricl|right
+HP:0011550	Biventricular heart with straddling right sided atrioventricular valve and absent left sided atrioventricular connection	connect|absent|side|valv|heart|biventricular|left|atrioventricular|straddl|right
+HP:0011551	Right sided atrium to left ventricle and absent left sided atrioventricular connection	connect|absent|side|atrium|left|atrioventricular|ventricl|right
 HP:0011552	Ambiguous atrioventricular connection	connect|atrioventricular|ambigu
 HP:0011553	Discordant atrioventricular connection	discord|connect|atrioventricular
 HP:0011554	Double inlet atrioventricular connection	connect|inlet|atrioventricular|doubl
@@ -8155,14 +8155,14 @@ HP:0011587	Abnormal branching pattern of the aortic arch	branch|pattern|aortic|a
 HP:0011588	Cervical aortic arch	arch|aortic|cervic
 HP:0011589	Common origin of the right brachiocephalic artery and left common carotid artery	common|origin|brachiocephal|carotid|left|arteri|right
 HP:0011590	Double aortic arch	arch|aortic|doubl
-HP:0011591	Left aortic arch with cervical origin of the right subclavian artery aortic|origin|left|arch|arteri|cervic|subclavian|right
+HP:0011591	Left aortic arch with cervical origin of the right subclavian artery	aortic|origin|left|arch|arteri|cervic|subclavian|right
 HP:0011592	Left aortic arch with isolated subclavian artery	aortic|left|isol|arch|arteri|subclavian
 HP:0011593	Left aortic arch with retroesophageal diverticulum of Kommerell	retroesophag|aortic|left|arch|kommerel|diverticulum
-HP:0011594	Right aortic arch with retroesophageal diverticulum of Kommerell kommerel|arch|aortic|retroesophag|diverticulum|right
-HP:0011595	Left aortic arch with retroesophageal right subclavian artery retroesophag|aortic|left|arch|arteri|subclavian|right
+HP:0011594	Right aortic arch with retroesophageal diverticulum of Kommerell	kommerel|arch|aortic|retroesophag|diverticulum|right
+HP:0011595	Left aortic arch with retroesophageal right subclavian artery	retroesophag|aortic|left|arch|arteri|subclavian|right
 HP:0011596	Left aortic arch with right descending aorta and right ductus arteriosus	descend|aortic|aorta|arteriosus|left|arch|ductus|right
 HP:0011597	Right aortic arch with left descending aorta and left ductus arteriosus	descend|aortic|aorta|arteriosus|left|arch|ductus|right
-HP:0011598	Right aortic arch with retroesophageal left subclavian artery retroesophag|aortic|left|arch|arteri|subclavian|right
+HP:0011598	Right aortic arch with retroesophageal left subclavian artery	retroesophag|aortic|left|arch|arteri|subclavian|right
 HP:0011599	Mesocardia	mesocardia
 HP:0011600	Abnormal direction of ventricular apex	direct|apex|abnorm|ventricular
 HP:0011601	Rightward direction of ventricular apex	direct|apex|rightward|ventricular
@@ -8182,7 +8182,7 @@ HP:0011614	Interrupted aortic arch type C	interrupt|arch|aortic|type|c
 HP:0011615	Abnormality of pulmonary situs	situs|abnorm|pulmonari
 HP:0011616	Pulmonary situs inversus	situs|pulmonari|inversus
 HP:0011617	Pulmonary situs ambiguus	ambiguus|situs|pulmonari
-HP:0011618	Pulmonary situs ambiguus with bilateral morphologic right lungs bilater|lung|pulmonari|morpholog|ambiguus|situs|right
+HP:0011618	Pulmonary situs ambiguus with bilateral morphologic right lungs	bilater|lung|pulmonari|morpholog|ambiguus|situs|right
 HP:0011619	Pulmonary situs ambiguus with bilateral morphologic left lungs	bilater|pulmonari|morpholog|lung|ambiguus|situs|left
 HP:0011620	Abnormality of abdominal situs	abdomin|situs|abnorm
 HP:0011621	Gerbode ventricular septal defect	septal|gerbod|defect|ventricular
@@ -8195,15 +8195,15 @@ HP:0011627	Aorto-ventricular tunnel	aorto-ventricular|tunnel
 HP:0011628	Congenital defect of the pericardium	congenit|pericardium|defect
 HP:0011629	Total absence of the pericardium	absenc|pericardium|total
 HP:0011630	Complete diaphragmatic absence of pericardium	absenc|pericardium|diaphragmat|complet
-HP:0011631	Complete right sided absence of pericardium side|absenc|pericardium|complet|right
-HP:0011632	Partial right sided absence of pericardium partial|absenc|pericardium|side|right
+HP:0011631	Complete right sided absence of pericardium	side|absenc|pericardium|complet|right
+HP:0011632	Partial right sided absence of pericardium	partial|absenc|pericardium|side|right
 HP:0011633	Complete left sided absence of pericardium	left|side|absenc|pericardium|complet
 HP:0011634	Partial left sided absence of pericardium	side|partial|absenc|pericardium|left
 HP:0011635	Partial diaphragmatic absence of pericardium	partial|absenc|pericardium|diaphragmat
 HP:0011636	Abnormal origin of the coronary arteries	origin|abnorm|arteri|coronari
 HP:0011637	Anomalous origin of coronary artery from the pulmonary artery	anomal|origin|arteri|coronari|pulmonari
 HP:0011638	Anomalous origin of left coronary artery from the pulmonary artery	pulmonari|coronari|anomal|origin|left|arteri
-HP:0011639	Anomalous origin of right coronary artery from the pulmonary artery anomal|origin|arteri|coronari|pulmonari|right
+HP:0011639	Anomalous origin of right coronary artery from the pulmonary artery	anomal|origin|arteri|coronari|pulmonari|right
 HP:0011640	Single coronary artery origin	arteri|origin|coronari|singl
 HP:0011641	Coronary artery fistula	fistula|arteri|coronari
 HP:0011642	Abnormality of the coronary sinus	sinus|abnorm|coronari
@@ -8215,14 +8215,14 @@ HP:0011647	Postductal coarctation of the aorta	coarctat|aorta|postduct
 HP:0011648	Patent ductus arteriosus after birth at term	term|ductus|birth|patent|arteriosus
 HP:0011649	Patent ductus arteriosus after premature birth	prematur|ductus|birth|patent|arteriosus
 HP:0011650	Bilateral ductus arteriosus	bilater|ductus|arteriosus
-HP:0011651	Double outlet right ventricle with doubly committed ventricular septal defect and pulmonary stenosis doubli|defect|ventricular|pulmonari|stenosi|commit|doubl|septal|outlet|ventricl|right
-HP:0011652	Double outlet right ventricle with doubly committed ventricular septal defect without pulmonary stenosis doubli|defect|ventricular|pulmonari|stenosi|commit|doubl|septal|outlet|ventricl|right
-HP:0011653	Double outlet right ventricle with non-committed ventricular septal defect and pulmonary stenosis defect|ventricular|pulmonari|stenosi|non-commit|doubl|septal|outlet|ventricl|right
-HP:0011654	Double outlet right ventricle with non-committed ventricular septal defect without pulmonary stenosis defect|ventricular|pulmonari|stenosi|non-commit|doubl|septal|outlet|ventricl|right
-HP:0011655	Double outlet right ventricle with subaortic ventricular septal defect and pulmonary stenosis defect|ventricular|pulmonari|stenosi|subaort|doubl|septal|outlet|ventricl|right
-HP:0011656	Double outlet right ventricle with subaortic ventricular septal defect without pulmonary stenosis defect|ventricular|pulmonari|stenosi|subaort|doubl|septal|outlet|ventricl|right
+HP:0011651	Double outlet right ventricle with doubly committed ventricular septal defect and pulmonary stenosis	doubli|defect|ventricular|pulmonari|stenosi|commit|doubl|septal|outlet|ventricl|right
+HP:0011652	Double outlet right ventricle with doubly committed ventricular septal defect without pulmonary stenosis	doubli|defect|ventricular|pulmonari|stenosi|commit|doubl|septal|outlet|ventricl|right
+HP:0011653	Double outlet right ventricle with non-committed ventricular septal defect and pulmonary stenosis	defect|ventricular|pulmonari|stenosi|non-commit|doubl|septal|outlet|ventricl|right
+HP:0011654	Double outlet right ventricle with non-committed ventricular septal defect without pulmonary stenosis	defect|ventricular|pulmonari|stenosi|non-commit|doubl|septal|outlet|ventricl|right
+HP:0011655	Double outlet right ventricle with subaortic ventricular septal defect and pulmonary stenosis	defect|ventricular|pulmonari|stenosi|subaort|doubl|septal|outlet|ventricl|right
+HP:0011656	Double outlet right ventricle with subaortic ventricular septal defect without pulmonary stenosis	defect|ventricular|pulmonari|stenosi|subaort|doubl|septal|outlet|ventricl|right
 HP:0011657	Double outlet right ventricle with subpulmonary ventricular septal defect and pulmonary stenosis	defect|subpulmonari|ventricular|pulmonari|stenosi|doubl|septal|outlet|ventricl
-HP:0011658	Double outlet right ventricle with subpulmonary ventricular septal defect without pulmonary stenosis defect|subpulmonari|ventricular|pulmonari|stenosi|doubl|septal|outlet|ventricl|right
+HP:0011658	Double outlet right ventricle with subpulmonary ventricular septal defect without pulmonary stenosis	defect|subpulmonari|ventricular|pulmonari|stenosi|doubl|septal|outlet|ventricl|right
 HP:0011659	Tetralogy of Fallot with absent pulmonary valve	valv|tetralog|absent|fallot|pulmonari
 HP:0011660	Anomalous origin of one pulmonary artery from ascending aorta	pulmonari|anomal|origin|aorta|ascend|arteri
 HP:0011661	Anomalous origin of left pulmonary artery from ascending aorta	pulmonari|anomal|origin|aorta|left|ascend|arteri
@@ -8256,12 +8256,12 @@ HP:0011688	Supraventricular tachycardia with an accessory connection mediated pa
 HP:0011689	Supraventricular tachycardia with a concealed accessory connection	connect|accessori|tachycardia|a|supraventricular|conceal
 HP:0011690	Permanent junctional reciprocating tachycardia	perman|junction|tachycardia|reciproc
 HP:0011691	Supraventricular tachycardia with a concealed accessory pathway on the left free wall	wall|accessori|free|tachycardia|a|left|supraventricular|conceal|pathway
-HP:0011692	Supraventricular tachycardia with a concealed accessory pathway on the right free wall wall|accessori|free|tachycardia|a|supraventricular|conceal|pathway|right
+HP:0011692	Supraventricular tachycardia with a concealed accessory pathway on the right free wall	wall|accessori|free|tachycardia|a|supraventricular|conceal|pathway|right
 HP:0011693	Supraventricular tachycardia with a concealed accessory pathway on the septum	accessori|tachycardia|a|septum|supraventricular|conceal|pathway
 HP:0011694	Supraventricular tachycardia with a manifest accessory pathway	accessori|tachycardia|a|manifest|supraventricular|pathway
 HP:0011695	Cerebellar hemorrhage	cerebellar|hemorrhag
 HP:0011696	Supraventricular tachycardia with a manifest accessory pathway on the left free wall	wall|accessori|free|tachycardia|a|left|manifest|supraventricular|pathway
-HP:0011697	Supraventricular tachycardia with a manifest accessory pathway on the right free wall wall|accessori|free|tachycardia|a|manifest|supraventricular|pathway|right
+HP:0011697	Supraventricular tachycardia with a manifest accessory pathway on the right free wall	wall|accessori|free|tachycardia|a|manifest|supraventricular|pathway|right
 HP:0011698	Supraventricular tachycardia with a manifest accessory pathway on the septum	accessori|tachycardia|a|septum|manifest|supraventricular|pathway
 HP:0011699	Atrial reentry tachycardia	reentri|atrial|tachycardia
 HP:0011700	Automatic atrial tachycardia	automat|atrial|tachycardia
@@ -8287,7 +8287,7 @@ HP:0011719	Supracardiac total anomalous pulmonary venous connection	connect|tota
 HP:0011720	Cardiac total anomalous pulmonary venous connection	connect|total|pulmonari|anomal|cardiac|venous
 HP:0011721	Infracardiac total anomalous pulmonary venous connection	connect|infracardiac|total|pulmonari|anomal|venous
 HP:0011722	Mixed total anomalous pulmonary venous connection	connect|total|pulmonari|anomal|mix|venous
-HP:0011723	Congenital malformation of the right heart congenit|malform|heart|right
+HP:0011723	Congenital malformation of the right heart	congenit|malform|heart|right
 HP:0011724	Uhl's anomaly	anomali|uhl
 HP:0011725	Chaotic multifocal atrial tachycardia	atrial|multifoc|tachycardia|chaotic
 HP:0011726	Persistent fetal circulation	persist|fetal|circul
