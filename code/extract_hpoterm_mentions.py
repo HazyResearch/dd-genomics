@@ -28,6 +28,9 @@ def supervise(mention, sentence):
     if "NO_ENGLISH_WORD_IN_SENTENCE" in mention.features:
         mention.is_correct = False
         return
+    if "IS_PNEUNOMIAE" in mention.features:
+        mention.is_correct = False
+        return
     if "IS_EXACT_NAME" in mention.features:
         mention.is_correct = True
         return
@@ -135,23 +138,28 @@ def add_features(mention, sentence):
         # The mention is exactly the hpo name
         mention.add_feature("IS_EXACT_NAME")
     else:
-        mention_wordidxs = sorted(map(lambda x: x.in_sent_idx, mention.words))
-        curr = mention_wordidxs[0]
-        for i in mention_wordidxs[1:]:
-            if i == curr + 1:
-                curr = i
-            else:
-                break
-        if curr == mention_wordidxs[-1]:
-            mention.add_feature("WORDS_ARE_CONSECUTIVE")
-        elif len(mention.words) == \
-                len(inverted_hpoterms[mention.entity.split("|")[1]]):
-            # The number of words in the mention is exactly the same as the
-            # size of the complete set of stems for this entity
-            mention.add_feature("HAS_ALL_STEMS")
-        # The lemmas in the mention are a subset of the name
-        if mention_lemmas.issubset(name_words):
-            mention.add_feature("IS_SUBSET_OF_NAME")
+        if len(mention.words) > 1:
+            mention_wordidxs = sorted(map(lambda x: x.in_sent_idx,
+                                          mention.words))
+            curr = mention_wordidxs[0]
+            for i in mention_wordidxs[1:]:
+                if i == curr + 1:
+                    curr = i
+                else:
+                    break
+            if curr == mention_wordidxs[-1]:
+                mention.add_feature("WORDS_ARE_CONSECUTIVE")
+            elif len(mention.words) == \
+                    len(inverted_hpoterms[mention.entity.split("|")[1]]):
+                # The number of words in the mention is exactly the same as the
+                # size of the complete set of stems for this entity
+                mention.add_feature("HAS_ALL_STEMS")
+            # The lemmas in the mention are a subset of the name
+            if mention_lemmas.issubset(name_words):
+                mention.add_feature("IS_SUBSET_OF_NAME")
+        else:  # single word
+            if mention.words[0].word == "pneumoniae":
+                mention.add_feature("IS_PNEUNOMIAE")
 
 
 # Add features that are related to the entire set of mentions candidates
@@ -293,7 +301,7 @@ mandatory_stems = frozenset(
         "hyperplasia", "fontanell", "facial", "prelingu", "sensorineur",
         "auditori", "neck", "incisor", "nervous", "ventricl", "cyst",
         "aplasia", "hypoplasia", "c-reactiv", "papillari",
-        "beta-glucocerebrosidas"))
+        "beta-glucocerebrosidas", "loss", "accumul", "swell", "left", "right"))
 
 # Create the dictionary containing the sets of stems that we use to create the
 # mentions

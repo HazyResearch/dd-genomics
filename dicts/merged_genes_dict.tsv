@@ -14245,7 +14245,7 @@ FAM157B		family with sequence similarity 157, member B
 MIR3670-1	hsa-mir-3670|MIR3670	microRNA 3670-1
 RNU6-871P		RNA, U6 small nuclear 871, pseudogene
 SDHB	SDH1|SDH	succinate dehydrogenase complex, subunit B, iron sulfur (Ip)
-EFNA1	EPLG1|LERK1|ECKLG|TNFAIP4	ephrin-A1
+EFNA1	EPLG1|LERK1|ECKLG|TNFAIP4	ephrin-A1|ephrin A1
 BUB3	BUB3L	BUB3 mitotic checkpoint protein
 PRELID2P1		PRELI domain containing 2 pseudogene 1
 MIR184	MIRN184|hsa-mir-184	microRNA 184
@@ -18110,7 +18110,7 @@ KIR3DS1	nkat10	killer cell immunoglobulin-like receptor, three domains, short cy
 RNU6-544P		RNA, U6 small nuclear 544, pseudogene
 RN7SKP176		RNA, 7SK small nuclear pseudogene 176
 IL2	TCGF|IL-2	interleukin 2|T cell growth factor
-EFNB2	MGC126228|EPLG5|MGC126227|HTKL|LERK5|Htk-L|MGC126226	eph-related receptor tyrosine kinase ligand 5|ligand of eph-related kinase 5|ephrin-B2|HTK ligand
+EFNB2	MGC126228|EPLG5|MGC126227|HTKL|LERK5|Htk-L|MGC126226	eph-related receptor tyrosine kinase ligand 5|ligand of eph-related kinase 5|ephrin-B2|HTK ligand|ephrin B2
 NAPGP2		N-ethylmaleimide-sensitive factor attachment protein, gamma pseudogene 2
 G6PDL		glucose-6-phosphate dehydrogenase-like
 GPN3	ATPBD1C|MGC14560	GPN-loop GTPase 3

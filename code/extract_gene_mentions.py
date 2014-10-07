@@ -122,6 +122,9 @@ def supervise(mention, sentence):
         if "EXT_KEYWORD_SHORTEST_PATH_[activation]nn@" in mention.features:
             mention.is_correct = True
             return
+        if "EXT_KEYWORD_SHORTEST_PATH_[oligomerization]nn@" in \
+                mention.features:
+            mention.is_correct = True
         if "EXT_KEYWORD_SHORTEST_PATH_[methylation]prep_of@" in \
                 mention.features:
             mention.is_correct = True
@@ -223,6 +226,9 @@ def supervise(mention, sentence):
     # Is a location and comes before a location so it's probably wrong
     if "IS_LOCATION" in mention.features and \
             "COMES_BEFORE_LOCATION" in mention.features:
+        mention.is_correct = False
+        return
+    if "IS_QUANTITY_[PH]" in mention.features:
         mention.is_correct = False
         return
     if "COMES_BEFORE_ET" in mention.features:
