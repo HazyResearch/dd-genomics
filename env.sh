@@ -15,7 +15,7 @@ export GPPATH=/lfs/${HOSTNAME}/0/rionda/greenplum_gpfdist
 export APP_HOME=`pwd`
 
 # Machine Configuration
-export MEMORY="256g"
+export MEMORY="80g"
 export PARALLELISM=90
 
 # The number of sentences in the sentences table
