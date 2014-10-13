@@ -11,31 +11,35 @@ Contact Matteo Riondato <rionda@cs.stanford.edu> for information.
 
 We use a GUI tool called [*Mindtagger*][mindtagger] to expedite the labeling tasks necessary for evaluating the data products of DeepDive.
 
-### Launching Mindtagger
+### 1. Launching Mindtagger
 
-To start the tool, simply run:
+To start the GUI tool, simply run:
 ```bash
-./labeling-tool.sh
+./labeling/start-gui.sh
 ```
 
 It shows all tasks defined under `labeling/` directory.
-The results of labeling (including intermediate ones) will reside under each task directory.
+The results of labeling (including intermediate data) will reside under each task directory.
 
-### How to send back your tags
-Please use the following steps to communicate back the results, assuming you cloned from a fork.
+### 2. How to send back your tags
+Use the `push.sh` script:
+```bash
+./push.sh
+```
 
-1. From the root of this repository, commit your work to git by running:
-    
-    ```bash
-    git add labeling/
-    git commit -m 'Finished labeling 20141013-precision'
-    ```
-2. Then, push it to a new branch of your GitHub clone repo:
-    
-    ```bash
-    git push origin HEAD:20141013-precision
-    ```
-3. Finally, go to the [original GitHub repo](https://github.com/rionda/dd-genomics), and [create a *Pull Request*](https://github.com/rionda/dd-genomics/pulls) with the branch you just pushed to.
-4. We will merge the work and will be able to use it for the next iteration of improving the data products.
+It will create a commit holding any changes made on your side, and push to the [original GitHub repo](https://github.com/rionda/dd-genomics).
+Enter your GitHub user name and password that has been added as a collaborator account when asked.
+If you don't have a collaborator GitHub account, the script can generate a set of patch files that can be emailed to the authors instead.
+
+We will review and merge the work, and it will help the next iteration of improving the data products.
+
+### 3. How to grab upstream changes
+Use the `pull.sh` script to grab any new tasks or changes made on the original repo:
+```bash
+./pull.sh
+```
+
+It will first create a commit holding any changes made on your side, and fetch and merge the updates, honoring the changes you made (read: the tags you entered).
+
 
 [mindtagger]: https://github.com/netj/mindbender

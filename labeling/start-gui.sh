@@ -6,13 +6,13 @@ set -eu
 
 # set up environment to run Mindtagger
 cd "$(dirname "$0")"
-PATH="$PWD/bin:$PATH"
+PATH="$PWD/../bin:$PATH"
 
 # install Mindbender locally if not available or broken
 if ! type mindbender &>/dev/null || ! mindbender version &>/dev/null; then
     release=${MINDBENDER_RELEASE:=LATEST}
-    tool=bin/mindbender
-    mkdir -p bin
+    tool=../bin/mindbender
+    mkdir -p "$(dirname "$tool")"
     echo >&2 "Downloading Mindbender..."
     curl --location --show-error --output $tool.download \
         https://github.com/netj/mindbender/releases/download/$release/mindbender-$release-$(uname)-$(uname -m).sh
@@ -20,7 +20,7 @@ if ! type mindbender &>/dev/null || ! mindbender version &>/dev/null; then
     mv -f $tool.download $tool
 fi
 
-# start Mindtagger for all tasks available under labeling/
-echo >&2 "Starting Mindtagger for all tasks under labeling/..."
+# start Mindtagger for all tasks available next to this script
+echo >&2 "Starting Mindtagger for all tasks under $PWD/..."
 shopt -s globstar 2>/dev/null || true
-mindbender tagger labeling/**/mindtagger.conf
+mindbender tagger $(ls -t **/mindtagger.conf)
