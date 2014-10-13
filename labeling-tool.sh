@@ -8,8 +8,8 @@ set -eu
 cd "$(dirname "$0")"
 PATH="$PWD/bin:$PATH"
 
-# install Mindbender locally if not available
-if ! type mindbender &>/dev/null; then
+# install Mindbender locally if not available or broken
+if ! type mindbender &>/dev/null || ! mindbender version &>/dev/null; then
     release=${MINDBENDER_RELEASE:=LATEST}
     tool=bin/mindbender
     mkdir -p bin
@@ -21,5 +21,6 @@ if ! type mindbender &>/dev/null; then
 fi
 
 # start Mindtagger for all tasks available under labeling/
+echo >&2 "Starting Mindtagger for all tasks under labeling/..."
 shopt -s globstar 2>/dev/null || true
 mindbender tagger labeling/**/mindtagger.conf
