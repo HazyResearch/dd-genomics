@@ -14,7 +14,7 @@ if ! type mindbender &>/dev/null; then
     tool=bin/mindbender
     mkdir -p bin
     echo >&2 "Downloading Mindbender..."
-    curl --show-error --output $tool.download \
+    curl --location --show-error --output $tool.download \
         https://github.com/netj/mindbender/releases/download/$release/mindbender-$release-$(uname)-$(uname -m).sh
     chmod +x $tool.download
     mv -f $tool.download $tool
