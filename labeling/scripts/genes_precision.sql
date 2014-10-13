@@ -1,11 +1,10 @@
 COPY (
-SELECT 
-	t0.mention_id,
-	t0.entity,
-	t0.wordidxs, 
-	t1.words,
-	t2.array_accum as prec,
-	t3.array_accum as foll
+SELECT  t0.mention_id  as mention_id
+     ,  t0.entity      as entity_name
+     ,  t0.wordidxs    as mention_pos
+     ,  t1.words       as words
+     ,  t2.array_accum as sentences_before
+     ,  t3.array_accum as sentences_after
 FROM
 	gene_mentions_is_correct_inference t0, 
 	sentences t1,
@@ -21,6 +20,6 @@ AND
 	t0.expectation > 0.9
 ORDER BY random()
 LIMIT 200
-) TO STDOUT
+) TO STDOUT WITH HEADER
 ;
 
