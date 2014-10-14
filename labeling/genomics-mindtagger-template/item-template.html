@@ -1,4 +1,8 @@
-<em>{{item.entity_name}}</em> appearing in:
+<strong>{{item.entity_name}}</strong>
+<span ng-if="item.definitions">
+    (defined in the document as: <em>{{item.definitions}}</em>)
+</span>
+appearing in:
 <blockquote>
     <mb-render-item/>
 </blockquote>
