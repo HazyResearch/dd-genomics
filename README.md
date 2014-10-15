@@ -18,8 +18,10 @@ To start the GUI tool, simply run:
 ./labeling/start-gui.sh
 ```
 
-It shows all tasks defined under `labeling/` directory.
-The results of labeling (including intermediate data) will reside under each task directory.
+and open a browser to "http://localhost:8000".
+
+The GUI shows, in the upper left corner, all tasks defined under `labeling/` directory.
+The results of the labeling (including intermediate data) are stored under each task directory.
 
 ### 2. How to send back your tags
 Use the `push.sh` script:
