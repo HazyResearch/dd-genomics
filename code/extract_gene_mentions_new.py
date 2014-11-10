@@ -52,7 +52,7 @@ GENE_KEYWORDS = frozenset([
     "staining", "sumoylation", "synonymous", "targed", "T-cell", "transducer",
     "transgene", "translocation", "transcribe", "transcript", "transcription",
     "transporter", "tumor", "tumours", "tumour", "variant", "variation",
-    "up-regulation", "upregulation", "vivo", "vitro", 
+    "up-regulation", "upregulation", "vivo", "vitro"
     ])
 
 # Snowball positive features
@@ -73,7 +73,7 @@ snowball_pos_feats = frozenset([
     "EXT_KEYWORD_MIN_[polymorphism]prep_of@",
     "EXT_KEYWORD_MIN_[gene]appos@",
     "EXT_KEYWORD_MIN_[enzyme]@nn",
-    "EXT_KEYWORD_MIN_[phosphorylation]prep_of@", 
+    "EXT_KEYWORD_MIN_[phosphorylation]prep_of@",
     "EXT_KEYWORD_MIN_[receptor]@nn",
     "EXT_KEYWORD_MIN_[histone]@nn",
     "EXT_KEYWORD_MIN_[receptor]nn",
@@ -98,11 +98,10 @@ for key in merged_genes_dict:
         max_mention_length = length
 # doubling to take into account commas and who knows what
 max_mention_length *= 2
- 
+
 
 # Add features to a gene mention candidate
 def add_features(mention, sentence):
-    phrase = " ".join([x.word for x in sentence.words])
     # The verb closest to the candidate, with the path to it.
     minl = 100
     minp = None
@@ -113,11 +112,11 @@ def add_features(mention, sentence):
                     and word2.lemma != 'be':
                 # Ignoring "be" comes from pharm
                 p = sentence.get_word_dep_path(word.in_sent_idx,
-                    word2.in_sent_idx)
-            if len(p) < minl:
-                minl = len(p)
-                minp = p
-                minw = word2.lemma
+                                               word2.in_sent_idx)
+                if len(p) < minl:
+                    minl = len(p)
+                    minp = p
+                    minw = word2.lemma
     if minw:
         mention.add_feature('VERB_[' + minw + ']' + minp)
     # The keywords that appear in the sentence with the mention
@@ -127,8 +126,8 @@ def add_features(mention, sentence):
     for word in mention.words:
         for word2 in sentence.words:
             if word2.lemma in GENE_KEYWORDS:
-                p = sentence.get_word_dep_path(word.in_sent_idx,
-                    word2.in_sent_idx)
+                p = sentence.get_word_dep_path(
+                    word.in_sent_idx, word2.in_sent_idx)
                 if len(p) < minl:
                     minl = len(p)
                     minp = p
@@ -147,24 +146,26 @@ def add_features(mention, sentence):
     for word in mention.words:
         for word2 in sentence.words:
             if word2 != word and word2.word in merged_genes_dict:
-                p = sentence.get_word_dep_path(word.in_sent_idx,
-                    word2.in_sent_idx)
+                p = sentence.get_word_dep_path(
+                    word.in_sent_idx, word2.in_sent_idx)
                 if len(p) < minl:
                     minl = len(p)
                     minp = p
                     minw = word2.lemma
-    if minw != None:
+    if minw:
         mention.add_features(['OTHER_GENE_['+minw+'] ' + minp])
     # The lemma on the left of the candidate, whatever it is
     try:
-        mention.add_feature("NGRAM_LEFT_1_[" +
-                sentence.words[mention.words[0].in_sent_idx-1].lemma + "]")
+        mention.add_feature(
+            "NGRAM_LEFT_1_[" +
+            sentence.words[mention.words[0].in_sent_idx-1].lemma + "]")
     except IndexError:
         pass
     # The lemma on the right of the candidate, whatever it is
     try:
-        mention.add_feature("NGRAM_RIGHT_1_[" +
-                sentence.words[mention.words[-1].in_sent_idx+1].lemma + "]")
+        mention.add_feature(
+            "NGRAM_RIGHT_1_[" +
+            sentence.words[mention.words[-1].in_sent_idx+1].lemma + "]")
     except IndexError:
         pass
     # We know check whether the lemma on the left and on the right are
@@ -179,7 +180,7 @@ def add_features(mention, sentence):
             ((((not sentence.words[idx].lemma.isalnum() and not
                 sentence.words[idx] in merged_genes_dict) or
                 (not sentence.words[idx].word.isupper() and
-                sentence.words[idx].lemma in stopwords_dict)) and
+                 sentence.words[idx].lemma in stopwords_dict)) and
                 not re.match("^[0-9]+(.[0-9]+)?$", sentence.words[idx].word)
                 and not sentence.words[idx] in merged_genes_dict) or
                 len(sentence.words[idx].lemma) == 1):
@@ -338,7 +339,6 @@ def add_features(mention, sentence):
                     mention.words[0].word))
 
 
-
 # Supervise the candidates.
 # For each mention we supervise we create one (or more) supervised copies,
 # possibly with different features
@@ -349,18 +349,18 @@ def supervise(mentions, sentence, acronyms, acro_defs):
         new_mentions.append(mention)
         # The candidate is a long name. We add a special feature for this.
         if " ".join([word.word for word in mention.words]) in \
-            inverted_long_names:
+                inverted_long_names:
             if "COMES_AFTER_PERSON" in mention.features:
                 mention.features.remove("COMES_AFTER_PERSON")
             if "COMES_AFTER_ORGANIZATION" in mention.features:
                 mention.features.remove("COMES_AFTER_ORGANIZATION")
             supervised = Mention("GENE_SUP", mention.entity,
-                mention.words)
+                                 mention.words)
             supervised.features = mention.features.copy()
             supervised.is_correct = True
             new_mentions.append(supervised)
             supervised2 = Mention("GENE_SUP", mention.entity,
-                mention.words)
+                                  mention.words)
             supervised2.is_correct = True
             supervised2.add_feature("IS_LONG_NAME")
             new_mentions.append(supervised2)
@@ -393,7 +393,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
             try:
                 if sentence.words[mention.words[0].in_sent_idx + 1][0] == ":":
                     supervised = Mention("GENE_SUP", mention.entity,
-                        mention.words)
+                                         mention.words)
                     supervised.features = mention.features.copy()
                     supervised.is_correct = False
                     new_mentions.append(supervised)
@@ -406,19 +406,21 @@ def supervise(mentions, sentence, acronyms, acro_defs):
             # The candidate is preceded by a "%" (it's probably a quantity)
             if sentence.words[idx].word == "%":
                 supervised = Mention("GENE_SUP", mention.entity,
-                    mention.words)
+                                     mention.words)
                 supervised.features = mention.features.copy()
                 supervised.is_correct = False
                 new_mentions.append(supervised)
                 break
-            # The candidate comes after a "document element" (e.g., table, or figure)
+            # The candidate comes after a "document element" (e.g., table, or
+            # figure)
             if sentence.words[idx].word.casefold() in DOC_ELEMENTS:
                 supervised = Mention("GENE_SUP", mention.entity, mention.words)
                 supervised.features = mention.features.copy()
                 supervised.is_correct = False
                 new_mentions.append(supervised)
                 break
-            # The candidate comes after an "individual" word (e.g., "individual")
+            # The candidate comes after an "individual" word (e.g.,
+            # "individual")
             if sentence.words[idx].word.casefold() in INDIVIDUALS and \
                     not mention.words[0].word.isalpha() and \
                     not len(mention.words[0].word) > 4:
@@ -442,18 +444,18 @@ def supervise(mentions, sentence, acronyms, acro_defs):
             # The candidate is followed by a "=" (it's probably a quantity)
             if sentence.words[idx].word == "=":
                 supervised = Mention("GENE_SUP", mention.entity,
-                    mention.words)
+                                     mention.words)
                 supervised.features = mention.features.copy()
                 supervised.is_correct = False
                 new_mentions.append(supervised)
                 break
-            #The candidate is followed by a ":" and the word after it is a
+            # The candidate is followed by a ":" and the word after it is a
             # number (it's probably a quantity)
             if sentence.words[idx].word == ":":
                 try:
                     float(sentence.words[idx + 1].word)
                     supervised = Mention("GENE_SUP", mention.entity,
-                        mention.words)
+                                         mention.words)
                     supervised.features = mention.features.copy()
                     supervised.is_correct = False
                     new_mentions.append(supervised)
@@ -472,12 +474,12 @@ def supervise(mentions, sentence, acronyms, acro_defs):
         # a DNA triplet.
         if len(mention.words) == 1 and len(mention.words[0].word) == 3 and \
                 set(mention.words[0].word) <= set("ACGT"):
-            done = False    
+            done = False
             idx = mention.wordidxs[0] - 1
             if idx > 0:
                 if set(sentence.words[idx].word) <= set("ACGT"):
                     supervised = Mention("GENE_SUP", mention.entity,
-                        mention.words)
+                                         mention.words)
                     supervised.features = mention.features.copy()
                     supervised.is_correct = False
                     new_mentions.append(supervised)
@@ -486,7 +488,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
             if not done and idx < len(sentence.words):
                 if set(sentence.words[idx].word) <= set("ACGT"):
                     supervised = Mention("GENE_SUP", mention.entity,
-                        mention.words)
+                                         mention.words)
                     supervised.features = mention.features.copy()
                     supervised.is_correct = False
                     new_mentions.append(supervised)
@@ -494,7 +496,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
         # If it's "II", it's most probably wrong.
         if mention.words[0].word == "II":
             supervised = Mention("GENE_SUP", mention.entity,
-                mention.words)
+                                 mention.words)
             supervised.features = mention.features.copy()
             supervised.is_correct = False
             new_mentions.append(supervised)
@@ -502,12 +504,12 @@ def supervise(mentions, sentence, acronyms, acro_defs):
         # Snowball positive features
         if mention.features & snowball_pos_feats:
             supervised = Mention("GENE_SUP", mention.entity,
-                mention.words)
+                                 mention.words)
             supervised.features = mention.features - snowball_pos_feats
             supervised.is_correct = True
             new_mentions.append(supervised)
             supervised2 = Mention("GENE_SUP", mention.entity,
-                mention.words)
+                                  mention.words)
             supervised2.features = mention.features & snowball_pos_feats
             supervised2.is_correct = True
             new_mentions.append(supervised2)
@@ -567,8 +569,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
             break
         for feature in mention.features:
             if feature.startswith("VERB_[use]") and mention.entity == "PROC":
-                supervised = Mention("GENE_SUP", mention.entity,
-                    mention.words)
+                supervised = Mention("GENE_SUP", mention.entity, mention.words)
                 supervised.features = mention.features.copy()
                 supervised.is_correct = False
                 new_mentions.append(supervised)
@@ -600,7 +601,6 @@ def supervise(mentions, sentence, acronyms, acro_defs):
             # Only process as acronym if that's the case
             if mention.words[0].word in acronyms:
                 contains_gene_protein = False
-                has_high_levenshtein = False
                 try:
                     defs = acro_defs[mention.words[0].word]
                 except:
@@ -616,7 +616,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
                                 is_after = True
                         if not (is_before and is_after):
                             supervised = Mention("GENE_SUP", mention.entity,
-                                    mention.words)
+                                                 mention.words)
                             supervised.features = mention.features.copy()
                             supervised.is_correct = True
                             new_mentions.append(supervised)
@@ -626,7 +626,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
                             contains_gene_protein = True
                         if not contains_gene_protein:
                             supervised = Mention("GENE_SUP", mention.entity,
-                                    mention.words)
+                                                 mention.words)
                             supervised.features = mention.features.copy()
                             supervised.is_correct = False
                             new_mentions.append(supervised)
@@ -646,7 +646,11 @@ def extract(sentence):
             no_english_words = False
             break
     if no_english_words:
-        return # Stop iteration
+        return  # Stop iteration
+
+    sentence_is_upper = False
+    if " ".join([x.word for x in sentence.words]).isupper():
+        sentence_is_upper = True
     # The following set keeps a list of indexes we already looked at and which
     # contained a mention
     history = set()
@@ -714,7 +718,9 @@ if __name__ == "__main__":
                 line_dict["definitions"] = None
             # Get list of mentions candidates in this sentence
             mentions = extract(sentence)
-            new_mentions = supervise(mentions, sentence,
-                line_dict["acronyms"], line_dict["definitions"])
-            for mention in new_mentions:
-                print(mention.tsv_dump())
+            if mentions:
+                new_mentions = supervise(
+                    mentions, sentence, line_dict["acronyms"],
+                    line_dict["definitions"])
+                for mention in new_mentions:
+                    print(mention.tsv_dump())
