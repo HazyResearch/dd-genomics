@@ -646,7 +646,7 @@ def extract(sentence):
             no_english_words = False
             break
     if no_english_words:
-        return  # Stop iteration
+        return []  # Stop iteration
 
     sentence_is_upper = False
     if " ".join([x.word for x in sentence.words]).isupper():
@@ -718,9 +718,8 @@ if __name__ == "__main__":
                 line_dict["definitions"] = None
             # Get list of mentions candidates in this sentence
             mentions = extract(sentence)
-            if mentions:
-                new_mentions = supervise(
-                    mentions, sentence, line_dict["acronyms"],
-                    line_dict["definitions"])
-                for mention in new_mentions:
-                    print(mention.tsv_dump())
+            new_mentions = supervise(
+                mentions, sentence, line_dict["acronyms"],
+                line_dict["definitions"])
+            for mention in new_mentions:
+                print(mention.tsv_dump())
