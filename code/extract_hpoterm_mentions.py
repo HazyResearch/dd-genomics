@@ -15,48 +15,37 @@ from helper.dictionaries import load_dict
 MENTION_THRESHOLD = 3 / 4
 
 HPOTERM_KEYWORDS = frozenset(
-    ["syndrome", "gene", "association", "apoptosis", "genotype", "disease",
-        "cancer", "carcinoma", "abnormality", "mutation", "protein",
-        "diagnose", "patient", "patients", "viruses", "virus", "therapy",
-        "symptom", "cronic,", "diagnosis", "detection", "severe", "phenotype",
-        "affect", "genome", "genomic", "therapeutic", "pathway", "injury",
-        "chromosome", "deletion", "polymorphism"])
+    [
+    "abnormality", "affect", "apoptosis", "association", "boy", "cancer",
+    "carcinoma", "case", "chemotherapy", "chromosome", "cronic", "deletion",
+    "detection", "diagnose", "diagnosis", "disease", "drug", "gene", "genome",
+    "genomic", "genotype", "girl", "give", "injury", "man", "mutation",
+    "pathway", "patient", "patients", "phenotype", "polymorphism", "protein",
+    "severe", "symptom", "syndrome", "therapy", "therapeutic", "treat",
+    "treatment", "viruses", "virus", "woman"
+    ])
 
 
 # Perform the supervision
 def supervise(mention, sentence):
-    if "NO_ENGLISH_WORD_IN_SENTENCE" in mention.features:
-        mention.is_correct = False
-        return
     if "IS_PNEUNOMIAE" in mention.features:
         mention.is_correct = False
         return
-    if "IS_EXACT_NAME" in mention.features:
+
+    mention_lemmas = set([x.lemma.casefold() for x in mention.words])
+    name_words = set([x.casefold() for x in
+                      mention.entity.split("|")[1].split()])
+    # The mention is exactly the hpo name
+    if mention_lemmas == name_words:
         mention.is_correct = True
         return
-    # if "HAS_ALL_STEMS" in mention.features:
-    #    mention.is_correct = True
-    #    return
 
 
 # Add features
-# TODO (Matteo) There are obviously many more missing
 def add_features(mention, sentence):
-    # There are no English words in the sentence
-    # This may be useful to push down weird/junk sentences
-    no_english_words = True
-    for word in sentence.words:
-        if len(word.word) > 2 and \
-                (word.word in english_dict or
-                 word.word.casefold() in english_dict):
-            no_english_words = False
-            break
-    if no_english_words:
-        mention.add_feature("NO_ENGLISH_WORDS_IN_SENTENCE")
-        return
     if "NO_ENGLISH_WORDS_IN_SENTENCE" not in mention.features:
         # The lemma on the left of the mention, if present, provided it's
-        # alphanumeric but not a number
+        # alphanumeric but not a number or 
         idx = mention.wordidxs[0] - 1
         while idx >= 0 and  \
                 ((not sentence.words[idx].word.isupper() and
@@ -97,15 +86,15 @@ def add_features(mention, sentence):
         if word2.lemma in HPOTERM_KEYWORDS:
             p = sentence.get_word_dep_path(mention.wordidxs[0],
                                            word2.in_sent_idx)
-            # mention.add_feature("KEYWORD_[" + word2.lemma + "]")
+            mention.add_feature("KEYWORD_[" + word2.lemma + "]" + p)
             if len(p) < minl:
                 minl = len(p)
                 minp = p
                 minw = word2.lemma
     # Special feature for the keyword on the shortest dependency path
     if minw:
-        mention.add_feature('EXT_KEYWORD_SHORTEST_PATH_[' + minw + ']' + minp)
-        # mention.add_feature('KEYWORD_SHORTEST_PATH_[' + minw + ']')
+        mention.add_feature('EXT_KEYWORD_MIN_[' + minw + ']' + minp)
+        mention.add_feature('KEYWORD_MIN_[' + minw + ']')
     # The labels and the NERs on the shortest dependency path
     # between a verb and the mention word.
     minl = 100
@@ -121,7 +110,7 @@ def add_features(mention, sentence):
                 minp = p
                 minw = word2.lemma
     if minw:
-        mention.add_feature('EXT_VERB_PATH_[' + minw + ']' + minp)
+        mention.add_feature('VERB_[' + minw + ']' + minp)
     # There is no verb in the sentence
     # This may be useful to push down weird/junk sentences
     no_verb = True
@@ -131,35 +120,28 @@ def add_features(mention, sentence):
             break
     if no_verb:
         mention.add_feature("NO_VERB_IN_SENTENCE")
-    mention_lemmas = set([x.lemma.casefold() for x in mention.words])
-    name_words = set([x.casefold() for x in
-                      mention.entity.split("|")[1].split()])
-    if mention_lemmas == name_words:
-        # The mention is exactly the hpo name
-        mention.add_feature("IS_EXACT_NAME")
-    else:
-        if len(mention.words) > 1:
-            mention_wordidxs = sorted(map(lambda x: x.in_sent_idx,
-                                          mention.words))
-            curr = mention_wordidxs[0]
-            for i in mention_wordidxs[1:]:
-                if i == curr + 1:
-                    curr = i
-                else:
-                    break
-            if curr == mention_wordidxs[-1]:
-                mention.add_feature("WORDS_ARE_CONSECUTIVE")
-            elif len(mention.words) == \
-                    len(inverted_hpoterms[mention.entity.split("|")[1]]):
-                # The number of words in the mention is exactly the same as the
-                # size of the complete set of stems for this entity
-                mention.add_feature("HAS_ALL_STEMS")
-            # The lemmas in the mention are a subset of the name
-            if mention_lemmas.issubset(name_words):
-                mention.add_feature("IS_SUBSET_OF_NAME")
-        else:  # single word
-            if mention.words[0].word == "pneumoniae":
-                mention.add_feature("IS_PNEUNOMIAE")
+    if len(mention.words) > 1:
+        mention_wordidxs = sorted(map(lambda x: x.in_sent_idx,
+                                        mention.words))
+        curr = mention_wordidxs[0]
+        for i in mention_wordidxs[1:]:
+            if i == curr + 1:
+                curr = i
+            else:
+                break
+        if curr == mention_wordidxs[-1]:
+            mention.add_feature("WORDS_ARE_CONSECUTIVE")
+        elif len(mention.words) == \
+                len(inverted_hpoterms[mention.entity.split("|")[1]]):
+            # The number of words in the mention is exactly the same as the
+            # size of the complete set of stems for this entity
+            mention.add_feature("HAS_ALL_STEMS")
+        # The lemmas in the mention are a subset of the name
+        if mention_lemmas.issubset(name_words):
+            mention.add_feature("IS_SUBSET_OF_NAME")
+    else:  # single word
+        if mention.words[0].word == "pneumoniae":
+            mention.add_feature("IS_PNEUNOMIAE")
 
 
 # Add features that are related to the entire set of mentions candidates
@@ -169,6 +151,16 @@ def add_features_to_all(mentions, sentence):
 
 # Return a list of mentions from the sentence
 def extract(sentence):
+    # There are no English words in the sentence
+    no_english_words = True
+    for word in sentence.words:
+        if len(word.word) > 2 and \
+                (word.word in english_dict or
+                 word.word.casefold() in english_dict):
+            no_english_words = False
+            break
+    if no_english_words:
+        return []
     mentions = []
     # The list of stems in the sentence
     sentence_stems = []
@@ -331,10 +323,12 @@ sorted_hpoterms = sorted(hpoterm_mentions_dict.keys(), key=len,
                          reverse=True)
 # Initialize the stemmer
 stemmer = SnowballStemmer("english")
+
 if __name__ == "__main__":
     # Process the input
     with fileinput.input() as input_files:
         for line in input_files:
+            # Parse the TSV line
             line_dict = get_dict_from_TSVline(
                 line,
                 ["doc_id", "sent_id", "wordidxs", "words", "poses", "ners",
@@ -343,19 +337,14 @@ if __name__ == "__main__":
                     TSVstring2list, TSVstring2list, TSVstring2list,
                     TSVstring2list, lambda x: TSVstring2list(x, int),
                     TSVstring2list])
+            # Create the Sentence object
             sentence = Sentence(
                 line_dict["doc_id"], line_dict["sent_id"],
                 line_dict["wordidxs"], line_dict["words"], line_dict["poses"],
                 line_dict["ners"], line_dict["lemmas"], line_dict["dep_paths"],
                 line_dict["dep_parents"], line_dict["bounding_boxes"])
+            # Extract mention candidates
             mentions = extract(sentence)
-            for mention in mentions:
-                if mention.type != "RANDOM":
-                    supervise(mention, sentence)
-                else:
-                    # mention.add_feature("IS_RANDOM")
-                    mention.is_correct = False
-            if len(mentions) > 1:
-                add_features_to_all(mentions, sentence)
+            # Print!
             for mention in mentions:
                 print(mention.tsv_dump())
