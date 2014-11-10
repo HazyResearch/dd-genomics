@@ -20,6 +20,8 @@ def extract(sentence):
         while index < len(words):
             acronym = dict()
             acronym["acronym"] = words[index]
+            # There are a lot of typos and different separators used in the
+            # text, this is obviously a best effort ...
             try:
                 comma_index = words.index(",", index + 1)
             except:
@@ -60,20 +62,19 @@ def extract(sentence):
             index = definition_end + 1
     else:
         # Second method: find 'A Better Example (ABE)' type of definitions.
-        # Scan all the words in the sentence
-        for word in sentence.words:
+        # Skip first and last word of sentence, to allow for "(" and ")".
+        for word in sentence.words[1:-1]:
             acronym = None
-            # Look for definition only if this word is in the genes dictionary
-            # and is uppercase, and it only contains letters, and has length at
-            # least 2 and it comes between "(" and ")" or "(" and ";" # or "("
-            # and "," and is not the first world of the sentence and not the
-            # last.
+            # Look for definition only if 
+            # - this word is in the genes dictionary AND
+            # - is uppercase AND
+            # - it only contains letters AND
+            # - it has length at least 2  AND
+            # - it comes between "(" and ")" or "(" and ";" # or "(" # and "," 
             if word.word in merged_genes_dict and \
                     word.word not in inverted_long_names and \
-                    word.word.isupper() and \
-                    word.word.isalpha() and len(word.word) >= 2 and \
-                    word.in_sent_idx > 0 and \
-                    word.in_sent_idx < len(sentence.words) - 1 and \
+                    word.word.isupper() and word.word.isalpha() and \
+                    len(word.word) >= 2 and \
                     ((sentence.words[word.in_sent_idx - 1].word == "(" and
                       sentence.words[word.in_sent_idx + 1].word in [
                       ")", ";" ",", "]"]) or
@@ -116,27 +117,23 @@ if __name__ == "__main__":
     # Process the input
     with fileinput.input() as input_files:
         for line in input_files:
-            line_dict = get_dict_from_TSVline(line,
-                                              ["doc_id", "sent_id", "wordidxs",
-                                                  "words", "poses", "ners",
-                                                  "lemmas", "dep_paths",
-                                                  "dep_parents",
-                                                  "bounding_boxes"],
-                                              [no_op, int, lambda x:
-                                                  TSVstring2list(x, int),
-                                                  TSVstring2list,
-                                                  TSVstring2list,
-                                                  TSVstring2list,
-                                                  TSVstring2list,
-                                                  TSVstring2list, lambda x:
-                                                  TSVstring2list(x, int),
-                                                  TSVstring2list])
-            sentence = Sentence(line_dict["doc_id"], line_dict["sent_id"],
-                                line_dict["wordidxs"], line_dict["words"],
-                                line_dict["poses"], line_dict["ners"],
-                                line_dict["lemmas"], line_dict["dep_paths"],
-                                line_dict["dep_parents"],
-                                line_dict["bounding_boxes"])
+            # Parse the TSV line
+            line_dict = get_dict_from_TSVline(
+                line,
+                ["doc_id", "sent_id", "wordidxs", "words", "poses", "ners",
+                    "lemmas", "dep_paths", "dep_parents",
+                    "bounding_boxes"],
+                [no_op, int, lambda x: TSVstring2list(x, int), TSVstring2list,
+                    TSVstring2list, TSVstring2list, TSVstring2list,
+                    TSVstring2list, lambda x: TSVstring2list(x, int),
+                    TSVstring2list])
+            # Create the Sentence object
+            sentence = Sentence(
+                line_dict["doc_id"], line_dict["sent_id"],
+                line_dict["wordidxs"], line_dict["words"], line_dict["poses"],
+                line_dict["ners"], line_dict["lemmas"], line_dict["dep_paths"],
+                line_dict["dep_parents"], line_dict["bounding_boxes"])
+            # Extract the acronyms and print them
             for acronym in extract(sentence):
                 print("\t".join([acronym["doc_id"], str(acronym["sent_id"]),
                                  str(acronym["word_idx"]), acronym["acronym"],
