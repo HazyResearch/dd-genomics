@@ -43,7 +43,7 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
     end = limits[3]
 
     hpo_entity_id, hpo_entity_name = hpoterm_mention.entity.split("|")
-    # Verbs between the two words, if present
+    # Verb between the two words, if present
     for word in sentence.words[betw_start+1:betw_end]:
         if re.search('^VB[A-Z]*$', word.pos):
             relation.add_feature("VERB_" + word.lemma)
@@ -53,7 +53,17 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
     seq = "_".join(map(lambda x: x.lemma,
         sentence.words[betw_start+1:betw_end]))
     relation.add_feature("WORD_SEQ_[" + seq + "]")
-    # Word sequence with window left and right
+    # The sequence of words between the two mentions but using the NERs, if
+    # present
+    seq_list = []
+    for word in sentence.words[betw_start+1:betw_end]:
+        if word.ner != "O":
+            seq_list.append(word.ner)
+        else:
+            seq_list.append(word.lemma)
+    seq = "_".join(seq_list)
+    relation.add_feature("WORD_SEQ_NER_[" + seq + "]")
+    # Lemma on the left and on the right
     if start > 0:
         rel.add_feature("NGRAM_LEFT_1_[" + sentence.words[start-1].lemma + "]")
     if end < len(sent.words) - 1:
