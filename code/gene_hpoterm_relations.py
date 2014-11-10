@@ -12,11 +12,21 @@ from helper.easierlife import get_dict_from_TSVline, no_op, TSVstring2list
 
 # Perform distant supervision
 def supervise(relation, gene_mention, hpoterm_mention, sentence):
+    # One of the two mentions is labelled as False
     if gene_mention.is_correct is False or hpoterm_mention.is_correct is False:
         relation.is_correct = False
         return
-    if "IN_GENE_HPOTERM_MAP" in relation.features:
+    # Present in the existing HPO mapping
+    in_mapping = False
+    for gene in gene_mention.entity.split("|"):
+        if frozenset([gene, hpo_entity_id]) in genehpoterms_dict:
+            in_mapping = True
+    if frozenset([gene_mention.words[0].word, hpo_entity_id]) in \
+            genehpoterms_dict:
+        in_mapping = True
+    if in_mapping:
         relation.is_correct = True
+        return
 
 
 # Add features
@@ -26,43 +36,29 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
     hpoterm_start = hpoterm_mention.wordidxs[0]
     gene_end = gene_mention.wordidxs[-1]
     hpoterm_end = hpoterm_mention.wordidxs[-1]
-    start = min(gene_start, hpoterm_start)
-    end = max(gene_end, hpoterm_end)
+    limits = sorted((gene_start, hpoterm_start, gene_end, hpoterm_end))
+    start = limits[0]
+    betw_start = limits[1]
+    betw_end = limits[2]
+    end = limits[3]
+
     hpo_entity_id, hpo_entity_name = hpoterm_mention.entity.split("|")
-    # Present in the existing HPO mapping
-    in_mapping = False
-    for gene in gene_mention.entity.split("|"):
-        if frozenset([gene, hpo_entity_id]) in genehpoterms_dict:
-            # relation.add_feature(
-                # "IN_GENE_HPOTERM_MAP_{}_{}".format(
-                #    gene, hpoterm_mention.entity))
-            in_mapping = True
-    if frozenset([gene_mention.words[0].word, hpo_entity_id]) in \
-            genehpoterms_dict:
-        # relation.add_feature(
-            # "IN_GENE_HPOTERM_MAP_{}_{}".format(
-            #    gene_mention.words[0].word, hpoterm_mention.entity))
-        in_mapping = True
-    if in_mapping:
-        relation.add_feature("IN_GENE_HPOTERM_MAP")
     # Verbs between the two words, if present
-    # XXX (Matteo) From pharm, RelationExtractor_Druggene_mention.py, but not
-    # correct (PERHAPS)
-    for word in sentence.words[start:end]:
+    for word in sentence.words[betw_start+1:betw_end]:
         if re.search('^VB[A-Z]*$', word.pos):
             relation.add_feature("VERB_" + word.lemma)
-    # Word sequence between mentions
-    #relation.add_feature(
-    #    "WORD_SEQ="+"_".join([w.lemma for w in sentence.words[start:end]]))
-    # Left and right windows
-    # if start > 0:
-    #    relation.add_feature(
-    #        "WINDOW_LEFT_1={}".format(sentence.words[start-1].lemma))
-    # if end < len(sentence.words) - 1:
-    #    relation.add_feature("WINDOW_RIGHT_1={}".format(
-    #        sentence.words[end].lemma))
     # Shortest dependency path between the two mentions
     relation.add_feature(sentence.dep_path(gene_mention, hpoterm_mention))
+    # The sequence of lemmas between the two mentions
+    seq = "_".join(map(lambda x: x.lemma,
+        sentence.words[betw_start+1:betw_end]))
+    relation.add_feature("WORD_SEQ_[" + seq + "]")
+    # Word sequence with window left and right
+    if start > 0:
+        rel.add_feature("NGRAM_LEFT_1_[" + sentence.words[start-1].lemma + "]")
+    if end < len(sent.words) - 1:
+        rel.add_feature("NGRAM_RIGHT_1_[" + sentence.words[end+1].lemma + "]")
+
 
 
 # Load the gene<->hpoterm dictionary
@@ -72,6 +68,7 @@ if __name__ == "__main__":
     # Process input
     with fileinput.input() as input_files:
         for line in input_files:
+            # Parse the TSV line
             line_dict = get_dict_from_TSVline(
                 line, ["doc_id", "sent_id", "wordidxs", "words", "poses",
                        "ners", "lemmas", "dep_paths", "dep_parents",
@@ -95,8 +92,11 @@ if __name__ == "__main__":
             hpoterm_mention = Mention(
                 "HPOTERM", line_dict["hpoterm_entity"],
                 [sentence.words[j] for j in line_dict["hpoterm_wordidxs"]])
-            # Create the relation
-            relation = Relation("GENEHPOTERM", gene_mention, hpoterm_mention)
+            # If the word indexes do not overlap, create the relation candidate
+            if not set(line_dict["gene_wordidixs"]) & \
+                    set(line_dict["hpoterm_wordidxs"]) :
+                relation = Relation(
+                    "GENEHPOTERM", gene_mention, hpoterm_mention)
             # Add features
             add_features(relation, gene_mention, hpoterm_mention, sentence)
             # Supervise
