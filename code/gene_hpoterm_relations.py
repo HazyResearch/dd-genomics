@@ -23,7 +23,6 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
     betw_end = limits[2]
     end = limits[3]
 
-    hpo_entity_id, hpo_entity_name = hpoterm_mention.entity.split("|")
     # Verb between the two words, if present
     for word in sentence.words[betw_start+1:betw_end]:
         if re.search('^VB[A-Z]*$', word.pos):
@@ -32,7 +31,7 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
     relation.add_feature(sentence.dep_path(gene_mention, hpoterm_mention))
     # The sequence of lemmas between the two mentions
     seq = "_".join(map(lambda x: x.lemma,
-        sentence.words[betw_start+1:betw_end]))
+                       sentence.words[betw_start+1:betw_end]))
     relation.add_feature("WORD_SEQ_[" + seq + "]")
     # The sequence of words between the two mentions but using the NERs, if
     # present
@@ -46,10 +45,11 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
     relation.add_feature("WORD_SEQ_NER_[" + seq + "]")
     # Lemma on the left and on the right
     if start > 0:
-        rel.add_feature("NGRAM_LEFT_1_[" + sentence.words[start-1].lemma + "]")
-    if end < len(sent.words) - 1:
-        rel.add_feature("NGRAM_RIGHT_1_[" + sentence.words[end+1].lemma + "]")
-
+        relation.add_feature("NGRAM_LEFT_1_[" + sentence.words[start-1].lemma +
+                             "]")
+    if end < len(sentence.words) - 1:
+        relation.add_feature("NGRAM_RIGHT_1_[" + sentence.words[end+1].lemma +
+                             "]")
 
 
 # Load the gene<->hpoterm dictionary
@@ -84,8 +84,8 @@ if __name__ == "__main__":
                 "HPOTERM", line_dict["hpoterm_entity"],
                 [sentence.words[j] for j in line_dict["hpoterm_wordidxs"]])
             # If the word indexes do not overlap, create the relation candidate
-            if not set(line_dict["gene_wordidixs"]) & \
-                    set(line_dict["hpoterm_wordidxs"]) :
+            if not set(line_dict["gene_wordidxs"]) & \
+                    set(line_dict["hpoterm_wordidxs"]):
                 relation = Relation(
                     "GENEHPOTERM", gene_mention, hpoterm_mention)
             # Add features
@@ -101,6 +101,7 @@ if __name__ == "__main__":
                 print(supervised.tsv_dump())
             # Present in the existing HPO mapping
             in_mapping = False
+            hpo_entity_id = hpoterm_mention.entity.split("|")[0]
             for gene in gene_mention.entity.split("|"):
                 if frozenset([gene, hpo_entity_id]) in genehpoterms_dict:
                     in_mapping = True
