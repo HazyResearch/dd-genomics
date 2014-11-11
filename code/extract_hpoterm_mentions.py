@@ -17,8 +17,7 @@ max_mention_length = 8
 
 MENTION_THRESHOLD = 0.75
 
-HPOTERM_KEYWORDS = frozenset(
-    [
+HPOTERM_KEYWORDS = frozenset([
     "abnormality", "affect", "apoptosis", "association", "boy", "cancer",
     "carcinoma", "case", "chemotherapy", "chromosome", "cronic", "deletion",
     "detection", "diagnose", "diagnosis", "disease", "drug", "gene", "genome",
@@ -37,7 +36,7 @@ def supervise(mentions, sentence):
 
         mention_lemmas = set([x.lemma.casefold() for x in mention.words])
         name_words = set([x.casefold() for x in
-                        mention.entity.split("|")[1].split()])
+                          mention.entity.split("|")[1].split()])
         # The mention is exactly the hpo name
         if mention_lemmas == name_words:
             supervised = Mention("HPOTERM_SUP", mention.entity, mention.words)
@@ -134,7 +133,7 @@ def add_features(mention, sentence):
         pass  # Don't do anything, we supervise these as True
     elif len(mention.words) > 1:
         mention_wordidxs = sorted(map(lambda x: x.in_sent_idx,
-                                        mention.words))
+                                      mention.words))
         curr = mention_wordidxs[0]
         for i in mention_wordidxs[1:]:
             if i == curr + 1:
@@ -261,25 +260,26 @@ def extract(sentence):
                     for word in sentence.words[start:end]:
                         if word.stem in phrase_stems and \
                                 word in this_stem_set_mentions_words[hpo_name]:
-                            # We used this word for this mention, so flag it to be
-                            # removed from the list of words available for other
-                            # possible mentions.
+                            # We used this word for this mention, so flag it to
+                            # be removed from the list of words available for
+                            # other possible mentions.
                             words_to_remove.append(word)
                             # Early termination
                             if len(words_to_remove) == \
-                                    len(this_stem_set_mentions_words[hpo_name]):
+                                    len(
+                                    this_stem_set_mentions_words[hpo_name]):
                                 break
-                    # If the following test passes, we found all the words used by
-                    # this mention, which means that they weren't used by some
-                    # longer mentions, which means we can create the mention,
-                    # as long as we haven't already created a mention with
-                    # the same hpo_id
+                    # If the following test passes, we found all the words used
+                    # by this mention, which means that they weren't used by
+                    # some longer mentions, which means we can create the
+                    # mention, as long as we haven't already created a mention
+                    # with the same hpo_id
                     if len(words_to_remove) == \
                             len(this_stem_set_mentions_words[hpo_name]) and \
                             hponames_to_ids[hpo_name] not in already_added:
                         mention = Mention(
-                            "HPOTERM", hponames_to_ids[hpo_name] + "|" + hpo_name,
-                            this_stem_set_mentions_words[hpo_name])
+                            "HPOTERM", hponames_to_ids[hpo_name] + "|" +
+                            hpo_name, this_stem_set_mentions_words[hpo_name])
                         mentions.append(mention)
                         already_added.add(hponames_to_ids[hpo_name])
                         add_features(mention, sentence)
