@@ -9,10 +9,11 @@ from nltk.stem.snowball import SnowballStemmer
 
 from dstruct.Mention import Mention
 from dstruct.Sentence import Sentence
-from helper.easierlife import get_dict_from_TSVline, TSVstring2list, no_op
+from helper.easierlife import get_all_phrases_in_sentence, \
+    get_dict_from_TSVline, TSVstring2list, no_op
 from helper.dictionaries import load_dict
 
-max_mention_length = 7
+max_mention_length = 8
 
 MENTION_THRESHOLD = 0.75
 
@@ -168,21 +169,26 @@ def extract(sentence):
             break
     if no_english_words:
         return mentions
+    # Word indexes not already used for a mention
+    sentence_available_word_indexes = set(
+        [x.in_sent_idx for x in sentence.words])
     # Iterate over each phrase of length at most max_mention_length
     for start, end in get_all_phrases_in_sentence(sentence,
                                                   max_mention_length):
+        # Word indexes not already used for a mention
+        phrase_available_word_indexes = set(
+            [x.in_sent_idx for x in sentence.words[start:end]]) & \
+            sentence_available_word_indexes
         # The list of stems in the phrase (not from stopwords or symbols)
         phrase_stems = []
         for word in sentence.words[start:end]:
             word.stem = stemmer.stem(word.word)  # here so all words have stem
             if not re.match("^(_|\W)+$", word.word) and \
-                (len(word.word) == 1 or
-                 word.word.casefold() not in stopwords_dict):
+                    (len(word.word) == 1 or
+                     word.word.casefold() not in stopwords_dict) and \
+                    word.in_sent_idx in phrase_available_word_indexes:
                 phrase_stems.append(word.stem)
         phrase_stems_set = frozenset(phrase_stems)
-        # Word indexes not already used for a mention
-        phrase_available_word_indexes = set(
-            [x.in_sent_idx for x in sentence.words[start:end]])
         for pheno_stems in sorted_hpoterms:  # reverse sorted by length
             if pheno_stems <= phrase_stems_set:  # Match! Create candidate(s)
                 # The following is the set of hpo_ids we added for this
@@ -284,10 +290,12 @@ def extract(sentence):
                                 phrase_stems.remove(word.stem)
                                 phrase_available_word_indexes.remove(
                                     word.in_sent_idx)
+                                sentence_available_word_indexes.remove(
+                                    word.in_sent_idx)
                             except:
                                 pass
                         # Update as it may have changed
-                        phrase_stems_set = frozenset(sentence_stems)
+                        phrase_stems_set = frozenset(phrase_stems)
     return mentions
 
 
