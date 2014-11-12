@@ -1,8 +1,6 @@
 #! /usr/bin/env python3
 
 import fileinput
-import itertools
-import math
 import re
 
 from nltk.stem.snowball import SnowballStemmer
@@ -44,8 +42,8 @@ mandatory_stems = frozenset(
 
 mandatory = dict()
 for hpo_name in inverted_hpoterms:
-    stem_set = inverted_hpoterms[stem_set]
-    mandatory[stem_set] = stem_set & mandatory_stems  
+    stem_set = inverted_hpoterms[hpo_name]
+    mandatory[stem_set] = stem_set & mandatory_stems
 
 # The keys of the following dictionary are sets of stems, and the values are
 # sets of hpoterms whose name, without stopwords, gives origin to the
@@ -54,6 +52,7 @@ hpoterms_dict = load_dict("hpoterms")
 
 # Initialize the stemmer
 stemmer = SnowballStemmer("english")
+
 
 # Perform the supervision
 def supervise(mentions, sentence):
@@ -187,12 +186,11 @@ def extract(sentence):
     # If there are no English words in the sentence, we skip it.
     no_english_words = True
     for word in sentence.words:
-        word.stem = stemmer.stem(word.word)  # here so all words have stem
+        word.stem = stemmer.stem(word.word)  # Here so all words have stem
         if len(word.word) > 2 and \
                 (word.word in english_dict or
                  word.word.casefold() in english_dict):
             no_english_words = False
-            break
     if no_english_words:
         return mentions
     history = set()
@@ -201,13 +199,14 @@ def extract(sentence):
                                                   max_mention_length):
         if start in history or end - 1 in history:
             continue
-        # The list of stems in the phrase (not from stopwords or symbols)
+        # The list of stems in the phrase (not from stopwords or symbols, and
+        # not already used for a mention)
         phrase_stems = []
         for word in sentence.words[start:end]:
             if not re.match("^(_|\W)+$", word.word) and \
                     (len(word.word) == 1 or
                      word.word.casefold() not in stopwords_dict) and \
-                    word.in_sent_idx in phrase_available_word_indexes:
+                    word.in_sent_idx not in history:
                 phrase_stems.append(word.stem)
         phrase_stems_set = frozenset(phrase_stems)
         max_ratio = 0.0
@@ -216,26 +215,27 @@ def extract(sentence):
         for hpo_name in inverted_hpoterms:
             stem_set = inverted_hpoterms[hpo_name]
             intersect = stem_set & phrase_stems_set
-            if len(intersect) == 0:
-                continue
-            if not mandatory[stem_set].issubset(intersect):
-                continue
-            elif (len(stem_set) <= 4 or len(stem_set - mandatory) <= 2) and \
-                    not stem_set <= phrase_stems_set:
-                continue
-            elif len(intersect) <= MENTION_THRESHOLD * len(stem_set):
+            if len(intersect) == 0 or \
+                    not mandatory[stem_set].issubset(intersect) or \
+                    ((len(stem_set) <= 4 or
+                     len(stem_set - mandatory[stem_set]) <= 2) and
+                     not stem_set <= phrase_stems_set) or \
+                    len(intersect) <= MENTION_THRESHOLD * len(stem_set):
                 continue
             else:
                 # Find the word objects of that match
                 mention_words = []
+                mention_lemmas = []
                 mention_stems = set()
                 for word in sentence.words[start:end]:
-                    if word.stem in inverted_hpoterms[hpo_name] and \
-                            word.lemma.casefold() not in \
-                            [x.lemma.casefold() for x in mention_words] and \
+                    if word.stem in stem_set and \
+                            word.lemma.casefold() not in mention_lemmas and \
                             word.stem not in mention_stems:
+                        mention_lemmas.append(word.lemma.casefold())
                         mention_words.append(word)
                         mention_stems.add(word.stem)
+                        if len(mention_words) == len(stem_set):
+                            break
                 # Check whether the name contain words of a single letter. If
                 # that is the case we want them to be immediately followed or
                 # preceded in the mention by another word in the mention.
@@ -248,17 +248,17 @@ def extract(sentence):
                         has_word_with_length_one = True
                         index = 0
                         while index < len(intersect):
-                            if mentions_words[index].stem == stem:
+                            if mention_words[index].stem == stem:
                                 break
                             else:
                                 index += 1
-                        if index < len(mentions_words)-1:
-                            if mentions_words[index+1].in_sent_idx == \
-                                    mentions_words[index].in_sent_idx + 1:
+                        if index < len(mention_words)-1:
+                            if mention_words[index+1].in_sent_idx == \
+                                    mention_words[index].in_sent_idx + 1:
                                 is_next_immediate = True
                         if index > 0:
-                            if mentions_words[index-1].in_sent_idx == \
-                                    mentions_words[index].in_sent_idx - 1:
+                            if mention_words[index-1].in_sent_idx == \
+                                    mention_words[index].in_sent_idx - 1:
                                 is_previous_immediate = True
                         if has_word_with_length_one and \
                                 not is_next_immediate and \
@@ -281,14 +281,14 @@ def extract(sentence):
                 for entity_2 in max_entities:
                     if entity_1 != entity_2 and \
                             inverted_hpoterms[entity_2] & phrase_stems_set <= \
-                            intersect: 
+                            intersect:
                         to_remove.append[entity_2]
             for entity in to_remove:
                 max_entities.remove(entity)
             # We found one or more valid candidates, so create mentions
             for entity in max_entities:
                 mention = Mention("HPOTERM", hponames_to_ids[entity] + "|" +
-                        entity , max_words[entity])
+                                  entity, max_words[entity])
                 add_features(mention, sentence)
                 mentions.append(mention)
                 for word in max_words[entity]:
