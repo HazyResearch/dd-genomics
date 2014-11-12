@@ -1,8 +1,6 @@
 #! /usr/bin/env python3
 
 import fileinput
-import itertools
-import math
 import re
 
 from nltk.stem.snowball import SnowballStemmer
@@ -26,6 +24,34 @@ HPOTERM_KEYWORDS = frozenset([
     "severe", "symptom", "syndrome", "therapy", "therapeutic", "treat",
     "treatment", "viruses", "virus", "woman"
     ])
+
+# Load the dictionaries that we need
+english_dict = load_dict("english")
+stopwords_dict = load_dict("stopwords")
+inverted_hpoterms = load_dict("hpoterms_inverted")
+hponames_to_ids = load_dict("hponames_to_ids")
+# hpodag = load_dict("hpoparents")
+
+mandatory_stems = frozenset(
+    ("keratocytosi", "carcinoma", "pancreat", "oropharyng", "hyperkeratos",
+        "hyperkeratosi", "palmoplantar", "palmar", "genitalia", "labia",
+        "hyperplasia", "fontanell", "facial", "prelingu", "sensorineur",
+        "auditori", "neck", "incisor", "nervous", "ventricl", "cyst",
+        "aplasia", "hypoplasia", "c-reactiv", "papillari",
+        "beta-glucocerebrosidas", "loss", "accumul", "swell", "left", "right"))
+
+mandatory = dict()
+for hpo_name in inverted_hpoterms:
+    stem_set = inverted_hpoterms[hpo_name]
+    mandatory[stem_set] = stem_set & mandatory_stems
+
+# The keys of the following dictionary are sets of stems, and the values are
+# sets of hpoterms whose name, without stopwords, gives origin to the
+# corresponding set of stems (as key)
+hpoterms_dict = load_dict("hpoterms")
+
+# Initialize the stemmer
+stemmer = SnowballStemmer("english")
 
 
 # Perform the supervision
@@ -155,201 +181,120 @@ def add_features(mention, sentence):
             mention.add_feature("IS_PNEUNOMIAE")
 
 
-# Return a list of mention candidates extracted from the sentence
 def extract(sentence):
     mentions = []
     # If there are no English words in the sentence, we skip it.
     no_english_words = True
     for word in sentence.words:
+        word.stem = stemmer.stem(word.word)  # Here so all words have stem
         if len(word.word) > 2 and \
                 (word.word in english_dict or
                  word.word.casefold() in english_dict):
             no_english_words = False
-            break
     if no_english_words:
         return mentions
-    # Word indexes not already used for a mention
-    sentence_available_word_indexes = set(
-        [x.in_sent_idx for x in sentence.words])
+    history = set()
     # Iterate over each phrase of length at most max_mention_length
     for start, end in get_all_phrases_in_sentence(sentence,
                                                   max_mention_length):
-        # Word indexes not already used for a mention
-        phrase_available_word_indexes = set(
-            [x.in_sent_idx for x in sentence.words[start:end]]) & \
-            sentence_available_word_indexes
-        # The list of stems in the phrase (not from stopwords or symbols)
+        if start in history or end - 1 in history:
+            continue
+        # The list of stems in the phrase (not from stopwords or symbols, and
+        # not already used for a mention)
         phrase_stems = []
         for word in sentence.words[start:end]:
-            word.stem = stemmer.stem(word.word)  # here so all words have stem
             if not re.match("^(_|\W)+$", word.word) and \
                     (len(word.word) == 1 or
                      word.word.casefold() not in stopwords_dict) and \
-                    word.in_sent_idx in phrase_available_word_indexes:
+                    word.in_sent_idx not in history:
                 phrase_stems.append(word.stem)
         phrase_stems_set = frozenset(phrase_stems)
-        for pheno_stems in sorted_hpoterms:  # reverse sorted by length
-            if pheno_stems <= phrase_stems_set:  # Match! Create candidate(s)
-                # The following is the set of hpo_ids we added for this
-                # pheno_stems
-                already_added = set()
-                this_stem_set_mentions_words = dict()
-                this_stem_set_mentions_stems = dict()
-                for hpo_name in hpoterm_mentions_dict[pheno_stems]:
-                    # Find the word objects of this mention
-                    mention_words = []
-                    mention_stems = set()
-                    for word in sentence.words[start:end]:
-                        if word.stem in inverted_hpoterms[hpo_name] and \
-                                word.lemma.casefold() not in \
-                                [x.lemma.casefold() for x in mention_words] and \
-                                word.in_sent_idx in \
-                                phrase_available_word_indexes and \
-                                word.stem not in mention_stems:
-                            mention_words.append(word)
-                            mention_stems.add(word.stem)
-                    this_stem_set_mentions_words[hpo_name] = mention_words
-                    this_stem_set_mentions_stems[hpo_name] = mention_stems
-                keys = list(this_stem_set_mentions_words.keys())
+        max_ratio = 0.0
+        max_entities = []
+        max_words = dict()
+        for hpo_name in inverted_hpoterms:
+            stem_set = inverted_hpoterms[hpo_name]
+            intersect = stem_set & phrase_stems_set
+            if len(intersect) == 0 or \
+                    not mandatory[stem_set].issubset(intersect) or \
+                    ((len(stem_set) <= 4 or
+                     len(stem_set - mandatory[stem_set]) <= 2) and
+                     not stem_set <= phrase_stems_set) or \
+                    len(intersect) <= MENTION_THRESHOLD * len(stem_set):
+                continue
+            else:
+                # Find the word objects of that match
+                mention_words = []
+                mention_lemmas = []
+                mention_stems = set()
+                for word in sentence.words[start:end]:
+                    if word.stem in stem_set and \
+                            word.lemma.casefold() not in mention_lemmas and \
+                            word.stem not in mention_stems:
+                        mention_lemmas.append(word.lemma.casefold())
+                        mention_words.append(word)
+                        mention_stems.add(word.stem)
+                        if len(mention_words) == len(stem_set):
+                            break
                 # Check whether the name contain words of a single letter. If
                 # that is the case we want them to be immediately followed or
                 # preceded in the mention by another word in the mention.
-                for hpo_name in keys:
-                    is_previous_immediate = False
-                    is_next_immediate = False
-                    has_word_with_length_one = False
-                    for stem in inverted_hpoterms[hpo_name]:
-                        if len(stem) == 1:
-                            has_word_with_length_one = True
-                            index = 0
-                            while index < len(
-                                    this_stem_set_mentions_words[hpo_name]):
-                                if this_stem_set_mentions_words[hpo_name][
-                                        index].stem == stem:
-                                    break
-                                else:
-                                    index += 1
-                            if index < len(
-                                    this_stem_set_mentions_words[hpo_name])-1:
-                                if this_stem_set_mentions_words[hpo_name][
-                                        index+1].in_sent_idx == \
-                                        this_stem_set_mentions_words[hpo_name][
-                                        index].in_sent_idx + 1:
-                                    is_next_immediate = True
-                                    break
-                            if index > 0:
-                                if this_stem_set_mentions_words[hpo_name][
-                                        index-1].in_sent_idx == \
-                                        this_stem_set_mentions_words[hpo_name][
-                                        index].in_sent_idx - 1:
-                                    is_previous_immediate = True
-                                    break
-                    if has_word_with_length_one and not is_next_immediate and \
-                            not is_previous_immediate:
-                        del this_stem_set_mentions_words[hpo_name]
-                        del this_stem_set_mentions_stems[hpo_name]
-                # Create the candidates, starting from those with the highest
-                # ratio between the number matched words and the size of the
-                # name. The others are created if the are matching words left.
-                for hpo_name in sorted(
-                        this_stem_set_mentions_words.keys(),
-                        key=lambda x: len(this_stem_set_mentions_words[x]) /
-                        len(inverted_hpoterms[x]),
-                        reverse=True):
-                    words_to_remove = []
-                    for word in sentence.words[start:end]:
-                        if word.stem in phrase_stems and \
-                                word in this_stem_set_mentions_words[hpo_name]:
-                            # We used this word for this mention, so flag it to
-                            # be removed from the list of words available for
-                            # other possible mentions.
-                            words_to_remove.append(word)
-                            # Early termination
-                            if len(words_to_remove) == \
-                                    len(
-                                    this_stem_set_mentions_words[hpo_name]):
+                should_continue = False
+                is_previous_immediate = False
+                is_next_immediate = False
+                has_word_with_length_one = False
+                for stem in stem_set:
+                    if len(stem) == 1:
+                        has_word_with_length_one = True
+                        index = 0
+                        while index < len(intersect):
+                            if mention_words[index].stem == stem:
                                 break
-                    # If the following test passes, we found all the words used
-                    # by this mention, which means that they weren't used by
-                    # some longer mentions, which means we can create the
-                    # mention, as long as we haven't already created a mention
-                    # with the same hpo_id
-                    if len(words_to_remove) == \
-                            len(this_stem_set_mentions_words[hpo_name]) and \
-                            hponames_to_ids[hpo_name] not in already_added:
-                        mention = Mention(
-                            "HPOTERM", hponames_to_ids[hpo_name] + "|" +
-                            hpo_name, this_stem_set_mentions_words[hpo_name])
-                        mentions.append(mention)
-                        already_added.add(hponames_to_ids[hpo_name])
-                        add_features(mention, sentence)
-                        # Remove the used words so they cannot be used by
-                        # shorter mentions
-                        for word in words_to_remove:
-                            try:
-                                phrase_stems.remove(word.stem)
-                                phrase_available_word_indexes.remove(
-                                    word.in_sent_idx)
-                                sentence_available_word_indexes.remove(
-                                    word.in_sent_idx)
-                            except:
-                                pass
-                        # Update as it may have changed
-                        phrase_stems_set = frozenset(phrase_stems)
+                            else:
+                                index += 1
+                        if index < len(mention_words)-1:
+                            if mention_words[index+1].in_sent_idx == \
+                                    mention_words[index].in_sent_idx + 1:
+                                is_next_immediate = True
+                        if index > 0:
+                            if mention_words[index-1].in_sent_idx == \
+                                    mention_words[index].in_sent_idx - 1:
+                                is_previous_immediate = True
+                        if has_word_with_length_one and \
+                                not is_next_immediate and \
+                                not is_previous_immediate:
+                            should_continue = True
+                            break
+                if should_continue:
+                    continue
+                else:
+                    ratio = len(intersect) / len(stem_set)
+                    if ratio >= max_ratio:
+                        max_ratio = ratio
+                        max_entities.append(hpo_name)
+                        max_words[hpo_name] = mention_words
+        if max_ratio > 0.0:
+            # Remove entities that are subsets of others
+            to_remove = []
+            for entity_1 in max_entities:
+                intersect = inverted_hpoterms[entity_1] & phrase_stems_set
+                for entity_2 in max_entities:
+                    if entity_1 != entity_2 and \
+                            inverted_hpoterms[entity_2] & phrase_stems_set <= \
+                            intersect:
+                        to_remove.append[entity_2]
+            for entity in to_remove:
+                max_entities.remove(entity)
+            # We found one or more valid candidates, so create mentions
+            for entity in max_entities:
+                mention = Mention("HPOTERM", hponames_to_ids[entity] + "|" +
+                                  entity, max_words[entity])
+                add_features(mention, sentence)
+                mentions.append(mention)
+                for word in max_words[entity]:
+                    history.add(word.in_sent_idx)
     return mentions
 
-
-# Load the dictionaries that we need
-english_dict = load_dict("english")
-stopwords_dict = load_dict("stopwords")
-inverted_hpoterms = load_dict("hpoterms_inverted")
-hponames_to_ids = load_dict("hponames_to_ids")
-# hpodag = load_dict("hpoparents")
-
-mandatory_stems = frozenset(
-    ("keratocytosi", "carcinoma", "pancreat", "oropharyng", "hyperkeratos",
-        "hyperkeratosi", "palmoplantar", "palmar", "genitalia", "labia",
-        "hyperplasia", "fontanell", "facial", "prelingu", "sensorineur",
-        "auditori", "neck", "incisor", "nervous", "ventricl", "cyst",
-        "aplasia", "hypoplasia", "c-reactiv", "papillari",
-        "beta-glucocerebrosidas", "loss", "accumul", "swell", "left", "right"))
-
-# The keys of the following dictionary are sets of stems, and the values are
-# sets of hpoterms whose name, without stopwords, gives origin to the
-# corresponding set of stems (as key)
-hpoterms_dict = load_dict("hpoterms")
-# Create the dictionary containing the sets of stems to create the candidates.
-# The keys are sets of stems, and the values are sets of hpoterms, whose
-# corresponding key in hpoterms_dict is a superset (non necessarily proper) of
-# the key in this dictionary
-hpoterm_mentions_dict = dict()
-for stem_set in hpoterms_dict:
-    term_mandatory_stems = set()
-    for stem in stem_set:
-        if len(stem) == 1 or stem in mandatory_stems:
-            term_mandatory_stems.add(stem)
-    optional_stems = stem_set - term_mandatory_stems
-    # If there original key has size at most 4 or there are only few optional
-    # stems left, just include everything.
-    if len(stem_set) <= 4 or len(optional_stems) <= 2:
-        if stem_set not in hpoterm_mentions_dict:
-            hpoterm_mentions_dict[stem_set] = set()
-        hpoterm_mentions_dict[stem_set] |= hpoterms_dict[stem_set]
-    else:
-        optional_subset_size = math.ceil(MENTION_THRESHOLD * len(stem_set)) - \
-            len(term_mandatory_stems)
-        for subset in itertools.combinations(
-                optional_stems, optional_subset_size):
-            subset = frozenset(term_mandatory_stems | set(subset))
-            if subset not in hpoterm_mentions_dict:
-                hpoterm_mentions_dict[subset] = set()
-            hpoterm_mentions_dict[subset] |= hpoterms_dict[stem_set]
-# Sort the keys in decreasing order according to length. This speeds up the
-# extraction process
-sorted_hpoterms = sorted(hpoterm_mentions_dict.keys(), key=len,
-                         reverse=True)
-# Initialize the stemmer
-stemmer = SnowballStemmer("english")
 
 if __name__ == "__main__":
     # Process the input
