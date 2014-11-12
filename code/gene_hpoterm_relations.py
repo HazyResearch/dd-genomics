@@ -25,10 +25,12 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
 
     # Verb between the two words, if present
     for word in sentence.words[betw_start+1:betw_end]:
-        if re.search('^VB[A-Z]*$', word.pos):
+        if re.search('^VB[A-Z]*$', word.pos) and word.lemma != ")" and \
+                word.lemma != "(":
             relation.add_feature("VERB_" + word.lemma)
     # Shortest dependency path between the two mentions
-    relation.add_feature(sentence.dep_path(gene_mention, hpoterm_mention))
+    relation.add_feature("DEP_PATH_[" + sentence.dep_path(gene_mention,
+        hpoterm_mention) + "]")
     # The sequence of lemmas between the two mentions
     seq = "_".join(map(lambda x: x.lemma,
                        sentence.words[betw_start+1:betw_end]))
