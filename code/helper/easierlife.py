@@ -62,6 +62,16 @@ def no_op(x):
     return x
 
 
+# Transform a TSV string into a boolean
+def TSVstring2bool(string):
+    if string == "t":
+        return True
+    elif string == "f":
+        return False
+    else:
+        assert False
+
+
 # Transform a string obtained by postgresql array_str() into a list.
 # The parameter func() gets applied to the elements of the list
 def TSVstring2list(string, func=(lambda x: x), sep="|^|"):

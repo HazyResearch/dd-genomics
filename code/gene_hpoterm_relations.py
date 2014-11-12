@@ -7,7 +7,8 @@ from dstruct.Mention import Mention
 from dstruct.Sentence import Sentence
 from dstruct.Relation import Relation
 from helper.dictionaries import load_dict
-from helper.easierlife import get_dict_from_TSVline, no_op, TSVstring2list
+from helper.easierlife import get_dict_from_TSVline, no_op, TSVstring2bool, \
+    TSVstring2list
 
 
 # Add features
@@ -66,12 +67,15 @@ if __name__ == "__main__":
                 line, ["doc_id", "sent_id", "wordidxs", "words", "poses",
                        "ners", "lemmas", "dep_paths", "dep_parents",
                        "bounding_boxes", "gene_entity", "gene_wordidxs",
-                       "hpoterm_entity", "hpoterm_wordidxs"],
+                       "gene_is_correct",
+                       "hpoterm_entity", "hpoterm_wordidxs",
+                       "hpoterm_is_correct"],
                 [no_op, int, lambda x: TSVstring2list(x, int), TSVstring2list,
                     TSVstring2list, TSVstring2list, TSVstring2list,
                     TSVstring2list, lambda x: TSVstring2list(x, int),
                     TSVstring2list, no_op, lambda x: TSVstring2list(x, int),
-                    no_op, lambda x: TSVstring2list(x, int)])
+                    TSVstring2bool, no_op, lambda x: TSVstring2list(x, int)],
+                    TSVstring2bool)
             # Create the sentence object where the two mentions appear
             sentence = Sentence(
                 line_dict["doc_id"], line_dict["sent_id"],
@@ -82,9 +86,11 @@ if __name__ == "__main__":
             gene_mention = Mention(
                 "GENE", line_dict["gene_entity"],
                 [sentence.words[j] for j in line_dict["gene_wordidxs"]])
+            gene_mention.is_correct = line_dict["gene_is_correct"]
             hpoterm_mention = Mention(
                 "HPOTERM", line_dict["hpoterm_entity"],
                 [sentence.words[j] for j in line_dict["hpoterm_wordidxs"]])
+            hpoterm_mention.is_correct = line_dict["hpoterm_is_correct"]
             # If the word indexes do not overlap, create the relation candidate
             if not set(line_dict["gene_wordidxs"]) & \
                     set(line_dict["hpoterm_wordidxs"]):
@@ -101,20 +107,21 @@ if __name__ == "__main__":
                 supervised.features = relation.features
                 supervised.is_correct = False
                 print(supervised.tsv_dump())
-            # Present in the existing HPO mapping
-            in_mapping = False
-            hpo_entity_id = hpoterm_mention.entity.split("|")[0]
-            for gene in gene_mention.entity.split("|"):
-                if frozenset([gene, hpo_entity_id]) in genehpoterms_dict:
+            else: 
+                # Present in the existing HPO mapping
+                in_mapping = False
+                hpo_entity_id = hpoterm_mention.entity.split("|")[0]
+                for gene in gene_mention.entity.split("|"):
+                    if frozenset([gene, hpo_entity_id]) in genehpoterms_dict:
+                        in_mapping = True
+                if frozenset([gene_mention.words[0].word, hpo_entity_id]) in \
+                        genehpoterms_dict:
                     in_mapping = True
-            if frozenset([gene_mention.words[0].word, hpo_entity_id]) in \
-                    genehpoterms_dict:
-                in_mapping = True
-            if in_mapping:
-                supervised = Relation(
-                    "GENEHPOTERM_SUP", gene_mention, hpoterm_mention)
-                supervised.features = relation.features
-                supervised.is_correct = True
-                print(supervised.tsv_dump())
+                if in_mapping:
+                    supervised = Relation(
+                        "GENEHPOTERM_SUP", gene_mention, hpoterm_mention)
+                    supervised.features = relation.features
+                    supervised.is_correct = True
+                    print(supervised.tsv_dump())
             # Print!
             print(relation.tsv_dump())
