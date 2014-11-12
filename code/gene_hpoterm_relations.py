@@ -74,8 +74,8 @@ if __name__ == "__main__":
                     TSVstring2list, TSVstring2list, TSVstring2list,
                     TSVstring2list, lambda x: TSVstring2list(x, int),
                     TSVstring2list, no_op, lambda x: TSVstring2list(x, int),
-                    TSVstring2bool, no_op, lambda x: TSVstring2list(x, int)],
-                    TSVstring2bool)
+                    TSVstring2bool, no_op, lambda x: TSVstring2list(x, int),
+                    TSVstring2bool])
             # Create the sentence object where the two mentions appear
             sentence = Sentence(
                 line_dict["doc_id"], line_dict["sent_id"],
