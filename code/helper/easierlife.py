@@ -69,7 +69,7 @@ def TSVstring2bool(string):
     elif string == "f":
         return False
     else:
-        assert False
+        return None
 
 
 # Transform a string obtained by postgresql array_str() into a list.
