@@ -13,6 +13,8 @@ from helper.dictionaries import load_dict
 
 max_mention_length = 8
 
+NEG_PROB = 0.001
+
 MENTION_THRESHOLD = 0.75
 
 HPOTERM_KEYWORDS = frozenset([
@@ -148,8 +150,6 @@ def add_features(mention, sentence):
                 minw = word2.lemma
     if minw:
         mention.add_feature('VERB_[' + minw + ']' + minp)
-    else:
-        mention.add_feature("NO_VERB_IN_SENTENCE")
 
 
 def extract(sentence):
@@ -264,6 +264,16 @@ def extract(sentence):
                 mentions.append(mention)
                 for word in max_words[entity]:
                     history.add(word.in_sent_idx)
+    if len(mentions) == 0 and len(sentence.words[start:end]) < 2 and \
+            random.random() <= NEG_PROB and \
+            re.search(r"[A-Za-z]", sentence.words[start].lemma) and \
+            not re.search("^[A-Z]+$", sentence.words[start].lemma):
+        mention = Mention(
+            "HPOTERM_SUP", sentence.words[start].lemma.casefold(),
+            sentence.words[start:end])
+        mention.is_correct = False
+        add_features(mention, sentence)
+        mentions.append(mention)
     return mentions
 
 
