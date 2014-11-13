@@ -225,6 +225,15 @@ def add_features(mention, sentence):
         mention.add_feature("GENE_ON_LEFT")
     elif gene_on_right:
         mention.add_feature("GENE_ON_RIGHT")
+    # The candidate is a single word that appears many times (more than 4) in
+    # the sentence
+    if len(mention.words) == 1 and \
+            [w.word for w in sentence.words].count(mention.words[0].word) > 4:
+        mention.add_feature("APPEARS_MANY_TIMES_IN_SENTENCE")
+    # There are many PERSONs/ORGANIZATIONs/LOCATIONs in the sentence
+    for ner in ["PERSON", "ORGANIZATION", "LOCATION"]:
+        if [x.lemma for x in sentence.words].count(ner) > 4:
+            mention.add_feature("MANY_{}_IN_SENTENCE".format(ner))
     # The candidate comes after an organization, or a location, or a person.
     # We skip commas as they may trick us.
     comes_after = None
@@ -236,7 +245,6 @@ def add_features(mention, sentence):
             ["ORGANIZATION", "LOCATION", "PERSON"] and \
             sentence.words[loc_idx].word not in merged_genes_dict:
         comes_after = sentence.words[loc_idx].ner
-        mention.add_feature("COMES_AFTER_" + comes_after)
     # The candidate comes before an organization, or a location, or a person.
     # We skip commas, as they may trick us.
     comes_before = None
@@ -248,16 +256,6 @@ def add_features(mention, sentence):
             ["ORGANIZATION", "LOCATION", "PERSON"] and \
             sentence.words[loc_idx].word not in merged_genes_dict:
         comes_before = sentence.words[loc_idx].ner
-        mention.add_feature("COMES_BEFORE_" + comes_before)
-    # The candidate is a single word that appears many times (more than 4) in
-    # the sentence
-    if len(mention.words) == 1 and \
-            [w.word for w in sentence.words].count(mention.words[0].word) > 4:
-        mention.add_feature("APPEARS_MANY_TIMES_IN_SENTENCE")
-    # There are many PERSONs/ORGANIZATIONs/LOCATIONs in the sentence
-    for ner in ["PERSON", "ORGANIZATION", "LOCATION"]:
-        if [x.lemma for x in sentence.words].count(ner) > 4:
-            mention.add_feature("MANY_{}_IN_SENTENCE".format(ner))
     # The following features deal with the "appearance" of the symbol.
     # They are _not_ context features, but they are reasonable.
     # If it looks like a duck, it quacks like a duck, and it flies like a duck,
@@ -297,29 +295,18 @@ def add_features(mention, sentence):
             elif len(mention.words[0].word) >= 4:
                 mention.add_feature("IS_LONG_MAIN_SYMBOL_[{}]".format(
                     mention.words[0].word))
-                if "COMES_AFTER_PERSON" in mention.features:
-                    mention.features.remove("COMES_AFTER_PERSON")
-                if "COMES_AFTER_ORGANIZATION" in mention.features:
-                    mention.features.remove("COMES_AFTER_ORGANIZATION")
         elif entity_in_dict or mention.words[0].word in merged_genes_dict:
             if len(mention.words[0].word) > 3 and \
                     mention.words[0].word.casefold() == mention.words[0].word \
                     and not re.match("^p[0-9]+$", mention.words[0].word):
-                # Long name
-                mention.add_feature("IS_LONG_NAME")
-                if "COMES_AFTER_PERSON" in mention.features:
-                    mention.features.remove("COMES_AFTER_PERSON")
-                if "COMES_AFTER_ORGANIZATION" in mention.features:
-                    mention.features.remove("COMES_AFTER_ORGANIZATION")
+                # Long name - We supervise these.
+                #mention.add_feature("IS_LONG_NAME")
+                pass
             elif mention.words[0].word in inverted_long_names:
-                # Long name
-                mention.add_feature("IS_LONG_NAME")
-                if "COMES_AFTER_PERSON" in mention.features:
-                    mention.features.remove("COMES_AFTER_PERSON")
-                if "COMES_AFTER_ORGANIZATION" in mention.features:
-                    mention.features.remove("COMES_AFTER_ORGANIZATION")
-            elif "-" in mention.words[0].word and \
-                    "COMES_AFTER_PERSON" not in mention.features:
+                # Long name - We supervise these
+                #mention.add_feature("IS_LONG_NAME")
+                pass
+            elif "-" in mention.words[0].word and comes_after != "PERSON":
                 mention.add_feature("IS_HYPHENATED_SYMBOL")
             elif mention.words[0].word.casefold().endswith("alpha") or \
                     mention.words[0].word.casefold().endswith("beta") or \
@@ -347,24 +334,20 @@ def supervise(mentions, sentence, acronyms, acro_defs):
     new_mentions = []
     for mention in mentions:
         new_mentions.append(mention)
-        # The candidate is a long name. We add a special feature for this.
+        # The candidate is a long name.
         if " ".join([word.word for word in mention.words]) in \
                 inverted_long_names:
-            if "COMES_AFTER_PERSON" in mention.features:
-                mention.features.remove("COMES_AFTER_PERSON")
-            if "COMES_AFTER_ORGANIZATION" in mention.features:
-                mention.features.remove("COMES_AFTER_ORGANIZATION")
             supervised = Mention("GENE_SUP", mention.entity,
                                  mention.words)
             supervised.features = mention.features.copy()
             supervised.is_correct = True
             new_mentions.append(supervised)
-            supervised2 = Mention("GENE_SUP", mention.entity,
-                                  mention.words)
-            supervised2.is_correct = True
-            supervised2.add_feature("IS_LONG_NAME")
-            new_mentions.append(supervised2)
-            mention.add_feature("IS_LONG_NAME")
+            #supervised2 = Mention("GENE_SUP", mention.entity,
+            #                      mention.words)
+            #supervised2.is_correct = True
+            #supervised2.add_feature("IS_LONG_NAME")
+            #new_mentions.append(supervised2)
+            #mention.add_feature("IS_LONG_NAME")
             continue
         # The phrase starts with words that are indicative of the candidate not
         # being a mention of a gene
@@ -380,13 +363,13 @@ def supervise(mentions, sentence, acronyms, acro_defs):
             supervised.features = mention.features.copy()
             supervised.is_correct = False
             new_mentions.append(supervised)
-            # This copy only contains the "special" feature
-            supervised2 = Mention("GENE_SUP", mention.entity, mention.words)
-            supervised2.is_correct = False
-            supervised2.add_feature("IN_CONTRIB_PHRASE")
-            new_mentions.append(supervised2)
-            # Add the "special feature to the original mention
-            mention.add_feature("IN_CONTRIB_PHRASE")
+            ## This copy only contains the "special" feature
+            #supervised2 = Mention("GENE_SUP", mention.entity, mention.words)
+            #supervised2.is_correct = False
+            #supervised2.add_feature("IN_CONTRIB_PHRASE")
+            #new_mentions.append(supervised2)
+            ## Add the "special feature to the original mention
+            #mention.add_feature("IN_CONTRIB_PHRASE")
             continue
         # The candidate is an entry in Gene Ontology
         if len(mention.words) == 1 and mention.words[0].word == "GO":
@@ -502,40 +485,55 @@ def supervise(mentions, sentence, acronyms, acro_defs):
             new_mentions.append(supervised)
             continue
         # Snowball positive features
-        if mention.features & snowball_pos_feats:
-            supervised = Mention("GENE_SUP", mention.entity,
-                                 mention.words)
-            supervised.features = mention.features - snowball_pos_feats
-            supervised.is_correct = True
-            new_mentions.append(supervised)
-            supervised2 = Mention("GENE_SUP", mention.entity,
-                                  mention.words)
-            supervised2.features = mention.features & snowball_pos_feats
-            supervised2.is_correct = True
-            new_mentions.append(supervised2)
-            continue
-        # Some negative features
-        if "EXT_KEYWORD_MIN_[chromosome]@nn" in mention.features:
-            supervised = Mention("GENE_SUP", mention.entity, mention.words)
-            supervised.features = mention.features.copy()
-            supervised.is_correct = False
-            new_mentions.append(supervised)
-            continue
-        if "IS_YEAR_RIGHT" in mention.features:
-            supervised = Mention("GENE_SUP", mention.entity, mention.words)
-            supervised.features = mention.features.copy()
-            supervised.is_correct = False
-            new_mentions.append(supervised)
-            continue
+        #if mention.features & snowball_pos_feats:
+        #    supervised = Mention("GENE_SUP", mention.entity,
+        #                         mention.words)
+        #    supervised.features = mention.features - snowball_pos_feats
+        #    supervised.is_correct = True
+        #    new_mentions.append(supervised)
+        #    supervised2 = Mention("GENE_SUP", mention.entity,
+        #                          mention.words)
+        #    supervised2.features = mention.features & snowball_pos_feats
+        #    supervised2.is_correct = True
+        #    new_mentions.append(supervised2)
+        #    continue
+        ## Some negative features
+        #if "EXT_KEYWORD_MIN_[chromosome]@nn" in mention.features:
+        #    supervised = Mention("GENE_SUP", mention.entity, mention.words)
+        #    supervised.features = mention.features.copy()
+        #    supervised.is_correct = False
+        #    new_mentions.append(supervised)
+        #    continue
+        #if "IS_YEAR_RIGHT" in mention.features:
+        #    supervised = Mention("GENE_SUP", mention.entity, mention.words)
+        #    supervised.features = mention.features.copy()
+        #    supervised.is_correct = False
+        #    new_mentions.append(supervised)
+        #    continue
+        # The candidate comes after an organization, or a location, or a person.
+        # We skip commas as they may trick us.
+        comes_after = None
+        loc_idx = mention.wordidxs[0] - 1
+        while loc_idx >= 0 and sentence.words[loc_idx].lemma == ",":
+            loc_idx -= 1
+        if loc_idx >= 0 and \
+                sentence.words[loc_idx].ner in \
+                ["ORGANIZATION", "LOCATION", "PERSON"] and \
+                sentence.words[loc_idx].word not in merged_genes_dict:
+            comes_after = sentence.words[loc_idx].ner
+        # The candidate comes before an organization, or a location, or a person.
+        # We skip commas, as they may trick us.
+        comes_before = None
+        loc_idx = mention.wordidxs[-1] + 1
+        while loc_idx < len(sentence.words) and \
+                sentence.words[loc_idx].lemma == ",":
+            loc_idx += 1
+        if loc_idx < len(sentence.words) and sentence.words[loc_idx].ner in \
+                ["ORGANIZATION", "LOCATION", "PERSON"] and \
+                sentence.words[loc_idx].word not in merged_genes_dict:
+            comes_before = sentence.words[loc_idx].ner
         # Not correct if it's most probably a person name.
-        is_before = False
-        is_after = False
-        for feature in mention.features:
-            if feature.startswith("COMES_BEFORE"):
-                is_before = True
-            elif feature.startswith("COMES_AFTER"):
-                is_after = True
-        if is_before and is_after:
+        if comes_before and comes_after:
             supervised = Mention("GENE_SUP", mention.entity, mention.words)
             supervised.features = mention.features.copy()
             supervised.is_correct = False
@@ -543,7 +541,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
             continue
         # Comes after person and before "," or ":", so it's probably a person
         # name
-        if "COMES_AFTER_PERSON" in mention.features and \
+        if comes_after == "PERSON" and \
                 mention.words[-1].in_sent_idx + 1 < len(sentence.words) and \
                 sentence.words[mention.words[-1].in_sent_idx + 1].word \
                 in [",", ":"]:
@@ -552,49 +550,20 @@ def supervise(mentions, sentence, acronyms, acro_defs):
             supervised.is_correct = False
             new_mentions.append(supervised)
             continue
-        if "COMES_AFTER_PERSON" in mention.features and \
-                mention.words[0].ner == "PERSON":
+        if comes_after == "PERSON" and mention.words[0].ner == "PERSON":
             supervised = Mention("GENE_SUP", mention.entity, mention.words)
             supervised.features = mention.features.copy()
             supervised.is_correct = False
             new_mentions.append(supervised)
             continue
         # Is a location and comes before a location so it's probably wrong
-        if "COMES_BEFORE_LOCATION" in mention.features and \
-                mention.words[0].ner == "LOCATION":
+        if comes_before == "LOCATION" and mention.words[0].ner == "LOCATION":
             supervised = Mention("GENE_SUP", mention.entity, mention.words)
             supervised.features = mention.features.copy()
             supervised.is_correct = False
             new_mentions.append(supervised)
             continue
-        for feature in mention.features:
-            if feature.startswith("VERB_[use]") and mention.entity == "PROC":
-                supervised = Mention("GENE_SUP", mention.entity, mention.words)
-                supervised.features = mention.features.copy()
-                supervised.is_correct = False
-                new_mentions.append(supervised)
-                continue
-            if feature.startswith("VERB_[write]") and "paper" in feature:
-                supervised = Mention("GENE_SUP", mention.entity, mention.words)
-                supervised.features = mention.features.copy()
-                supervised.is_correct = False
-                new_mentions.append(supervised)
-                continue
-            if feature.startswith("VERB_[contribute]") and \
-                    "reagent" in feature:
-                supervised = Mention("GENE_SUP", mention.entity, mention.words)
-                supervised.features = mention.features.copy()
-                supervised.is_correct = False
-                new_mentions.append(supervised)
-                continue
-            if feature.startswith("VERB_[perform]") and \
-                    "experiment" in feature:
-                supervised = Mention("GENE_SUP", mention.entity, mention.words)
-                supervised.features = mention.features.copy()
-                supervised.is_correct = False
-                new_mentions.append(supervised)
-                continue
-        # HANDLE ACRONYMS
+        # Handle acronyms
         if acro_defs and  \
                 " ".join([word.word for word in mention.words]) not in \
                 inverted_long_names:
@@ -607,14 +576,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
                     continue
                 for definition in defs:
                     if definition in merged_genes_dict:
-                        is_before = False
-                        is_after = False
-                        for feature in mention.features:
-                            if feature.startswith("COMES_BEFORE"):
-                                is_before = True
-                            elif feature.startswith("COMES_AFTER"):
-                                is_after = True
-                        if not (is_before and is_after):
+                        if not (comes_before and comes_after):
                             supervised = Mention("GENE_SUP", mention.entity,
                                                  mention.words)
                             supervised.features = mention.features.copy()

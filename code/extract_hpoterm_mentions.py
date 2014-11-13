@@ -151,35 +151,6 @@ def add_features(mention, sentence):
     else:
         mention.add_feature("NO_VERB_IN_SENTENCE")
 
-    mention_lemmas = set([x.lemma.casefold() for x in mention.words])
-    name_words = set([x.casefold() for x in
-                      mention.entity.split("|")[1].split()])
-    # The mention is exactly the hpo name
-    if mention_lemmas == name_words:
-        pass  # Don't do anything, we supervise these as True
-    elif len(mention.words) > 1:
-        mention_wordidxs = sorted(map(lambda x: x.in_sent_idx,
-                                      mention.words))
-        curr = mention_wordidxs[0]
-        for i in mention_wordidxs[1:]:
-            if i == curr + 1:
-                curr = i
-            else:
-                break
-        if curr == mention_wordidxs[-1]:
-            mention.add_feature("WORDS_ARE_CONSECUTIVE")
-        elif len(mention.words) == \
-                len(inverted_hpoterms[mention.entity.split("|")[1]]):
-            # The number of words in the mention is exactly the same as the
-            # size of the complete set of stems for this entity
-            mention.add_feature("HAS_ALL_STEMS")
-        # The lemmas in the mention are a subset of the name
-        if mention_lemmas.issubset(name_words):
-            mention.add_feature("IS_SUBSET_OF_NAME")
-    else:  # single word
-        if mention.words[0].word == "pneumoniae":
-            mention.add_feature("IS_PNEUNOMIAE")
-
 
 def extract(sentence):
     mentions = []
