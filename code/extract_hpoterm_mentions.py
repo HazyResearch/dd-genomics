@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import fileinput
+import random
 import re
 
 from nltk.stem.snowball import SnowballStemmer
@@ -13,7 +14,7 @@ from helper.dictionaries import load_dict
 
 max_mention_length = 8
 
-NEG_PROB = 0.001
+NEG_PROB = 0.002
 
 MENTION_THRESHOLD = 0.75
 
@@ -42,10 +43,13 @@ mandatory_stems = frozenset(
         "aplasia", "hypoplasia", "c-reactiv", "papillari",
         "beta-glucocerebrosidas", "loss", "accumul", "swell", "left", "right"))
 
+stems = set()
 mandatory = dict()
 for hpo_name in inverted_hpoterms:
     stem_set = inverted_hpoterms[hpo_name]
     mandatory[stem_set] = stem_set & mandatory_stems
+    stems |= stem_set
+stems = frozenset(stems)
 
 # The keys of the following dictionary are sets of stems, and the values are
 # sets of hpoterms whose name, without stopwords, gives origin to the
@@ -61,7 +65,8 @@ def supervise(mentions, sentence):
     new_mentions = []
     for mention in mentions:
         new_mentions.append(mention)
-
+        if mention.is_correct is not None:
+            continue
         mention_lemmas = set([x.lemma.casefold() for x in mention.words])
         name_words = set([x.casefold() for x in
                           mention.entity.split("|")[1].split()])
@@ -121,15 +126,16 @@ def add_features(mention, sentence):
     minl = 100
     minp = None
     minw = None
-    for word2 in sentence.words:
-        if word2.lemma in HPOTERM_KEYWORDS:
-            p = sentence.get_word_dep_path(mention.wordidxs[0],
-                                           word2.in_sent_idx)
-            mention.add_feature("KEYWORD_[" + word2.lemma + "]" + p)
-            if len(p) < minl:
-                minl = len(p)
-                minp = p
-                minw = word2.lemma
+    for word in mention.words:
+        for word2 in sentence.words:
+            if word2.lemma in HPOTERM_KEYWORDS:
+                p = sentence.get_word_dep_path(word.in_sent_idx,
+                                               word2.in_sent_idx)
+                mention.add_feature("KEYWORD_[" + word2.lemma + "]" + p)
+                if len(p) < minl:
+                    minl = len(p)
+                    minp = p
+                    minw = word2.lemma
     # Special feature for the keyword on the shortest dependency path
     if minw:
         mention.add_feature('EXT_KEYWORD_MIN_[' + minw + ']' + minp)
@@ -139,17 +145,18 @@ def add_features(mention, sentence):
     minl = 100
     minp = None
     minw = None
-    for word2 in sentence.words:
-        if word2.word.isalpha() and re.search('^VB[A-Z]*$', word2.pos) \
-                and word2.lemma != 'be':
-            p = sentence.get_word_dep_path(mention.wordidxs[0],
-                                           word2.in_sent_idx)
-            if len(p) < minl:
-                minl = len(p)
-                minp = p
-                minw = word2.lemma
-    if minw:
-        mention.add_feature('VERB_[' + minw + ']' + minp)
+    for word in mention.words:
+        for word2 in sentence.words:
+            if word2.word.isalpha() and re.search('^VB[A-Z]*$', word2.pos) \
+                    and word2.lemma != 'be':
+                p = sentence.get_word_dep_path(word.in_sent_idx,
+                                               word2.in_sent_idx)
+                if len(p) < minl:
+                    minl = len(p)
+                    minp = p
+                    minw = word2.lemma
+        if minw:
+            mention.add_feature('VERB_[' + minw + ']' + minp)
 
 
 def extract(sentence):
@@ -177,9 +184,12 @@ def extract(sentence):
             if not re.match("^(_|\W)+$", word.word) and \
                     (len(word.word) == 1 or
                      word.word.casefold() not in stopwords_dict) and \
-                    word.in_sent_idx not in history:
+                    word.in_sent_idx not in history and word.stem in stems:
                 phrase_stems.append(word.stem)
         phrase_stems_set = frozenset(phrase_stems)
+        if len(phrase_stems_set) == 0:
+            for i in range(start, end):
+                history.add(i)
         max_ratio = 0.0
         max_entities = []
         max_words = dict()
@@ -264,16 +274,19 @@ def extract(sentence):
                 mentions.append(mention)
                 for word in max_words[entity]:
                     history.add(word.in_sent_idx)
-    if len(mentions) == 0 and len(sentence.words[start:end]) < 2 and \
-            random.random() <= NEG_PROB and \
-            re.search(r"[A-Za-z]", sentence.words[start].lemma) and \
-            not re.search("^[A-Z]+$", sentence.words[start].lemma):
-        mention = Mention(
-            "HPOTERM_SUP", sentence.words[start].lemma.casefold(),
-            sentence.words[start:end])
-        mention.is_correct = False
-        add_features(mention, sentence)
-        mentions.append(mention)
+    if len(mentions) == 0 and random.random() <= NEG_PROB:
+        index = random.randint(0, len(sentence.words) - 1)
+        tries = 10
+        while not sentence.words[index].lemma.isalpha() and tries > 0:
+            index = random.randint(0, len(sentence.words) - 1)
+            tries -= 1
+        if sentence.words[index].lemma.isalpha():
+            mention = Mention(
+                "HPOTERM_SUP", sentence.words[index].lemma.casefold(),
+                sentence.words[index:index+1])
+            mention.is_correct = False
+            add_features(mention, sentence)
+            mentions.append(mention)
     return mentions
 
 
