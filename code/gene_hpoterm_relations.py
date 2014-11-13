@@ -23,6 +23,10 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
     betw_start = limits[1]
     betw_end = limits[2]
     end = limits[3]
+    if start == gene_start:
+        inv = ""
+    else:
+        inv = "INV_"
 
     # Verb between the two words, if present
     for word in sentence.words[betw_start+1:betw_end]:
@@ -30,12 +34,12 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
                 word.lemma != "(":
             relation.add_feature("VERB_" + word.lemma)
     # Shortest dependency path between the two mentions
-    relation.add_feature("DEP_PATH_[" + sentence.dep_path(gene_mention,
+    relation.add_feature(inv + "DEP_PATH_[" + sentence.dep_path(gene_mention,
         hpoterm_mention) + "]")
     # The sequence of lemmas between the two mentions
     seq = "_".join(map(lambda x: x.lemma,
                        sentence.words[betw_start+1:betw_end]))
-    relation.add_feature("WORD_SEQ_[" + seq + "]")
+    relation.add_feature(inv + "WORD_SEQ_[" + seq + "]")
     # The sequence of words between the two mentions but using the NERs, if
     # present
     seq_list = []
@@ -45,7 +49,7 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
         else:
             seq_list.append(word.lemma)
     seq = "_".join(seq_list)
-    relation.add_feature("WORD_SEQ_NER_[" + seq + "]")
+    relation.add_feature(inv + "WORD_SEQ_NER_[" + seq + "]")
     # Lemma on the left and on the right
     if start > 0:
         relation.add_feature("NGRAM_LEFT_1_[" + sentence.words[start-1].lemma +
