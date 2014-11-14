@@ -237,7 +237,7 @@ def extract(sentence):
                             if mention_words[index+1].in_sent_idx == \
                                     mention_words[index].in_sent_idx + 1:
                                 is_next_immediate = True
-                        if index > 0:
+                        if index > 0 and index < len(mention_words):
                             if mention_words[index-1].in_sent_idx == \
                                     mention_words[index].in_sent_idx - 1:
                                 is_previous_immediate = True
@@ -263,9 +263,12 @@ def extract(sentence):
                     if entity_1 != entity_2 and \
                             inverted_hpoterms[entity_2] & phrase_stems_set <= \
                             intersect:
-                        to_remove.append[entity_2]
+                        to_remove.append(entity_2)
             for entity in to_remove:
-                max_entities.remove(entity)
+                try:
+                    max_entities.remove(entity)
+                except ValueError:
+                    pass
             # We found one or more valid candidates, so create mentions
             for entity in max_entities:
                 mention = Mention("HPOTERM", hponames_to_ids[entity] + "|" +
