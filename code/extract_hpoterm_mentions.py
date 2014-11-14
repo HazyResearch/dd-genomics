@@ -65,6 +65,7 @@ def supervise(mentions, sentence):
     new_mentions = []
     for mention in mentions:
         new_mentions.append(mention)
+        # Skip if we already supervised it
         if mention.is_correct is not None:
             continue
         mention_lemmas = set([x.lemma.casefold() for x in mention.words])
@@ -77,46 +78,44 @@ def supervise(mentions, sentence):
             supervised.is_correct = True
             new_mentions.append(supervised)
             continue
-        if "IS_PNEUNOMIAE" in mention.features:
-            supervised = Mention("HPOTERM_SUP", mention.entity, mention.words)
-            supervised.features = mention.features
-            supervised.is_correct = False
-            new_mentions.append(supervised)
-            continue
     return new_mentions
 
 
 # Add features
 def add_features(mention, sentence):
-    # The lemma on the left of the mention, if present, provided it's
-    # alphanumeric but not a number or a stopword
+    # The first alphanumeric lemma on the left of the mention, if present,
     idx = mention.wordidxs[0] - 1
-    while idx >= 0 and  \
-            ((not sentence.words[idx].word.isupper() and
-                sentence.words[idx].lemma in stopwords_dict) and
-                not re.match("^[0-9]+(.[0-9]+)?$", sentence.words[idx].word)
-                or len(sentence.words[idx].lemma) == 1):
+    while idx >= 0 and not sentence.words[idx].word.isalnum():
         idx -= 1
-    if idx >= 0:
+    try:
         mention.left_lemma = sentence.words[idx].lemma
+        try:
+            float(mention.left_lemma)
+            mention.left_lemma = "NUMBER"
+        except ValueError:
+            pass
         mention.add_feature("NGRAM_LEFT_1_[{}]".format(
             mention.left_lemma))
-    # The word on the right of the mention, if present, provided it's
-    # alphanumeric but not a number
-    idx = mention.wordidxs[-1] + 1
-    while idx < len(sentence.words) and \
-            ((not sentence.words[idx].word.isupper() and
-                sentence.words[idx].lemma in stopwords_dict) and
-                not re.match("^[0-9]+(.[0-9]+)?$", sentence.words[idx].word)
-                or len(sentence.words[idx].lemma) == 1):
+    except IndexError:
+        pass
+    # The first alphanumeric lemma on the right of the mention, if present,
+    idx = mention.wordidxs[0] + 1
+    while idx < len(sentence.words) and not sentence.words[idx].word.isalnum():
         idx += 1
-    if idx < len(sentence.words):
+    try:
         mention.right_lemma = sentence.words[idx].lemma
+        try:
+            float(mention.right_lemma)
+            mention.right_lemma = "NUMBER"
+        except ValueError:
+            pass
         mention.add_feature("NGRAM_RIGHT_1_[{}]".format(
             mention.right_lemma))
+    except IndexError:
+        pass
     # The word "two on the left" of the mention, if present
     if mention.wordidxs[0] > 1:
-        mention.add_feature("NGRAM_LEFT_2_[{}]".format(
+        mention.add_feature("NGRAM_LEFT_T_[{}]".format(
             sentence.words[mention.wordidxs[0] - 2].lemma))
     # The word "two on the right" on the left of the mention, if present
     if mention.wordidxs[-1] + 2 < len(sentence.words):
@@ -183,107 +182,38 @@ def extract(sentence):
         for word in sentence.words[start:end]:
             if not re.match("^(_|\W)+$", word.word) and \
                     (len(word.word) == 1 or
-                     word.word.casefold() not in stopwords_dict) and \
-                    word.in_sent_idx not in history and word.stem in stems:
+                     word.lemma.casefold() not in stopwords_dict):
                 phrase_stems.append(word.stem)
         phrase_stems_set = frozenset(phrase_stems)
-        if len(phrase_stems_set) == 0:
-            for i in range(start, end):
-                history.add(i)
-        max_ratio = 0.0
-        max_entities = []
-        max_words = dict()
-        for hpo_name in inverted_hpoterms:
-            stem_set = inverted_hpoterms[hpo_name]
-            intersect = stem_set & phrase_stems_set
-            if len(intersect) == 0 or \
-                    not mandatory[stem_set].issubset(intersect) or \
-                    ((len(stem_set) <= 4 or
-                     len(stem_set - mandatory[stem_set]) <= 2) and
-                     not stem_set <= phrase_stems_set) or \
-                    len(intersect) <= MENTION_THRESHOLD * len(stem_set):
-                continue
-            else:
-                # Find the word objects of that match
-                mention_words = []
-                mention_lemmas = []
-                mention_stems = set()
-                for word in sentence.words[start:end]:
-                    if word.stem in stem_set and \
-                            word.lemma.casefold() not in mention_lemmas and \
-                            word.stem not in mention_stems:
-                        mention_lemmas.append(word.lemma.casefold())
-                        mention_words.append(word)
-                        mention_stems.add(word.stem)
-                        if len(mention_words) == len(stem_set):
-                            break
-                # Check whether the name contain words of a single letter. If
-                # that is the case we want them to be immediately followed or
-                # preceded in the mention by another word in the mention.
-                should_continue = False
-                is_previous_immediate = False
-                is_next_immediate = False
-                has_word_with_length_one = False
-                for stem in stem_set:
-                    if len(stem) == 1:
-                        has_word_with_length_one = True
-                        index = 0
-                        while index < len(intersect):
-                            if mention_words[index].stem == stem:
-                                break
-                            else:
-                                index += 1
-                        if index < len(mention_words)-1:
-                            if mention_words[index+1].in_sent_idx == \
-                                    mention_words[index].in_sent_idx + 1:
-                                is_next_immediate = True
-                        if index > 0 and index < len(mention_words):
-                            if mention_words[index-1].in_sent_idx == \
-                                    mention_words[index].in_sent_idx - 1:
-                                is_previous_immediate = True
-                        if has_word_with_length_one and \
-                                not is_next_immediate and \
-                                not is_previous_immediate:
-                            should_continue = True
-                            break
-                if should_continue:
-                    continue
-                else:
-                    ratio = len(intersect) / len(stem_set)
-                    if ratio >= max_ratio:
-                        max_ratio = ratio
-                        max_entities.append(hpo_name)
-                        max_words[hpo_name] = mention_words
-        if max_ratio > 0.0:
-            # Remove entities that are subsets of others
-            to_remove = []
-            for entity_1 in max_entities:
-                intersect = inverted_hpoterms[entity_1] & phrase_stems_set
-                for entity_2 in max_entities:
-                    if entity_1 != entity_2 and \
-                            inverted_hpoterms[entity_2] & phrase_stems_set <= \
-                            intersect:
-                        to_remove.append(entity_2)
-            for entity in to_remove:
-                try:
-                    max_entities.remove(entity)
-                except ValueError:
-                    pass
-            # We found one or more valid candidates, so create mentions
-            for entity in max_entities:
-                mention = Mention("HPOTERM", hponames_to_ids[entity] + "|" +
-                                  entity, max_words[entity])
-                add_features(mention, sentence)
-                mentions.append(mention)
-                for word in max_words[entity]:
-                    history.add(word.in_sent_idx)
+        if phrase_stems_set in hpoterms_dict:
+            # Find the word objects of that match
+            mention_words = []
+            mention_lemmas = []
+            mention_stems = []
+            for word in sentence.words[start:end]:
+                if word.stem in phrase_stems_set and \
+                        word.lemma.casefold() not in mention_lemmas and \
+                        word.stem not in mention_stems:
+                    mention_lemmas.append(word.lemma.casefold())
+                    mention_words.append(word)
+                    mention_stems.append(word.stem)
+                    if len(mention_words) == len(phrase_stems_set):
+                        break
+            entity = list(hpoterms_dict[phrase_stems_set])[0]
+            mention = Mention("HPOTERM", hponames_to_ids[entity] + "|" +
+                                  entity, mention_words)
+            add_features(mention, sentence)
+            mentions.append(mention)
+            for word in mention_words:
+                history.add(word.in_sent_idx)
+    # Generate some negative candidates at random
     if len(mentions) == 0 and random.random() <= NEG_PROB:
         index = random.randint(0, len(sentence.words) - 1)
         tries = 10
-        while not sentence.words[index].lemma.isalpha() and tries > 0:
+        while not sentence.words[index].pos.startswith("NN") and tries > 0:
             index = random.randint(0, len(sentence.words) - 1)
             tries -= 1
-        if sentence.words[index].lemma.isalpha():
+        if sentence.words[index].pos.startswith("NN"):
             mention = Mention(
                 "HPOTERM_SUP", sentence.words[index].lemma.casefold(),
                 sentence.words[index:index+1])
