@@ -50,13 +50,19 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
             seq_list.append(word.lemma)
     seq = "_".join(seq_list)
     relation.add_feature(inv + "WORD_SEQ_NER_[" + seq + "]")
-    # Lemma on the left and on the right
-    if start > 0:
-        relation.add_feature("NGRAM_LEFT_1_[" + sentence.words[start-1].lemma +
-                             "]")
-    if end < len(sentence.words) - 1:
-        relation.add_feature("NGRAM_RIGHT_1_[" + sentence.words[end+1].lemma +
-                             "]")
+    # Lemmas on the left and on the right
+    if gene_start > 0:
+        relation.add_feature("GENE_NGRAM_LEFT_1_[" +
+            sentence.words[gene_start-1].lemma + "]")
+    if gene_end < len(sentence.words) - 1:
+        relation.add_feature("GENE_NGRAM_RIGHT_1_[" +
+            sentence.words[gene_end+1].lemma + "]")
+    if hpoterm_start > 0:
+        relation.add_feature("HPO_NGRAM_LEFT_1_[" +
+            sentence.words[hpoterm_start-1].lemma + "]")
+    if hpoterm_end < len(sentence.words) - 1:
+        relation.add_feature("HPO_NGRAM_RIGHT_1_[" + 
+            sentence.words[hpoterm_end+1].lemma + "]")
 
 
 # Load the gene<->hpoterm dictionary
