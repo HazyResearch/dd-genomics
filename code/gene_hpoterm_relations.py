@@ -106,32 +106,33 @@ if __name__ == "__main__":
                     set(line_dict["hpoterm_wordidxs"]):
                 relation = Relation(
                     "GENEHPOTERM", gene_mention, hpoterm_mention)
-            # Add features
-            add_features(relation, gene_mention, hpoterm_mention, sentence)
-            # Supervise
-            # One of the two mentions is labelled as False
-            if gene_mention.is_correct is False or \
-                    hpoterm_mention.is_correct is False:
-                supervised = Relation(
-                    "GENEHPOTERM_SUP", gene_mention, hpoterm_mention)
-                supervised.features = relation.features
-                supervised.is_correct = False
-                print(supervised.tsv_dump())
-            else: 
-                # Present in the existing HPO mapping
-                in_mapping = False
-                hpo_entity_id = hpoterm_mention.entity.split("|")[0]
-                for gene in gene_mention.entity.split("|"):
-                    if frozenset([gene, hpo_entity_id]) in genehpoterms_dict:
-                        in_mapping = True
-                if frozenset([gene_mention.words[0].word, hpo_entity_id]) in \
-                        genehpoterms_dict:
-                    in_mapping = True
-                if in_mapping:
+                # Add features
+                add_features(relation, gene_mention, hpoterm_mention,
+                            sentence)
+                # Supervise
+                # One of the two mentions is labelled as False
+                if gene_mention.is_correct is False or \
+                        hpoterm_mention.is_correct is False:
                     supervised = Relation(
                         "GENEHPOTERM_SUP", gene_mention, hpoterm_mention)
                     supervised.features = relation.features
-                    supervised.is_correct = True
+                    supervised.is_correct = False
                     print(supervised.tsv_dump())
-            # Print!
-            print(relation.tsv_dump())
+                else:
+                    # Present in the existing HPO mapping
+                    in_mapping = False
+                    hpo_entity_id = hpoterm_mention.entity.split("|")[0]
+                    for gene in gene_mention.entity.split("|"):
+                        if frozenset([gene, hpo_entity_id]) in genehpoterms_dict:
+                            in_mapping = True
+                    if frozenset([gene_mention.words[0].word, hpo_entity_id]) in \
+                            genehpoterms_dict:
+                        in_mapping = True
+                    if in_mapping:
+                        supervised = Relation(
+                            "GENEHPOTERM_SUP", gene_mention, hpoterm_mention)
+                        supervised.features = relation.features
+                        supervised.is_correct = True
+                        print(supervised.tsv_dump())
+                # Print!
+                print(relation.tsv_dump())
