@@ -262,68 +262,68 @@ def add_features(mention, sentence):
     # then it's probably a duck.
     # All the following features are added only if the candidate is a single
     # word.
-    if len(mention.words) == 1:
-        entity_is_word = False
-        entity_in_dict = False
-        for entity in mention.entity.split("|"):
-            if entity == mention.words[0].word:
-                entity_is_word = True
-            if entity in merged_genes_dict:
-                entity_in_dict = True
-        if entity_is_word and entity_in_dict and \
-                (comes_before is None or comes_after is None):
-            # The mention is a 'main' symbol
-            if mention.words[0].word.isalnum() and \
-                    not mention.words[0].word.isalpha():
-                if len(mention.words[0].word) >= 4:
-                    mention.add_feature("IS_LONG_ALPHANUMERIC_MAIN_SYMBOL")
-                else:
-                    is_letter_plus_number = False
-                    try:
-                        int(mention.words[0].word[1:])
-                        is_letter_plus_number = True
-                    except:
-                        is_letter_plus_number = False
-                    if is_letter_plus_number:
-                        mention.add_feature(
-                            "IS_LETTER_NUMBER_MAIN_SYMBOL_[{}]".format(
-                                mention.words[0].word))
-                    else:
-                        mention.add_feature(
-                            "IS_SHORT_ALPHANUMERIC_MAIN_SYMBOL_[{}]".format(
-                                mention.words[0].word))
-            elif len(mention.words[0].word) >= 4:
-                mention.add_feature("IS_LONG_MAIN_SYMBOL_[{}]".format(
-                    mention.words[0].word))
-        elif entity_in_dict or mention.words[0].word in merged_genes_dict:
-            if len(mention.words[0].word) > 3 and \
-                    mention.words[0].word.casefold() == mention.words[0].word \
-                    and not re.match("^p[0-9]+$", mention.words[0].word):
-                # Long name - We supervise these.
-                #mention.add_feature("IS_LONG_NAME")
-                pass
-            elif mention.words[0].word in inverted_long_names:
-                # Long name - We supervise these
-                #mention.add_feature("IS_LONG_NAME")
-                pass
-            elif "-" in mention.words[0].word and comes_after != "PERSON":
-                mention.add_feature("IS_HYPHENATED_SYMBOL")
-            elif mention.words[0].word.casefold().endswith("alpha") or \
-                    mention.words[0].word.casefold().endswith("beta") or \
-                    mention.words[0].word.casefold().endswith("gamma"):
-                mention.add_feature("ENDS_WITH_GREEK")
-            elif re.match("^p[0-9][0-9]$", mention.words[0].word):
-                mention.add_feature("IS_PXX_SYMBOL_[{}]".format(
-                    mention.words[0].word))
-            elif mention.words[0].word.isalnum() and \
-                    not mention.words[0].word.isalpha():
-                if len(mention.words[0].word) >= 4:
-                    mention.add_feature(
-                        "IS_LONG_ALPHANUMERIC_ALTERN_SYMBOL_[{}]".format(
-                            mention.words[0].word))
-            elif len(mention.words[0].word) >= 4:
-                mention.add_feature("IS_LONG_ALTERN_SYMBOL_[{}]".format(
-                    mention.words[0].word))
+    #if len(mention.words) == 1:
+    #    entity_is_word = False
+    #    entity_in_dict = False
+    #    for entity in mention.entity.split("|"):
+    #        if entity == mention.words[0].word:
+    #            entity_is_word = True
+    #        if entity in merged_genes_dict:
+    #            entity_in_dict = True
+    #    if entity_is_word and entity_in_dict and \
+    #            (comes_before is None or comes_after is None):
+    #        # The mention is a 'main' symbol
+    #        if mention.words[0].word.isalnum() and \
+    #                not mention.words[0].word.isalpha():
+    #            if len(mention.words[0].word) >= 4:
+    #                mention.add_feature("IS_LONG_ALPHANUMERIC_MAIN_SYMBOL")
+    #            else:
+    #                is_letter_plus_number = False
+    #                try:
+    #                    int(mention.words[0].word[1:])
+    #                    is_letter_plus_number = True
+    #                except:
+    #                    is_letter_plus_number = False
+    #                if is_letter_plus_number:
+    #                    mention.add_feature(
+    #                        "IS_LETTER_NUMBER_MAIN_SYMBOL_[{}]".format(
+    #                            mention.words[0].word))
+    #                else:
+    #                    mention.add_feature(
+    #                        "IS_SHORT_ALPHANUMERIC_MAIN_SYMBOL_[{}]".format(
+    #                            mention.words[0].word))
+    #        elif len(mention.words[0].word) >= 4:
+    #            mention.add_feature("IS_LONG_MAIN_SYMBOL_[{}]".format(
+    #                mention.words[0].word))
+    #    elif entity_in_dict or mention.words[0].word in merged_genes_dict:
+    #        if len(mention.words[0].word) > 3 and \
+    #                mention.words[0].word.casefold() == mention.words[0].word \
+    #                and not re.match("^p[0-9]+$", mention.words[0].word):
+    #            # Long name - We supervise these.
+    #            #mention.add_feature("IS_LONG_NAME")
+    #            pass
+    #        elif mention.words[0].word in inverted_long_names:
+    #            # Long name - We supervise these
+    #            #mention.add_feature("IS_LONG_NAME")
+    #            pass
+    #        elif "-" in mention.words[0].word and comes_after != "PERSON":
+    #            mention.add_feature("IS_HYPHENATED_SYMBOL")
+    #        elif mention.words[0].word.casefold().endswith("alpha") or \
+    #                mention.words[0].word.casefold().endswith("beta") or \
+    #                mention.words[0].word.casefold().endswith("gamma"):
+    #            mention.add_feature("ENDS_WITH_GREEK")
+    #        elif re.match("^p[0-9][0-9]$", mention.words[0].word):
+    #            mention.add_feature("IS_PXX_SYMBOL_[{}]".format(
+    #                mention.words[0].word))
+    #        elif mention.words[0].word.isalnum() and \
+    #                not mention.words[0].word.isalpha():
+    #            if len(mention.words[0].word) >= 4:
+    #                mention.add_feature(
+    #                    "IS_LONG_ALPHANUMERIC_ALTERN_SYMBOL_[{}]".format(
+    #                        mention.words[0].word))
+    #        elif len(mention.words[0].word) >= 4:
+    #            mention.add_feature("IS_LONG_ALTERN_SYMBOL_[{}]".format(
+    #                mention.words[0].word))
 
 
 # Supervise the candidates.
