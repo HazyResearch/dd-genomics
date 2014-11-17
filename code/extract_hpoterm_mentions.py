@@ -12,12 +12,11 @@ from helper.easierlife import get_all_phrases_in_sentence, \
     get_dict_from_TSVline, TSVstring2list, no_op
 from helper.dictionaries import load_dict
 
-max_mention_length = 8
+max_mention_length = 8  # This is somewhat arbitrary
 
-NEG_PROB = 0.002
+NEG_PROB = 0.005  #  Probability of generating a random negative mention
 
-MENTION_THRESHOLD = 0.75
-
+# Keyword that seems to appear with phenotypes
 HPOTERM_KEYWORDS = frozenset([
     "abnormality", "affect", "apoptosis", "association", "boy", "cancer",
     "carcinoma", "case", "chemotherapy", "chromosome", "cronic", "deletion",
@@ -35,19 +34,10 @@ inverted_hpoterms = load_dict("hpoterms_inverted")
 hponames_to_ids = load_dict("hponames_to_ids")
 # hpodag = load_dict("hpoparents")
 
-mandatory_stems = frozenset(
-    ("keratocytosi", "carcinoma", "pancreat", "oropharyng", "hyperkeratos",
-        "hyperkeratosi", "palmoplantar", "palmar", "genitalia", "labia",
-        "hyperplasia", "fontanell", "facial", "prelingu", "sensorineur",
-        "auditori", "neck", "incisor", "nervous", "ventricl", "cyst",
-        "aplasia", "hypoplasia", "c-reactiv", "papillari",
-        "beta-glucocerebrosidas", "loss", "accumul", "swell", "left", "right"))
 
 stems = set()
-mandatory = dict()
 for hpo_name in inverted_hpoterms:
     stem_set = inverted_hpoterms[hpo_name]
-    mandatory[stem_set] = stem_set & mandatory_stems
     stems |= stem_set
 stems = frozenset(stems)
 
@@ -65,15 +55,17 @@ def supervise(mentions, sentence):
     new_mentions = []
     for mention in mentions:
         new_mentions.append(mention)
-        # Skip if we already supervised it
+        # Skip if we already supervised it (e.g., random mentions)
         if mention.is_correct is not None:
             continue
         mention_lemmas = set([x.lemma.casefold() for x in mention.words])
         name_words = set([x.casefold() for x in
                           mention.entity.split("|")[1].split()])
-        # The mention is exactly the hpo name
-        if mention_lemmas == name_words:
-            supervised = Mention("HPOTERM_SUP", mention.entity, mention.words)
+        # The mention is exactly the HPO name
+        if mention_lemmas == name_words and \
+                mention.words[0].lemma != "pneunomiae":
+            supervised = Mention("HPOTERM_SUP_pos", mention.entity,
+                    mention.words)
             supervised.features = mention.features
             supervised.is_correct = True
             new_mentions.append(supervised)
@@ -113,11 +105,11 @@ def add_features(mention, sentence):
             mention.right_lemma))
     except IndexError:
         pass
-    # The word "two on the left" of the mention, if present
+    # The lemma "two on the left" of the mention, if present
     if mention.wordidxs[0] > 1:
-        mention.add_feature("NGRAM_LEFT_T_[{}]".format(
+        mention.add_feature("NGRAM_LEFT_2_[{}]".format(
             sentence.words[mention.wordidxs[0] - 2].lemma))
-    # The word "two on the right" on the left of the mention, if present
+    # The lemma "two on the right" on the left of the mention, if present
     if mention.wordidxs[-1] + 2 < len(sentence.words):
         mention.add_feature("NGRAM_RIGHT_2_[{}]".format(
             sentence.words[mention.wordidxs[-1] + 2].lemma))
@@ -139,8 +131,7 @@ def add_features(mention, sentence):
     if minw:
         mention.add_feature('EXT_KEYWORD_MIN_[' + minw + ']' + minp)
         mention.add_feature('KEYWORD_MIN_[' + minw + ']')
-    # The labels and the NERs on the shortest dependency path
-    # between a verb and the mention word.
+    # The verb closest to the candidate
     minl = 100
     minp = None
     minw = None
@@ -158,6 +149,7 @@ def add_features(mention, sentence):
             mention.add_feature('VERB_[' + minw + ']' + minp)
 
 
+# Return a list of mention candidates extracted from the sentence
 def extract(sentence):
     mentions = []
     # If there are no English words in the sentence, we skip it.
@@ -206,16 +198,18 @@ def extract(sentence):
             mentions.append(mention)
             for word in mention_words:
                 history.add(word.in_sent_idx)
-    # Generate some negative candidates at random
+    # Generate some negative candidates at random, if this sentences didn't
+    # contain any other candidate. We want the candidates to be nouns.
     if len(mentions) == 0 and random.random() <= NEG_PROB:
         index = random.randint(0, len(sentence.words) - 1)
+        # We may not get a noun at random, so we try again if we don't.
         tries = 10
         while not sentence.words[index].pos.startswith("NN") and tries > 0:
             index = random.randint(0, len(sentence.words) - 1)
             tries -= 1
         if sentence.words[index].pos.startswith("NN"):
             mention = Mention(
-                "HPOTERM_SUP", sentence.words[index].lemma.casefold(),
+                "HPOTERM_SUP_rand", sentence.words[index].lemma.casefold(),
                 sentence.words[index:index+1])
             mention.is_correct = False
             add_features(mention, sentence)
