@@ -13,7 +13,7 @@ from helper.easierlife import get_dict_from_TSVline, no_op, TSVstring2bool, \
 
 # Add features
 def add_features(relation, gene_mention, hpoterm_mention, sentence):
-    # Add features
+    # Find the start/end indices of the mentions composing the relation
     gene_start = gene_mention.wordidxs[0]
     hpoterm_start = hpoterm_mention.wordidxs[0]
     gene_end = gene_mention.wordidxs[-1]
@@ -23,12 +23,13 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
     betw_start = limits[1]
     betw_end = limits[2]
     end = limits[3]
+    # If the gene comes first, we do not prefix, otherwise we do.
     if start == gene_start:
         inv = ""
     else:
         inv = "INV_"
 
-    # Verb between the two words, if present
+    # Verb between the two mentions, if present
     for word in sentence.words[betw_start+1:betw_end]:
         if re.search('^VB[A-Z]*$', word.pos) and word.lemma != ")" and \
                 word.lemma != "(":
