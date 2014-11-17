@@ -6710,7 +6710,7 @@ SULT1A1	P-PST|STP1|STP	sulfotransferase family, cytosolic, 1A, phenol-preferring
 TRBJ2-6	TRBJ26|TCRBJ2S6	T cell receptor beta joining 2-6
 SCGB2B1P	Abpbg1p	secretoglobin, family 2B, member 1, pseudogene
 PIGCP2		phosphatidylinositol glycan anchor biosynthesis, class C pseudogene 2
-VDR	NR1I1|PPP1R163	vitamin D (1,25- dihydroxyvitamin D3) receptor
+VDR	NR1I1|PPP1R163	vitamin D (1,25- dihydroxyvitamin D3) receptor|vitamin d receptor
 PCDHGB1	PCDH-GAMMA-B1	protocadherin gamma subfamily B, 1|protocadherin gamma subfamily B, 1, isoform 2
 PKIA	PRKACN1	protein kinase (cAMP-dependent, catalytic) inhibitor alpha
 DHX30	DDX30|KIAA0890|FLJ11214	DEAH (Asp-Glu-Ala-His) box helicase 30|DEAH (Asp-Glu-Ala-His) box polypeptide 30
@@ -10619,7 +10619,7 @@ MCPH1	FLJ12847|BRIT1	microcephalin 1|BRCT-repeat inhibitor of TERT expression 1
 FDCSP	FDC-SP|C4orf7	follicular dendritic cell secreted protein
 LINC00165	C21orf135|NLC1-B|NCRNA00165	narcolepsy candidate-region 1 gene B|long intergenic non-protein coding RNA 165
 LAMA2	LAMM	laminin, alpha 2|congenital muscular dystrophy|merosin
-XPC	RAD4|XPCC	xeroderma pigmentosum, complementation group C|xeroderma pigmentosum group C protein
+XPC	RAD4|XPCC	xeroderma pigmentosum, complementation group C|xeroderma pigmentosum group C protein|xeroderma pigmentosum complementation group c
 TMEM238		transmembrane protein 238
 RPL36AP13		ribosomal protein L36a pseudogene 13
 TEX36	C10orf122|bA383C5.1	testis expressed 36
@@ -12015,7 +12015,7 @@ STAU2	39K2	staufen, RNA binding protein, homolog 2 (Drosophila)|staufen double-s
 NAALAD2	GPCIII|NAALADASE2|NAADALASE2	N-acetylated alpha-linked acidic dipeptidase 2|glutamate carboxypeptidase III
 TAL2	bHLHa19	T-cell acute lymphocytic leukemia 2
 TIPRL	TIP41|MGC3794|dJ69E11.3	TIP41, TOR signaling pathway regulator-like (S. cerevisiae)|TOR signaling pathway regulator
-RPS19P1	bA189K21.7	ribosomal protein S19 pseudogene 1
+RPS19P1	bA189K21.7	ribosomal protein S19 pseudogene 2
 TTC39A	C1orf34|KIAA0452|DEME-6	tetratricopeptide repeat domain 39A
 XRCC6	G22P1|KU70|D22S731|ML8|D22S671	Ku autoantigen, 70kDa|X-ray repair complementing defective repair in Chinese hamster cells 6
 PCP4L1	IQM1	Purkinje cell protein 4 like 1
@@ -20645,7 +20645,7 @@ SMIM23	C5orf50|LOC644994	small integral membrane protein 23|chromosome 5 open re
 GGACT	A2LD1	gamma-glutamylamine cyclotransferase
 RABEP1	neurocrescin|rabaptin-5|RABPT5|RAB5EP	rabaptin, RAB GTPase binding effector protein 1
 DEGS2	C14orf66|FADS8|DES2	delta(4)-desaturase, sphingolipid 2|sphingolipid delta(4)-desaturase 2
-GAD1	GAD	glutamate decarboxylase 1 (brain, 67kDa)
+GAD1	GAD	glutamate decarboxylase 1 (brain, 67kDa)|glutamic acid decarboxylase
 MTRNR2L13		MT-RNR2-like 13
 FTLP1	bA465L10.3|FTLP	ferritin, light polypeptide pseudogene 1
 RNA5SP390	RN5S390	RNA, 5S ribosomal pseudogene 390
@@ -26888,7 +26888,7 @@ RARRES2P7		retinoic acid receptor responder (tazarotene induced) 2 pseudogene 7
 PPIC	CYPC	peptidylprolyl isomerase C (cyclophilin C)
 SP1		specificity protein 1|Sp1 transcription factor
 MIR4638	hsa-mir-4638	microRNA 4638
-NMNAT1	PNAT1|NMNAT|LCA9	nicotinamide nucleotide adenylyltransferase 1
+NMNAT1	PNAT1|NMNAT|LCA9	nicotinamide nucleotide adenylyltransferase 1|nicotinamide mononucleotide adenylyltransferase
 RNU7-75P	U7.75	RNA, U7 small nuclear 75 pseudogene
 CACNA1A	FHM|HPCA|APCA|EA2|MHP|MHP1|SCA6|CACNL1A4|Cav2.1	calcium channel, voltage-dependent, P/Q type, alpha 1A subunit
 SLC25A15P3		solute carrier family 25 (mitochondrial carrier; ornithine transporter) member 15 pseudogene 3
@@ -33274,7 +33274,7 @@ OR8S1		olfactory receptor, family 8, subfamily S, member 1
 KLF7P1	KLF7P	kruppel-like factor 7 pseudogene 1
 CD97	TM7LN1	seven transmembrane helix receptor|leukocyte antigen CD97|seven-transmembrane, heterodimeric receptor associated with inflammation|CD97 molecule|seven-span transmembrane protein
 MIR4696	hsa-mir-4696	microRNA 4696
-SHBG	MGC138391|MGC126834|TEBG|ABP	sex hormone-binding globulin|androgen binding protein
+SHBG	MGC138391|MGC126834|TEBG|ABP	sex hormone-binding globulin|androgen binding protein|sex hormone binding globulin
 RNU6-643P		RNA, U6 small nuclear 643, pseudogene
 MTND4P17		MT-ND4 pseudogene 17
 TCL1B	TML1	T-cell leukemia/lymphoma 1B
@@ -36323,7 +36323,7 @@ DDX23	U5-100K|PRPF28|prp28|SNRNP100	DEAD (Asp-Glu-Ala-Asp) box polypeptide 23
 SNORD114-14	14q(II-14)	small nucleolar RNA, C/D box 114-14
 MIR3675	hsa-mir-3675	microRNA 3675
 RBM23	CAPERbeta|RNPC4|FLJ10482	RNA binding motif protein 23
-RARA	RAR|NR1B1	retinoic acid receptor, alpha
+RARA	RAR|NR1B1	retinoic acid receptor, alpha|retinoic acid receptor a|retinoic acid receptor
 PRAMEF6		PRAME family member 6
 RPL32P23		ribosomal protein L32 pseudogene 23
 CBY3		chibby homolog 3 (Drosophila)

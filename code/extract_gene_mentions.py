@@ -566,6 +566,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
                 inverted_long_names:
             # Only process as acronym if that's the case
             if mention.words[0].word in acronyms:
+                contains_kw = False
                 try:
                     defs = acro_defs[mention.words[0].word]
                 except:
@@ -586,12 +587,21 @@ def supervise(mentions, sentence, acronyms, acro_defs):
                         # make us suspect that it is probably a gene/protein
                         # This list is incomplete, and it would be good to add
                         # to it.
-                        contains_kw = False
+                        definition = definition.casefold()
+                        if contains_kw:
+                            continue
+                        for word in definition.split():
+                            if word.endswith("ase") and word != "phase":
+                                contains_kw = True
+                                break
                         if " gene" in definition or "protein" in definition \
                                 or "factor" in  definition or \
                                 "ligand" in definition or \
                                 "kinase" in definition or \
-                                "enzyme" in definition:
+                                "enzyme" in definition or \
+                                "receptor" in definition or \
+                                "decarboxylase" in definition or \
+                                "pseudogene" in definition:
                             contains_kw = True
                         # If no significant keyword, supervise as not correct
                         if not contains_kw:
