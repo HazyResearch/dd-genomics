@@ -45,18 +45,18 @@ if __name__ == "__main__":
                (sentence.words[0].word == "-LSB-" and
                     sentence.words[-1].word == "-RSB-"):
                         continue
-            # Extract mentions from sentence
+            # Extract mentions from sentence. This also adds the features
             mentions = extract(sentence)
             # Find the candidate(s) containing the "labelled" gene either in the
             # words or in the entity, and supervise as True and print. 
-            found_main = False
             not_main_mentions = []
             for mention in mentions:
                 mention.type = "GENERIFS"
                 for g in gene:
                     # If we find the labelled symbol in the words of the
                     # candidate, supervise as true and print
-                    if g in mention.words[0].word or g in mention.entity:
+                    if g in mention.words[0].word or \
+                            g in mention.entity.split("|"):
                         mention.is_correct = True
                         print(mention.tsv_dump())
                         break
