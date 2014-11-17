@@ -57,8 +57,9 @@ ANTIGENE_KWS = frozenset(["antigen", "antigene", "anti-gen", "anti-gene"])
 DNA_KWS = frozenset([ "cdna", "cDNA", "dna", "mrna", "mRNA", "rna",
     "rrna", "sirnas", "sirna", "siRNA", "siRNAs",])
 
-REGULATION_KWS = frozenset([ "down-regulation", "downregulation",
-    "up-regulation", "upregulation"])
+DOWNREGULATION_KWS = frozenset(["down-regulation", "downregulation"])
+
+UPREGULATION_KWS = frozenset(["up-regulation", "upregulation"])
 
 TUMOR_KWS = frozenset([ "tumor", "tumours", "tumour", "cancer",
 "carcinoma", "fibrosarcoma", "sarcoma", "lymphoma"])
@@ -70,8 +71,8 @@ COEXPRESSION_KWS = frozenset(["expression", "overexpression",
 "over-expression", "co-expression", "coexpression" ])
 
 
-KEYWORDS= VAR_KWS | KNOCK_KWS | ANTIGENE_KWS | DNA_KWS | REGULATION_KWS | \
-    TUMOR_KWS | GENE_KWS | COEXPRESSION_KWS
+KEYWORDS= VAR_KWS | KNOCK_KWS | ANTIGENE_KWS | DNA_KWS | DOWNREGULATION_KWS | \
+    DOWNREGULATION_KWS | TUMOR_KWS | GENE_KWS | COEXPRESSION_KWS
 
 
 # Snowball positive features
@@ -154,8 +155,10 @@ def add_features(mention, sentence):
                     kw = "_ANTIGENE"
                 #elif word2.lemma in DNA_KWS: 
                 #    kw = "_DNA"
-                #elif word2.lemma in REGULATION_KWS:
-                #    kw = "_REGULATION"
+                elif word2.lemma in DOWNREGULATION_KWS:
+                    kw = "_DOWNREGULATION"
+                elif word2.lemma in UPREGULATION_KWS:
+                    kw = "_UPREGULATION"
                 #elif word2.lemma in TUMOR_KWS:
                 #    kw = "_TUMOR"
                 #elif word2.lemma in GENE_KWS:
