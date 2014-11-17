@@ -14998,7 +14998,7 @@ LINC01043		long intergenic non-protein coding RNA 1043
 RAB40C	RARL|RASL8C	RAB40C, member RAS oncogene family
 HNRNPDLP5		heterogeneous nuclear ribonucleoprotein D-like pseudogene 5
 SEC13P1		SEC13 homolog (S. cerevisiae) pseudogene 1
-ACE	DCP1|CD143|ACE1	angiotensin I converting enzyme|angiotensin I converting enzyme (peptidyl-dipeptidase A) 1
+ACE	DCP1|CD143|ACE1	angiotensin I converting enzyme|angiotensin I converting enzyme (peptidyl-dipeptidase A) 1|angiotensin converting enzyme
 PLET1	C11orf34	placenta-expressed transcript 1|placenta expressed transcript 1|chromosome 11 open reading frame 34
 PCED1CP		PC-esterase domain containing 1C, pseudogene
 SSX2IP		synovial sarcoma, X breakpoint 2 interacting protein
@@ -16396,7 +16396,7 @@ XIC		X chromosome inactivation center
 CCAL1	CPDD	chondrocalcinosis 1 (calcium pyrophosphate-deposition disease, early onset osteoarthritis)
 DEFB117	DEFB-17	defensin, beta 117|defensin, beta 17
 MUL1	C1orf166|MULAN|FLJ12875|GIDE|MAPL|RNF218	mitochondrial E3 ubiquitin protein ligase 1|growth inhibition and death E3 ligase|mitochondrial ubiquitin ligase activator of NFKB 1|mitochondria-anchored protein ligase|ring finger protein 218
-NSF	SKD2	N-ethylmaleimide-sensitive factor|N-ethylmaleimide-sensitive factor-like protein
+NSF	SKD2	N-ethylmaleimide-sensitive factor|N-ethylmaleimide-sensitive factor-like protein|n-ethylmaleimide sensitive factor
 BTBD1		BTB (POZ) domain containing 1
 MME	NEP|CD10|CALLA	membrane metallo-endopeptidase|neprilysin|enkephalinase|neutral endopeptidase
 RPS24P17		ribosomal protein S24 pseudogene 17
