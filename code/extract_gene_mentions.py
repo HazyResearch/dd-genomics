@@ -22,38 +22,57 @@ INDIVIDUALS = frozenset(["individual", "individuals"])
 TYPES = frozenset(["group", "type", "class", "method"])
 
 # Keywords that are often associated with genes
-GENE_KEYWORDS = frozenset([
+VAR_KWS = frozenset([
     "acetylation", "activate", "activation", "adaptor", "agonist", "alignment",
-    "allele", "antagonist", "antibody", "antigen", "antigene", "anti-gen",
-    "anti-gene", "asynonymous", "backbone", "binding", "biomarker",
-    "breakdown", "cancer", "carcinoma", "cdna", "cDNA", "cell", "cleavage",
-    "cluster", "cnv", "coactivator", "co-activator", "co-expression",
-    "coexpression", "complex", "dd-genotype", "DD-genotype", "deletion",
-    "determinant", "dna", "domain", "down-regulation", "downregulation",
-    "duplication", "dysfunction", "effector", "enhancer", "enrichment",
-    "enzyme", "excision", "expression", "factor", "family", "fibrosarcoma",
-    "function", "functionality", "gene", "genotype", "growth", "haplotype",
-    "haplotypes", "heterozygous", "hexons", "hexon", "histone", "homologue",
-    "homology", "homozygous" "human", "hypermetylation", "hybridization",
-    "induce", "inducer", "induction", "inhibitor", "inhibition", "intron",
-    "interaction", "isoform", "isoforms", "kinase", "kinesin", "knockdown",
-    "knock-down", "knock-out", "knockout", "level", "ligand", "location",
-    "locus", "lymphoma", "mammalian", "marker", "methilation", "modification",
-    "moiety", "molecule", "molecules", "morpheein", "motif", "mrna", "mRNA",
-    "mutant", "mutation", "mutations", "nonsynonymous", "non-synonymous",
-    "nucleotide", "oligomerization", "oncoprotein", "overexpression",
-    "over-expression", "pathway", "peptide", "pharmacokinetic",
-    "pharmacodynamic", "pharmacogenetic" "phosphorylation", "polymorphism",
-    "proliferation", "promoter", "protein", "protooncogene", "proto-oncogene",
-    "pseudogene", "receptor", "receptors", "recruitment", "region",
-    "regulator", "release", "repressor", "resistance", "retention",
-    "ribonuclease", "rna", "role", "rrna", "sarcoma", "sequence", "sequences",
-    "sequestration", "serum", "signaling", "sirnas", "sirna", "siRNA",
-    "siRNAs", "SNP", "SNPs", "staining", "sumoylation", "synonymous", "targed",
-    "T-cell", "transducer", "transgene", "translocation", "transcribe",
-    "transcript", "transcription", "transporter", "tumor", "tumours", "tumour",
-    "variant", "variation", "up-regulation", "upregulation", "vivo", "vitro"
+    "allele", "antagonist", "antibody", "asynonymous", "backbone", "binding",
+    "biomarker", "breakdown", "cell", "cleavage", "cluster", "cnv",
+    "coactivator", "co-activator",  "complex", "dd-genotype", "DD-genotype",
+    "deletion", "determinant", "domain", "duplication", "dysfunction",
+    "effector", "enhancer", "enrichment", "enzyme", "excision", "factor",
+    "family",  "function", "functionality", "genotype",
+    "growth", "haplotype", "haplotypes", "heterozygous", "hexons", "hexon",
+    "histone", "homologue", "homology", "homozygous" "human",
+    "hypermetylation", "hybridization", "induce", "inducer", "induction",
+    "inhibitor", "inhibition", "intron", "interaction", "isoform", "isoforms",
+    "kinase", "kinesin", "level", "ligand", "location", "locus",
+    "mammalian", "marker", "methilation", "modification", "moiety", "molecule",
+    "molecules", "morpheein", "motif",  "mutant", "mutation",
+    "mutations", "nonsynonymous", "non-synonymous", "nucleotide",
+    "oligomerization", "oncoprotein", "pathway", "peptide",
+    "pharmacokinetic", "pharmacodynamic", "pharmacogenetic" "phosphorylation",
+    "polymorphism", "proliferation", "promoter", "protein", "receptor",
+    "receptors", "recruitment", "region", "regulator", "release", "repressor",
+    "resistance", "retention", "ribonuclease", "role", "sequence",
+    "sequences", "sequestration", "serum", "signaling", "SNP", "SNPs",
+    "staining", "sumoylation", "synonymous", "target", "T-cell", "transducer",
+    "translocation", "transcribe", "transcript", "transcription",
+    "transporter", "variant", "variation", "vivo", "vitro"
     ])
+
+KNOCK_KWS = frozenset(["knockdown", "knock-down", "knock-out", "knockout"
+    ])
+
+ANTIGENE_KWS = frozenset(["antigen", "antigene", "anti-gen", "anti-gene"])
+
+DNA_KWS = frozenset([ "cdna", "cDNA", "dna", "mrna", "mRNA", "rna",
+    "rrna", "sirnas", "sirna", "siRNA", "siRNAs",])
+
+REGULATION_KWS = frozenset([ "down-regulation", "downregulation",
+    "up-regulation", "upregulation"])
+
+TUMOR_KWS = frozenset([ "tumor", "tumours", "tumour", "cancer",
+"carcinoma", "fibrosarcoma", "sarcoma", "lymphoma"])
+
+GENE_KWS = frozenset([ "gene", "protooncogene", "proto-oncogene",
+    "pseudogene", "transgene" ])
+
+COEXPRESSION_KWS = frozenset(["expression", "overexpression",
+"over-expression", "co-expression", "coexpression" ])
+
+
+KEYWORDS= VAR_KWS | KNOCK_KWS | ANTIGENE_KWS | DNA_KWS | REGULATION_KWS | \
+    TUMOR_KWS | GENE_KWS | COEXPRESSION_KWS
+
 
 # Snowball positive features
 # NO LONGER USED
@@ -125,15 +144,30 @@ def add_features(mention, sentence):
     minw = None
     for word in mention.words:
         for word2 in sentence.words:
-            if word2.lemma in GENE_KEYWORDS:
+            if word2.lemma in KEYWORDS:
                 p = sentence.get_word_dep_path(
                     word.in_sent_idx, word2.in_sent_idx)
+                kw = word2.lemma
+                if word2.lemma in KNOCK_KWS:
+                    kw = "_KNOCKOUT"
+                elif word2.lemma in ANTIGENE_KWS:
+                    kw = "_ANTIGENE"
+                #elif word2.lemma in DNA_KWS: 
+                #    kw = "_DNA"
+                #elif word2.lemma in REGULATION_KWS:
+                #    kw = "_REGULATION"
+                #elif word2.lemma in TUMOR_KWS:
+                #    kw = "_TUMOR"
+                #elif word2.lemma in GENE_KWS:
+                #    kw = "_GENE"
+                #elif word2.lemma in COEXPRESSION_KWS:
+                #    ke = "_COEXPRESSION"
                 if len(p) < minl:
                     minl = len(p)
                     minp = p
-                    minw = word2.lemma
+                    minw = kw
                 if len(p) < 100:
-                    mention.add_feature("KEYWORD_[" + word2.lemma + "]" + p)
+                    mention.add_feature("KEYWORD_[" + kw + "]" + p)
     # Special features for the keyword on the shortest dependency path
     if minw:
         mention.add_feature('EXT_KEYWORD_MIN_[' + minw + ']' + minp)
