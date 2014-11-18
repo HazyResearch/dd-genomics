@@ -17,15 +17,18 @@ max_mention_length = 8  # This is somewhat arbitrary
 NEG_PROB = 0.005  #  Probability of generating a random negative mention
 
 # Keyword that seems to appear with phenotypes
-HPOTERM_KEYWORDS = frozenset([
-    "abnormality", "affect", "apoptosis", "association", "boy", "cancer",
-    "carcinoma", "case", "chemotherapy", "chromosome", "cronic", "deletion",
-    "detection", "diagnose", "diagnosis", "disease", "drug", "gene", "genome",
-    "genomic", "genotype", "girl", "give", "injury", "man", "mutation",
-    "pathway", "patient", "patients", "phenotype", "polymorphism", "protein",
-    "severe", "symptom", "syndrome", "therapy", "therapeutic", "treat",
-    "treatment", "viruses", "virus", "woman"
-    ])
+VAR_KWS = frozenset([
+    "abnormality", "affect", "apoptosis", "association", "cancer", "carcinoma",
+    "case", "chemotherapy", "chromosome", "cronic", "deletion", "detection",
+    "diagnose", "diagnosis", "disease", "drug", "gene", "genome", "genomic",
+    "genotype", "give", "injury", "mutation", "pathway", "phenotype",
+    "polymorphism", "protein", "severe", "symptom", "syndrome", "therapy",
+    "therapeutic", "treat", "treatment", "viruses", "virus" ])
+
+PATIENT_KWS = frozenset(["boy", "girl", "man", "woman", "men", "women",
+"patient", "patients" ])
+
+KEYWORDS = VAR_KWS | PATIENT_KWS
 
 # Load the dictionaries that we need
 english_dict = load_dict("english")
@@ -83,7 +86,7 @@ def add_features(mention, sentence):
         mention.left_lemma = sentence.words[idx].lemma
         try:
             float(mention.left_lemma)
-            mention.left_lemma = "NUMBER"
+            mention.left_lemma = "_NUMBER"
         except ValueError:
             pass
         mention.add_feature("NGRAM_LEFT_1_[{}]".format(
@@ -98,7 +101,7 @@ def add_features(mention, sentence):
         mention.right_lemma = sentence.words[idx].lemma
         try:
             float(mention.right_lemma)
-            mention.right_lemma = "NUMBER"
+            mention.right_lemma = "_NUMBER"
         except ValueError:
             pass
         mention.add_feature("NGRAM_RIGHT_1_[{}]".format(
@@ -106,27 +109,34 @@ def add_features(mention, sentence):
     except IndexError:
         pass
     # The lemma "two on the left" of the mention, if present
-    if mention.wordidxs[0] > 1:
+    try: 
         mention.add_feature("NGRAM_LEFT_2_[{}]".format(
             sentence.words[mention.wordidxs[0] - 2].lemma))
+    except IndexError:
+        pass
     # The lemma "two on the right" on the left of the mention, if present
-    if mention.wordidxs[-1] + 2 < len(sentence.words):
+    try:
         mention.add_feature("NGRAM_RIGHT_2_[{}]".format(
             sentence.words[mention.wordidxs[-1] + 2].lemma))
+    except IndexError:
+        pass
     # The keywords that appear in the sentence with the mention
     minl = 100
     minp = None
     minw = None
     for word in mention.words:
         for word2 in sentence.words:
-            if word2.lemma in HPOTERM_KEYWORDS:
+            if word2.lemma in KEYWORDS:
                 p = sentence.get_word_dep_path(word.in_sent_idx,
                                                word2.in_sent_idx)
-                mention.add_feature("KEYWORD_[" + word2.lemma + "]" + p)
+                kw = word2.lemma
+                if word2.lemma in PATIENT_KWS:
+                    kw = "_HUMAN"
+                mention.add_feature("KEYWORD_[" + kw + "]" + p)
                 if len(p) < minl:
                     minl = len(p)
                     minp = p
-                    minw = word2.lemma
+                    minw = kw
     # Special feature for the keyword on the shortest dependency path
     if minw:
         mention.add_feature('EXT_KEYWORD_MIN_[' + minw + ']' + minp)
