@@ -19,11 +19,13 @@ NEG_PROB = 0.005  #  Probability of generating a random negative mention
 # Keyword that seems to appear with phenotypes
 VAR_KWS = frozenset([
     "abnormality", "affect", "apoptosis", "association", "cancer", "carcinoma",
-    "case", "chemotherapy", "chromosome", "cronic", "deletion", "detection",
-    "diagnose", "diagnosis", "disease", "drug", "gene", "genome", "genomic",
-    "genotype", "give", "injury", "mutation", "pathway", "phenotype",
-    "polymorphism", "protein", "severe", "symptom", "syndrome", "therapy",
-    "therapeutic", "treat", "treatment", "viruses", "virus" ])
+    "case", "cell", "chemotherapy", "clinic", "clinical", "chromosome",
+    "cronic", "deletion", "detection", "diagnose", "diagnosis", "disease",
+    "drug", "family", "gene", "genome", "genomic", "genotype", "give", "grade",
+    "group", "history", "infection", "inflammatory", "injury", "mutation",
+    "pathway", "phenotype", "polymorphism", "prevalence", "protein", "risk",
+    "severe", "stage", "symptom", "syndrome", "therapy", "therapeutic",
+    "treat", "treatment", "variant" "viruses", "virus" ])
 
 PATIENT_KWS = frozenset(["boy", "girl", "man", "woman", "men", "women",
 "patient", "patients" ])
