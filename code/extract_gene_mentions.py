@@ -71,7 +71,7 @@ COEXPRESSION_KWS = frozenset(["expression", "overexpression",
 "over-expression", "co-expression", "coexpression" ])
 
 
-KEYWORDS= VAR_KWS | KNOCK_KWS | ANTIGENE_KWS | DNA_KWS | DOWNREGULATION_KWS | \
+KEYWORDS = VAR_KWS | KNOCK_KWS | ANTIGENE_KWS | DNA_KWS | DOWNREGULATION_KWS |\
     DOWNREGULATION_KWS | TUMOR_KWS | GENE_KWS | COEXPRESSION_KWS
 
 
@@ -194,16 +194,24 @@ def add_features(mention, sentence):
         #mention.add_feature('OTHER_GENE_['+minw+']')
     # The lemma on the left of the candidate, whatever it is
     try:
-        mention.add_feature(
-            "NGRAM_LEFT_1_[" +
-            sentence.words[mention.words[0].in_sent_idx-1].lemma + "]")
+        left = sentence.words[mention.words[0].in_sent_idx-1].lemma
+        try:
+            float(left)
+            left = "_NUMBER"
+        except ValueError:
+            pass
+        mention.add_feature("NGRAM_LEFT_1_[" + left + "]")
     except IndexError:
         pass
     # The lemma on the right of the candidate, whatever it is
     try:
-        mention.add_feature(
-            "NGRAM_RIGHT_1_[" +
-            sentence.words[mention.words[-1].in_sent_idx+1].lemma + "]")
+        right = sentence.words[mention.words[-1].in_sent_idx+1].lemma
+        try:
+            float(right)
+            right = "_NUMBER"
+        except ValueError:
+            pass
+        mention.add_feature( "NGRAM_RIGHT_1_[" + right + "]")
     except IndexError:
         pass
     # We know check whether the lemma on the left and on the right are
@@ -376,6 +384,19 @@ def supervise(mentions, sentence, acronyms, acro_defs):
         # The candidate is a long name.
         if " ".join([word.word for word in mention.words]) in \
                 inverted_long_names:
+            # "insulin resistance"
+            try: 
+                if mention.words[0].word.casefold() == "insulin" and \
+                        sentence.words[mention.words[0].in_sent_idx + \
+                        1].word.casefold() == "resistance":
+                    supervised = Mention("GENE_SUP_ins", mention.entity,
+                            mention.words)
+                    supervised.features = mention.features.copy()
+                    supervised.is_correct = False
+                    new_mentions.append(supervised)
+                    continue
+            except IndexError:
+                pass
             supervised = Mention("GENE_SUP_long", mention.entity,
                                  mention.words)
             supervised.features = mention.features.copy()
@@ -592,7 +613,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
             continue
         # Is a location and comes before a location so it's probably wrong
         if comes_before == "LOCATION" and mention.words[0].ner == "LOCATION":
-            supervised = Mention("GENE_SUP_loc", mention.entity, mention.words)
+            supervised = mention("gene_sup_loc", mention.entity, mention.words)
             supervised.features = mention.features.copy()
             supervised.is_correct = False
             new_mentions.append(supervised)
