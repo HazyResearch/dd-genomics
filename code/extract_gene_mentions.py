@@ -385,7 +385,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
         if " ".join([word.word for word in mention.words]) in \
                 inverted_long_names:
             # "insulin resistance"
-            try: 
+            try:
                 if mention.words[0].word.casefold() == "insulin" and \
                         sentence.words[mention.words[0].in_sent_idx + \
                         1].word.casefold() == "resistance":
@@ -613,7 +613,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
             continue
         # Is a location and comes before a location so it's probably wrong
         if comes_before == "LOCATION" and mention.words[0].ner == "LOCATION":
-            supervised = mention("gene_sup_loc", mention.entity, mention.words)
+            supervised = Mention("gene_sup_loc", mention.entity, mention.words)
             supervised.features = mention.features.copy()
             supervised.is_correct = False
             new_mentions.append(supervised)
