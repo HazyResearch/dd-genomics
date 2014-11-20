@@ -68,9 +68,9 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
                 mini_hpo = sentence.words[i].in_sent_idx
             if i > 0:
                 if sentence.words[i-1].lemma in ["no", "not", "neither", "nor"]:
-                    if i < maxindex - 2:
+                    if i < betw_end - 2:  # Don't understand this (MR)
                         neg_found = 1
-                        relation.add_feature(inv + "NEG_VERB_BETWEEN_[" +
+                        relation.add_feature(inv + "NEG_VERB_[" +
                                 sentence.words[i-1].word + "]-" +
                                 sentence.words[i].lemma)
                 elif sentence.words[i] != "{" and sentence.words[i] != "}":
