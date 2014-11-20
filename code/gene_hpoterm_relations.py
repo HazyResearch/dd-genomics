@@ -29,19 +29,88 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
     else:
         inv = "INV_"
 
+    ws = []
+    verbs_between = []
+    minl_gene = 100
+    minp_gene = None
+    minw_gene = None
+    mini_gene = None
+    minl_hpo = 100
+    minp_hpo = None
+    minw_hpo = None
+    mini_hpo = None
+    neg_found = 0
+    for i in range(betw_start+1, betw_end):
+        if "," not in sentence.words[i].lemma:
+            ws.append(sentence.words[i].lemma)
+            # Feature for separation between entities
+            if "while" == sentence.words[i].lemma:
+                relation.add_feature("SEP_BY_[while]")
+            if "whereas" == sentence.words[i].lemma:
+                relation.add_feature("SEP_BY_[whereas]")
+        if re.search('^VB[A-Z]*', sentence.words[i].pos) and \
+                sentence.words[i].word != "{" and \
+                sentence.words[i].word != "}" and \
+                "," not in sentence.words[i].word:
+            p_gene = sentence.get_word_dep_path(betw_start,
+                    sentence.words[i].in_sent_idx)
+            p_hpo = sentence.get_word_dep_path(
+                    sentence.words[i].in_sent_idx, betw_end)
+            if len(p_gene) < minl_gene:
+                minl_gene = len(p_gene)
+                minp_gene = p_gene
+                minw_gene = sentence.words[i].lemma
+                mini_gene = sentence.words[i].in_sent_idx
+            if len(p_hpo) < minl_hpo:
+                minl_hpo = len(p_hpo)
+                minp_hpo = p_hpo
+                minw_hpo = sentence.words[i].lemma
+                mini_hpo = sentence.words[i].in_sent_idx
+            if i > 0:
+                if sentence.words[i-1].lemma in ["no", "not", "neither", "nor"]:
+                    if i < maxindex - 2:
+                        neg_found = 1
+                        relation.add_feature(inv + "NEG_VERB_BETWEEN_[" +
+                                sentence.words[i-1].word + "]-" +
+                                sentence.words[i].lemma)
+                elif sentence.words[i] != "{" and sentence.words[i] != "}":
+                    verbs_between.append(sentence.words[i].lemma)
+    if len(verbs_between) == 1 and neg_found == 0:
+        relation.add_feature(inv + "SINGLE_VERB_[%s]" % verbs_between[0])
+    else:
+        for verb in verbs_between:
+            relation.add_feature(inv + "VERB_[%s]" % verb)
+    # 
+    if mini_hpo == mini_gene and mini_gene != None and len(minp_gene) < 50: # and "," not in minw_gene:
+        #feature = 'DEP_PAR_VERB_BOTH_with[' + minw_gene + ']' + normalize(minp_gene) 
+        feature2 = inv + 'MIN_VERB_[' + minw_gene + ']'  
+        #features.append(feature)
+        relation.add_feature(feature2)
+    else:
+        if mini_gene != None:
+            feature1 = inv + 'MIN_VERB_GENE_[' + minw_gene + ']'
+            #feature2 = 'DEP_PAR_VERB_FIRSTh[' + minw_gene + ']' + normalize(minp_gene) 
+            relation.add_feature(feature1)
+        if mini_hpo != None:
+            feature = inv + 'MIN_VERB_HPO_[' + minw_hpo + ']'
+            #feature = 'DEP_PAR_VERB_SECOND_[' + minw_hpo + ']' + normalize(minp_hpo) 
+            relation.add_feature(feature)
     # Verb between the two mentions, if present
-    for word in sentence.words[betw_start+1:betw_end]:
-        if re.search('^VB[A-Z]*$', word.pos) and word.lemma != ")" and \
-                word.lemma != "(":
-            relation.add_feature("VERB_" + word.lemma)
+    #for word in sentence.words[betw_start+1:betw_end]:
+    #    if re.search('^VB[A-Z]*$', word.pos) and word.lemma != ")" and \
+    #            word.lemma != "(":
+    #        relation.add_feature("VERB_" + word.lemma)
     # Shortest dependency path between the two mentions
     relation.add_feature(inv + "DEP_PATH_[" + sentence.dep_path(gene_mention,
         hpoterm_mention) + "]")
     # The sequence of lemmas between the two mentions
-    seq = "_".join(map(lambda x: x.lemma,
-                       sentence.words[betw_start+1:betw_end]))
-    relation.add_feature(inv + "WORD_SEQ_[" + seq + "]")
-    # The sequence of words between the two mentions but using the NERs, if
+    if len(ws) < 7 and len(ws) > 0 and "{" not in ws and "}" not in ws and \
+            "\"" not in ws and "/" not in ws and "\\" not in ws and \
+            "," not in ws and \
+            " ".join(ws) not in ["_ and _", "and", "or",  "_ or _"]:
+            relation.add_feature(inv + "WORD_SEQ_[%s]" % " ".join(ws))
+    relation.add_feature(inv + "WS_LEN_[%d]" % len(ws))
+    # The sequence of lemmas between the two mentions but using the NERs, if
     # present
     seq_list = []
     for word in sentence.words[betw_start+1:betw_end]:
