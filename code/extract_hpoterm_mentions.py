@@ -74,6 +74,7 @@ def supervise(mentions, sentence):
             supervised.features = mention.features
             supervised.is_correct = True
             new_mentions.append(supervised)
+            mention.type = "HPOTERM_ORIG_T"
             continue
     return new_mentions
 

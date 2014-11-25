@@ -153,7 +153,7 @@ def add_features(mention, sentence):
                     kw = "_KNOCKOUT"
                 elif word2.lemma in ANTIGENE_KWS:
                     kw = "_ANTIGENE"
-                #elif word2.lemma in DNA_KWS: 
+                #elif word2.lemma in DNA_KWS:
                 #    kw = "_DNA"
                 elif word2.lemma in DOWNREGULATION_KWS:
                     kw = "_DOWNREGULATION"
@@ -394,6 +394,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
                     supervised.features = mention.features.copy()
                     supervised.is_correct = False
                     new_mentions.append(supervised)
+                    mention.type = "GENE_ORIG_F"
                     continue
             except IndexError:
                 pass
@@ -402,6 +403,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
             supervised.features = mention.features.copy()
             supervised.is_correct = True
             new_mentions.append(supervised)
+            mention.type = "GENE_ORIG_F"
             continue
         # The phrase starts with words that are indicative of the candidate not
         # being a mention of a gene
@@ -417,6 +419,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
             supervised.features = mention.features.copy()
             supervised.is_correct = False
             new_mentions.append(supervised)
+            mention.type = "GENE_ORIG_F"
             # This copy only contains the "special" feature
             supervised2 = Mention("GENE_SUP_contr2", mention.entity, mention.words)
             supervised2.is_correct = False
@@ -434,6 +437,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
                     supervised.features = mention.features.copy()
                     supervised.is_correct = False
                     new_mentions.append(supervised)
+                    mention.type = "GENE_ORIG_F"
             except:
                 pass
             continue
@@ -447,6 +451,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
                 supervised.features = mention.features.copy()
                 supervised.is_correct = False
                 new_mentions.append(supervised)
+                mention.type = "GENE_ORIG_F"
                 continue
             # The candidate comes after a "document element" (e.g., table, or
             # figure)
@@ -455,6 +460,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
                 supervised.features = mention.features.copy()
                 supervised.is_correct = False
                 new_mentions.append(supervised)
+                mention.type = "GENE_ORIG_F"
                 continue
             # The candidate comes after an "individual" word (e.g.,
             # "individual")
@@ -465,6 +471,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
                 supervised.features = mention.features.copy()
                 supervised.is_correct = False
                 new_mentions.append(supervised)
+                mention.type = "GENE_ORIG_F"
                 continue
             # The candidate comes after a "type" word, and it is made only of
             # the letters "I" and "V"
@@ -474,6 +481,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
                 supervised.features = mention.features.copy()
                 supervised.is_correct = False
                 new_mentions.append(supervised)
+                mention.type = "GENE_ORIG_F"
                 continue
         # Index of the word on the right
         idx = mention.wordidxs[-1] + 1
@@ -485,6 +493,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
                 supervised.features = mention.features.copy()
                 supervised.is_correct = False
                 new_mentions.append(supervised)
+                mention.type = "GENE_ORIG_F"
                 continue
             # The candidate is followed by a ":" and the word after it is a
             # number (it's probably a quantity)
@@ -496,6 +505,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
                     supervised.features = mention.features.copy()
                     supervised.is_correct = False
                     new_mentions.append(supervised)
+                    mention.type = "GENE_ORIG_F"
                 except:  # both ValueError and IndexError
                     pass
                 continue
@@ -505,6 +515,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
                 supervised.features = mention.features.copy()
                 supervised.is_correct = False
                 new_mentions.append(supervised)
+                mention.type = "GENE_ORIG_F"
                 continue
         # The candidate is a DNA triplet
         # We check this by looking at whether the word before or after is also
@@ -520,6 +531,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
                     supervised.features = mention.features.copy()
                     supervised.is_correct = False
                     new_mentions.append(supervised)
+                    mention.type = "GENE_ORIG_F"
                     continue
             idx = mention.wordidxs[-1] + 1
             if not done and idx < len(sentence.words):
@@ -529,6 +541,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
                     supervised.features = mention.features.copy()
                     supervised.is_correct = False
                     new_mentions.append(supervised)
+                    mention.type = "GENE_ORIG_F"
                     continue
         # If it's "II", it's most probably wrong.
         if mention.words[0].word == "II":
@@ -537,6 +550,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
             supervised.features = mention.features.copy()
             supervised.is_correct = False
             new_mentions.append(supervised)
+            mention.type = "GENE_ORIG_F"
             continue
         # Snowball positive features
         # Commented out to avoid overfitting
@@ -593,6 +607,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
             supervised.features = mention.features.copy()
             supervised.is_correct = False
             new_mentions.append(supervised)
+            mention.type = "GENE_ORIG_F"
             continue
         # Comes after person and before "," or ":", so it's probably a person
         # name
@@ -604,12 +619,14 @@ def supervise(mentions, sentence, acronyms, acro_defs):
             supervised.features = mention.features.copy()
             supervised.is_correct = False
             new_mentions.append(supervised)
+            mention.type = "GENE_ORIG_F"
             continue
         if comes_after == "PERSON" and mention.words[0].ner == "PERSON":
             supervised = Mention("GENE_SUP_name3", mention.entity, mention.words)
             supervised.features = mention.features.copy()
             supervised.is_correct = False
             new_mentions.append(supervised)
+            mention.type = "GENE_ORIG_F"
             continue
         # Is a location and comes before a location so it's probably wrong
         if comes_before == "LOCATION" and mention.words[0].ner == "LOCATION":
@@ -617,6 +634,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
             supervised.features = mention.features.copy()
             supervised.is_correct = False
             new_mentions.append(supervised)
+            mention.type = "GENE_ORIG_F"
             continue
         # Handle acronyms
         if acro_defs and  \
@@ -638,6 +656,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
                                     mention.entity, mention.words)
                             supervised.features = mention.features.copy()
                             supervised.is_correct = True
+                            mention.type = "GENE_ORIG_T"
                             new_mentions.append(supervised)
                             break
                     else:
@@ -663,11 +682,12 @@ def supervise(mentions, sentence, acronyms, acro_defs):
                             contains_kw = True
                         # If no significant keyword, supervise as not correct
                         if not contains_kw:
-                            supervised = Mention("GENE_SUP_acr_f", 
+                            supervised = Mention("GENE_SUP_acr_f",
                                     mention.entity, mention.words)
                             supervised.features = mention.features.copy()
                             supervised.is_correct = False
                             new_mentions.append(supervised)
+                            mention.type = "GENE_ORIG_F"
                             break
     return new_mentions
 
