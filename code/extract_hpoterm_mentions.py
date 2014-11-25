@@ -37,6 +37,7 @@ english_dict = load_dict("english")
 stopwords_dict = load_dict("stopwords")
 inverted_hpoterms = load_dict("hpoterms_inverted")
 hponames_to_ids = load_dict("hponames_to_ids")
+inverted_long_names = load_dict("inverted_long_names")
 # hpodag = load_dict("hpoparents")
 
 
@@ -60,7 +61,8 @@ def supervise(mentions, sentence):
     new_mentions = []
     for mention in mentions:
         new_mentions.append(mention)
-        # Skip if we already supervised it (e.g., random mentions)
+        # Skip if we already supervised it (e.g., random mentions or
+        # gene long names)
         if mention.is_correct is not None:
             continue
         mention_lemmas = set([x.lemma.casefold() for x in mention.words])
@@ -181,6 +183,19 @@ def extract(sentence):
                                                   max_mention_length):
         if start in history or end - 1 in history:
             continue
+
+        phrase = " ".join([word.word for word in sentence.words[start:end]])
+        # If the phrase is a gene long name, create a candidate that we
+        # supervise as negative
+        if len(phrase) > 1 and phrase in inverted_long_names:
+            mention = Mention("HPOTERM_SUP_gene",
+                              "|".join(inverted_long_names[phrase]),
+                              sentence.words[start:end])
+            mention.is_correct = False
+            add_features(mention, sentence)
+            mentions.append(mention)
+            for word in sentence.words[start:end]:
+                history.add(word.in_sent_idx)
         # The list of stems in the phrase (not from stopwords or symbols, and
         # not already used for a mention)
         phrase_stems = []
