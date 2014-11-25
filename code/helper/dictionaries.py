@@ -47,6 +47,7 @@ def load_genes_dictionary(filename):
     return genes_dict
 
 
+# Load the gene long names dictionary
 def load_long_names_dictionary(filename):
     long_names_dict = dict()
     with open(filename, 'rt') as long_names_dict_file:
@@ -61,7 +62,7 @@ def load_long_names_dictionary(filename):
                 long_names_dict[sym] += names
     return long_names_dict
 
-
+# Load the inverted gene long names dictionary
 def load_inverted_long_names_dictionary(filename):
     long_names_dict = dict()
     with open(filename, 'rt') as long_names_dict_file:
