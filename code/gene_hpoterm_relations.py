@@ -197,6 +197,7 @@ if __name__ == "__main__":
                 if gene_mention.is_correct is False or \
                         hpoterm_mention.is_correct is False:
                     relation.is_correct = False
+                    relation.type = "GENEHPOTERM_SUP_F"
                 # Present in the existing HPO mapping and not a candidate built
                 # on top of the unsupervised copies of false-supervised
                 # gene/hpoterm mentions (either or both).
