@@ -196,6 +196,7 @@ def extract(sentence):
             mentions.append(mention)
             for word in sentence.words[start:end]:
                 history.add(word.in_sent_idx)
+            continue
         # The list of stems in the phrase (not from stopwords or symbols, and
         # not already used for a mention)
         phrase_stems = []
