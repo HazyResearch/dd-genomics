@@ -227,17 +227,23 @@ if __name__ == "__main__":
             # Print!
             # The logic is a little complex to avoid duplicates due to the fact
             # that we have supervised candidates and their copies
-            if gene_mention.type == "GENE" and \
-                    hpoterm_mention.type == "HPOTERM":
+            if gene_mention.type == "GENE" and hpoterm_mention.type == "HPOTERM":
                 print(relation.tsv_dump())
             elif gene_mention.type == "GENE" and \
                     "_ORIG_" in hpoterm_mention.type:
                 print(relation.tsv_dump())
+            elif gene_mention.type == "GENE" and relation.is_correct == False:
+                print(relation.tsv_dump())
             elif "_ORIG_" in gene_mention.type and \
                     hpoterm_mention.type == "HPOTERM":
                 print(relation.tsv_dump())
-            elif "_ORIG_" in gene_mention.type and \
-                    "_ORIG_" in hpoterm_mention.type :
+            elif hpoterm_mention.type == "HPOTERM" and \
+                    relation.is_correct == False:
                 print(relation.tsv_dump())
-
-
+            elif "_ORIG_" in gene_mention.type and \
+                    "_ORIG_" in hpoterm_mention.type:
+                print(relation.tsv_dump())
+            elif gene_mention.is_correct is not None and \
+                    hpoterm_mention.is_correct is not None and \
+                    relation.is_correct == False:
+                print(relation.tsv_dump())
