@@ -217,5 +217,6 @@ if __name__ == "__main__":
                         supervised.features = relation.features
                         supervised.is_correct = True
                         print(supervised.tsv_dump())
+                        relation.type = "GENEHPOTERM_ORIG_T"
                 # Print!
                 print(relation.tsv_dump())
