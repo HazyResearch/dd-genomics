@@ -181,47 +181,48 @@ if __name__ == "__main__":
                 [sentence.words[j] for j in line_dict["hpoterm_wordidxs"]])
             hpoterm_mention.is_correct = line_dict["hpoterm_is_correct"]
             hpoterm_mention.type = line_dict["hpoterm_type"]
-            # If the word indexes do not overlap, create the relation candidate
-            if not set(line_dict["gene_wordidxs"]) & \
+            # Skip if the word indexes overlab
+            if set(line_dict["gene_wordidxs"]) & \
                     set(line_dict["hpoterm_wordidxs"]):
-                relation = Relation(
-                    "GENEHPOTERM", gene_mention, hpoterm_mention)
-                # Add features
-                add_features(relation, gene_mention, hpoterm_mention,
-                            sentence)
-                # Supervise
-                # One of the two mentions is labelled as False
-                # We do not create a copy in this case because there will
-                # already be an unsupervised copy built on the unsupervised
-                # copies of the mentions.
-                if gene_mention.is_correct is False:
-                    relation.is_correct = False
-                    relation.type = "GENEHPOTERM_SUP_F_G"
-                if hpoterm_mention.is_correct is False:
-                    relation.is_correct = False
-                    relation.type = "GENEHPOTERM_SUP_F_H"
-                # Present in the existing HPO mapping and not a candidate built
-                # on top of the unsupervised copies of false-supervised
-                # gene/hpoterm mentions (either or both).
-                elif not gene_mention.type.endswith("_ORIG_F") and not \
-                        hpoterm_mention.type.endswith("_ORIG_F"):
-                    in_mapping = False
-                    hpo_entity_id = hpoterm_mention.entity.split("|")[0]
-                    if frozenset([gene_mention.words[0].word, hpo_entity_id]) in \
-                            genehpoterms_dict:
-                        in_mapping = True
-                    else: 
-                        for gene in gene_mention.entity.split("|"):
-                            if frozenset([gene, hpo_entity_id]) in \
-                                    genehpoterms_dict:
-                                in_mapping = True
-                                break
-                    if in_mapping:
-                        supervised = Relation(
-                            "GENEHPOTERM_SUP_MAP", gene_mention, hpoterm_mention)
-                        supervised.features = relation.features
-                        supervised.is_correct = True
-                        print(supervised.tsv_dump())
-                        relation.type = "GENEHPOTERM_ORIG_T"
-                # Print!
-                print(relation.tsv_dump())
+                continue
+            relation = Relation(
+                "GENEHPOTERM", gene_mention, hpoterm_mention)
+            # Add features
+            add_features(relation, gene_mention, hpoterm_mention,
+                        sentence)
+            # Supervise
+            # One of the two mentions is labelled as False
+            # We do not create a copy in this case because there will
+            # already be an unsupervised copy built on the unsupervised
+            # copies of the mentions.
+            if gene_mention.is_correct is False:
+                relation.is_correct = False
+                relation.type = "GENEHPOTERM_SUP_F_G"
+            if hpoterm_mention.is_correct is False:
+                relation.is_correct = False
+                relation.type = "GENEHPOTERM_SUP_F_H"
+            # Present in the existing HPO mapping and not a candidate built
+            # on top of the unsupervised copies of false-supervised
+            # gene/hpoterm mentions (either or both).
+            elif not gene_mention.type.endswith("_ORIG_F") and not \
+                    hpoterm_mention.type.endswith("_ORIG_F"):
+                in_mapping = False
+                hpo_entity_id = hpoterm_mention.entity.split("|")[0]
+                if frozenset([gene_mention.words[0].word, hpo_entity_id]) in \
+                        genehpoterms_dict:
+                    in_mapping = True
+                else: 
+                    for gene in gene_mention.entity.split("|"):
+                        if frozenset([gene, hpo_entity_id]) in \
+                                genehpoterms_dict:
+                            in_mapping = True
+                            break
+                if in_mapping:
+                    supervised = Relation(
+                        "GENEHPOTERM_SUP_MAP", gene_mention, hpoterm_mention)
+                    supervised.features = relation.features
+                    supervised.is_correct = True
+                    print(supervised.tsv_dump())
+                    relation.type = "GENEHPOTERM_ORIG_T"
+            # Print!
+            print(relation.tsv_dump())
