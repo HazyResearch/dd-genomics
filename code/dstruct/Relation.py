@@ -32,7 +32,7 @@ class Relation(object):
         self.features = set()
 
     def id(self):
-        return "RELATION_{}_{}_{}_{}_{},{}_{}_{}".format(
+        return "RELATION_{}_{}_{}_{}_{}_{}_{}_{}".format(
             self.type, self.doc_id, self.sent_id_1, self.sent_id_2,
             self.mention_1_words[0].in_sent_idx,
             self.mention_1_words[-1].in_sent_idx,
