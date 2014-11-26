@@ -630,7 +630,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
             continue
         # Is a location and comes before a location so it's probably wrong
         if comes_before == "LOCATION" and mention.words[0].ner == "LOCATION":
-            supervised = Mention("gene_sup_loc", mention.entity, mention.words)
+            supervised = Mention("GENE_SUP_loc", mention.entity, mention.words)
             supervised.features = mention.features.copy()
             supervised.is_correct = False
             new_mentions.append(supervised)
