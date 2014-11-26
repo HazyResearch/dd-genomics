@@ -14,7 +14,8 @@ def extract(sentence):
     # First method: Look for a sentence that starts with "Abbreviations"
     if len(sentence.words) > 2 and \
             sentence.words[0].word.casefold() == "abbreviations" and \
-            sentence.words[1].word.casefold() == ":":
+            (sentence.words[1].word.casefold() == ":" or 
+                    sent.words[1].word == "used"):
         words = [x.word for x in sentence.words]
         index = 2
         while index < len(words):
