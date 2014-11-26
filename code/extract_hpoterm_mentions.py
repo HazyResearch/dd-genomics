@@ -167,6 +167,7 @@ def add_features(mention, sentence):
 # Return a list of mention candidates extracted from the sentence
 def extract(sentence):
     mentions = []
+    mention_ids = set()
     # If there are no English words in the sentence, we skip it.
     no_english_words = True
     for word in sentence.words:
@@ -223,6 +224,12 @@ def extract(sentence):
             entity = list(hpoterms_dict[phrase_stems_set])[0]
             mention = Mention("HPOTERM", hponames_to_ids[entity] + "|" +
                                   entity, mention_words)
+            # The following is a way to avoid duplicates.
+            # It's ugly and not perfect
+            if mention.id() in mention_ids:
+                continue
+            mention_ids.add(mention.id())
+            # Features
             add_features(mention, sentence)
             mentions.append(mention)
             for word in mention_words:
