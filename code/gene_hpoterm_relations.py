@@ -47,7 +47,7 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
     # dependency path there could be words that are close to both mentions but
     # not between them
     #for i in range(betw_start+1, betw_end):
-    for i in range(len(sentences.words)):
+    for i in range(len(sentence.words)):
         if "," not in sentence.words[i].lemma:
             ws.append(sentence.words[i].lemma)
             # Feature for separation between entities
