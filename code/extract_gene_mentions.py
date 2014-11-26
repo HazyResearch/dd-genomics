@@ -656,8 +656,8 @@ def supervise(mentions, sentence, acronyms, acro_defs):
                                     mention.entity, mention.words)
                             supervised.features = mention.features.copy()
                             supervised.is_correct = True
-                            mention.type = "GENE_ORIG_T"
                             new_mentions.append(supervised)
+                            mention.type = "GENE_ORIG_T"
                             break
                     else:
                         # Check if the definition contains some keywords that
