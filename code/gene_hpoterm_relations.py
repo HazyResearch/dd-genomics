@@ -194,10 +194,12 @@ if __name__ == "__main__":
                 # We do not create a copy in this case because there will
                 # already be an unsupervised copy built on the unsupervised
                 # copies of the mentions.
-                if gene_mention.is_correct is False or \
-                        hpoterm_mention.is_correct is False:
+                if gene_mention.is_correct is False 
                     relation.is_correct = False
-                    relation.type = "GENEHPOTERM_SUP_F"
+                    relation.type = "GENEHPOTERM_SUP_F_G"
+                if hpoterm_mention.is_correct is False:
+                    relation.is_correct = False
+                    relation.type = "GENEHPOTERM_SUP_F_H"
                 # Present in the existing HPO mapping and not a candidate built
                 # on top of the unsupervised copies of false-supervised
                 # gene/hpoterm mentions (either or both).
