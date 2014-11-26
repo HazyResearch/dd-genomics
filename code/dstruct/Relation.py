@@ -65,7 +65,7 @@ class Relation(object):
             is_correct_str = self.is_correct.__repr__()
         return "\t".join(
             ["\\N", self.doc_id, str(self.sent_id_1), str(self.sent_id_2),
-                self.id, self.type, self.mention_1_id, self.mention_2_id,
+                self.id(), self.type, self.mention_1_id, self.mention_2_id,
                 list2TSVarray([x.in_sent_idx for x in self.mention_1_words]),
                 list2TSVarray([x.in_sent_idx for x in self.mention_2_words]),
                 list2TSVarray([x.word for x in self.mention_1_words], True),
