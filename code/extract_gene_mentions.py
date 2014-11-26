@@ -403,7 +403,7 @@ def supervise(mentions, sentence, acronyms, acro_defs):
             supervised.features = mention.features.copy()
             supervised.is_correct = True
             new_mentions.append(supervised)
-            mention.type = "GENE_ORIG_F"
+            mention.type = "GENE_ORIG_T"
             continue
         # The phrase starts with words that are indicative of the candidate not
         # being a mention of a gene
