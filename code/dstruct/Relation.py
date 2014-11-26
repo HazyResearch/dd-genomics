@@ -12,7 +12,6 @@ class Relation(object):
     doc_id = None
     sent_id_1 = None
     sent_id_2 = None
-    id = None
     type = None
     mention_1_id = None
     mention_2_id = None
@@ -28,13 +27,17 @@ class Relation(object):
         self.mention_1_id = mention_1.id()
         self.mention_2_id = mention_2.id()
         self.type = _type
-        self.id = "RELATION_{}_{}_{}_{}_{},{}_{},{}".format(
-            self.type, self.doc_id, self.sent_id_1, self.sent_id_2,
-            mention_1.words[0].in_sent_idx, mention_1.words[-1].in_sent_idx,
-            mention_2.words[0].in_sent_idx, mention_2.words[-1].in_sent_idx)
         self.mention_1_words = mention_1.words
         self.mention_2_words = mention_2.words
         self.features = set()
+
+    def id(self):
+        return "RELATION_{}_{}_{}_{}_{},{}_{},{}".format(
+            self.type, self.doc_id, self.sent_id_1, self.sent_id_2,
+            self.mention_1.words[0].in_sent_idx,
+            self.mention_1.words[-1].in_sent_idx,
+            self.mention_2.words[0].in_sent_idx,
+            self.mention_2.words[-1].in_sent_idx)
 
     def add_feature(self, feature):
         self.features.add(feature)
@@ -46,7 +49,7 @@ class Relation(object):
     def json_dump(self):
         return json.dumps(
             {"id": None, "doc_id": self.doc_id, "sent_id_1": self.sent_id_1,
-                "sent_id_2": self.sent_id_2, "relation_id": self.id,
+                "sent_id_2": self.sent_id_2, "relation_id": self.id(),
                 "type": self.type, "mention_id_1": self.mention_1_id,
                 "mention_id_2": self.mention_2_id,
                 "wordidxs_1": [x.in_sent_idx for x in self.mention_1_words],
