@@ -425,12 +425,8 @@ def supervise(mentions, sentence):
         if len(mention.words) == 1 and mention.words[0].word == "GO":
             try:
                 if sentence.words[mention.words[0].in_sent_idx + 1][0] == ":":
-                    supervised = Mention("GENE_SUP_go", mention.entity,
-                                         mention.words)
-                    supervised.features = mention.features.copy()
-                    supervised.is_correct = False
-                    new_mentions.append(supervised)
-                    mention.type = "GENE_ORIG_F"
+                    mention.is_correct = False
+                    mention.type = "GENE_SUP_go"
             except:
                 pass
             continue
