@@ -52,6 +52,8 @@ VAR_KWS = frozenset([
 KNOCK_KWS = frozenset(["knockdown", "knock-down", "knock-out", "knockout"
     ])
 
+AMINO_ACID_KWS = frozenset(["amino-acid", "aminoacid"])
+
 ANTIGENE_KWS = frozenset(["antigen", "antigene", "anti-gen", "anti-gene"])
 
 DNA_KWS = frozenset([ "cdna", "cDNA", "dna", "mrna", "mRNA", "rna",
@@ -71,8 +73,9 @@ COEXPRESSION_KWS = frozenset(["expression", "overexpression",
 "over-expression", "co-expression", "coexpression" ])
 
 
-KEYWORDS = VAR_KWS | KNOCK_KWS | ANTIGENE_KWS | DNA_KWS | DOWNREGULATION_KWS |\
-    DOWNREGULATION_KWS | TUMOR_KWS | GENE_KWS | COEXPRESSION_KWS
+KEYWORDS = VAR_KWS | KNOCK_KWS | AMINO_ACID_KWS |ANTIGENE_KWS | DNA_KWS | \
+    DOWNREGULATION_KWS | DOWNREGULATION_KWS | TUMOR_KWS | GENE_KWS | \
+    COEXPRESSION_KWS
 
 
 # Snowball positive features
@@ -153,6 +156,8 @@ def add_features(mention, sentence):
                     kw = "_KNOCKOUT"
                 elif word2.lemma in ANTIGENE_KWS:
                     kw = "_ANTIGENE"
+                elif word2.lemma in AMINO_ACID_KWS:
+                    kw = "_AMINOACID"
                 #elif word2.lemma in DNA_KWS:
                 #    kw = "_DNA"
                 elif word2.lemma in DOWNREGULATION_KWS:
