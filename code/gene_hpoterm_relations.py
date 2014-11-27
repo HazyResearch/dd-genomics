@@ -154,96 +154,157 @@ if __name__ == "__main__":
             line_dict = get_dict_from_TSVline(
                 line, ["doc_id", "sent_id", "wordidxs", "words", "poses",
                        "ners", "lemmas", "dep_paths", "dep_parents",
-                       "bounding_boxes", "gene_entity", "gene_wordidxs",
-                       "gene_is_correct", "gene_type",
-                       "hpoterm_entity", "hpoterm_wordidxs",
-                       "hpoterm_is_correct", "hpoterm_type"],
+                       "bounding_boxes", "gene_entities", "gene_wordidxss",
+                       "gene_is_corrects", "gene_types",
+                       "hpoterm_entities", "hpoterm_wordidxss",
+                       "hpoterm_is_corrects", "hpoterm_types"],
                 [no_op, int, lambda x: TSVstring2list(x, int), TSVstring2list,
                     TSVstring2list, TSVstring2list, TSVstring2list,
                     TSVstring2list, lambda x: TSVstring2list(x, int),
-                    TSVstring2list, no_op, lambda x: TSVstring2list(x, int),
-                    TSVstring2bool, no_op, no_op, lambda x: TSVstring2list(x,
-                    int), TSVstring2bool, no_op])
+                    TSVstring2list,  # these are for the sentence
+                    TSVstring2list, lambda x: TSVstring2list(x, sep="|~|"),
+                    TSVstring2list, TSVstring2list,  # these are for the genes
+                    TSVstring2list, lambda x: TSVstring2list(x, sep="|~|"),
+                    TSVstring2list, TSVstring2list,  # these are for the HPO
+                    ])
+            # Remove the genes that are unsupervised copies
+            supervised_idxs = set()
+            unsupervised_idxs = set()
+            for i in range(len(line_dict["gene_is_corrects"])):
+                if line_dict["gene_is_corrects"][i] == "n":
+                    unsupervised_idxs.add(i)
+                else:
+                    supervised_idxs.add(i)
+            survived_unsuperv_idxs = set()
+            for i in unsupervised_idxs:
+                wordidxs = line_dict["gene_wordidxss"][i]
+                found = False
+                for j in supervised_idxs:
+                    if line_dict["gene_wordidxss"][j] == wordidxs:
+                        found = True
+                        break
+                if not found:
+                    survived_unsuperv_idxs.add(i)
+            to_keep = sorted(survived_unsuperv_idxs | supervised_idxs)
+            new_gene_entities = []
+            new_gene_wordidxss = []
+            new_gene_is_corrects = []
+            new_gene_types = []
+            for i in to_keep:
+                new_gene_entities.append(line_dict["gene_entities"][i])
+                new_gene_wordidxss.append(line_dict["gene_wordidxss"][i])
+                new_gene_is_corrects.append(line_dict["gene_is_corrects"][i])
+                new_gene_types.append(line_dict["gene_types"][i])
+            line_dict["gene_entities"] = new_gene_entities
+            line_dict["gene_wordidxss"] = new_gene_wordidxss
+            line_dict["gene_is_corrects"] = new_gene_is_corrects
+            line_dict["gene_types"] = new_gene_types
+            # Remove the hpoterms that are unsupervised copies
+            supervised_idxs = set()
+            unsupervised_idxs = set()
+            for i in range(len(line_dict["hpoterm_is_corrects"])):
+                if line_dict["hpoterm_is_corrects"][i] == "n":
+                    unsupervised_idxs.add(i)
+                else:
+                    supervised_idxs.add(i)
+            survived_unsuperv_idxs = set()
+            for i in unsupervised_idxs:
+                wordidxs = line_dict["hpoterm_wordidxss"][i]
+                found = False
+                for j in supervised_idxs:
+                    if line_dict["hpoterm_wordidxss"][j] == wordidxs:
+                        found = True
+                        break
+                if not found:
+                    survived_unsuperv_idxs.add(i)
+            to_keep = sorted(survived_unsuperv_idxs | supervised_idxs)
+            new_hpoterm_entities = []
+            new_hpoterm_wordidxss = []
+            new_hpoterm_is_corrects = []
+            new_hpoterm_types = []
+            for i in to_keep:
+                new_hpoterm_entities.append(line_dict["hpoterm_entities"][i])
+                new_hpoterm_wordidxss.append(line_dict["hpoterm_wordidxss"][i])
+                new_hpoterm_is_corrects.append(line_dict["hpoterm_is_corrects"][i])
+                new_hpoterm_types.append(line_dict["hpoterm_types"][i])
+            line_dict["hpoterm_entities"] = new_hpoterm_entities
+            line_dict["hpoterm_wordidxss"] = new_hpoterm_wordidxss
+            line_dict["hpoterm_is_corrects"] = new_hpoterm_is_corrects
+            line_dict["hpoterm_types"] = new_hpoterm_types
             # Create the sentence object where the two mentions appear
             sentence = Sentence(
                 line_dict["doc_id"], line_dict["sent_id"],
                 line_dict["wordidxs"], line_dict["words"], line_dict["poses"],
                 line_dict["ners"], line_dict["lemmas"], line_dict["dep_paths"],
                 line_dict["dep_parents"], line_dict["bounding_boxes"])
-            # Create the mentions
-            gene_mention = Mention(
-                "GENE", line_dict["gene_entity"],
-                [sentence.words[j] for j in line_dict["gene_wordidxs"]])
-            gene_mention.is_correct = line_dict["gene_is_correct"]
-            gene_mention.type = line_dict["gene_type"]
-            hpoterm_mention = Mention(
-                "HPOTERM", line_dict["hpoterm_entity"],
-                [sentence.words[j] for j in line_dict["hpoterm_wordidxs"]])
-            hpoterm_mention.is_correct = line_dict["hpoterm_is_correct"]
-            hpoterm_mention.type = line_dict["hpoterm_type"]
-            # Skip if the word indexes overlab
-            if set(line_dict["gene_wordidxs"]) & \
-                    set(line_dict["hpoterm_wordidxs"]):
-                continue
-            relation = Relation(
-                "GENEHPOTERM", gene_mention, hpoterm_mention)
-            # Add features
-            add_features(relation, gene_mention, hpoterm_mention,
-                        sentence)
-            # Supervise
-            # One of the two mentions is labelled as False
-            # We do not create a copy in this case because there will
-            # already be an unsupervised copy built on the unsupervised
-            # copies of the mentions.
-            if gene_mention.is_correct is False:
-                relation.is_correct = False
-                relation.type = "GENEHPOTERM_SUP_F_G"
-            if hpoterm_mention.is_correct is False:
-                relation.is_correct = False
-                relation.type = "GENEHPOTERM_SUP_F_H"
-            # Present in the existing HPO mapping and not a candidate built
-            # on top of the unsupervised copies of false-supervised
-            # gene/hpoterm mentions (either or both).
-            elif not gene_mention.type.endswith("_ORIG_F") and not \
-                    hpoterm_mention.type.endswith("_ORIG_F"):
-                in_mapping = False
-                hpo_entity_id = hpoterm_mention.entity.split("|")[0]
-                if frozenset([gene_mention.words[0].word, hpo_entity_id]) in \
-                        genehpoterms_dict:
-                    in_mapping = True
-                else: 
-                    for gene in gene_mention.entity.split("|"):
-                        if frozenset([gene, hpo_entity_id]) in \
+            # Iterate over each pair of (gene,phenotype) mention
+            for g_idx in range(len(line_dict["gene_is_corrects"])):
+                g_wordidxs = TSVstring2list(
+                    line_dict["gene_wordidxss"][g_idx], int)
+                gene_mention = Mention(
+                    "GENE", line_dict["gene_entities"][g_idx],
+                [sentence.words[j] for j in g_wordidxs])
+                if line_dict["gene_is_corrects"][g_idx] == "n":
+                    gene_mention.is_correct = None
+                elif line_dict["gene_is_corrects"][g_idx] == "f":
+                    gene_mention.is_correct = False
+                elif line_dict["gene_is_corrects"][g_idx] == "t":
+                    gene_mention.is_correct = True
+                else:
+                    assert False
+                gene_mention.type = line_dict["gene_types"][g_idx]
+                for h_idx in range(len(line_dict["hpoterm_is_corrects"])):
+                    h_wordidxs = TSVstring2list(
+                        line_dict["hpoterm_wordidxss"][h_idx], int)
+                    hpoterm_mention = Mention(
+                        "hpoterm", line_dict["hpoterm_entities"][h_idx],
+                    [sentence.words[j] for j in h_wordidxs])
+                    if line_dict["hpoterm_is_corrects"][h_idx] == "n":
+                        hpoterm_mention.is_correct = None
+                    elif line_dict["hpoterm_is_corrects"][h_idx] == "f":
+                        hpoterm_mention.is_correct = False
+                    elif line_dict["hpoterm_is_corrects"][h_idx] == "t":
+                        hpoterm_mention.is_correct = True
+                    else:
+                        assert False
+                    hpoterm_mention.type = line_dict["hpoterm_types"][h_idx]
+                    # Skip if the word indexes overlab
+                    if set(g_wordidxs) & set(h_wordidxs):
+                        continue
+                    relation = Relation(
+                        "GENEHPOTERM", gene_mention, hpoterm_mention)
+                    # Add features
+                    add_features(relation, gene_mention, hpoterm_mention,
+                                sentence)
+                    # Supervise
+                    # One of the two mentions is labelled as False
+                    if gene_mention.is_correct == False and \
+                            hpoterm_mention.is_correct != False:
+                        relation.is_correct = False
+                        relation.type = "GENEHPOTERM_SUP_F_G"
+                    elif hpoterm_mention.is_correct == False and \
+                            gene_mention.is_correct != False:
+                        relation.is_correct = False
+                        relation.type = "GENEHPOTERM_SUP_F_H"
+                    elif hpoterm_mention.is_correct == False and \
+                            gene_mention.is_correct == False:
+                        relation.is_correct = False
+                        relation.type = "GENEHPOTERM_SUP_F_GH"
+                    # Present in the existing HPO mapping 
+                    else:
+                        in_mapping = False
+                        hpo_entity_id = hpoterm_mention.entity.split("|")[0]
+                        if frozenset([gene_mention.words[0].word, hpo_entity_id]) in \
                                 genehpoterms_dict:
                             in_mapping = True
-                            break
-                if in_mapping:
-                    supervised = Relation(
-                        "GENEHPOTERM_SUP_MAP", gene_mention, hpoterm_mention)
-                    supervised.features = relation.features
-                    supervised.is_correct = True
-                    print(supervised.tsv_dump())
-                    relation.type = "GENEHPOTERM_ORIG_T"
-            # Print!
-            # The logic is a little complex to avoid duplicates due to the fact
-            # that we have supervised candidates and their copies
-            if gene_mention.type == "GENE" and hpoterm_mention.type == "HPOTERM":
-                print(relation.tsv_dump())
-            elif gene_mention.type == "GENE" and \
-                    "_ORIG_" in hpoterm_mention.type:
-                print(relation.tsv_dump())
-            elif gene_mention.type == "GENE" and relation.is_correct == False:
-                print(relation.tsv_dump())
-            elif "_ORIG_" in gene_mention.type and \
-                    hpoterm_mention.type == "HPOTERM":
-                print(relation.tsv_dump())
-            elif hpoterm_mention.type == "HPOTERM" and \
-                    relation.is_correct == False:
-                print(relation.tsv_dump())
-            elif "_ORIG_" in gene_mention.type and \
-                    "_ORIG_" in hpoterm_mention.type:
-                print(relation.tsv_dump())
-            elif gene_mention.is_correct is not None and \
-                    hpoterm_mention.is_correct is not None and \
-                    relation.is_correct == False:
-                print(relation.tsv_dump())
+                        else: 
+                            for gene in gene_mention.entity.split("|"):
+                                if frozenset([gene, hpo_entity_id]) in \
+                                        genehpoterms_dict:
+                                    in_mapping = True
+                                    break
+                        if in_mapping:
+                            relation.is_correct = True
+                            relation.type = "GENEHPOTERM_SUP_MAP"
+                    # Print!
+                    print(relation.tsv_dump())
