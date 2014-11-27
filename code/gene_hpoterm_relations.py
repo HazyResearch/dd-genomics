@@ -162,9 +162,9 @@ if __name__ == "__main__":
                     TSVstring2list, TSVstring2list, TSVstring2list,
                     TSVstring2list, lambda x: TSVstring2list(x, int),
                     TSVstring2list,  # these are for the sentence
-                    TSVstring2list, lambda x: TSVstring2list(x, sep="|~|"),
+                    TSVstring2list, lambda x: TSVstring2list(x, sep="!~!"),
                     TSVstring2list, TSVstring2list,  # these are for the genes
-                    TSVstring2list, lambda x: TSVstring2list(x, sep="|~|"),
+                    TSVstring2list, lambda x: TSVstring2list(x, sep="!~!"),
                     TSVstring2list, TSVstring2list,  # these are for the HPO
                     ])
             # Remove the genes that are unsupervised copies
