@@ -79,7 +79,7 @@ CREATE TABLE doc_acronyms (
 	definitions text[],
 	-- is_correct
 	is_correct boolean
-) DISTRIBUTED BY (doc_id)
+) DISTRIBUTED BY (doc_id);
 
 -- GeneRifs mentions
 DROP TABLE IF EXISTS generifs_mentions CASCADE;
