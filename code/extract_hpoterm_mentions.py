@@ -58,9 +58,7 @@ stemmer = SnowballStemmer("english")
 
 # Perform the supervision
 def supervise(mentions, sentence):
-    new_mentions = []
     for mention in mentions:
-        new_mentions.append(mention)
         # Skip if we already supervised it (e.g., random mentions or
         # gene long names)
         if mention.is_correct is not None:
@@ -71,14 +69,9 @@ def supervise(mentions, sentence):
         # The mention is exactly the HPO name
         if mention_lemmas == name_words and \
                 mention.words[0].lemma != "pneunomiae":
-            supervised = Mention("HPOTERM_SUP_pos", mention.entity,
-                    mention.words)
-            supervised.features = mention.features
-            supervised.is_correct = True
-            new_mentions.append(supervised)
-            mention.type = "HPOTERM_ORIG_T"
-            continue
-    return new_mentions
+            mention.is_correct = True
+            mention.type = "HPOTERM_SUP_full"
+    return mentions
 
 
 # Add features
