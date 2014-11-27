@@ -1,6 +1,11 @@
 #! /usr/bin/env python3
 #
 # Look for acronyms defined in the sentence that look like gene symbols
+#
+# This script analyzes one sentence at a time and does not do anything more
+# than that. The script 'doc_acronyms.py' will "classify" the acronyms and
+# their definitions so they can be used for distant supervision of gene
+# mentions candidate.
 
 import fileinput
 from dstruct.Sentence import Sentence

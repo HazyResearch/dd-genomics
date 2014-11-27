@@ -68,6 +68,19 @@
 -- 	definition text
 -- ) DISTRIBUTED BY (doc_id);
 
+-- Document acronym table for distant supervision
+DROP TABLE IF EXISTS doc_acronyms CASCADE;
+CREATE TABLE doc_acronyms (
+	-- document id
+	doc_id text,
+	-- acronym
+	acronym text,
+	-- definitions
+	definitions text[],
+	-- is_correct
+	is_correct boolean
+) DISTRIBUTED BY (doc_id)
+
 -- GeneRifs mentions
 DROP TABLE IF EXISTS generifs_mentions CASCADE;
 CREATE TABLE generifs_mentions (
