@@ -5,13 +5,12 @@
 # used for distant supervision of gene mentions candidates.
 
 import fileinput
-from dstruct.Sentence import Sentence
 from helper.dictionaries import load_dict
-from helper.easierlife import get_dict_from_TSVline, no_op, TSVstring2list
+from helper.easierlife import get_dict_from_TSVline, list2TSVarray, no_op, \
+    TSVstring2list
 
 # Load the genes dictionary
 merged_genes_dict = load_dict("merged_genes")
-inverted_long_names = load_dict("inverted_long_names")
 
 if __name__ == "__main__":
     # Process the input
@@ -54,6 +53,8 @@ if __name__ == "__main__":
                 is_correct = False
             is_correct_str = "\\N"
             if is_correct is not None:
-                is_correct_str = self.is_correct.__repr__()
-            print("\t".join((line_dict["doc_id"], line_dict["acronym"],
-                list2TSVarray(line_dict["definitions"]), is_correct_str)))
+                is_correct_str = is_correct.__repr__()
+            print("\t".join(
+                (line_dict["doc_id"], line_dict["acronym"],
+                 list2TSVarray(line_dict["definitions"], quote=True),
+                 is_correct_str)))
