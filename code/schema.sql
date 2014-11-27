@@ -53,24 +53,9 @@
 --	gene text
 --) DISTRIBUTED BY (doc_id);
 
--- Acronym table
--- DROP TABLE IF EXISTS acronyms CASCADE;
--- CREATE TABLE acronyms (
--- 	-- document id
--- 	doc_id text,
--- 	-- sentence id
--- 	sent_id int,
--- 	-- word idx
--- 	wordidx int,
--- 	-- acronym
--- 	acronym text,
--- 	-- definition
--- 	definition text
--- ) DISTRIBUTED BY (doc_id);
-
--- Document acronym table for distant supervision
-DROP TABLE IF EXISTS doc_acronyms CASCADE;
-CREATE TABLE doc_acronyms (
+-- Acronym table 
+DROP TABLE IF EXISTS acronyms CASCADE;
+CREATE TABLE acronyms (
 	-- document id
 	doc_id text,
 	-- acronym
