@@ -100,9 +100,7 @@ def process_files(proc_id, input_files, input_dir, output_dir, mode):
                         # Normalize bounding box, stripping initial '[' and
                         # final '],' and concatenating components
                         bounding_box = bounding_box[1:-2]
-                        idx = bounding_box.find(", ")
-                        if idx > -1:
-                            bounding_box = bounding_box.replace(", ", "-")
+                        bounding_box = bounding_box.replace(", ", "-")
                         # Append contents of this line to the sentence arrays
                         wordidxs.append(int(word_idx) - 1) # Start from 0
                         words.append(word) 
