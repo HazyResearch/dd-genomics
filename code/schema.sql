@@ -89,7 +89,7 @@ CREATE TABLE generifs_mentions (
 	is_correct boolean,
 	-- features for training
 	features text[]
-) DISTRIBUTED BY (mention_id);
+) DISTRIBUTED BY (doc_id);
 
 -- Gene mentions
 DROP TABLE IF EXISTS gene_mentions CASCADE;
@@ -114,7 +114,7 @@ CREATE TABLE gene_mentions (
 	is_correct boolean,
 	-- features for training
 	features text[]
-) DISTRIBUTED BY (mention_id);
+) DISTRIBUTED BY (doc_id);
 
 -- HPO terms mentions
 DROP TABLE IF EXISTS hpoterm_mentions CASCADE;
@@ -139,7 +139,7 @@ CREATE TABLE hpoterm_mentions (
 	is_correct boolean,
 	-- features for training
 	features text[]
-) DISTRIBUTED BY (sent_id);
+) DISTRIBUTED BY (doc_id);
 
 -- Gene / HPOterm relation mentions
 DROP TABLE IF EXISTS gene_hpoterm_relations CASCADE;
@@ -172,5 +172,5 @@ CREATE TABLE gene_hpoterm_relations (
 	is_correct boolean,
 	-- features for training
 	features text[]
-) DISTRIBUTED BY (relation_id);
+) DISTRIBUTED BY (doc_id);
 
