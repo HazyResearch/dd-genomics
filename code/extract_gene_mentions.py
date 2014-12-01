@@ -113,6 +113,7 @@ neg_mentions_dict = load_dict("neg_gene_mentions")
 med_acrons_dict = load_dict("med_acrons")
 long_names_dict = load_dict("long_names")
 inverted_long_names = load_dict("inverted_long_names")
+hpoterms_with_gene = load_dict("hpoterms_with_gene")
 
 # Max mention length. We won't look at subsentences longer than this.
 max_mention_length = 0
@@ -187,7 +188,8 @@ def add_features(mention, sentence):
     minw = None
     for word in mention.words:
         for word2 in sentence.words:
-            if word2 != word and word2.word in merged_genes_dict:
+            if word2.in_sent_idx not in mention.wordidxs and \
+                    word2.word in merged_genes_dict:
                 p = sentence.get_word_dep_path(
                     word.in_sent_idx, word2.in_sent_idx)
                 if len(p) < minl:
@@ -384,19 +386,11 @@ def supervise(mentions, sentence):
     new_mentions = []
     for mention in mentions:
         new_mentions.append(mention)
+        if mention.is_correct is not None:
+            continue
         # The candidate is a long name.
         if " ".join([word.word for word in mention.words]) in \
                 inverted_long_names:
-            # "insulin resistance"
-            try:
-                if mention.words[0].word.casefold() == "insulin" and \
-                        sentence.words[mention.words[0].in_sent_idx + \
-                        1].word.casefold() == "resistance":
-                    mention.is_correct = False
-                    mention.type = "GENE_SUP_ins"
-                    continue
-            except IndexError:
-                pass
             mention.is_correct = True
             mention.type = "GENE_SUP_long"
             continue
@@ -615,7 +609,16 @@ def extract(sentence):
         if sentence_is_upper:  # This may not be a great idea...
             phrase = phrase.casefold()
         mention = None
-        # If the phrase is in the dictionary, then is a mention candidate
+        # If the phrase is a hpoterm name containing a gene, then it is a
+        # mention candidate to supervise as negative
+        if phrase in hpoterms_with_gene:
+            mention = Mention("GENE_SUP_HPO", phrase, words[start:end])
+            add_features(mention, sentence)
+            mention.is_correct = False
+            mentions.append(mention)
+            for i in range(start, end):
+                history.add(i)
+        # If the phrase is in the gene dictionary, then is a mention candidate
         if len(phrase) > 1 and phrase in merged_genes_dict:
             # The entity is a list of all the main symbols that could have the
             # phrase as symbol. They're separated by "|".

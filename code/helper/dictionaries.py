@@ -77,6 +77,46 @@ def load_inverted_long_names_dictionary(filename):
     return long_names_dict
 
 
+def load_genes_in_hpoterms_dictionary(filename):
+    genes_in_hpoterms_dict = dict()
+    with open(filename, 'rt') as dict_file:
+        for line in dict_file:
+            tokens = line.strip().split("\t")
+            if tokens[0] not in genes_in_hpoterms_dict:
+                genes_in_hpoterms_dict[tokens[0]] = set()
+            genes_in_hpoterms_dict[tokens[0]].add(tokens[1])
+    return genes_in_hpoterms_dict
+
+
+def load_hpoterms_with_gene_dictionary(filename):
+    hpoterms_with_gene_dict = dict()
+    with open(filename, 'rt') as dict_file:
+        for line in dict_file:
+            tokens = line.strip().split("\t")
+            hpoterms_with_gene_dict[tokens[1]] = tokens[0]
+    return hpoterms_with_gene_dict
+
+
+def load_hpoterms_in_genes_dictionary(filename):
+    hpoterms_in_genes_dict = dict()
+    with open(filename, 'rt') as dict_file:
+        for line in dict_file:
+            tokens = line.strip().split("\t")
+            if tokens[0] not in hpoterms_in_genes_dict:
+                hpoterms_in_genes_dict[tokens[0]] = set()
+            hpoterms_in_genes_dict[tokens[0]].add(tokens[1])
+    return hpoterms_in_genes_dict
+
+
+def load_genes_with_hpoterm_dictionary(filename):
+    genes_with_hpoterm_dict = dict()
+    with open(filename, 'rt') as dict_file:
+        for line in dict_file:
+            tokens = line.strip().split("\t")
+            genes_with_hpoterm_dict[tokens[1]] = tokens[0]
+    return genes_with_hpoterm_dict
+
+
 # Load the HPO term levels
 def load_hpoterm_levels_dictionary(filename):
     hpo_level_dict = dict()
@@ -217,6 +257,7 @@ def load_set_pairs(filename):
 
 # Dictionaries
 GENES_DICT_FILENAME = BASE_DIR + "/dicts/hugo_synonyms.tsv"
+GENES_IN_HPOTERMS_DICT_FILENAME = BASE_DIR + "/dicts/genes_in_hpoterms.tsv"
 ENGLISH_DICT_FILENAME = BASE_DIR + "/dicts/english_words.tsv"
 GENEHPOTERM_DICT_FILENAME = BASE_DIR + \
     "/dicts/genes_to_hpo_terms_with_synonyms.tsv"
@@ -226,6 +267,7 @@ HPOTERMS_ORIG_DICT_FILENAME = BASE_DIR + "/dicts/hpo_terms.tsv"
 HPOTERMS_DICT_FILENAME = BASE_DIR + "/dicts/hpoterm_abnormalities_mentions.tsv"
 HPOTERM_PHENOTYPE_ABNORMALITIES_DICT_FILENAME = BASE_DIR + \
     "/dicts/hpoterm_phenotype_abnormalities.tsv"
+HPOTERMS_IN_GENES_DICT_FILENAME = BASE_DIR + "/dicts/hpoterms_in_genes.tsv"
 MED_ACRONS_DICT_FILENAME = BASE_DIR + "/dicts/med_acronyms_pruned.tsv"
 MERGED_GENES_DICT_FILENAME = BASE_DIR + "/dicts/merged_genes_dict.tsv"
 NIH_GRANTS_DICT_FILENAME = BASE_DIR + "/dicts/grant_codes_nih.tsv"
@@ -241,6 +283,10 @@ NEG_GENE_MENTIONS_DICT_FILENAME = BASE_DIR + \
 # as input and return an object like a dictionary, or a set, or a list, ...
 dictionaries = dict()
 dictionaries["genes"] = [GENES_DICT_FILENAME, load_genes_dictionary]
+dictionaries["genes_in_hpoterms"] = [GENES_IN_HPOTERMS_DICT_FILENAME,
+                                     load_genes_in_hpoterms_dictionary]
+dictionaries["genes_with_hpoterm"] = [HPOTERMS_IN_GENES_DICT_FILENAME,
+                                      load_genes_with_hpoterm_dictionary]
 dictionaries["english"] = [ENGLISH_DICT_FILENAME, load_set_lower_case]
 dictionaries["genehpoterms"] = [GENEHPOTERM_DICT_FILENAME, load_set_pairs]
 dictionaries["hpoparents"] = [HPOPARENTS_DICT_FILENAME,
@@ -258,6 +304,10 @@ dictionaries["hpoterm_phenotype_abnormalities"] = [
     HPOTERM_PHENOTYPE_ABNORMALITIES_DICT_FILENAME, load_set]
 dictionaries["hpoterms_orig"] = [HPOTERMS_ORIG_DICT_FILENAME,
                                  load_hpoterms_orig_dictionary]
+dictionaries["hpoterms_in_genes"] = [HPOTERMS_IN_GENES_DICT_FILENAME,
+                                     load_hpoterms_in_genes_dictionary]
+dictionaries["hpoterms_with_gene"] = [GENES_IN_HPOTERMS_DICT_FILENAME,
+                                     load_hpoterms_with_gene_dictionary]
 dictionaries["nih_grants"] = [NIH_GRANTS_DICT_FILENAME, load_set]
 dictionaries["nsf_grants"] = [NSF_GRANTS_DICT_FILENAME, load_set]
 dictionaries["med_acrons"] = [MED_ACRONS_DICT_FILENAME,

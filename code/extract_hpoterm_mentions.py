@@ -37,7 +37,7 @@ english_dict = load_dict("english")
 stopwords_dict = load_dict("stopwords")
 inverted_hpoterms = load_dict("hpoterms_inverted")
 hponames_to_ids = load_dict("hponames_to_ids")
-inverted_long_names = load_dict("inverted_long_names")
+genes_with_hpoterm = load_dict("genes_with_hpoterm")
 # hpodag = load_dict("hpoparents")
 
 
@@ -179,11 +179,11 @@ def extract(sentence):
             continue
 
         phrase = " ".join([word.word for word in sentence.words[start:end]])
-        # If the phrase is a gene long name, create a candidate that we
-        # supervise as negative
-        if len(phrase) > 1 and phrase in inverted_long_names:
+        # If the phrase is a gene long name containing a phenotype name, create
+        # a candidate that we supervise as negative
+        if len(phrase) > 1 and phrase in genes_with_hpoterm:
             mention = Mention("HPOTERM_SUP_gene",
-                              "|".join(inverted_long_names[phrase]),
+                              phrase,
                               sentence.words[start:end])
             mention.is_correct = False
             add_features(mention, sentence)
