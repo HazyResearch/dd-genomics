@@ -20,7 +20,10 @@
 #    means root
 # 8: the sentence ID, unique in the document
 # 9: the bounding box containing this word in the PDF document. The format is
-#    "[pXXXlXXXtXXXrXXXbXXX]," for page, left, top, right, bottom
+#    "[pXXXlXXXtXXXrXXXbXXX]," for page, left, top, right, bottom.
+#    Alternatively, the bounding box may have format 
+#    "[pXXXlXXXtXXXrXXXbXXX, pYYYlYYYtYYYrYYYbYYY]" when the word is split
+#    between two lines
 # An example line is:
 # 1	Genome	NNP	O	Genome	nn	3	SENT_1	[p1l1669t172r1943b234],
 #
@@ -94,8 +97,10 @@ def process_files(proc_id, input_files, input_dir, output_dir, mode):
                         elif sent_id != word_sent_id:
                             sys.stderr.write("ERROR: found word with mismatching sent_id w.r.t. sentence: {} != {}\n".format(word_sent_id, sent_id))
                             return 1
-                        # Normalize bounding box, stripping initial '[' and final '],'
+                        # Normalize bounding box, stripping initial '[' and
+                        # final '],' and concatenating components
                         bounding_box = bounding_box[1:-2]
+                        bounding_box = bounding_box.replace(", ", "-")
                         # Append contents of this line to the sentence arrays
                         wordidxs.append(int(word_idx) - 1) # Start from 0
                         words.append(word) 
