@@ -1,10 +1,12 @@
 COPY (
 SELECT t0.relation_id  as relation_id 
      ,  array_to_string(t5.words, '_') || '/' || t6.entity     as relation_name
-     ,  array_cat(t0.wordidxs_1, t0.wordidxs_2)    as relation_pos 
+     ,  t0.wordidxs_1 as gene_words 
+     ,  t0.wordidxs_2 as hpoterm_words 
      ,  t1.words       as words
      ,  t2.array_accum as sentences_before
      ,  t3.array_accum as sentences_after
+     ,  t0.expectation
 FROM
 	gene_hpoterm_relations_is_correct_inference t0, 
 	sentences t1,

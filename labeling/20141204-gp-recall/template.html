@@ -1,7 +1,7 @@
 <mindtagger mode="precision">
 
 <template for="each-item">
-<strong>{{item.relation_name}}</strong> (expectation: <strong>{{item.expectation}}</strong>) in:
+	<strong>{{item.relation_name}}</strong> (expectation: <strong>{{item.expectation}}</strong>) in:
 	<blockquote>
 		<span class="text-muted">{{item.sentences_before | concatArray:'postgres'}}</span>
 		<big mindtagger-word-array="item.words" array-format="postgres">
