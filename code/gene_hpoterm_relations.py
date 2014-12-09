@@ -46,7 +46,7 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
     for i in range(len(sentence.words)):
         # The filtering of the brackets and commas is from Emily's code. I'm
         # not sure it is actually needed, but it won't hurt.
-        if re.search('^VB[A-Z]*', sentence.words[i].pos) and \
+        if re.search('^VB[A-Z]*$', sentence.words[i].pos) and \
                 sentence.words[i].word != "{" and \
                 sentence.words[i].word != "}" and \
                 "," not in sentence.words[i].word:
