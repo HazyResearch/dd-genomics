@@ -14,7 +14,7 @@ from helper.dictionaries import load_dict
 
 max_mention_length = 8  # This is somewhat arbitrary
 
-NEG_PROB = 0.005  #  Probability of generating a random negative mention
+NEG_PROB = 0.005  # Probability of generating a random negative mention
 
 # Keyword that seems to appear with phenotypes
 VAR_KWS = frozenset([
@@ -25,10 +25,10 @@ VAR_KWS = frozenset([
     "group", "history", "infection", "inflammatory", "injury", "mutation",
     "pathway", "phenotype", "polymorphism", "prevalence", "protein", "risk",
     "severe", "stage", "symptom", "syndrome", "therapy", "therapeutic",
-    "treat", "treatment", "variant" "viruses", "virus" ])
+    "treat", "treatment", "variant" "viruses", "virus"])
 
-PATIENT_KWS = frozenset(["boy", "girl", "man", "woman", "men", "women",
-"patient", "patients" ])
+PATIENT_KWS = frozenset(
+    ["boy", "girl", "man", "woman", "men", "women", "patient", "patients"])
 
 KEYWORDS = VAR_KWS | PATIENT_KWS
 
@@ -63,6 +63,13 @@ def supervise(mentions, sentence):
         # gene long names)
         if mention.is_correct is not None:
             continue
+        # The next word is 'gene' or 'protein', so it's actually a gene
+        if mention.words[-1].in_sent_idx < len(sentence.words) - 1:
+            next_word = sentence.words[mention.words[-1].in_sent_idx + 1].word
+            if next_word.casefold() in ["gene", "protein"]:
+                mention.is_correct = False
+                mention.type = "HPOTERM_SUP_GENE"
+                continue
         mention_lemmas = set([x.lemma.casefold() for x in mention.words])
         name_words = set([x.casefold() for x in
                           mention.entity.split("|")[1].split()])
@@ -70,7 +77,7 @@ def supervise(mentions, sentence):
         if mention_lemmas == name_words and \
                 mention.words[0].lemma != "pneunomiae":
             mention.is_correct = True
-            mention.type = "HPOTERM_SUP_full"
+            mention.type = "HPOTERM_SUP_FULL"
     return mentions
 
 
@@ -107,7 +114,7 @@ def add_features(mention, sentence):
     except IndexError:
         pass
     # The lemma "two on the left" of the mention, if present
-    try: 
+    try:
         mention.add_feature("NGRAM_LEFT_2_[{}]".format(
             sentence.words[mention.wordidxs[0] - 2].lemma))
     except IndexError:
@@ -182,7 +189,7 @@ def extract(sentence):
         # If the phrase is a gene long name containing a phenotype name, create
         # a candidate that we supervise as negative
         if len(phrase) > 1 and phrase in genes_with_hpoterm:
-            mention = Mention("HPOTERM_SUP_gene",
+            mention = Mention("HPOTERM_SUP_GENEL",
                               phrase,
                               sentence.words[start:end])
             mention.is_correct = False
@@ -215,8 +222,9 @@ def extract(sentence):
                     if len(mention_words) == len(phrase_stems_set):
                         break
             entity = list(hpoterms_dict[phrase_stems_set])[0]
-            mention = Mention("HPOTERM", hponames_to_ids[entity] + "|" +
-                                  entity, mention_words)
+            mention = Mention(
+                "HPOTERM", hponames_to_ids[entity] + "|" + entity,
+                mention_words)
             # The following is a way to avoid duplicates.
             # It's ugly and not perfect
             if mention.id() in mention_ids:
