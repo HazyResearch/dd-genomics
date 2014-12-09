@@ -11,7 +11,7 @@ from dstruct.Mention import Mention
 from dstruct.Sentence import Sentence
 from helper.dictionaries import load_dict
 from helper.easierlife import get_all_phrases_in_sentence, \
-    get_dict_from_TSVline, TSVstring2list, TSVstring2dict, no_op
+    get_dict_from_TSVline, TSVstring2list, no_op
 
 DOC_ELEMENTS = frozenset(
     ["figure", "table", "figures", "tables", "fig", "fig.", "figs", "figs.",
@@ -49,38 +49,40 @@ VAR_KWS = frozenset([
     "transporter", "variant", "variation", "vivo", "vitro"
     ])
 
-KNOCK_KWS = frozenset(["knockdown", "knock-down", "knock-out", "knockout"
-    ])
+KNOCK_KWS = frozenset(["knockdown", "knock-down", "knock-out", "knockout"])
 
 AMINO_ACID_KWS = frozenset(["amino-acid", "aminoacid"])
 
 ANTIGENE_KWS = frozenset(["antigen", "antigene", "anti-gen", "anti-gene"])
 
-DNA_KWS = frozenset([ "cdna", "cDNA", "dna", "mrna", "mRNA", "rna",
-    "rrna", "sirnas", "sirna", "siRNA", "siRNAs",])
+DNA_KWS = frozenset([
+    "cdna", "cDNA", "dna", "mrna", "mRNA", "rna", "rrna", "sirnas", "sirna",
+    "siRNA", "siRNAs"])
 
 DOWNREGULATION_KWS = frozenset(["down-regulation", "downregulation"])
 
 UPREGULATION_KWS = frozenset(["up-regulation", "upregulation"])
 
-TUMOR_KWS = frozenset([ "tumor", "tumours", "tumour", "cancer",
-"carcinoma", "fibrosarcoma", "sarcoma", "lymphoma"])
+TUMOR_KWS = frozenset([
+    "tumor", "tumours", "tumour", "cancer", "carcinoma", "fibrosarcoma",
+    "sarcoma", "lymphoma"])
 
-GENE_KWS = frozenset([ "gene", "protooncogene", "proto-oncogene",
-    "pseudogene", "transgene" ])
+GENE_KWS = frozenset([
+    "gene", "protooncogene", "proto-oncogene", "pseudogene", "transgene"])
 
-COEXPRESSION_KWS = frozenset(["expression", "overexpression",
-"over-expression", "co-expression", "coexpression" ])
+COEXPRESSION_KWS = frozenset([
+    "expression", "overexpression", "over-expression", "co-expression",
+    "coexpression"])
 
 
-KEYWORDS = VAR_KWS | KNOCK_KWS | AMINO_ACID_KWS |ANTIGENE_KWS | DNA_KWS | \
+KEYWORDS = VAR_KWS | KNOCK_KWS | AMINO_ACID_KWS | ANTIGENE_KWS | DNA_KWS | \
     DOWNREGULATION_KWS | DOWNREGULATION_KWS | TUMOR_KWS | GENE_KWS | \
     COEXPRESSION_KWS
 
 
 # Snowball positive features
 # NO LONGER USED
-#snowball_pos_feats = frozenset([
+# snowball_pos_feats = frozenset([
 #    "EXT_KEYWORD_MIN_[gene]@nn",
 #    "EXT_KEYWORD_MIN_[gene]nn@",
 #    "EXT_KEYWORD_MIN_[promoter]nn@",
@@ -124,6 +126,7 @@ for key in merged_genes_dict:
 # doubling to take into account commas and who knows what
 max_mention_length *= 2
 
+
 # Add features to a gene mention candidate
 def add_features(mention, sentence):
     # The verb closest to the candidate, with the path to it.
@@ -159,17 +162,17 @@ def add_features(mention, sentence):
                     kw = "_ANTIGENE"
                 elif word2.lemma in AMINO_ACID_KWS:
                     kw = "_AMINOACID"
-                #elif word2.lemma in DNA_KWS:
+                # elif word2.lemma in DNA_KWS:
                 #    kw = "_DNA"
                 elif word2.lemma in DOWNREGULATION_KWS:
                     kw = "_DOWNREGULATION"
                 elif word2.lemma in UPREGULATION_KWS:
                     kw = "_UPREGULATION"
-                #elif word2.lemma in TUMOR_KWS:
-                #    kw = "_TUMOR"
-                #elif word2.lemma in GENE_KWS:
-                #    kw = "_GENE"
-                #elif word2.lemma in COEXPRESSION_KWS:
+                # elif word2.lemma in TUMOR_KWS:
+                #     kw = "_TUMOR"
+                # elif word2.lemma in GENE_KWS:
+                #     kw = "_GENE"
+                # elif word2.lemma in COEXPRESSION_KWS:
                 #    ke = "_COEXPRESSION"
                 if len(p) < minl:
                     minl = len(p)
@@ -198,7 +201,7 @@ def add_features(mention, sentence):
                     minw = word2.lemma
     if minw:
         mention.add_feature('OTHER_GENE_['+minw+']' + minp)
-        #mention.add_feature('OTHER_GENE_['+minw+']')
+        # mention.add_feature('OTHER_GENE_['+minw+']')
     # The lemma on the left of the candidate, whatever it is
     try:
         left = sentence.words[mention.words[0].in_sent_idx-1].lemma
@@ -218,7 +221,7 @@ def add_features(mention, sentence):
             right = "_NUMBER"
         except ValueError:
             pass
-        mention.add_feature( "NGRAM_RIGHT_1_[" + right + "]")
+        mention.add_feature("NGRAM_RIGHT_1_[" + right + "]")
     except IndexError:
         pass
     # We know check whether the lemma on the left and on the right are
@@ -289,26 +292,26 @@ def add_features(mention, sentence):
             mention.add_feature("MANY_{}_IN_SENTENCE".format(ner))
     # The candidate comes after an organization, or a location, or a person.
     # We skip commas as they may trick us.
-    comes_after = None
-    loc_idx = mention.wordidxs[0] - 1
-    while loc_idx >= 0 and sentence.words[loc_idx].lemma == ",":
-        loc_idx -= 1
-    if loc_idx >= 0 and \
-            sentence.words[loc_idx].ner in \
-            ["ORGANIZATION", "LOCATION", "PERSON"] and \
-            sentence.words[loc_idx].word not in merged_genes_dict:
-        comes_after = sentence.words[loc_idx].ner
+    # comes_after = None
+    # loc_idx = mention.wordidxs[0] - 1
+    # while loc_idx >= 0 and sentence.words[loc_idx].lemma == ",":
+    #    loc_idx -= 1
+    # if loc_idx >= 0 and \
+    #        sentence.words[loc_idx].ner in \
+    #        ["ORGANIZATION", "LOCATION", "PERSON"] and \
+    #        sentence.words[loc_idx].word not in merged_genes_dict:
+    #    comes_after = sentence.words[loc_idx].ner
     # The candidate comes before an organization, or a location, or a person.
     # We skip commas, as they may trick us.
-    comes_before = None
-    loc_idx = mention.wordidxs[-1] + 1
-    while loc_idx < len(sentence.words) and \
-            sentence.words[loc_idx].lemma == ",":
-        loc_idx += 1
-    if loc_idx < len(sentence.words) and sentence.words[loc_idx].ner in \
-            ["ORGANIZATION", "LOCATION", "PERSON"] and \
-            sentence.words[loc_idx].word not in merged_genes_dict:
-        comes_before = sentence.words[loc_idx].ner
+    # comes_before = None
+    # loc_idx = mention.wordidxs[-1] + 1
+    # while loc_idx < len(sentence.words) and \
+    #        sentence.words[loc_idx].lemma == ",":
+    #    loc_idx += 1
+    # if loc_idx < len(sentence.words) and sentence.words[loc_idx].ner in \
+    #        ["ORGANIZATION", "LOCATION", "PERSON"] and \
+    #        sentence.words[loc_idx].word not in merged_genes_dict:
+    #    comes_before = sentence.words[loc_idx].ner
     # All the following is commented out because it's not a context feature
     # The following features deal with the "appearance" of the symbol.
     # They are _not_ context features, but they are reasonable.
@@ -316,7 +319,7 @@ def add_features(mention, sentence):
     # then it's probably a duck.
     # All the following features are added only if the candidate is a single
     # word.
-    #if len(mention.words) == 1:
+    # if len(mention.words) == 1:
     #    entity_is_word = False
     #    entity_in_dict = False
     #    for entity in mention.entity.split("|"):
@@ -351,7 +354,7 @@ def add_features(mention, sentence):
     #                mention.words[0].word))
     #    elif entity_in_dict or mention.words[0].word in merged_genes_dict:
     #        if len(mention.words[0].word) > 3 and \
-    #                mention.words[0].word.casefold() == mention.words[0].word \
+    #               mention.words[0].word.casefold() == mention.words[0].word \
     #                and not re.match("^p[0-9]+$", mention.words[0].word):
     #            # Long name - We supervise these.
     #            #mention.add_feature("IS_LONG_NAME")
@@ -420,14 +423,14 @@ def supervise(mentions, sentence):
                 phrase.startswith("Analyzed the data :") or \
                 phrase.casefold().startswith("address"):
             # An unsupervised copy with the special feature
-            unsuper_enriched = Mention("GENE_dontsup", mention.entity,
-                    mention.words)
+            unsuper_enriched = Mention(
+                "GENE_dontsup", mention.entity, mention.words)
             unsuper_enriched.features = mention.features.copy()
             unsuper_enriched.add_feature("IN_CONTRIB_PHRASE")
             new_mentions.append(unsuper_enriched)
             # This candidate contain only the 'special' feature.
-            super_spec = Mention("GENE_SUP_contr_2", mention.entity,
-                    mention.words)
+            super_spec = Mention(
+                "GENE_SUP_contr_2", mention.entity, mention.words)
             super_spec.is_correct = False
             super_spec.add_feature("IN_CONTRIB_PHRASE")
             new_mentions.append(super_spec)
@@ -521,7 +524,7 @@ def supervise(mentions, sentence):
             continue
         # Snowball positive features
         # Commented out to avoid overfitting
-        #if mention.features & snowball_pos_feats:
+        # if mention.features & snowball_pos_feats:
         #    supervised = Mention("GENE_SUP", mention.entity,
         #                         mention.words)
         #    supervised.features = mention.features - snowball_pos_feats
@@ -533,21 +536,21 @@ def supervise(mentions, sentence):
         #    supervised2.is_correct = True
         #    new_mentions.append(supervised2)
         #    continue
-        ## Some negative features
-        #if "EXT_KEYWORD_MIN_[chromosome]@nn" in mention.features:
+        # Some negative features
+        # if "EXT_KEYWORD_MIN_[chromosome]@nn" in mention.features:
         #    supervised = Mention("GENE_SUP", mention.entity, mention.words)
         #    supervised.features = mention.features.copy()
         #    supervised.is_correct = False
         #    new_mentions.append(supervised)
         #    continue
-        #if "IS_YEAR_RIGHT" in mention.features:
+        # if "IS_YEAR_RIGHT" in mention.features:
         #    supervised = Mention("GENE_SUP", mention.entity, mention.words)
         #    supervised.features = mention.features.copy()
         #    supervised.is_correct = False
         #    new_mentions.append(supervised)
         #    continue
-        # The candidate comes after an organization, or a location, or a person.
-        # We skip commas as they may trick us.
+        # The candidate comes after an organization, or a location, or a
+        # person. We skip commas as they may trick us.
         comes_after = None
         loc_idx = mention.wordidxs[0] - 1
         while loc_idx >= 0 and sentence.words[loc_idx].lemma == ",":
@@ -557,8 +560,8 @@ def supervise(mentions, sentence):
                 ["ORGANIZATION", "LOCATION", "PERSON"] and \
                 sentence.words[loc_idx].word not in merged_genes_dict:
             comes_after = sentence.words[loc_idx].ner
-        # The candidate comes before an organization, or a location, or a person.
-        # We skip commas, as they may trick us.
+        # The candidate comes before an organization, or a location, or a
+        # person. We skip commas, as they may trick us.
         comes_before = None
         loc_idx = mention.wordidxs[-1] + 1
         while loc_idx < len(sentence.words) and \
