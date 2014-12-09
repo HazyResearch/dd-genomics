@@ -173,6 +173,39 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
             "HPO_NGRAM_RIGHT_1_[" + sentence.words[hpoterm_end+1].lemma + "]")
 
 
+# Supervise the candidates
+def supervise(relation, gene_mention, hpoterm_mention, sentence):
+    # One of the two mentions is labelled as False
+    if gene_mention.is_correct is False and \
+            hpoterm_mention.is_correct is not False:
+        relation.is_correct = False
+        relation.type = "GENEHPOTERM_SUP_F_G"
+    elif hpoterm_mention.is_correct is False and \
+            gene_mention.is_correct is not False:
+        relation.is_correct = False
+        relation.type = "GENEHPOTERM_SUP_F_H"
+    elif hpoterm_mention.is_correct is False and \
+            gene_mention.is_correct is False:
+        relation.is_correct = False
+        relation.type = "GENEHPOTERM_SUP_F_GH"
+    else:
+        # Present in the existing HPO mapping
+        in_mapping = False
+        hpo_entity_id = hpoterm_mention.entity.split("|")[0]
+        if frozenset([gene_mention.words[0].word, hpo_entity_id]) in \
+                genehpoterms_dict:
+            in_mapping = True
+        else:
+            for gene in gene_mention.entity.split("|"):
+                if frozenset([gene, hpo_entity_id]) in \
+                        genehpoterms_dict:
+                    in_mapping = True
+                    break
+        if in_mapping:
+            relation.is_correct = True
+            relation.type = "GENEHPOTERM_SUP_MAP"
+
+
 # Load the gene<->hpoterm dictionary
 genehpoterms_dict = load_dict("genehpoterms")
 
@@ -308,34 +341,7 @@ if __name__ == "__main__":
                     add_features(relation, gene_mention, hpoterm_mention,
                                  sentence)
                     # Supervise
-                    # One of the two mentions is labelled as False
-                    if gene_mention.is_correct is False and \
-                            hpoterm_mention.is_correct is not False:
-                        relation.is_correct = False
-                        relation.type = "GENEHPOTERM_SUP_F_G"
-                    elif hpoterm_mention.is_correct is False and \
-                            gene_mention.is_correct is not False:
-                        relation.is_correct = False
-                        relation.type = "GENEHPOTERM_SUP_F_H"
-                    elif hpoterm_mention.is_correct is False and \
-                            gene_mention.is_correct is False:
-                        relation.is_correct = False
-                        relation.type = "GENEHPOTERM_SUP_F_GH"
-                    # Present in the existing HPO mapping
-                    else:
-                        in_mapping = False
-                        hpo_entity_id = hpoterm_mention.entity.split("|")[0]
-                        if frozenset([gene_mention.words[0].word, hpo_entity_id]) in \
-                                genehpoterms_dict:
-                            in_mapping = True
-                        else:
-                            for gene in gene_mention.entity.split("|"):
-                                if frozenset([gene, hpo_entity_id]) in \
-                                        genehpoterms_dict:
-                                    in_mapping = True
-                                    break
-                        if in_mapping:
-                            relation.is_correct = True
-                            relation.type = "GENEHPOTERM_SUP_MAP"
+                    supervise(relation, gene_mention, hpoterm_mention,
+                              sentence)
                     # Print!
                     print(relation.tsv_dump())
