@@ -394,6 +394,21 @@ def supervise(mentions, sentence):
             mention.is_correct = True
             mention.type = "GENE_SUP_long"
             continue
+        # The candidate is a MIM entry
+        if mention.words[0].word == "MIM":
+            mention_word_idx = mention.words[0].in_sent_idx
+            if mention_word_idx < len(sentence.words) - 1:
+                next_word = sentence.words[mention_word_idx + 1].word
+                if next_word.casefold() in ["no", "no.", "#", ":"] and \
+                        mention_word_idx + 2 < len(sentence.words):
+                    next_word = sentence.words[mention_word_idx + 2].word
+                try:
+                    int(next_word)
+                    mention.is_correct = False
+                    mention.type = "GENE_SUP_MIM"
+                    continue
+                except ValueError:
+                    pass
         # The phrase starts with words that are indicative of the candidate not
         # being a mention of a gene
         # We add a feature for this, as it is a context property
