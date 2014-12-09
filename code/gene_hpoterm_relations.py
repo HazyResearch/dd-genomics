@@ -157,7 +157,7 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
         # Number of words between the mentions
         # TODO I think this should be some kind of supervision rule instead?
         relation.add_feature(
-            inv + "WORD_SEQ_LEN_[" + (betw_end - betw_start - 1) + "]")
+            inv + "WORD_SEQ_LEN_[" + str(betw_end - betw_start - 1) + "]")
     # Lemmas on the left and on the right
     if gene_start > 0:
         relation.add_feature(
