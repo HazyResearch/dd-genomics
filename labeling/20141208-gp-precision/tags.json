@@ -192,7 +192,8 @@
   },
   "RELATION_GENEHPOTERM_SCPDFS_18990.pdf_262_262_4_4_24_25": {
    "is_correct": false,
-   "not_gene": true
+   "not_gene": true,
+   "long_sentence": true
   },
   "RELATION_GENEHPOTERM_journal.pone.0007577.pdf_636_636_28_28_47_48": {
    "is_correct": true
@@ -331,6 +332,9 @@
   "RELATION_GENEHPOTERM_SCPDFS_4223.pdf_559_559_28_28_4_4": {
    "is_correct": false,
    "not_aligned": true
+  },
+  "RELATION_GENEHPOTERM_journal.pone.0081133.pdf_130_130_28_28_81_81": {
+   "unknown": true
   }
  }
 }
