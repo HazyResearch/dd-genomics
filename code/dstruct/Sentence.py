@@ -181,3 +181,35 @@ class Sentence(object):
                 path = p
             ll = len(p)
         return path
+
+    # Return True if the sentence is 'weird', according to the following
+    # criteria:
+    # 1) It contains more than 12 floats
+    # 2) It contains many "no" / "yes" / "na"
+    # 3) It contains many "—"
+    # 4) It contains many ";"
+    # 5) It is longer than 150 words
+    def is_weird(self):
+        if len(self.words) > 150:
+            return True
+        count_floats = 0
+        count_NA = 0
+        count_minus = 0
+        count_semicolon = 0
+        for word in self.words:
+            try:
+                float(word.word)
+                count_floats += 1
+            except ValueError:
+                pass
+            if word.word in ["NA", "Yes", "No"]:
+                count_NA += 1
+            elif word.word == "—":
+                count_minus += 1
+            elif word.word == ";":
+                count_semicolon += 1
+        if count_floats > 12 or count_NA > 6 or count_minus > 10 or \
+                count_semicolon > 6:
+            return True
+        else:
+            return False
