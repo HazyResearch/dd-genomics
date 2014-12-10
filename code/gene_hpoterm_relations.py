@@ -28,7 +28,6 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
         inv = "INV_"
 
     # Verbs between the mentions
-    # A lot of this comes from Emily's code
     verbs_between = []
     minl_gene = 100
     minp_gene = None
@@ -39,17 +38,13 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
     minw_hpo = None
     mini_hpo = None
     neg_found = False
-    # Emily's code was only looking at the words between the mentions, but it
-    # is more correct (in my opinion) to look all the words, as in the
-    # dependency path there could be words that are close to both mentions but
-    # not between them
+    # Look all the words, as in the dependency path there could be words that
+    # are close to both mentions but not between them
     for i in range(len(sentence.words)):
-        # The filtering of the brackets and commas is from Emily's code. I'm
-        # not sure it is actually needed, but it won't hurt.
+        # The filtering of the brackets and commas is from Emily's code.
         if re.search('^VB[A-Z]*$', sentence.words[i].pos) and \
-                sentence.words[i].word != "{" and \
-                sentence.words[i].word != "}" and \
-                "," not in sentence.words[i].word:
+                sentence.words[i].word not in ["{", "}", "(", ")", "[", "]"] \
+                and "," not in sentence.words[i].word:
             p_gene = sentence.get_word_dep_path(
                 betw_start, sentence.words[i].in_sent_idx)
             p_hpo = sentence.get_word_dep_path(
@@ -65,39 +60,37 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
                 minw_hpo = sentence.words[i].lemma
                 mini_hpo = sentence.words[i].in_sent_idx
             # Look for negation.
-            if i > 0:
-                if sentence.words[i-1].lemma in \
-                        ["no", "not", "neither", "nor"]:
-                    if i < betw_end - 2:
-                        neg_found = True
-                        relation.add_feature(
-                            inv + "NEG_VERB_[" +
-                            sentence.words[i-1].word + "]-" +
-                            sentence.words[i].lemma)
-                elif sentence.words[i] != "{" and sentence.words[i] != "}":
-                    verbs_between.append(sentence.words[i].lemma)
+            if i > 0 and sentence.words[i-1].lemma in \
+                    ["no", "not", "neither", "nor"]:
+                if i < betw_end - 2:
+                    neg_found = True
+                    relation.add_feature(
+                        inv + "NEG_VERB_[" + sentence.words[i-1].word + "]-" +
+                        sentence.words[i].lemma)
+            else:
+                verbs_between.append(sentence.words[i].lemma)
     if len(verbs_between) == 1 and not neg_found:
         relation.add_feature(inv + "SINGLE_VERB_[%s]" % verbs_between[0])
-    else:
-        for verb in verbs_between:
-            relation.add_feature(inv + "VERB_[%s]" % verb)
+    # else:
+    #    for verb in verbs_between:
+    #        relation.add_feature(inv + "VERB_[%s]" % verb)
     if mini_hpo == mini_gene and mini_gene is not None and \
             len(minp_gene) < 50:  # and "," not in minw_gene:
         # feature = inv + 'MIN_VERB_[' + minw_gene + ']' + minp_gene
         # features.append(feature)
         feature = inv + 'MIN_VERB_[' + minw_gene + ']'
         relation.add_feature(feature)
-    else:
-        if mini_gene is not None:
-            # feature = 'MIN_VERB_GENE_[' + minw_gene + ']' + minp_gene
-            # relation.add_feature(feature)
-            feature = inv + 'MIN_VERB_GENE_[' + minw_gene + ']'
-            relation.add_feature(feature)
-        if mini_hpo is not None:
-            # feature = 'MIN_VERB_HPO_[' + minw_hpo + ']' + minp_hpo)
-            # relation.add_feature(feature)
-            feature = inv + 'MIN_VERB_HPO_[' + minw_hpo + ']'
-            relation.add_feature(feature)
+    # else:
+    #    if mini_gene is not None:
+    #        # feature = 'MIN_VERB_GENE_[' + minw_gene + ']' + minp_gene
+    #        # relation.add_feature(feature)
+    #        feature = inv + 'MIN_VERB_GENE_[' + minw_gene + ']'
+    #        relation.add_feature(feature)
+    #    if mini_hpo is not None:
+    #        # feature = 'MIN_VERB_HPO_[' + minw_hpo + ']' + minp_hpo)
+    #        # relation.add_feature(feature)
+    #        feature = inv + 'MIN_VERB_HPO_[' + minw_hpo + ']'
+    #        relation.add_feature(feature)
 
     # The following features are only added if the two mentions are "close
     # enough" to avoid overfitting. The concept of "close enough" is somewhat
@@ -122,35 +115,40 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
             for word in sentence.words[gene_start:gene_end+1]:
                 p = sentence.get_word_dep_path(
                     word.in_sent_idx, neg_word_index)
-                if len(p) > gene_l:
+                if len(p) < gene_l:
                     gene_p = p
                     gene_l = len(p)
             if gene_p:
-                relation.add_feature(inv + "GENE_TO_NEG_[" + gene_p + "]")
-            hpo_p = None
-            hpo_l = 100
-            for word in sentence.words[hpoterm_start:hpoterm_end+1]:
-                p = sentence.get_word_dep_path(
-                    word.in_sent_idx, neg_word_index)
-                if len(p) > hpo_l:
-                    hpo_p = p
-                    hpo_l = len(p)
-            if hpo_p:
-                relation.add_feature(inv + "HPO_TO_NEG_[" + hpo_p + "]")
+                relation.add_feature(inv + "NEG_[" + gene_p + "]")
+            # hpo_p = None
+            # hpo_l = 100
+            # for word in sentence.words[hpoterm_start:hpoterm_end+1]:
+            #    p = sentence.get_word_dep_path(
+            #        word.in_sent_idx, neg_word_index)
+            #    if len(p) < hpo_l:
+            #        hpo_p = p
+            #        hpo_l = len(p)
+            # if hpo_p:
+            #    relation.add_feature(inv + "HPO_TO_NEG_[" + hpo_p + "]")
         # The sequence of lemmas between the two mentions and the sequence of
-        # lemmas between the two mentions but using the NERs, if present.
+        # lemmas between the two mentions but using the NERs, if present, and
+        # the sequence of POSes between the mentions
         seq_list_ners = []
         seq_list_lemmas = []
+        seq_list_poses = []
         for word in sentence.words[betw_start+1:betw_end]:
             if word.ner != "O":
                 seq_list_ners.append(word.ner)
             else:
                 seq_list_ners.append(word.lemma)
             seq_list_lemmas.append(word.lemma)
+            seq_list_poses.append(word.pos)
         seq_ners = " ".join(seq_list_ners)
         seq_lemmas = " ".join(seq_list_lemmas)
+        seq_poses = "_".join(seq_list_poses)
         relation.add_feature(inv + "WORD_SEQ_[" + seq_lemmas + "]")
         relation.add_feature(inv + "WORD_SEQ_NER_[" + seq_ners + "]")
+        relation.add_feature(inv + "POS_SEQ_[" + seq_poses + "]")
         # Shortest dependency path between the two mentions
         relation.add_feature(inv + "DEP_PATH_[" + sentence.dep_path(
             gene_mention, hpoterm_mention) + "]")
@@ -159,18 +157,19 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
         relation.add_feature(
             inv + "WORD_SEQ_LEN_[" + str(betw_end - betw_start - 1) + "]")
     # Lemmas on the left and on the right
-    if gene_start > 0:
-        relation.add_feature(
-            "GENE_NGRAM_LEFT_1_[" + sentence.words[gene_start-1].lemma + "]")
-    if gene_end < len(sentence.words) - 1:
-        relation.add_feature(
-            "GENE_NGRAM_RIGHT_1_[" + sentence.words[gene_end+1].lemma + "]")
-    if hpoterm_start > 0:
-        relation.add_feature(
-            "HPO_NGRAM_LEFT_1_[" + sentence.words[hpoterm_start-1].lemma + "]")
-    if hpoterm_end < len(sentence.words) - 1:
-        relation.add_feature(
-            "HPO_NGRAM_RIGHT_1_[" + sentence.words[hpoterm_end+1].lemma + "]")
+    # if gene_start > 0:
+    #    relation.add_feature(
+    #        "GENE_NGRAM_LEFT_1_[" + sentence.words[gene_start-1].lemma + "]")
+    # if gene_end < len(sentence.words) - 1:
+    #    relation.add_feature(
+    #        "GENE_NGRAM_RIGHT_1_[" + sentence.words[gene_end+1].lemma + "]")
+    # if hpoterm_start > 0:
+    #    relation.add_feature(
+    #        "HPO_NGRAM_LEFT_1_[" + sentence.words[hpoterm_start-1].lemma +
+    #        "]")
+    # if hpoterm_end < len(sentence.words) - 1:
+    #    relation.add_feature(
+    #        "HPO_NGRAM_RIGHT_1_[" + sentence.words[hpoterm_end+1].lemma + "]")
 
 
 # Supervise the candidates
@@ -337,6 +336,18 @@ if __name__ == "__main__":
                     hpoterm_mention.type = line_dict["hpoterm_types"][h_idx]
                     # Skip if the word indexes overlab
                     if set(g_wordidxs) & set(h_wordidxs):
+                        continue
+                    # Skip if the mentions are too far away
+                    gene_start = gene_mention.wordidxs[0]
+                    hpoterm_start = hpoterm_mention.wordidxs[0]
+                    gene_end = gene_mention.wordidxs[-1]
+                    hpoterm_end = hpoterm_mention.wordidxs[-1]
+                    limits = sorted(
+                        (gene_start, hpoterm_start, gene_end, hpoterm_end))
+                    start = limits[0]
+                    betw_start = limits[1]
+                    betw_end = limits[2]
+                    if betw_end - betw_start > 50:
                         continue
                     relation = Relation(
                         "GENEHPOTERM", gene_mention, hpoterm_mention)
