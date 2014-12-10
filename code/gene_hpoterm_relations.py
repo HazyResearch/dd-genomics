@@ -21,6 +21,7 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
     start = limits[0]
     betw_start = limits[1]
     betw_end = limits[2]
+    end = limits[3]
     # If the gene comes first, we do not prefix, otherwise we do.
     if start == gene_start:
         inv = ""
@@ -68,29 +69,35 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
                         inv + "NEG_VERB_[" + sentence.words[i-1].word + "]-" +
                         sentence.words[i].lemma)
             else:
-                verbs_between.append(sentence.words[i].lemma)
+                verbs_between.append(sentence.words[i])
     if len(verbs_between) == 1 and not neg_found:
-        relation.add_feature(inv + "SINGLE_VERB_[%s]" % verbs_between[0])
-    # else:
-    #    for verb in verbs_between:
-    #        relation.add_feature(inv + "VERB_[%s]" % verb)
+        relation.add_feature(inv + "SINGLE_VERB_[%s]" % verbs_between[0].lemma)
+    else:
+        for verb in verbs_between:
+            if verb.in_sent_idx >= betw_start and \
+                    verb.in_sent_idx < betw_end:
+                relation.add_feature(inv + "VERB_[%s]" % verb)
     if mini_hpo == mini_gene and mini_gene is not None and \
             len(minp_gene) < 50:  # and "," not in minw_gene:
         # feature = inv + 'MIN_VERB_[' + minw_gene + ']' + minp_gene
         # features.append(feature)
         feature = inv + 'MIN_VERB_[' + minw_gene + ']'
         relation.add_feature(feature)
-    # else:
-    #    if mini_gene is not None:
-    #        # feature = 'MIN_VERB_GENE_[' + minw_gene + ']' + minp_gene
-    #        # relation.add_feature(feature)
-    #        feature = inv + 'MIN_VERB_GENE_[' + minw_gene + ']'
-    #        relation.add_feature(feature)
-    #    if mini_hpo is not None:
-    #        # feature = 'MIN_VERB_HPO_[' + minw_hpo + ']' + minp_hpo)
-    #        # relation.add_feature(feature)
-    #        feature = inv + 'MIN_VERB_HPO_[' + minw_hpo + ']'
-    #        relation.add_feature(feature)
+    else:
+        feature = inv
+        if mini_gene is not None:
+            # feature = 'MIN_VERB_GENE_[' + minw_gene + ']' + minp_gene
+            # relation.add_feature(feature)
+            feature += 'MIN_VERB_GENE_[' + minw_gene + ']'
+        else:
+            feature += 'MIN_VERB_GENE_[NULL]'
+        if mini_hpo is not None:
+            # feature = 'MIN_VERB_HPO_[' + minw_hpo + ']' + minp_hpo)
+            # relation.add_feature(feature)
+            feature += '_HPO_[' + minw_hpo + ']'
+        else:
+            feature += '_HPO_[NULL]'
+        relation.add_feature(feature)
 
     # The following features are only added if the two mentions are "close
     # enough" to avoid overfitting. The concept of "close enough" is somewhat
@@ -156,20 +163,20 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
         # TODO I think this should be some kind of supervision rule instead?
         relation.add_feature(
             inv + "WORD_SEQ_LEN_[" + str(betw_end - betw_start - 1) + "]")
-    # Lemmas on the left and on the right
-    # if gene_start > 0:
-    #    relation.add_feature(
-    #        "GENE_NGRAM_LEFT_1_[" + sentence.words[gene_start-1].lemma + "]")
-    # if gene_end < len(sentence.words) - 1:
-    #    relation.add_feature(
-    #        "GENE_NGRAM_RIGHT_1_[" + sentence.words[gene_end+1].lemma + "]")
-    # if hpoterm_start > 0:
-    #    relation.add_feature(
-    #        "HPO_NGRAM_LEFT_1_[" + sentence.words[hpoterm_start-1].lemma +
-    #        "]")
-    # if hpoterm_end < len(sentence.words) - 1:
-    #    relation.add_feature(
-    #        "HPO_NGRAM_RIGHT_1_[" + sentence.words[hpoterm_end+1].lemma + "]")
+    # Lemmas on the exterior of the mentions and on the interior
+    feature = inv
+    if start > 0:
+        feature += "EXT_NGRAM_[" + sentence.words[start - 1].lemma + "]"
+    else:
+        feature += "EXT_NGRAM_[NULL]"
+    if end < len(sentence.words) - 1:
+        feature += "_[" + sentence.words[end + 1].lemma + "]"
+    else:
+        feature += "_[NULL]"
+    relation.add_feature(feature)
+    feature = inv + "INT_NGRAM_[" + sentence.words[betw_start].lemma + "]" + \
+        "_[" + sentence.words[betw_end - 1].lemma + "]"
+    relation.add_feature(feature)
 
 
 # Supervise the candidates
