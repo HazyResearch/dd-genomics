@@ -159,10 +159,16 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
         # Shortest dependency path between the two mentions
         relation.add_feature(inv + "DEP_PATH_[" + sentence.dep_path(
             gene_mention, hpoterm_mention) + "]")
-        # Number of words between the mentions
-        # TODO I think this should be some kind of supervision rule instead?
-        relation.add_feature(
-            inv + "WORD_SEQ_LEN_[" + str(betw_end - betw_start - 1) + "]")
+    # Number of words between the mentions
+    # TODO I think this should be some kind of supervision rule instead?
+    # relation.add_feature(
+    #    inv + "WORD_SEQ_LEN_[" + str(betw_end - betw_start - 1) + "]")
+    # 2-gram between the mentions
+    if betw_end - betw_start - 1 > 4 and betw_start - betw_end - 1 < 15:
+        for i in range(betw_start + 1, betw_end - 1):
+            relation.add_feature(
+                "BETW_2_GRAM_[" + sentence.words[i].lemma + "_" +
+                sentence.words[i+1].lemma + "]")
     # Lemmas on the exterior of the mentions and on the interior
     feature = inv
     if start > 0:
@@ -326,6 +332,7 @@ if __name__ == "__main__":
                 else:
                     assert False
                 gene_mention.type = line_dict["gene_types"][g_idx]
+                assert not gene_mention.type.endswith("_UNSUP")
                 for h_idx in range(len(line_dict["hpoterm_is_corrects"])):
                     h_wordidxs = TSVstring2list(
                         line_dict["hpoterm_wordidxss"][h_idx], int)
@@ -341,6 +348,7 @@ if __name__ == "__main__":
                     else:
                         assert False
                     hpoterm_mention.type = line_dict["hpoterm_types"][h_idx]
+                    assert not hpoterm_mention.type.endswith("_UNSUP")
                     # Skip if the word indexes overlab
                     if set(g_wordidxs) & set(h_wordidxs):
                         continue
