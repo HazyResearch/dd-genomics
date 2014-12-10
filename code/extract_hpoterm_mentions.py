@@ -273,6 +273,9 @@ if __name__ == "__main__":
                 line_dict["wordidxs"], line_dict["words"], line_dict["poses"],
                 line_dict["ners"], line_dict["lemmas"], line_dict["dep_paths"],
                 line_dict["dep_parents"], line_dict["bounding_boxes"])
+            # Skip weird sentences
+            if sentence.is_weird():
+                continue
             # Extract mention candidates
             mentions = extract(sentence)
             # Supervise
