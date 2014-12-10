@@ -74,7 +74,7 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
         relation.add_feature(inv + "SINGLE_VERB_[%s]" % verbs_between[0].lemma)
     else:
         for verb in verbs_between:
-            if verb.in_sent_idx >= betw_start and \
+            if verb.in_sent_idx > betw_start and \
                     verb.in_sent_idx < betw_end:
                 relation.add_feature(inv + "VERB_[%s]" % verb)
     if mini_hpo == mini_gene and mini_gene is not None and \
@@ -174,8 +174,8 @@ def add_features(relation, gene_mention, hpoterm_mention, sentence):
     else:
         feature += "_[NULL]"
     relation.add_feature(feature)
-    feature = inv + "INT_NGRAM_[" + sentence.words[betw_start].lemma + "]" + \
-        "_[" + sentence.words[betw_end - 1].lemma + "]"
+    feature = inv + "INT_NGRAM_[" + sentence.words[betw_start + 1].lemma + \
+        "]" + "_[" + sentence.words[betw_end - 1].lemma + "]"
     relation.add_feature(feature)
 
 
