@@ -242,14 +242,16 @@ if __name__ == "__main__":
                  TSVstring2list, lambda x: TSVstring2list(x, sep="!~!"),
                  TSVstring2list, TSVstring2list,  # these are for the HPO
                  ])
-            # Remove the genes that are unsupervised copies
+            # Remove the genes that are unsupervised copies or duplicates
             supervised_idxs = set()
             unsupervised_idxs = set()
             for i in range(len(line_dict["gene_is_corrects"])):
                 if line_dict["gene_is_corrects"][i] == "n":
                     unsupervised_idxs.add(i)
                 else:
-                    supervised_idxs.add(i)
+                    if line_dict["gene_types"][i] != "GENE_SUP_contr_2":
+                        # The above condition is to avoid duplicates
+                        supervised_idxs.add(i)
             survived_unsuperv_idxs = set()
             for i in unsupervised_idxs:
                 wordidxs = line_dict["gene_wordidxss"][i]
