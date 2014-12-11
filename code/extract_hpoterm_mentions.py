@@ -85,6 +85,7 @@ def supervise(mentions, sentence):
 def add_features(mention, sentence):
     # The first alphanumeric lemma on the left of the mention, if present,
     idx = mention.wordidxs[0] - 1
+    left_lemma_idx = -1
     while idx >= 0 and not sentence.words[idx].word.isalnum():
         idx -= 1
     try:
@@ -94,12 +95,14 @@ def add_features(mention, sentence):
             mention.left_lemma = "_NUMBER"
         except ValueError:
             pass
+        left_lemma_idx = idx
         mention.add_feature("NGRAM_LEFT_1_[{}]".format(
             mention.left_lemma))
     except IndexError:
         pass
     # The first alphanumeric lemma on the right of the mention, if present,
-    idx = mention.wordidxs[0] + 1
+    idx = mention.wordidxs[-1] + 1
+    right_lemma_idx = -1
     while idx < len(sentence.words) and not sentence.words[idx].word.isalnum():
         idx += 1
     try:
@@ -109,6 +112,7 @@ def add_features(mention, sentence):
             mention.right_lemma = "_NUMBER"
         except ValueError:
             pass
+        right_lemma_idx = idx
         mention.add_feature("NGRAM_RIGHT_1_[{}]".format(
             mention.right_lemma))
     except IndexError:
@@ -116,13 +120,19 @@ def add_features(mention, sentence):
     # The lemma "two on the left" of the mention, if present
     try:
         mention.add_feature("NGRAM_LEFT_2_[{}]".format(
-            sentence.words[mention.wordidxs[0] - 2].lemma))
+            sentence.words[left_lemma_idx - 1].lemma))
+        mention.add_feature("NGRAM_LEFT_2_C_[{} {}]".format(
+            sentence.words[left_lemma_idx - 1].lemma,
+            mention.left_lemma))
     except IndexError:
         pass
     # The lemma "two on the right" on the left of the mention, if present
     try:
         mention.add_feature("NGRAM_RIGHT_2_[{}]".format(
-            sentence.words[mention.wordidxs[-1] + 2].lemma))
+            sentence.words[right_lemma_idx + 1].lemma))
+        mention.add_feature("NGRAM_RIGHT_2_C_[{} {}]".format(
+            mention.right_lemma,
+            sentence.words[right_lemma_idx + 1].lemma))
     except IndexError:
         pass
     # The keywords that appear in the sentence with the mention
@@ -184,7 +194,6 @@ def extract(sentence):
                                                   max_mention_length):
         if start in history or end - 1 in history:
             continue
-
         phrase = " ".join([word.word for word in sentence.words[start:end]])
         # If the phrase is a gene long name containing a phenotype name, create
         # a candidate that we supervise as negative
@@ -198,6 +207,17 @@ def extract(sentence):
             for word in sentence.words[start:end]:
                 history.add(word.in_sent_idx)
             continue
+    # Iterate over each phrase of length at most max_mention_length
+    for start, end in get_all_phrases_in_sentence(sentence,
+                                                  max_mention_length):
+        should_continue = False
+        for i in range(start, end):
+            if i in history:
+                should_continue = True
+                break
+        if should_continue:
+            continue
+        phrase = " ".join([word.word for word in sentence.words[start:end]])
         # The list of stems in the phrase (not from stopwords or symbols, and
         # not already used for a mention)
         phrase_stems = []
