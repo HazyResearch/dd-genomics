@@ -144,6 +144,30 @@ def load_hpoparents_dictionary(filename):
     return hpoparents_dict
 
 
+# Load the HPO ancestors
+def load_hpoancestors_dictionary(filename):
+    hpoparents_dict = load_hpoparents_dictionary(filename)
+
+    def get_ancestors(key):
+        if hpoparents_dict[key] == set([key, ]):
+            return hpoparents_dict[key]
+        else:
+            parents = hpoparents_dict[key]
+            ancestors = set(parents)
+            for parent in parents:
+                ancestors |= get_ancestors(parent)
+            return ancestors
+    hpoancestors_dict = dict()
+    with open(filename, 'rt') as hpoancestors_dict_file:
+        for line in hpoancestors_dict_file:
+            child, is_a, parent = line.strip().split("\t")
+            if child not in hpoancestors_dict:
+                hpoancestors_dict[child] = get_ancestors(child)
+    # Add 'All'
+    hpoancestors_dict["HP:0000001"] = set(["HP:0000001", ])
+    return hpoancestors_dict
+
+
 # Load the HPO children
 def load_hpochildren_dictionary(filename):
     hpochildren_dict = dict()
@@ -291,6 +315,8 @@ dictionaries["english"] = [ENGLISH_DICT_FILENAME, load_set_lower_case]
 dictionaries["genehpoterms"] = [GENEHPOTERM_DICT_FILENAME, load_set_pairs]
 dictionaries["hpoparents"] = [HPOPARENTS_DICT_FILENAME,
                               load_hpoparents_dictionary]
+dictionaries["hpoancestors"] = [HPOPARENTS_DICT_FILENAME,
+                                load_hpoancestors_dictionary]
 dictionaries["hpochildren"] = [HPOPARENTS_DICT_FILENAME,
                                load_hpochildren_dictionary]
 dictionaries["hpolevels"] = [HPOTERMS_ORIG_DICT_FILENAME,
