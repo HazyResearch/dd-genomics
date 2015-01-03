@@ -23,8 +23,10 @@ AND
 AND 
 	t0.mention_id_1 = t5.mention_id AND t0.mention_id_2 = t6.mention_id
 AND
-	t0.expectation > 0.2
+	t0.is_correct is not False
+--AND
+--t0.expectation > 0.2
 ORDER BY random()
-LIMIT 400
+LIMIT 1000
 ) TO STDOUT WITH HEADER
 ;
