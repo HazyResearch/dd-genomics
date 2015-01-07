@@ -89,9 +89,11 @@ class Sentence(object):
     # on the edge to 'w' and the NER tag of 'w' or its lemma if the NER tag
     # is 'O' (see Word.get_feature())
     # the dependency path labels on the path from idx1 to idx2
-    def get_direct_dependency_path_between_words(self, idx1, idx2):
+    def get_direct_dependency_path_between_words(
+            self, idx1, idx2, use_pos=False):
         words_on_path = []
         c = idx1
+        length = 0
         MAX_DEP_PATH_LEN = self._MAX_DEP_PATH_LEN
         while MAX_DEP_PATH_LEN > 0:
             MAX_DEP_PATH_LEN -= 1
@@ -105,27 +107,35 @@ class Sentence(object):
                     words_on_path.append(str(self.words[c].dep_path))
                 else:
                     words_on_path.append(str(self.words[c].dep_path) + "|" +
-                                         self.words[c].get_feature())
+                                         self.words[c].get_feature(use_pos))
                 c = self.words[c].dep_parent
+                length += 1
             except:
                 break
-        return words_on_path
+        return (words_on_path, length)
 
     # Given two word idx1 and idx2, return the dependency path feature between
     # them
-    def get_word_dep_path(self, idx1, idx2):
+    def get_word_dep_path(self, idx1, idx2, use_pos=False):
         path1 = self.get_path_till_root(idx1)
         path2 = self.get_path_till_root(idx2)
 
         parent = self.get_common_ancestor(path1, path2)
 
-        words_from_idx1_to_parents = \
-            self.get_direct_dependency_path_between_words(idx1, parent)
-        words_from_idx2_to_parents = \
-            self.get_direct_dependency_path_between_words(idx2, parent)
+        (words_from_idx1_to_parents, length_1) = \
+            self.get_direct_dependency_path_between_words(
+                idx1, parent, use_pos)
+        (words_from_idx2_to_parents, length_2) = \
+            self.get_direct_dependency_path_between_words(
+                idx2, parent, use_pos)
 
-        return "-".join(words_from_idx1_to_parents) + "@" + \
-               "-".join(words_from_idx2_to_parents)
+        if parent is None:
+            root_str = "@ROOT@"
+        else:
+            root_str = "@"
+
+        return ("-".join(words_from_idx1_to_parents) + root_str +
+                "-".join(words_from_idx2_to_parents), length_1 + length_2)
 
     # Given a mention, return the word before the first word of the mention,
     # if present
@@ -155,32 +165,28 @@ class Sentence(object):
                 if j >= begin and j <= end:
                     continue
 
-                path = self.get_word_dep_path(i, j)
+                (path, length) = self.get_word_dep_path(i, j)
                 paths.append(path)
 
         return sorted(paths, key=len)[0:min(5, len(paths))]
 
     # Given two entities, return the feature of the shortest dependency path
-    # between word from one of to a word of the other.
-    def dep_path(self, entity1, entity2):
-        begin1 = entity1.words[0].in_sent_idx
-        end1 = entity1.words[-1].in_sent_idx
-        begin2 = entity2.words[0].in_sent_idx
-        end2 = entity2.words[-1].in_sent_idx
+    # between a word from one of to a word of the other.
+    def dep_path(self, entity1_words, entity2_words, use_pos=False):
+        begin1 = entity1_words[0].in_sent_idx
+        end1 = entity1_words[-1].in_sent_idx
+        begin2 = entity2_words[0].in_sent_idx
+        end2 = entity2_words[-1].in_sent_idx
 
-        paths = []
+        min_len = 10000000000
+        min_p = None
         for idx1 in range(begin1, end1+1):
             for idx2 in range(begin2, end2+1):
-                paths.append(self.get_word_dep_path(idx1, idx2))
-
-        # we pick the one that is shortest
-        path = ""
-        ll = 100000000  # Just a very large number
-        for p in paths:
-            if len(p) < ll:
-                path = p
-            ll = len(p)
-        return path
+                (path, length) = self.get_word_dep_path(idx1, idx2, use_pos)
+                if length < min_len:
+                    min_p = path
+                    min_len = length
+        return (min_p, min_len)
 
     # Return True if the sentence is 'weird', according to the following
     # criteria:

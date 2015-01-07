@@ -69,7 +69,7 @@ CREATE TABLE acronyms (
 -- GeneRifs mentions
 DROP TABLE IF EXISTS generifs_mentions CASCADE;
 CREATE TABLE generifs_mentions (
-	-- id for random variable
+	-- id for random variable (unused for generifs)
 	id bigint,
 	-- document id
 	doc_id text,
@@ -85,10 +85,19 @@ CREATE TABLE generifs_mentions (
 	entity text,
 	-- words
 	words text[],
-	-- is this a correct mention?
+	-- is this a correct mention? (unused for generifs)
 	is_correct boolean,
-	-- features for training
-	features text[]
+) DISTRIBUTED BY (doc_id);
+
+-- Gene Rifs mentions features
+DROP TABLE IF EXISTS generifs_features CASCADE;
+CREATE TABLE generifs_features (
+	-- document id
+	doc_id text,
+	-- mention id
+	mention_id text,
+	-- feature
+	feature text
 ) DISTRIBUTED BY (doc_id);
 
 -- Gene mentions
@@ -112,13 +121,22 @@ CREATE TABLE gene_mentions (
 	words text[],
 	-- is this a correct mention?
 	is_correct boolean,
-	-- features for training
-	features text[]
 ) DISTRIBUTED BY (doc_id);
 
--- HPO terms mentions
-DROP TABLE IF EXISTS hpoterm_mentions CASCADE;
-CREATE TABLE hpoterm_mentions (
+-- Gene mentions features
+DROP TABLE IF EXISTS gene_features CASCADE;
+CREATE TABLE gene_features (
+	-- document id
+	doc_id text,
+	-- mention id
+	mention_id text,
+	-- feature
+	feature text
+) DISTRIBUTED BY (doc_id);
+
+-- phenotype mentions
+DROP TABLE IF EXISTS pheno_mentions CASCADE;
+CREATE TABLE pheno_mentions (
 	-- id for random variable
 	id bigint,
 	-- document id
@@ -137,20 +155,29 @@ CREATE TABLE hpoterm_mentions (
 	words text[],
 	-- is this a correct mention?
 	is_correct boolean,
-	-- features for training
-	features text[]
 ) DISTRIBUTED BY (doc_id);
 
--- Gene / HPOterm relation mentions
-DROP TABLE IF EXISTS gene_hpoterm_relations CASCADE;
-CREATE TABLE gene_hpoterm_relations (
+-- Phenotype mentions features
+DROP TABLE IF EXISTS pheno_features CASCADE;
+CREATE TABLE pheno_features (
+	-- document id
+	doc_id text,
+	-- mention id
+	mention_id text,
+	-- feature
+	feature text
+) DISTRIBUTED BY (doc_id);
+
+-- Gene / Phenotype relation mentions
+DROP TABLE IF EXISTS genepheno_relations CASCADE;
+CREATE TABLE genepheno_relations (
 	-- id for random variable
 	id bigint,
 	-- document id
 	doc_id text,
 	-- gene mention sentence id
 	sent_id_1 int,
-	-- hpoterm mention sentence id
+	-- phenotype mention sentence id
 	sent_id_2 int,
 	-- relation id
 	relation_id text,
@@ -158,19 +185,27 @@ CREATE TABLE gene_hpoterm_relations (
 	type text,
 	-- gene mention id
 	mention_id_1 text,
-	-- hpoterm mention id
+	-- phenotype mention id
 	mention_id_2 text,
 	-- gene word indexes
 	wordidxs_1 int[],
-	-- hpoterm word indexes
+	-- phenotype word indexes
 	wordidxs_2 int[],
 	-- gene (words)
 	words_1 text[],
-	-- hpoterm (words)
+	-- phenotype (words)
 	words_2 text[],
 	-- is this a correct relation?
 	is_correct boolean,
-	-- features for training
-	features text[]
 ) DISTRIBUTED BY (doc_id);
 
+-- G/P relation mentions features
+DROP TABLE IF EXISTS genepheno_features CASCADE;
+CREATE TABLE genepheno_features (
+	-- document id
+	doc_id text,
+	-- relation id
+	relation_id text,
+	-- feature
+	feature text
+) DISTRIBUTED BY (doc_id);

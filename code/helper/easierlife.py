@@ -110,3 +110,14 @@ def list2TSVarray(a_list, quote=False):
     else:
         string = ",".join(list(map(lambda x: str(x), a_list)))
     return "{" + string + "}"
+
+
+def print_feature(doc_id, mention_id, feature):
+    if "\\" in feature:
+        # Replace '\' with '\\\\"' to be accepted by COPY FROM
+        feature = feature.replace("\\", "\\\\\\\\")
+    # This must happen the previous substitution
+    if "\"" in feature:
+        # Replace '"' with '\\"' to be accepted by COPY FROM
+        feature = feature.replace("\"", "\\\\\"")
+    print(doc_id + "\t" + mention_id + "\t\"" + feature + "\"")

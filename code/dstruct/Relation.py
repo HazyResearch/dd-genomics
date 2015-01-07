@@ -17,7 +17,6 @@ class Relation(object):
     mention_2_id = None
     mention_1_words = None
     mention_2_words = None
-    features = None
     is_correct = None
 
     def __init__(self, _type, mention_1, mention_2):
@@ -29,7 +28,6 @@ class Relation(object):
         self.type = _type
         self.mention_1_words = mention_1.words
         self.mention_2_words = mention_2.words
-        self.features = set()
 
     def id(self):
         return "RELATION_{}_{}_{}_{}_{}_{}_{}_{}".format(
@@ -38,13 +36,6 @@ class Relation(object):
             self.mention_1_words[-1].in_sent_idx,
             self.mention_2_words[0].in_sent_idx,
             self.mention_2_words[-1].in_sent_idx)
-
-    def add_feature(self, feature):
-        self.features.add(feature)
-
-    def add_features(self, features):
-        for f in features:
-            self.features.append(f)
 
     def json_dump(self):
         return json.dumps(
@@ -56,8 +47,7 @@ class Relation(object):
                 "wordidxs_2": [x.in_sent_idx for x in self.mention_2_words],
                 "words_1": [x.word for x in self.mention_1_words],
                 "words_2": [x.word for x in self.mention_2_words],
-                "is_correct": self.is_correct,
-                "features": list(self.features)})
+                "is_correct": self.is_correct})
 
     def tsv_dump(self):
         is_correct_str = "\\N"
@@ -70,4 +60,4 @@ class Relation(object):
                 list2TSVarray([x.in_sent_idx for x in self.mention_2_words]),
                 list2TSVarray([x.word for x in self.mention_1_words], True),
                 list2TSVarray([x.word for x in self.mention_2_words], True),
-                is_correct_str, list2TSVarray(list(self.features), True)])
+                is_correct_str])

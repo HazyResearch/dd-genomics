@@ -16,21 +16,6 @@ max_mention_length = 8  # This is somewhat arbitrary
 
 NEG_PROB = 0.005  # Probability of generating a random negative mention
 
-# Keyword that seems to appear with phenotypes
-VAR_KWS = frozenset([
-    "abnormality", "affect", "apoptosis", "association", "cancer", "carcinoma",
-    "case", "cell", "chemotherapy", "clinic", "clinical", "chromosome",
-    "cronic", "deletion", "detection", "diagnose", "diagnosis", "disease",
-    "drug", "family", "gene", "genome", "genomic", "genotype", "give", "grade",
-    "group", "history", "infection", "inflammatory", "injury", "mutation",
-    "pathway", "phenotype", "polymorphism", "prevalence", "protein", "risk",
-    "severe", "stage", "symptom", "syndrome", "therapy", "therapeutic",
-    "treat", "treatment", "variant" "viruses", "virus"])
-
-PATIENT_KWS = frozenset(
-    ["boy", "girl", "man", "woman", "men", "women", "patient", "patients"])
-
-KEYWORDS = VAR_KWS | PATIENT_KWS
 
 # Load the dictionaries that we need
 english_dict = load_dict("english")
@@ -68,7 +53,7 @@ def supervise(mentions, sentence):
             next_word = sentence.words[mention.words[-1].in_sent_idx + 1].word
             if next_word.casefold() in ["gene", "protein"]:
                 mention.is_correct = False
-                mention.type = "HPOTERM_SUP_GENE"
+                mention.type = "PHENO_SUP_GENE"
                 continue
         mention_lemmas = set([x.lemma.casefold() for x in mention.words])
         name_words = set([x.casefold() for x in
@@ -77,101 +62,8 @@ def supervise(mentions, sentence):
         if mention_lemmas == name_words and \
                 mention.words[0].lemma != "pneunomiae":
             mention.is_correct = True
-            mention.type = "HPOTERM_SUP_FULL"
+            mention.type = "PHENO_SUP_FULL"
     return mentions
-
-
-# Add features
-def add_features(mention, sentence):
-    # The first alphanumeric lemma on the left of the mention, if present,
-    idx = mention.wordidxs[0] - 1
-    left_lemma_idx = -1
-    while idx >= 0 and not sentence.words[idx].word.isalnum():
-        idx -= 1
-    try:
-        mention.left_lemma = sentence.words[idx].lemma
-        try:
-            float(mention.left_lemma)
-            mention.left_lemma = "_NUMBER"
-        except ValueError:
-            pass
-        left_lemma_idx = idx
-        mention.add_feature("NGRAM_LEFT_1_[{}]".format(
-            mention.left_lemma))
-    except IndexError:
-        pass
-    # The first alphanumeric lemma on the right of the mention, if present,
-    idx = mention.wordidxs[-1] + 1
-    right_lemma_idx = -1
-    while idx < len(sentence.words) and not sentence.words[idx].word.isalnum():
-        idx += 1
-    try:
-        mention.right_lemma = sentence.words[idx].lemma
-        try:
-            float(mention.right_lemma)
-            mention.right_lemma = "_NUMBER"
-        except ValueError:
-            pass
-        right_lemma_idx = idx
-        mention.add_feature("NGRAM_RIGHT_1_[{}]".format(
-            mention.right_lemma))
-    except IndexError:
-        pass
-    # The lemma "two on the left" of the mention, if present
-    try:
-        mention.add_feature("NGRAM_LEFT_2_[{}]".format(
-            sentence.words[left_lemma_idx - 1].lemma))
-        mention.add_feature("NGRAM_LEFT_2_C_[{} {}]".format(
-            sentence.words[left_lemma_idx - 1].lemma,
-            mention.left_lemma))
-    except IndexError:
-        pass
-    # The lemma "two on the right" on the left of the mention, if present
-    try:
-        mention.add_feature("NGRAM_RIGHT_2_[{}]".format(
-            sentence.words[right_lemma_idx + 1].lemma))
-        mention.add_feature("NGRAM_RIGHT_2_C_[{} {}]".format(
-            mention.right_lemma,
-            sentence.words[right_lemma_idx + 1].lemma))
-    except IndexError:
-        pass
-    # The keywords that appear in the sentence with the mention
-    minl = 100
-    minp = None
-    minw = None
-    for word in mention.words:
-        for word2 in sentence.words:
-            if word2.lemma in KEYWORDS:
-                p = sentence.get_word_dep_path(word.in_sent_idx,
-                                               word2.in_sent_idx)
-                kw = word2.lemma
-                if word2.lemma in PATIENT_KWS:
-                    kw = "_HUMAN"
-                mention.add_feature("KEYWORD_[" + kw + "]" + p)
-                if len(p) < minl:
-                    minl = len(p)
-                    minp = p
-                    minw = kw
-    # Special feature for the keyword on the shortest dependency path
-    if minw:
-        mention.add_feature('EXT_KEYWORD_MIN_[' + minw + ']' + minp)
-        mention.add_feature('KEYWORD_MIN_[' + minw + ']')
-    # The verb closest to the candidate
-    minl = 100
-    minp = None
-    minw = None
-    for word in mention.words:
-        for word2 in sentence.words:
-            if word2.word.isalpha() and re.search('^VB[A-Z]*$', word2.pos) \
-                    and word2.lemma != 'be':
-                p = sentence.get_word_dep_path(word.in_sent_idx,
-                                               word2.in_sent_idx)
-                if len(p) < minl:
-                    minl = len(p)
-                    minp = p
-                    minw = word2.lemma
-        if minw:
-            mention.add_feature('VERB_[' + minw + ']' + minp)
 
 
 # Return a list of mention candidates extracted from the sentence
@@ -202,7 +94,6 @@ def extract(sentence):
                               phrase,
                               sentence.words[start:end])
             mention.is_correct = False
-            add_features(mention, sentence)
             mentions.append(mention)
             for word in sentence.words[start:end]:
                 history.add(word.in_sent_idx)
@@ -243,15 +134,13 @@ def extract(sentence):
                         break
             entity = list(hpoterms_dict[phrase_stems_set])[0]
             mention = Mention(
-                "HPOTERM", hponames_to_ids[entity] + "|" + entity,
+                "PHENO", hponames_to_ids[entity] + "|" + entity,
                 mention_words)
             # The following is a way to avoid duplicates.
             # It's ugly and not perfect
             if mention.id() in mention_ids:
                 continue
             mention_ids.add(mention.id())
-            # Features
-            add_features(mention, sentence)
             mentions.append(mention)
             for word in mention_words:
                 history.add(word.in_sent_idx)
@@ -266,10 +155,9 @@ def extract(sentence):
             tries -= 1
         if sentence.words[index].pos.startswith("NN"):
             mention = Mention(
-                "HPOTERM_SUP_rand", sentence.words[index].lemma.casefold(),
+                "PHENO_SUP_rand", sentence.words[index].lemma.casefold(),
                 sentence.words[index:index+1])
             mention.is_correct = False
-            add_features(mention, sentence)
             mentions.append(mention)
     return mentions
 
@@ -281,24 +169,22 @@ if __name__ == "__main__":
             # Parse the TSV line
             line_dict = get_dict_from_TSVline(
                 line,
-                ["doc_id", "sent_id", "wordidxs", "words", "poses", "ners",
-                    "lemmas", "dep_paths", "dep_parents", "bounding_boxes"],
+                ["doc_id", "sent_id", "wordidxs", "words", "poses", "lemmas"],
                 [no_op, int, lambda x: TSVstring2list(x, int), TSVstring2list,
-                    TSVstring2list, TSVstring2list, TSVstring2list,
-                    TSVstring2list, lambda x: TSVstring2list(x, int),
-                    TSVstring2list])
-            # Create the Sentence object
+                    TSVstring2list, TSVstring2list])
+            # Create the sentence object
+            null_list = [None, ] * len(line_dict["wordidxs"])
             sentence = Sentence(
                 line_dict["doc_id"], line_dict["sent_id"],
                 line_dict["wordidxs"], line_dict["words"], line_dict["poses"],
-                line_dict["ners"], line_dict["lemmas"], line_dict["dep_paths"],
-                line_dict["dep_parents"], line_dict["bounding_boxes"])
+                null_list, line_dict["lemmas"], null_list, null_list,
+                null_list)
             # Skip weird sentences
             if sentence.is_weird():
                 continue
-            # Extract mention candidates
+            # Get list of mentions candidates in this sentence
             mentions = extract(sentence)
-            # Supervise
+            # Supervise them
             new_mentions = supervise(mentions, sentence)
             # Print!
             for mention in new_mentions:

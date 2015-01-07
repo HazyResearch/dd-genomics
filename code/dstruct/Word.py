@@ -42,8 +42,10 @@ class Word(object):
         return self.word
 
     # Return the NER tag if different than 'O', otherwise return the lemma
-    def get_feature(self):
-        if self.ner == 'O':
+    def get_feature(self, use_pos=False):
+        if use_pos:
+            return self.pos
+        elif self.ner == 'O':
             return self.lemma
         else:
             return self.ner
