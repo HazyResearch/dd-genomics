@@ -7,9 +7,34 @@ from dstruct.Sentence import Sentence
 from helper.easierlife import get_dict_from_TSVline, TSVstring2list, no_op, \
     print_feature
 
-max_mention_length = 8  # This is somewhat arbitrary
+import ddlib
 
-NEG_PROB = 0.005  # Probability of generating a random negative mention
+
+def add_features_generic(mention_id, pheno_words, sentence):
+    obj = dict()
+    obj['lemma'] = []
+    obj['words'] = []
+    obj['ner'] = []
+    obj['pos'] = []
+    obj['dep_graph'] = []
+    for word in sentence.words:
+        obj['lemma'].append(word.lemma)
+        obj['words'].append(word.word)
+        obj['ner'].append(word.ner)
+        obj['pos'].append(word.pos)
+        obj['dep_graph'].append(
+            str(word.dep_parent + 1) + "\t" + word.dep_path + "\t" +
+            str(word.in_sent_idx + 1))
+    word_obj_list = ddlib.unpack_words(
+        obj, lemma='lemma', pos='pos', ner='ner', words='words',
+        dep_graph='dep_graph', dep_graph_parser=ddlib.dep_graph_parser_triplet)
+    gene_span = ddlib.get_span(pheno_words[0].in_sent_idx, len(pheno_words))
+    features = set()
+    for feature in ddlib.get_generic_features_mention(
+            word_obj_list, gene_span):
+        features.add(feature)
+    for feature in features:
+        print_feature(sentence.doc_id, mention_id, feature)
 
 
 # Add features
