@@ -20,15 +20,15 @@ def supervise(relation, gene_mention, hpoterm_mention, sentence):
     if gene_mention.is_correct is False and \
             hpoterm_mention.is_correct is not False:
         relation.is_correct = False
-        relation.type = "GENEHPOTERM_SUP_F_G"
+        relation.type = "GENEPHENO_SUP_F_G"
     elif hpoterm_mention.is_correct is False and \
             gene_mention.is_correct is not False:
         relation.is_correct = False
-        relation.type = "GENEHPOTERM_SUP_F_H"
+        relation.type = "GENEPHENO_SUP_F_H"
     elif hpoterm_mention.is_correct is False and \
             gene_mention.is_correct is False:
         relation.is_correct = False
-        relation.type = "GENEHPOTERM_SUP_F_GH"
+        relation.type = "GENEPHENO_SUP_F_GH"
     else:
         # Present in the existing HPO mapping
         in_mapping = False
@@ -44,7 +44,7 @@ def supervise(relation, gene_mention, hpoterm_mention, sentence):
                     break
         if in_mapping:
             relation.is_correct = True
-            relation.type = "GENEHPOTERM_SUP_MAP"
+            relation.type = "GENEPHENO_SUP_MAP"
 
 
 if __name__ == "__main__":
@@ -204,7 +204,7 @@ if __name__ == "__main__":
                     if betw_end - betw_start > 50:
                         continue
                     relation = Relation(
-                        "GENEHPOTERM", gene_mention, hpoterm_mention)
+                        "GENEPHENO", gene_mention, hpoterm_mention)
                     # Supervise
                     supervise(relation, gene_mention, hpoterm_mention,
                               sentence)
@@ -231,10 +231,10 @@ if __name__ == "__main__":
                     fake_hpo_mention = Mention(
                         "FAKE_HPOTERM", other_word.lemma, [other_word, ])
                     fake_rel_1 = Relation(
-                        "GENEHPOTERM_SUP_POSFAKEGENE", fake_gene_mention,
+                        "GENEPHENO_SUP_POSFAKEGENE", fake_gene_mention,
                         hpoterm_mention)
                     fake_rel_2 = Relation(
-                        "GENEHPOTERM_SUP_POSFAKEHPO", gene_mention,
+                        "GENEPHENO_SUP_POSFAKEHPO", gene_mention,
                         fake_hpo_mention)
                     fake_rel_1.is_correct = False
                     fake_rel_2.is_correct = False
@@ -263,7 +263,7 @@ if __name__ == "__main__":
                         "FAKE_HPOTERM", after_next_word.lemma,
                         [after_next_word, ])
                     fake_rel = Relation(
-                        "GENEHPOTERM_SUP_FAKEHPO", gene_mention,
+                        "GENEPHENO_SUP_FAKEHPO", gene_mention,
                         fake_hpo_mention)
                     fake_rel.is_correct = False
                     print(fake_rel.tsv_dump())
@@ -287,7 +287,7 @@ if __name__ == "__main__":
                         "FAKE_GENE", after_next_word.lemma,
                         [after_next_word, ])
                     fake_rel = Relation(
-                        "GENEHPOTERM_SUP_FAKEGENE", fake_gene_mention,
+                        "GENEPHENO_SUP_FAKEGENE", fake_gene_mention,
                         hpo_mention)
                     fake_rel.is_correct = False
                     print(fake_rel.tsv_dump())
