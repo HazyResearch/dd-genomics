@@ -40,6 +40,100 @@ def add_features_generic(relation_id, gene_words, pheno_words, sentence):
         print_feature(sentence.doc_id, relation_id, feature)
 
 
+# Add features (few)
+def add_features_few(relation, gene_mention, hpoterm_mention, sentence):
+    # Find the start/end indices of the mentions composing the relation
+    gene_start = gene_mention.wordidxs[0]
+    hpoterm_start = hpoterm_mention.wordidxs[0]
+    gene_end = gene_mention.wordidxs[-1]
+    hpoterm_end = hpoterm_mention.wordidxs[-1]
+    limits = sorted((gene_start, hpoterm_start, gene_end, hpoterm_end))
+    start = limits[0]
+    betw_start = limits[1]
+    betw_end = limits[2]
+    # If the gene comes first, we do not prefix, otherwise we do.
+    if start == gene_start:
+        inv = ""
+    else:
+        inv = "INV_"
+    # The following features are only added if the two mentions are "close
+    # enough" to avoid overfitting. The concept of "close enough" is somewhat
+    # arbitrary.
+    if betw_end - betw_start - 1 < 15:
+        # The sequence of lemmas between the two mentions and the sequence of
+        # lemmas between the two mentions but using the NERs, if present, and
+        # the sequence of POSes between the mentions
+        seq_list_ners = []
+        seq_list_lemmas = []
+        seq_list_poses = []
+        for word in sentence.words[betw_start+1:betw_end]:
+            if word.ner != "O":
+                seq_list_ners.append(word.ner)
+            else:
+                seq_list_ners.append(word.lemma)
+            seq_list_lemmas.append(word.lemma)
+            seq_list_poses.append(word.pos)
+        seq_ners = " ".join(seq_list_ners)
+        seq_lemmas = " ".join(seq_list_lemmas)
+        seq_poses = "_".join(seq_list_poses)
+        relation.add_feature(inv + "WORD_SEQ_[" + seq_lemmas + "]")
+        if seq_ners != seq_lemmas:
+            relation.add_feature(inv + "WORD_SEQ_NER_[" + seq_ners + "]")
+        relation.add_feature(inv + "POS_SEQ_[" + seq_poses + "]")
+    else:
+        relation.add_feature(inv + "WORD_SEQ_[TOO_FAR_AWAY]")
+        # relation.add_feature(inv + "WORD_SEQ_NER_[TOO_FAR_AWAY]")
+        # relation.add_feature(inv + "POS_SEQ_[TOO_FAR_AWAY]")
+    # Shortest dependency path between the two mentions
+    (dep_path, dep_path_len) = sentence.dep_path(gene_mention, hpoterm_mention)
+    if dep_path_len < 10:  # XXX 10 is arbitrary
+        relation.add_feature(inv + "DEP_PATH_[" + dep_path + "]")
+        (dep_path_pos, dep_path_pos_len) = sentence.dep_path(
+            gene_mention, hpoterm_mention, use_pos=True)
+        relation.add_feature(inv + "DEP_PATH_POS_[" + dep_path_pos + "]")
+    else:
+        relation.add_feature(inv + "DEP_PATH_[TOO_FAR_AWAY]")
+        # relation.add_feature(inv + "DEP_PATH_POS_[TOO_FAR_AWAY]")
+
+    # For each verb in the sentence compute the dependency path from the
+    # mentions to the verb
+    for i in range(len(sentence.words)):
+        # The filtering of the brackets and commas is from Emily's code.
+        if re.search('^VB[A-Z]*$', sentence.words[i].pos) and \
+                sentence.words[i].word.isalpha():
+                # sentence.words[i].word not in ["{", "}", "(", ")", "[", "]"]
+                # and "," not in sentence.words[i].word:
+            min_len_g = 10000
+            min_path_g = None
+            min_path_pos_g = None
+            for wordidx in gene_mention.wordidxs:
+                (path, length) = sentence.get_word_dep_path(
+                    wordidx, sentence.words[i].in_sent_idx)
+                if length < min_len_g:
+                    min_path_g = path
+                    min_len_g = length
+                    (min_path_pos_g, l) = sentence.get_word_dep_path(
+                        wordidx, sentence.words[i].in_sent_idx, use_pos=True)
+            min_len_h = 10000
+            min_path_h = None
+            min_path_pos_h = None
+            for wordidx in hpoterm_mention.wordidxs:
+                (path, length) = sentence.get_word_dep_path(
+                    wordidx, sentence.words[i].in_sent_idx)
+                if length < min_len_h:
+                    min_path_h = path
+                    min_len_h = length
+                    (min_path_pos_h, l) = sentence.get_word_dep_path(
+                        wordidx, sentence.words[i].in_sent_idx, use_pos=True)
+            if min_len_g < 5 and min_len_h < 5:
+                relation.add_feature(
+                    inv + "VERB_DEP_PATH_[" + sentence.words[i].lemma + "]_[" +
+                    min_path_g + "]_[" + min_path_h + "]")
+                relation.add_feature(
+                    inv + "VERB_DEP_PATH_POS_[" + sentence.words[i].lemma +
+                    "]_[" + min_path_pos_g + "]_[" + min_path_pos_h + "]")
+
+
 # Add features
 def add_features(relation_id, gene_words, pheno_words, sentence):
     # Find the start/end indices of the mentions composing the relation
