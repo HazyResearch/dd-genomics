@@ -11,6 +11,8 @@ import ddlib
 
 
 def add_features_generic(relation_id, gene_words, pheno_words, sentence):
+    # Use the generic feature library (ONLY!)
+
     obj = dict()
     obj['lemma'] = []
     obj['words'] = []

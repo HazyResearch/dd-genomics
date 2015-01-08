@@ -9,12 +9,34 @@ import re
 from dstruct.Sentence import Sentence
 from helper.dictionaries import load_dict
 from helper.easierlife import get_dict_from_TSVline, TSVstring2list, no_op, \
-    print_feature
+    print_feature, BASE_DIR
 
 import ddlib
 
 
 def add_features_generic(mention_id, gene_words, sentence):
+    # Use the generic feature library (ONLY!)
+
+    # Load dictionaries for keywords
+    ddlib.load_dictionary(BASE_DIR + "/dicts/features/gene_var.tsv",  "VARKW")
+    ddlib.load_dictionary(
+        BASE_DIR + "/dicts/features/gene_knock.tsv",  "KNOCKKW")
+    ddlib.load_dictionary(
+        BASE_DIR + "/dicts/features/gene_amino.tsv",  "AMINOKW")
+    ddlib.load_dictionary(
+        BASE_DIR + "/dicts/features/gene_antigene.tsv",  "ANTIGENEKW")
+    ddlib.load_dictionary(BASE_DIR + "/dicts/features/gene_dna.tsv",  "DNAKW")
+    ddlib.load_dictionary(
+        BASE_DIR + "/dicts/features/gene_downregulation.tsv",  "DOWNREGKW")
+    ddlib.load_dictionary(
+        BASE_DIR + "/dicts/features/gene_upregulation.tsv",  "UPREGKW")
+    ddlib.load_dictionary(
+        BASE_DIR + "/dicts/features/gene_tumor.tsv",  "TUMORKW")
+    ddlib.load_dictionary(
+        BASE_DIR + "/dicts/features/gene_gene.tsv",  "GENEKW")
+    ddlib.load_dictionary(
+        BASE_DIR + "/dicts/features/gene_expression.tsv",  "EXPRESSKW")
+    # Create the objects used by ddlib. ddlib interface is so ugly.
     obj = dict()
     obj['lemma'] = []
     obj['words'] = []
@@ -69,7 +91,8 @@ VAR_KWS = frozenset([
     "transporter", "variant", "variation", "vivo", "vitro"
     ])
 
-KNOCK_KWS = frozenset(["knockdown", "knock-down", "knock-out", "knockout"])
+KNOCK_KWS = frozenset([
+    "knockdown", "knock-down", "knock-out", "knockout", "KO"])
 
 AMINO_ACID_KWS = frozenset(["amino-acid", "aminoacid"])
 
@@ -88,7 +111,8 @@ TUMOR_KWS = frozenset([
     "sarcoma", "lymphoma"])
 
 GENE_KWS = frozenset([
-    "gene", "protooncogene", "proto-oncogene", "pseudogene", "transgene"])
+    "gene", "oncogene", "protooncogene", "proto-oncogene", "pseudogene",
+    "transgene"])
 
 COEXPRESSION_KWS = frozenset([
     "expression", "overexpression", "over-expression", "co-expression",

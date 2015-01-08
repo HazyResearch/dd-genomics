@@ -5,12 +5,20 @@ import re
 
 from dstruct.Sentence import Sentence
 from helper.easierlife import get_dict_from_TSVline, TSVstring2list, no_op, \
-    print_feature
+    print_feature, BASE_DIR
 
 import ddlib
 
 
 def add_features_generic(mention_id, pheno_words, sentence):
+    # Use the generic feature library (ONLY!)
+
+    # Load dictionaries for keywords
+    ddlib.load_dictionary(BASE_DIR + "/dicts/features/pheno_var.tsv",  "VARKW")
+    ddlib.load_dictionary(
+        BASE_DIR + "/dicts/features/pheno_patient.tsv",  "PATIENTKW")
+
+    # Create the objects used by ddlib. ddlib interface is so ugly.
     obj = dict()
     obj['lemma'] = []
     obj['words'] = []
