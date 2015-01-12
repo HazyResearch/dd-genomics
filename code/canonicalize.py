@@ -18,11 +18,14 @@ hpoancestors = load_dict("hpoancestors")
 with open(sys.argv[1], 'rt') as dump:
     for line in dump:
         tokens = line.strip().split("\t")
+        relation_id = tokens[0]
         gene_entity = tokens[1]
         hpo_entity = tokens[3]
         if "|" not in hpo_entity:
             continue
         hpo_id = hpo_entity.split("|")[0]
-        print("{}\t{}".format(gene_entity, hpo_entity))
+        if hpo_id not in hpoancestors:
+            continue
+        print("{}\t{}\t{}".format(relation_id, gene_entity, hpo_entity))
         for ancestor in hpoancestors[hpo_id]:
-            print("{}\t{}".format(gene_entity, ancestor))
+            print("{}\t{}\t{}".format(relation_id, gene_entity, ancestor))
