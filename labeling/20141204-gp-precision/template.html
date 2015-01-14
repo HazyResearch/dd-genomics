@@ -5,10 +5,8 @@
 	<blockquote>
 		<span class="text-muted">{{item.sentences_before | concatArray:'postgres'}}</span>
 		<big mindtagger-word-array="item.words" array-format="postgres">
-			<mindtagger-highlight-words index-array="item.gene_words" array-format="postgres" with-style="background-color: yellow;"/>
-			<mindtagger-highlight-words index-array="item.gene_words" array-format="postgres" with-style="text-decoration: underline;"/>
-			<mindtagger-highlight-words index-array="item.hpoterm_words" array-format="postgres" with-style="background-color: aquamarine;"/>
-			<mindtagger-highlight-words index-array="item.hpoterm_words" array-format="postgres" with-style="text-decoration: underline;"/>
+			<mindtagger-highlight-words index-array="item.gene_words" array-format="postgres" with-style="background-color: yellow; text-decoration: underline;"/>
+			<mindtagger-highlight-words index-array="item.hpoterm_words" array-format="postgres" with-style="background-color: aquamarine; text-decoration: underline;"/>
 		</big>
 		<span class="text-muted">{{item.sentences_after | concatArray:'postgres'}}</span>
 	</blockquote>
