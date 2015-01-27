@@ -44,4 +44,8 @@ Use the `pull.sh` script to grab any new tasks or changes made on the original r
 It will first create a commit holding any changes made on your side, and fetch and merge the updates, honoring the changes you made (read: the tags you entered).
 
 
+### 4. How to create a new labeling task
+Use the `labeling/create-new-task.sh` script to create new labeling tasks.
+
+
 [mindtagger]: https://github.com/netj/mindbender

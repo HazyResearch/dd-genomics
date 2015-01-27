@@ -23,4 +23,4 @@ fi
 # start Mindtagger for all tasks available next to this script
 echo >&2 "Starting Mindtagger for all tasks under $PWD/..."
 shopt -s globstar 2>/dev/null || true
-mindbender tagger $(ls -t **/mindtagger.conf)
+mindbender tagger $(ls -t */mindtagger.conf)
