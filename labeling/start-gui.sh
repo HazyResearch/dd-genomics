@@ -21,6 +21,12 @@ if ! type mindbender &>/dev/null || ! mindbender version &>/dev/null; then
 fi
 
 # start Mindtagger for all tasks available next to this script
-echo >&2 "Starting Mindtagger for all tasks under $PWD/..."
 shopt -s globstar 2>/dev/null || true
-mindbender tagger $(ls -t */mindtagger.conf)
+if [ -z "$1" ]
+then
+  echo >&2 "Starting Mindtagger for all tasks under $PWD/..."
+  mindbender tagger $(ls -t */mindtagger.conf)
+else
+  echo >&2 "Starting Mindtagger for $1"
+  mindbender tagger $1
+fi

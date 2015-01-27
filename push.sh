@@ -16,7 +16,7 @@ git add -u .
 git commit -a -m "push.sh auto-commit before a git push" || true
 
 # Then push to a new branch
-git push https://github.com/rionda/dd-genomics.git HEAD:$branch ||
+git push https://github.com/ajratner/dd-genomics.git HEAD:$branch ||
     # Otherwise, create a patch that can be emailed
     if read -p "Push to GitHub failed. Do you want generate patch files that can be emailed? "; then
         dir="patches/$branch"

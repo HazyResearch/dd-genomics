@@ -14,4 +14,4 @@ git commit -a -m "pull.sh auto-commit before a git pull" || true
 
 # Then pull merging recursively preferring the changes made on our side (to avoid all conflicts)
 git pull --strategy=recursive -Xours \
-    https://github.com/rionda/dd-genomics.git master
+    https://github.com/ajratner/dd-genomics.git master
