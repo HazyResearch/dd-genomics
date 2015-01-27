@@ -15,7 +15,7 @@ with open(sys.argv[1], 'rt') as dump:
     for line in dump:
         tokens = line.strip().split("\t")
         gene_entity = tokens[1]
-        if "|" not in gene_entity:
+        if "|" not in gene_entity and "\\N" not in gene_entity:
             print(line.strip())
         else:
             skipped += 1

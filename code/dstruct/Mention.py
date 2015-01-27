@@ -17,7 +17,6 @@ class Mention(object):
     type = None
     entity = None
     words = None
-    features = None
     is_correct = None
     right_lemma = ""
     left_lemma = ""
@@ -30,7 +29,6 @@ class Mention(object):
         self.entity = _entity
         # These are Word objects
         self.words = _words
-        self.features = set()
         self.is_correct = None
 
     def __repr__(self):
@@ -47,8 +45,7 @@ class Mention(object):
                     "wordidxs": self.wordidxs, "mention_id": self.id(), "type":
                     self.type, "entity": self.entity,
                     "words": [w.word for w in self.words],
-                    "is_correct": self.is_correct,
-                    "features": list(self.features)}
+                    "is_correct": self.is_correct}
         return json.dumps(json_obj)
 
     # Dump self to a TSV line
@@ -60,14 +57,5 @@ class Mention(object):
             ["\\N", self.doc_id, str(self.sent_id),
                 list2TSVarray(self.wordidxs), self.id(), self.type,
                 self.entity, list2TSVarray(self.words, quote=True),
-                is_correct_str, list2TSVarray(list(self.features), True)])
+                is_correct_str])
         return tsv_line
-
-    # Add a feature
-    def add_feature(self, feature):
-        self.features.add(feature)
-
-    # Add multiple features
-    def add_features(self, features):
-        for feature in features:
-            self.add_feature(feature)

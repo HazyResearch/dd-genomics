@@ -18,6 +18,7 @@ with open(sys.argv[1], 'rt') as hpo:
         tokens = line.strip().split("\t")
         gene = tokens[0]
         hpo_id = tokens[1]
+        assert hpo_id.startswith("HP:")
         hpo_genes.add(gene)
         hpo_ids.add(hpo_id)
         hpo_mappings.add("_".join((gene, hpo_id)))
@@ -25,14 +26,23 @@ with open(sys.argv[1], 'rt') as hpo:
 dump_genes = set()
 dump_ids = set()
 dump_mappings = set()
+relation_ids = dict()
 with open(sys.argv[2], 'rt') as dump:
     for line in dump:
         tokens = line.strip().split("\t")
-        gene = tokens[0]
-        hpo_id = tokens[1]
+        relation_id = tokens[0]
+        gene = tokens[1]
+        assert "\\N" not in gene
+        hpo_id = tokens[2]
+        assert hpo_id.startswith("HP:")
         dump_genes.add(gene)
         dump_ids.add(hpo_id)
-        dump_mappings.add("_".join((gene, hpo_id)))
+        rel_string = "_".join((gene, hpo_id))
+        dump_mappings.add(rel_string)
+        if rel_string not in relation_ids:
+            relation_ids[rel_string] = set()
+        relation_ids[rel_string].add(relation_id)
+
 
 print("### HPO (existing mapping) ###")
 print("Non-zero Entries: {}".format(len(hpo_mappings)))
@@ -57,3 +67,10 @@ print("\"Covered\" Phenotypes in both: {}".format(len(hpo_ids & dump_ids)))
 print("\"Covered\" Phenotypes only in HPO: {}".format(len(hpo_ids - dump_ids)))
 print("\"Covered\" Phenotypes only in DD Dump: {}".format(
     len(dump_ids - hpo_ids)))
+
+print("#######")
+printed_rels = set()
+for new_rel in dump_mappings - hpo_mappings:
+    for rel_id in set(relation_ids[new_rel]) - printed_rels:
+        print(rel_id)
+        printed_rels.add(rel_id)

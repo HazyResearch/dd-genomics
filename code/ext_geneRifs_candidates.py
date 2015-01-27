@@ -6,7 +6,7 @@
 import fileinput
 
 from dstruct.Sentence import Sentence
-from extract_gene_mentions import extract, add_features
+from extract_gene_mentions import extract
 from helper.easierlife import get_dict_from_TSVline, TSVstring2list, no_op
 from helper.dictionaries import load_dict
 
@@ -18,19 +18,15 @@ if __name__ == "__main__":
         for line in input_files:
             # Parse the TSV line
             line_dict = get_dict_from_TSVline(
-                line, ["doc_id", "sent_id", "wordidxs", "words", "poses",
-                       "ners", "lemmas", "dep_paths", "dep_parents",
-                       "bounding_boxes", "gene"],
+                line, ["doc_id", "sent_id", "wordidxs", "words", "gene"],
                 [no_op, int, lambda x: TSVstring2list(x, int), TSVstring2list,
-                    TSVstring2list, TSVstring2list, TSVstring2list,
-                    TSVstring2list, lambda x: TSVstring2list(x, int),
-                    TSVstring2list, no_op])
+                    no_op])
             # Create the Sentence object
+            null_list = [None, ] * len(line_dict["wordidxs"])
             sentence = Sentence(
                 line_dict["doc_id"], line_dict["sent_id"],
-                line_dict["wordidxs"], line_dict["words"], line_dict["poses"],
-                line_dict["ners"], line_dict["lemmas"], line_dict["dep_paths"],
-                line_dict["dep_parents"], line_dict["bounding_boxes"])
+                line_dict["wordidxs"], line_dict["words"], null_list,
+                null_list, null_list, null_list, null_list, null_list)
             # This is the 'labelled' gene that we know is in the sentence
             gene = line_dict["gene"]
             # Get the main symbol (or list of symbols) for the labelled gene
@@ -47,8 +43,8 @@ if __name__ == "__main__":
                         continue
             # Extract mentions from sentence. This also adds the features
             mentions = extract(sentence)
-            # Find the candidate(s) containing the "labelled" gene either in the
-            # words or in the entity, and supervise as True and print. 
+            # Find the candidate(s) containing the "labelled" gene either in
+            # the words or in the entity, and supervise as True and print.
             not_main_mentions = []
             for mention in mentions:
                 mention.type = "GENERIFS"

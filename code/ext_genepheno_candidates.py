@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import fileinput
+import random
 import re
 
 from dstruct.Mention import Mention
@@ -9,180 +10,8 @@ from dstruct.Relation import Relation
 from helper.dictionaries import load_dict
 from helper.easierlife import get_dict_from_TSVline, no_op, TSVstring2list
 
-
-# Add features
-def add_features(relation, gene_mention, hpoterm_mention, sentence):
-    # Find the start/end indices of the mentions composing the relation
-    gene_start = gene_mention.wordidxs[0]
-    hpoterm_start = hpoterm_mention.wordidxs[0]
-    gene_end = gene_mention.wordidxs[-1]
-    hpoterm_end = hpoterm_mention.wordidxs[-1]
-    limits = sorted((gene_start, hpoterm_start, gene_end, hpoterm_end))
-    start = limits[0]
-    betw_start = limits[1]
-    betw_end = limits[2]
-    end = limits[3]
-    # If the gene comes first, we do not prefix, otherwise we do.
-    if start == gene_start:
-        inv = ""
-    else:
-        inv = "INV_"
-
-    # Verbs between the mentions
-    verbs_between = []
-    minl_gene = 100
-    minp_gene = None
-    minw_gene = None
-    mini_gene = None
-    minl_hpo = 100
-    # minp_hpo = None
-    minw_hpo = None
-    mini_hpo = None
-    neg_found = False
-    # Look all the words, as in the dependency path there could be words that
-    # are close to both mentions but not between them
-    for i in range(len(sentence.words)):
-        # The filtering of the brackets and commas is from Emily's code.
-        if re.search('^VB[A-Z]*$', sentence.words[i].pos) and \
-                sentence.words[i].word not in ["{", "}", "(", ")", "[", "]"] \
-                and "," not in sentence.words[i].word:
-            p_gene = sentence.get_word_dep_path(
-                betw_start, sentence.words[i].in_sent_idx)
-            p_hpo = sentence.get_word_dep_path(
-                sentence.words[i].in_sent_idx, betw_end)
-            if len(p_gene) < minl_gene:
-                minl_gene = len(p_gene)
-                minp_gene = p_gene
-                minw_gene = sentence.words[i].lemma
-                mini_gene = sentence.words[i].in_sent_idx
-            if len(p_hpo) < minl_hpo:
-                minl_hpo = len(p_hpo)
-                #  minp_hpo = p_hpo
-                minw_hpo = sentence.words[i].lemma
-                mini_hpo = sentence.words[i].in_sent_idx
-            # Look for negation.
-            if i > 0 and sentence.words[i-1].lemma in \
-                    ["no", "not", "neither", "nor"]:
-                if i < betw_end - 2:
-                    neg_found = True
-                    relation.add_feature(
-                        inv + "NEG_VERB_[" + sentence.words[i-1].word + "]-" +
-                        sentence.words[i].lemma)
-            else:
-                verbs_between.append(sentence.words[i])
-    if len(verbs_between) == 1 and not neg_found:
-        relation.add_feature(inv + "SINGLE_VERB_[%s]" % verbs_between[0].lemma)
-    else:
-        for verb in verbs_between:
-            if verb.in_sent_idx > betw_start and \
-                    verb.in_sent_idx < betw_end:
-                relation.add_feature(inv + "VERB_[%s]" % verb)
-    if mini_hpo == mini_gene and mini_gene is not None and \
-            len(minp_gene) < 50:  # and "," not in minw_gene:
-        # feature = inv + 'MIN_VERB_[' + minw_gene + ']' + minp_gene
-        # features.append(feature)
-        feature = inv + 'MIN_VERB_[' + minw_gene + ']'
-        relation.add_feature(feature)
-    else:
-        feature = inv
-        if mini_gene is not None:
-            # feature = 'MIN_VERB_GENE_[' + minw_gene + ']' + minp_gene
-            # relation.add_feature(feature)
-            feature += 'MIN_VERB_GENE_[' + minw_gene + ']'
-        else:
-            feature += 'MIN_VERB_GENE_[NULL]'
-        if mini_hpo is not None:
-            # feature = 'MIN_VERB_HPO_[' + minw_hpo + ']' + minp_hpo)
-            # relation.add_feature(feature)
-            feature += '_HPO_[' + minw_hpo + ']'
-        else:
-            feature += '_HPO_[NULL]'
-        relation.add_feature(feature)
-
-    # The following features are only added if the two mentions are "close
-    # enough" to avoid overfitting. The concept of "close enough" is somewhat
-    # arbitrary.
-    neg_word_index = -1
-    if betw_end - betw_start - 1 < 8:
-        for i in range(betw_start+1, betw_end):
-            # Feature for separation between entities.
-            # TODO Think about merging these?
-            # I think these should be some kind of supervision rule instead?
-            if "while" == sentence.words[i].lemma:
-                relation.add_feature("SEP_BY_[while]")
-            if "whereas" == sentence.words[i].lemma:
-                relation.add_feature("SEP_BY_[whereas]")
-            if sentence.words[i].lemma in ["no", "not", "neither", "nor"]:
-                neg_word_index = i
-        # Features for the negative words
-        # TODO: We would probably need distant supervision for these
-        if neg_word_index > -1:
-            gene_p = None
-            gene_l = 100
-            for word in sentence.words[gene_start:gene_end+1]:
-                p = sentence.get_word_dep_path(
-                    word.in_sent_idx, neg_word_index)
-                if len(p) < gene_l:
-                    gene_p = p
-                    gene_l = len(p)
-            if gene_p:
-                relation.add_feature(inv + "NEG_[" + gene_p + "]")
-            # hpo_p = None
-            # hpo_l = 100
-            # for word in sentence.words[hpoterm_start:hpoterm_end+1]:
-            #    p = sentence.get_word_dep_path(
-            #        word.in_sent_idx, neg_word_index)
-            #    if len(p) < hpo_l:
-            #        hpo_p = p
-            #        hpo_l = len(p)
-            # if hpo_p:
-            #    relation.add_feature(inv + "HPO_TO_NEG_[" + hpo_p + "]")
-        # The sequence of lemmas between the two mentions and the sequence of
-        # lemmas between the two mentions but using the NERs, if present, and
-        # the sequence of POSes between the mentions
-        seq_list_ners = []
-        seq_list_lemmas = []
-        seq_list_poses = []
-        for word in sentence.words[betw_start+1:betw_end]:
-            if word.ner != "O":
-                seq_list_ners.append(word.ner)
-            else:
-                seq_list_ners.append(word.lemma)
-            seq_list_lemmas.append(word.lemma)
-            seq_list_poses.append(word.pos)
-        seq_ners = " ".join(seq_list_ners)
-        seq_lemmas = " ".join(seq_list_lemmas)
-        seq_poses = "_".join(seq_list_poses)
-        relation.add_feature(inv + "WORD_SEQ_[" + seq_lemmas + "]")
-        relation.add_feature(inv + "WORD_SEQ_NER_[" + seq_ners + "]")
-        relation.add_feature(inv + "POS_SEQ_[" + seq_poses + "]")
-        # Shortest dependency path between the two mentions
-        relation.add_feature(inv + "DEP_PATH_[" + sentence.dep_path(
-            gene_mention, hpoterm_mention) + "]")
-    # Number of words between the mentions
-    # TODO I think this should be some kind of supervision rule instead?
-    # relation.add_feature(
-    #    inv + "WORD_SEQ_LEN_[" + str(betw_end - betw_start - 1) + "]")
-    # 2-gram between the mentions
-    if betw_end - betw_start - 1 > 4 and betw_start - betw_end - 1 < 15:
-        for i in range(betw_start + 1, betw_end - 1):
-            relation.add_feature(
-                "BETW_2_GRAM_[" + sentence.words[i].lemma + "_" +
-                sentence.words[i+1].lemma + "]")
-    # Lemmas on the exterior of the mentions and on the interior
-    feature = inv
-    if start > 0:
-        feature += "EXT_NGRAM_[" + sentence.words[start - 1].lemma + "]"
-    else:
-        feature += "EXT_NGRAM_[NULL]"
-    if end < len(sentence.words) - 1:
-        feature += "_[" + sentence.words[end + 1].lemma + "]"
-    else:
-        feature += "_[NULL]"
-    relation.add_feature(feature)
-    feature = inv + "INT_NGRAM_[" + sentence.words[betw_start + 1].lemma + \
-        "]" + "_[" + sentence.words[betw_end - 1].lemma + "]"
-    relation.add_feature(feature)
+# Load the gene<->hpoterm dictionary
+genehpoterms_dict = load_dict("genehpoterms")
 
 
 # Supervise the candidates
@@ -191,15 +20,15 @@ def supervise(relation, gene_mention, hpoterm_mention, sentence):
     if gene_mention.is_correct is False and \
             hpoterm_mention.is_correct is not False:
         relation.is_correct = False
-        relation.type = "GENEHPOTERM_SUP_F_G"
+        relation.type = "GENEPHENO_SUP_F_G"
     elif hpoterm_mention.is_correct is False and \
             gene_mention.is_correct is not False:
         relation.is_correct = False
-        relation.type = "GENEHPOTERM_SUP_F_H"
+        relation.type = "GENEPHENO_SUP_F_H"
     elif hpoterm_mention.is_correct is False and \
             gene_mention.is_correct is False:
         relation.is_correct = False
-        relation.type = "GENEHPOTERM_SUP_F_GH"
+        relation.type = "GENEPHENO_SUP_F_GH"
     else:
         # Present in the existing HPO mapping
         in_mapping = False
@@ -215,11 +44,8 @@ def supervise(relation, gene_mention, hpoterm_mention, sentence):
                     break
         if in_mapping:
             relation.is_correct = True
-            relation.type = "GENEHPOTERM_SUP_MAP"
+            relation.type = "GENEPHENO_SUP_MAP"
 
-
-# Load the gene<->hpoterm dictionary
-genehpoterms_dict = load_dict("genehpoterms")
 
 if __name__ == "__main__":
     # Process input
@@ -318,10 +144,17 @@ if __name__ == "__main__":
             # Skip weird sentences
             if sentence.is_weird():
                 continue
-            # Iterate over each pair of (gene,phenotype) mention
+            gene_mentions = []
+            hpoterm_mentions = []
+            positive_relations = []
+            gene_wordidxs = set()
+            hpoterm_wordidxs = set()
+            # Iterate over each pair of (gene,phenotype) mentions
             for g_idx in range(len(line_dict["gene_is_corrects"])):
                 g_wordidxs = TSVstring2list(
                     line_dict["gene_wordidxss"][g_idx], int)
+                for idx in g_wordidxs:
+                    gene_wordidxs.add(idx)
                 gene_mention = Mention(
                     "GENE", line_dict["gene_entities"][g_idx],
                     [sentence.words[j] for j in g_wordidxs])
@@ -335,9 +168,12 @@ if __name__ == "__main__":
                     assert False
                 gene_mention.type = line_dict["gene_types"][g_idx]
                 assert not gene_mention.type.endswith("_UNSUP")
+                gene_mentions.append(gene_mention)
                 for h_idx in range(len(line_dict["hpoterm_is_corrects"])):
                     h_wordidxs = TSVstring2list(
                         line_dict["hpoterm_wordidxss"][h_idx], int)
+                    for idx in h_wordidxs:
+                        hpoterm_wordidxs.add(idx)
                     hpoterm_mention = Mention(
                         "hpoterm", line_dict["hpoterm_entities"][h_idx],
                         [sentence.words[j] for j in h_wordidxs])
@@ -351,6 +187,7 @@ if __name__ == "__main__":
                         assert False
                     hpoterm_mention.type = line_dict["hpoterm_types"][h_idx]
                     assert not hpoterm_mention.type.endswith("_UNSUP")
+                    hpoterm_mentions.append(hpoterm_mention)
                     # Skip if the word indexes overlab
                     if set(g_wordidxs) & set(h_wordidxs):
                         continue
@@ -367,12 +204,90 @@ if __name__ == "__main__":
                     if betw_end - betw_start > 50:
                         continue
                     relation = Relation(
-                        "GENEHPOTERM", gene_mention, hpoterm_mention)
-                    # Add features
-                    add_features(relation, gene_mention, hpoterm_mention,
-                                 sentence)
+                        "GENEPHENO", gene_mention, hpoterm_mention)
                     # Supervise
                     supervise(relation, gene_mention, hpoterm_mention,
                               sentence)
+                    if relation.is_correct:
+                        positive_relations.append(
+                            (gene_mention, hpoterm_mention))
                     # Print!
                     print(relation.tsv_dump())
+            # Create some artificial negative examples:
+            # for each (gene, phenotype) pair that is labelled as positive
+            # example, select one word w in the same sentence that (1) is not a
+            # gene mention candidate and (2) is not a phenotype mention
+            # candidate, add (gene, w) and (w, phenotype) as negative example
+            avail_wordidxs = (
+                set(line_dict["wordidxs"]) - set(hpoterm_wordidxs)) - \
+                set(gene_wordidxs)
+            avail_wordidxs = list(avail_wordidxs)
+            if len(avail_wordidxs) > 0:
+                fake_rels = []
+                for (gene_mention, hpoterm_mention) in positive_relations:
+                    other_word = sentence.words[random.choice(avail_wordidxs)]
+                    fake_gene_mention = Mention(
+                        "FAKE_GENE", other_word.lemma, [other_word, ])
+                    fake_hpo_mention = Mention(
+                        "FAKE_HPOTERM", other_word.lemma, [other_word, ])
+                    fake_rel_1 = Relation(
+                        "GENEPHENO_SUP_POSFAKEGENE", fake_gene_mention,
+                        hpoterm_mention)
+                    fake_rel_2 = Relation(
+                        "GENEPHENO_SUP_POSFAKEHPO", gene_mention,
+                        fake_hpo_mention)
+                    fake_rel_1.is_correct = False
+                    fake_rel_2.is_correct = False
+                    # Print!
+                    print(fake_rel_1.tsv_dump())
+                    print(fake_rel_2.tsv_dump())
+            # Create more artificial negative examples:
+            # for each gene candidate G in the sentence, if the pattern G
+            # <Verb> X appears in the same sentence and X is not a phenotype
+            # mention candidate, add (gene, X) as negative examples
+            for gene_mention in gene_mentions:
+                try:
+                    next_word = sentence.words[gene_mention.wordidxs[-1] + 1]
+                except IndexError:
+                    continue
+                if re.search('^VB[A-Z]*$', next_word.pos) and \
+                        next_word.word not in ["{", "}", "(", ")", "[", "]"]:
+                    try:
+                        after_next_word = sentence.words[
+                            next_word.in_sent_idx + 1]
+                    except IndexError:
+                        continue
+                    if after_next_word.in_sent_idx in hpoterm_wordidxs:
+                        continue
+                    fake_hpo_mention = Mention(
+                        "FAKE_HPOTERM", after_next_word.lemma,
+                        [after_next_word, ])
+                    fake_rel = Relation(
+                        "GENEPHENO_SUP_FAKEHPO", gene_mention,
+                        fake_hpo_mention)
+                    fake_rel.is_correct = False
+                    print(fake_rel.tsv_dump())
+            # Create more artificial negative examples:
+            # as before but for phenotypes
+            for hpo_mention in hpoterm_mentions:
+                try:
+                    next_word = sentence.words[hpo_mention.wordidxs[-1] + 1]
+                except IndexError:
+                    continue
+                if re.search('^VB[A-Z]*$', next_word.pos) and \
+                        next_word.word not in ["{", "}", "(", ")", "[", "]"]:
+                    try:
+                        after_next_word = sentence.words[
+                            next_word.in_sent_idx + 1]
+                    except IndexError:
+                        continue
+                    if after_next_word.in_sent_idx in gene_wordidxs:
+                        continue
+                    fake_gene_mention = Mention(
+                        "FAKE_GENE", after_next_word.lemma,
+                        [after_next_word, ])
+                    fake_rel = Relation(
+                        "GENEPHENO_SUP_FAKEGENE", fake_gene_mention,
+                        hpo_mention)
+                    fake_rel.is_correct = False
+                    print(fake_rel.tsv_dump())
