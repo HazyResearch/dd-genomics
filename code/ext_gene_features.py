@@ -144,6 +144,10 @@ def add_features(mention_id, mention_words, sentence):
                 # Ignoring "be" comes from pharm (Emily)
                 (p, l) = sentence.get_word_dep_path(
                     word.in_sent_idx, word2.in_sent_idx)
+                if l < minl:
+                  minl = l
+                  minp = p
+                  minw = word2.lemma
     if minw:
         print_feature(
             sentence.doc_id, mention_id, 'VERB_[' + minw + ']' + minp)
@@ -175,8 +179,8 @@ def add_features(mention_id, mention_words, sentence):
                 #     kw = "_GENE"
                 # elif word2.lemma in COEXPRESSION_KWS:
                 #    ke = "_COEXPRESSION"
-                if len(p) < minl:
-                    minl = len(p)
+                if l < minl:
+                    minl = l
                     minp = p
                     minw = kw
                 if len(p) < 100:
