@@ -58,3 +58,6 @@ coverage.xml
 docs/_build/
 
 /patches
+
+# Mac OSX
+*.DS_Store

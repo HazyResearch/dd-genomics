@@ -6,9 +6,14 @@ We have a wiki for this project at
 
 ## Getting Started: Basics
 
-### 1. Setting environment variables:
-In env.sh, change the variables marked as 'todo' as appropriate for intended usage.  Then, run: `bash source env.sh`
-Note that env.sh must be set as executable (`chmod +x env.sh`), and must be run in the terminal session being used.  Note: most scripts will run env.sh for you [remove this?]
+### 1. Installing DeepDive
+See [*DeepDive main documentation*][deepdivedocs]
+
+### 2. Setting environment variables:
+In env.sh, change the variables marked as 'todo' as appropriate for intended usage.  Additional notes:
+
+* ***Mac OSX***: Will need to either install coreutils (e.g. with Homebrew: `brew install coreutils`) or hardcode absolute path; see env.sh
+* Most scripts in GDD will call env.sh automatically, but if not, run `bash source env.sh` in the terminal session being used.  (Note that env.sh must be set as executable, `chmod +x env.sh`)
 
 
 ## Basic Structure of GDD
@@ -26,11 +31,11 @@ Note that env.sh must be set as executable (`chmod +x env.sh`), and must be run 
 After an iteration of DeepDive has been run, various metrics can be computed for error analysis and assesment, in addition to the automatically produced calibration plots.  For some examples, see the scripts in the metrics/ directory:
 
 ### 1. Current analyses available:
-*Where X = {gene, pheno, genepheno}*
+*Where X = {g, p, gp}*
 
 * **X-stats-basic**: The set of basic statistics compiled automatically by postgres "ANALYZE" operation for query planning.  This data is automatically compiled by postgres during DeepDive execution and thus has no cost for us to get here!  Generates several output csv files labeled by column id and analysis type, e.g. *output_2_histogram.csv* would be a histogram of values for column 2 of the *X_mentions* table.  See [*postgres documentation*][postgres-pg-static] for all analysis types
 
-### 2. Ideas for analyses:
+### 2. Ideas for analyses / TODO:
 * Subsample set of g/p from dict and get counts from db (fast?)
 * Can we get the total set of counts in a fast enough way (need to index?)
 * General histogram based on ANALYZE command
@@ -54,6 +59,7 @@ and open a browser to "http://localhost:8000".
 The GUI shows, in the upper left corner, all tasks defined under `labeling/` directory.
 The results of the labeling (including intermediate data) are stored under each task directory.
 
+[deepdivedocs]: http://deepdive.stanford.edu/index.html#documentation
 [mindtagger]: https://github.com/netj/mindbender
 [braindump]: https://github.com/zifeishan/braindump
 [postgres-pg-static]: https://github.com/postgres/postgres/blob/master/src/include/catalog/pg_statistic.h

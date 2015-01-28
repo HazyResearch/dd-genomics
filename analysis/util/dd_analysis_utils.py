@@ -64,9 +64,3 @@ def process_pg_statistics(path_to_data, root_path_out):
           csv_writer = csv.writer(data_out)
           for d in data:
             csv_writer.writerow(d)
-
-if __name__ == '__main__':
-  if len(sys.argv) < 3:
-    print "Process.py: Insufficient arguments"
-  else:
-    process_pg_statistics(sys.argv[1], sys.argv[2])
