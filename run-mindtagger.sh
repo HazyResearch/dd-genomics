@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# A script to start Mindtagger for tasks under labeling/
-# Author: Jaeho Shin <netj@cs.stanford.edu>
-# Created: 2014-10-11
+# A script to start Mindtagger for specific modes
+# Author: Jaeho Shin <netj@cs.stanford.edu> / Alex Ratner <ajratner@stanford.edu>
+# Created: 2015-01-27
 set -eu
 
 # set up environment to run Mindtagger
@@ -20,7 +20,32 @@ if ! type mindbender &>/dev/null || ! mindbender version &>/dev/null; then
     mv -f $tool.download $tool
 fi
 
-# start Mindtagger for all tasks available next to this script
+# Accept options for .conf file and a where clause
 shopt -s globstar 2>/dev/null || true
-echo >&2 "Starting Mindtagger for all tasks under $PWD/..."
-mindbender tagger $(ls -t */mindtagger.conf)
+conf=""
+where=""
+while getopts m:w: opt; do
+  case $opt in
+  m)
+    
+    # NOTE: .conf file paths hard-coded here
+    case $OPTARG in
+    inspect)
+      conf="/inspect/..."
+      ;;
+    precision)
+      conf="/precision/..."
+      ;;
+    recall)
+      conf="/recall/..."
+    esac
+    ;;
+  w)
+    where=$OPTARG
+    ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+# run mindtagger
+echo "$conf"
