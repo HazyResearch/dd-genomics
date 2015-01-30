@@ -14,50 +14,15 @@ ids=${ids#,}
 
 # produce SQL query
 echo '
-\set doc_id_to_sample ('"'$ids'"')
+\set doc_id_to_sample '"'($ids)'"'
 '"
 
 COPY (
-WITH w AS (
+
     SELECT doc_id, sent_id, words
       FROM sentences
-     WHERE doc_id = :doc_id_to_sample
-)
-, gm AS (
-    SELECT sent_id
-         , ARRAY_AGG('{' || ARRAY_TO_STRING(wordidxs, ',') || '}') positions
-    FROM (
-        SELECT sent_id, wordidxs
-          FROM gene_mentions m
-             , dd_inference_result_variables mir
-         WHERE doc_id = :doc_id_to_sample
-           AND m.id = mir.id
-    ) m
-  GROUP BY sent_id
-)
-, pm AS (
-    SELECT sent_id
-         , ARRAY_AGG('{' || ARRAY_TO_STRING(wordidxs, ',') || '}') positions
-    FROM (
-        SELECT sent_id, wordidxs
-          FROM hpoterm_mentions m
-             , dd_inference_result_variables mir
-         WHERE doc_id = :doc_id_to_sample
-           AND m.id = mir.id
-    ) m
-  GROUP BY sent_id
-)
-
-SELECT w.doc_id
-     , w.sent_id
-     , w.words
-     , gm.positions AS g_positions
-     , pm.positions AS p_positions
-  FROM w
-LEFT JOIN gm ON w.sent_id = gm.sent_id
-LEFT JOIN pm ON w.sent_id = pm.sent_id
+     WHERE doc_id IN :doc_id_to_sample
 
 ) TO STDOUT WITH CSV HEADER
 ;
-
 "

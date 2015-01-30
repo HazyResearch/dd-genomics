@@ -4,6 +4,7 @@
 # NOTE: if using mac, need to install coreutils / greadlink, or hardcode here...
 DIRNAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 REAL_DIRNAME=`readlink -f ${DIRNAME}` || REAL_DIRNAME=`greadlink -f ${DIRNAME}`
+export GDD_HOME=$REAL_DIRNAME
 
 # TODO: change these variables for db connection (e.g. MindTagger, output metrics)
 export DBHOST=raiders4.stanford.edu

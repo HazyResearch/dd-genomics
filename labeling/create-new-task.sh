@@ -7,17 +7,17 @@ set -eu
 Here=$(dirname "$0")
 cd "$Here"
 
-[[ $# -eq 2 ]] || {
-    echo "Usage: $0 NAME MODE"
-    echo " where NAME-MODE is one of:"
+[[ $# -eq 1 ]] || {
+    echo "Usage: $0 TASK_TYPE"
+    echo " where TASK_TYPE is one of:"
     ls templates | sed 's/^/  /'
     false
 }
+. ../env.sh
 
-Name=$1; shift
-Mode=$1; shift
+TaskType=$1; shift
 
-task=$(date +%Y%m%d)-$Name-$Mode
+task=$(date +%Y%m%d)-$TaskType
 if [[ -e $task ]]; then
     suffix=2
     while [[ -e $task.$suffix ]]; do
@@ -26,14 +26,21 @@ if [[ -e $task ]]; then
     task+=.$suffix
 fi
 
+trap "rm -rf $task" ERR
+
 # clone a task template
-cp -a templates/$Name-$Mode $task
+echo "Creating Mindtagger task $task from template"
+cp -a templates/$TaskType $task
 
 # optionally generate SQL to run for preparing input
 if [[ -x $task/input-sql.sh ]]; then
+    echo "Generating SQL query for the task..."
     $task/input-sql.sh "$@" >$task/input.sql
 fi
 
 # get input items for the task
+echo "Running $task/input.sql to get input items from DeepDive database"
 psql -h $DBHOST -p $DBPORT -U $DBUSER $DBNAME \
     <$task/input.sql >$task/input.csv
+
+echo "Restart labeling/start-gui.sh again and choose task $task."
