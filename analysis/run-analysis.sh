@@ -3,6 +3,7 @@
 # Author: Alex Ratner <ajratner@stanford.edu>
 # Created: 2015-01-25
 set -eu
+source ../env.sh
 DIR_MAIN=$GDD_HOME/analysis
 DIR_SCRIPTS=$DIR_MAIN/analyses
 

@@ -26,7 +26,7 @@ if [[ -e $task ]]; then
     task+=.$suffix
 fi
 
-trap "rm -rf $task" ERR
+#trap "rm -rf $task" ERR
 
 # clone a task template
 echo "Creating Mindtagger task $task from template"
