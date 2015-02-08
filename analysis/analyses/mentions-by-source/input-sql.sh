@@ -3,7 +3,7 @@
 # Created: 2015-01-25
 
 # CREATE TABLE doc_source (doc_id TEXT, source TEXT) DISTRIBUTED BY (doc_id);
-# COPY doc_source (doc_id, source) FROM '/dfs/rulk/0/czhang/Genomics_docid2journal.tsv' DELIMITER '\t';
+# COPY doc_source (doc_id, source) FROM '/lfs/local/0/ajratner/Genomics_docid2journal.tsv' DELIMITER '\t';
 
 set -eu
 
@@ -39,12 +39,12 @@ echo "
       count(case when m.is_correct is null and ib.bucket = 8 then 1 end) as bucket_8,
       count(case when m.is_correct is null and ib.bucket = 9 then 1 end) as bucket_9
     FROM
-      doc_source ds,
-      ${1} m,
-      ${1}_is_correct_inference_bucketed ib
+      ${1} m
+    LEFT JOIN
+      doc_source ds ON m.doc_id = ds.doc_id
+    LEFT JOIN
+      ${1}_is_correct_inference_bucketed ib ON m.doc_id = ib.doc_id
     WHERE
-      ds.doc_id = m.doc_id AND
-      m.doc_id = ib.doc_id AND
       m.${m}_id = ib.${m}_id
     GROUP BY
       ds.source

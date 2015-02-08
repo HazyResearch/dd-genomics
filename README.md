@@ -12,7 +12,7 @@ We have a wiki for this project at
 *Pending confirmation...:*
 
 1. Install Docker (see [Docker installation guide][docker-install])
-2. Create a new directory with at least 20GB of free space, and containing a file named `Dockerfile` (copy-paste from [here][dockerfile-1]), and `cd` into it
+2. Create a new directory with at least 20GB of free space, and copy the file named `Dockerfile` in this directory into it, then `cd` into it
 3. Run the following:
 		
 		docker build -t deepdive . 
@@ -20,14 +20,25 @@ We have a wiki for this project at
 		docker run -t -d --link db:db --name deepdive deepdive bash
 		docker exec -ti deepdive bash
 		cd ~/deepdive
-		make test 
+		make test
 
+4. ***Note: currently we are having issues with running `docker build`; need to stop and restart multiple times before we finish... Does eventually finish though***
+5. DeepDive & Greenplum will now run in the background; to open up a shell again, run:
+
+		docker exec -ti deepdive bash
+		
+*Note: this may take a while to start, as it waits for GreenPlum first...*
+
+
+### 2. Other Docker stuff
+* `docker ps -a` to see running containers (should be one for deepdive, one for greenplum)
+* To copy file into docker...
 
 
 
 [*See [DeepDive main documentation][deepdivedocs] for more detail]* 
 
-### 2. Setting environment variables:
+### 3. Setting environment variables:
 In env.sh, change the variables marked as 'todo' as appropriate for intended usage.  Additional notes:
 
 * ***Mac OSX***: Will need to either install coreutils (e.g. with Homebrew: `brew install coreutils`) or hardcode absolute path; see env.sh
@@ -155,6 +166,8 @@ For documenting better, or just to look into...
 Ordered from smallest to largest.  *NOTE: To see more minor code-level to-dos, run e.g. `grep -r "TODO(alex)" *`*
 
 
+* [Alex] Certain analyses scripts taking a really long time (on raiders2):
+	* mentions-by-entity
 * [Jaheo/Alex] Mindtagger stuff: speed up gp-recall-labeled, fix some errors, export of tags to database
 * [Alex/Ragini] Install & run DeepDive! --> Document this
 * [Ragini/Alex] Write more analysis & inspection scripts
