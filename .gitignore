@@ -1,5 +1,8 @@
 data*
 
+# DeepDive snapshots
+/snapshot
+
 # Vim swap files
 *.*.sw*
 
