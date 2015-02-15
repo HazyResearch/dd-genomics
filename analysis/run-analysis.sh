@@ -3,7 +3,11 @@
 # Author: Alex Ratner <ajratner@stanford.edu>
 # Created: 2015-01-25
 set -eu
-source ../env.sh
+if [[ -e ../env.sh ]]; then
+  source ../env.sh
+else
+  source env.sh
+fi
 DIR_MAIN=$GDD_HOME/analysis
 DIR_SCRIPTS=$DIR_MAIN/analyses
 
