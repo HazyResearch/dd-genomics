@@ -2,56 +2,56 @@
 -- WARNING: all the tables are dropped and recreated
 
 -- Sentences table
--- DROP TABLE IF EXISTS sentences CASCADE;
--- CREATE TABLE sentences (
--- 	-- document id
--- 	doc_id text,
--- 	-- sentence id
--- 	sent_id int,
--- 	-- word indexes
--- 	wordidxs int[],
--- 	-- words
--- 	words text[],
--- 	-- parts of speech
--- 	poses text[],
--- 	-- named entity recognition tags
--- 	ners text[],
--- 	-- lemmified version of words
--- 	lemmas text[],
--- 	-- dependency path labels
--- 	dep_paths text[],
--- 	-- dependency path parents
--- 	dep_parents int[],
--- 	-- bounding boxes
--- 	bounding_boxes text[]
--- ) DISTRIBUTED BY (doc_id);
+DROP TABLE IF EXISTS sentences CASCADE;
+CREATE TABLE sentences (
+ 	-- document id
+ 	doc_id text,
+ 	-- sentence id
+ 	sent_id int,
+ 	-- word indexes
+ 	wordidxs int[],
+ 	-- words
+ 	words text[],
+ 	-- parts of speech
+ 	poses text[],
+ 	-- named entity recognition tags
+ 	ners text[],
+ 	-- lemmified version of words
+ 	lemmas text[],
+ 	-- dependency path labels
+ 	dep_paths text[],
+ 	-- dependency path parents
+ 	dep_parents int[],
+ 	-- bounding boxes
+ 	bounding_boxes text[]
+ ) DISTRIBUTED BY (doc_id);
 
 -- GeneRifs table
---DROP TABLE IF EXISTS generifs CASCADE;
---CREATE TABLE generifs (
---	-- document id
---	doc_id text,
---	-- sentence id
---	sent_id int,
---	-- word indexes
---	wordidxs int[],
---	-- words
---	words text[],
---	-- parts of speech
---	poses text[],
---	-- named entity recognition tags
---	ners text[],
---	-- lemmified version of words
---	lemmas text[],
---	-- dependency path labels
---	dep_paths text[],
---	-- dependency path parents
---	dep_parents int[],
---	-- bounding boxes
---	bounding_boxes text[],
---	-- 'labelled' gene that is contained in the geneRif
---	gene text
---) DISTRIBUTED BY (doc_id);
+DROP TABLE IF EXISTS generifs CASCADE;
+CREATE TABLE generifs (
+	-- document id
+	doc_id text,
+	-- sentence id
+	sent_id int,
+	-- word indexes
+	wordidxs int[],
+	-- words
+	words text[],
+	-- parts of speech
+	poses text[],
+	-- named entity recognition tags
+	ners text[],
+	-- lemmified version of words
+	lemmas text[],
+	-- dependency path labels
+	dep_paths text[],
+	-- dependency path parents
+	dep_parents int[],
+	-- bounding boxes
+	bounding_boxes text[],
+	-- 'labelled' gene that is contained in the geneRif
+	gene text
+) DISTRIBUTED BY (doc_id);
 
 -- Acronym table 
 DROP TABLE IF EXISTS acronyms CASCADE;
@@ -86,7 +86,7 @@ CREATE TABLE generifs_mentions (
 	-- words
 	words text[],
 	-- is this a correct mention? (unused for generifs)
-	is_correct boolean,
+	is_correct boolean
 ) DISTRIBUTED BY (doc_id);
 
 -- Gene Rifs mentions features
@@ -120,7 +120,7 @@ CREATE TABLE gene_mentions (
 	-- words
 	words text[],
 	-- is this a correct mention?
-	is_correct boolean,
+	is_correct boolean
 ) DISTRIBUTED BY (doc_id);
 
 -- Gene mentions features
@@ -154,7 +154,7 @@ CREATE TABLE pheno_mentions (
 	-- words
 	words text[],
 	-- is this a correct mention?
-	is_correct boolean,
+	is_correct boolean
 ) DISTRIBUTED BY (doc_id);
 
 -- Phenotype mentions features
@@ -196,7 +196,7 @@ CREATE TABLE genepheno_relations (
 	-- phenotype (words)
 	words_2 text[],
 	-- is this a correct relation?
-	is_correct boolean,
+	is_correct boolean
 ) DISTRIBUTED BY (doc_id);
 
 -- G/P relation mentions features

@@ -1,1 +1,0 @@
-find /lfs/raiders2/0/senwu/deepdive/out/2015-01-28T022819/tmp -name 'gene_mentions.copy_query_func_extract_gene_mentions.tsv-*' 2>/dev/null -print0 | xargs -0 -P 80 -L 1 bash -c '/lfs/local/0/senwu/deepdive/app/dd-genomics/code/extract_hpoterm_mentions.py < "$0" > "$0.out_"'
