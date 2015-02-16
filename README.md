@@ -35,10 +35,25 @@ We have a wiki for this project at
 * To copy file into docker...
 
 
+### 3. Getting GDD running:
+1. Make sure environment variables are set correctly- see `env.sh`
+2. If necessary, create database and then create the tables:
+
+		./code/create_schema.sh	
+3. Make sure that user functions (ex: array_accum) are loaded into SQL *under the correct user ($DBUSER)*.  Run the SLQ in `code/add_user_functions.sql`
+4. Make sure that GreenPlum's parallel file distribution server, `gpfdist`, is running with the correct settings (e.g. run `ps aux | grep gpfdist`; make sure that an intance is running with the correct $GPPATH and $GPPORT).  If not, then start a new one running on a free port:
+
+		gpfdist -d ${GPPATH} -p ${GPPORT} -m 268435456 &
+5. Load data; if from tsv file you can use:
+
+		./code/copy_table_from_file.sh [DB_NAME] [TABLE_NAME] [TSV_FILE_PATH]
+6. Select the appropriate pipeline in the application.conf file to be using
+7. Run! 
+
 
 [*See [DeepDive main documentation][deepdivedocs] for more detail]* 
 
-### 3. Setting environment variables:
+### 4. Setting environment variables:
 In env.sh, change the variables marked as 'todo' as appropriate for intended usage.  Additional notes:
 
 * ***Mac OSX***: Will need to either install coreutils (e.g. with Homebrew: `brew install coreutils`) or hardcode absolute path; see env.sh

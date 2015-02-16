@@ -14,11 +14,6 @@ unset PYTHONHOME
 export PATH=/lfs/local/0/senwu/software/python3/bin:$PATH
 export PYTHONPATH="$PYTHONPATH:/lfs/local/0/senwu/software/"
 
-#export PATH=/lfs/local/0/senwu/software/greenplum/greenplum-db/bin:$PATH
-#source /lfs/local/0/senwu/software/greenplum/greenplum-db/greenplum_path.sh
-#gpfdist -d /lfs/local/0/ajratner/data/gp_data -p 8082 -m 268435456 &
-#ps aux | grep gpfdist
-
 # TODO: change these variables for db connection, etc.
 # TODO(alex): merge db/pg vars...
 export HOSTNAME=raiders4
@@ -46,6 +41,12 @@ export GPPATH=/lfs/${HOSTNAME}/0/$DDUSER/data/gp_data
 
 export LFS_DIR=/lfs/$HOSTNAME/0/$DDUSER
 
+
+# Stuff for setting up gpfdist...
+export PATH=/lfs/local/0/senwu/software/greenplum/greenplum-db/bin:$PATH
+source /lfs/local/0/senwu/software/greenplum/greenplum-db/greenplum_path.sh
+#gpfdist -d ${GPPATH} -p ${GPPORT} -m 268435456 &
+#ps aux | grep gpfdist
 
 # TODO: set location of DeepDive local install!
 export DEEPDIVE_HOME=$LFS_DIR/deepdive
