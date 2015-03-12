@@ -167,29 +167,6 @@ and then open a browser to [localhost][localhost] to view all the created tasks 
 *TODO*
 
 
-## Questions (updated: 2/1/15):
-For documenting better, or just to look into...
-
-* [Alex] Does DeepDive formally distinguish between distantly- and directly-supervised examples?
-* [Alex] Mention : Entity :: Relation : ??
-* [Alex] Why do we create unsupervised copies of the labeled examples / is this a good idea?
-* [Alex] What are the '_copies' factors about?
-* [Alex] How did the skip-chain CRF (now commented out) perform?
-
-
-## TODOs (updated: 2/1/15):
-Ordered from smallest to largest.  *NOTE: To see more minor code-level to-dos, run e.g. `grep -r "TODO(alex)" *`*
-
-
-* [Alex] Certain analyses scripts taking a really long time (on raiders2):
-	* mentions-by-entity
-* [Jaheo/Alex] Mindtagger stuff: speed up gp-recall-labeled, fix some errors, export of tags to database
-* [Alex/Ragini] Install & run DeepDive! --> Document this
-* [Ragini/Alex] Write more analysis & inspection scripts
-* **[Ragini/Alex] Iterate on Extractors!**
-* **[Alex/Ragini] ENTITY-LINKING**
-* ***[Mike/Jaeho/Alex] Replace all of these annoying analysis / inspection scripts with a UI / unified workflow 'Dashboard'***
-
 [deepdiverepo]: https://github.com/hazyresearch/deepdive
 [deepdivedocs]: http://deepdive.stanford.edu/index.html#documentation
 [mindtagger]: https://github.com/netj/mindbender
