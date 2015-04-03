@@ -37,18 +37,33 @@ We have a wiki for this project at
 
 ### 3. Getting GDD running:
 1. Make sure environment variables are set correctly- see `env.sh`
+   `cp env.sh env_local.sh` then edit env_local.sh to suit yourself; it's ignored by git.
+
+   Add `export DD_GENOMICS_HOME=...` to the `~/.bashrc` where the DB runs. 
+   It's required by plpython scripts -- a hacky way to communicate the local repo path.
+   For it to be picked up by PG / GP, you need to restart the DB server after the change.
+   (Similarly, also make sure `DEEPDIVE_HOME` is set.)
+
 2. If necessary, create database and then create the tables:
 
-		./code/create_schema.sh	
+		For Greenplum: `./code/create_schema.sh`
+		For Postgres: `./code/create_schema.sh pg`
+
 3. Make sure that user functions (ex: array_accum) are loaded into SQL *under the correct user ($DBUSER)*.  Run the SLQ in `code/add_user_functions.sql`
+
 4. Make sure that GreenPlum's parallel file distribution server, `gpfdist`, is running with the correct settings (e.g. run `ps aux | grep gpfdist`; make sure that an intance is running with the correct $GPPATH and $GPPORT).  If not, then start a new one running on a free port:
 
 		gpfdist -d ${GPPATH} -p ${GPPORT} -m 268435456 &
+
 5. Load data; if from tsv file you can use:
 
 		./code/copy_table_from_file.sh [DB_NAME] [TABLE_NAME] [TSV_FILE_PATH]
-6. Select the appropriate pipeline in the application.conf file to be using
-7. Run! 
+
+6. Fetch and process ontology files: `cd onto; ./make_dicts.sh`
+
+7. Select the appropriate pipeline in the app.conf file to be using
+
+8. Run! 
 
 
 [*See [DeepDive main documentation][deepdivedocs] for more detail]* 

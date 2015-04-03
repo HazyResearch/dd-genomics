@@ -55,6 +55,7 @@ export DEEPDIVE_HOME=$LFS_DIR/deepdive
 # TODO: Machine Configuration
 export MEMORY="256g"
 
+export PARALLEL_GROUNDING="true"
 export PARALLELISM=80
 
 export SBT_OPTS="-Xmx$MEMORY"

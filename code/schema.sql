@@ -196,6 +196,8 @@ CREATE TABLE genepheno_relations (
 	words_1 text[],
 	-- phenotype (words)
 	words_2 text[],
+	entity_1 text,
+	entity_2 text,
 	-- is this a correct relation?
 	is_correct boolean
 ) DISTRIBUTED BY (doc_id);
