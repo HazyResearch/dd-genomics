@@ -46,10 +46,10 @@ We have a wiki for this project at
 
 2. If necessary, create database and then create the tables:
 
-		For Greenplum: `./code/create_schema.sh`
-		For Postgres: `./code/create_schema.sh pg`
+		For Greenplum: `./util/create_schema.sh`
+		For Postgres: `./util/create_schema.sh pg`
 
-3. Make sure that user functions (ex: array_accum) are loaded into SQL *under the correct user ($DBUSER)*.  Run the SLQ in `code/add_user_functions.sql`
+3. Make sure that user functions (ex: array_accum) are loaded into SQL *under the correct user ($DBUSER)*.  Run the SLQ in `util/add_user_functions.sql`
 
 4. Make sure that GreenPlum's parallel file distribution server, `gpfdist`, is running with the correct settings (e.g. run `ps aux | grep gpfdist`; make sure that an intance is running with the correct $GPPATH and $GPPORT).  If not, then start a new one running on a free port:
 
@@ -57,7 +57,7 @@ We have a wiki for this project at
 
 5. Load data; if from tsv file you can use:
 
-		./code/copy_table_from_file.sh [DB_NAME] [TABLE_NAME] [TSV_FILE_PATH]
+		./util/copy_table_from_file.sh [DB_NAME] [TABLE_NAME] [TSV_FILE_PATH]
 
 6. Fetch and process ontology files: `cd onto; ./make_dicts.sh`
 
@@ -92,11 +92,10 @@ In more detail, this repo contains:
 	* ***Pipelines:*** Ordered sets of extractors & other operations to execute
 	* ***Schema:*** Defining the random variables (RVs) that we are observing / trying to predict
 	* ***Inference rules:*** Factors in the factor graph, which define causal relations between RVs in our schema
-2. **The extractor code (`code/ext_*`)**: see this [documentation][dd-extractors] also.  These are UDF scripts used by the extractors (note that formally, the extractors are defined in application.conf, and may not require any UDF scripts) that generate the requisite inputs for DeepDive:
+2. **The extractor code (in `code/`)**: see this [documentation][dd-extractors] also.  These are UDF scripts used by the extractors (note that formally, the extractors are defined in application.conf, and may not require any UDF scripts) that generate the requisite inputs for DeepDive:
 
-	* ***ext\_gene\_find\_acronyms:*** Extracts acronyms, used for distantly supervising the gene mention classification
-	* ***ext\_{gene | pheno | genepheno}\_candidates:*** Generates candidate mentions
-	* ***ext\_{gene | pheno | genepheno}\_features:*** Outputs the features for candidate mentions
+	* ***{gene | pheno}\_mentions, gen\_pheno\_pairs:*** Generates candidate mentions
+	* ***mention\_features, pair\_features:*** Outputs the features for candidate mentions
 
 3. **Analysis, inspection & labeling scripts:** See the following sections
 
