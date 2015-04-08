@@ -3,7 +3,7 @@
 # Create the database tables
 # 
 echo $GDD_HOME
-SCHEMA_FILE="${GDD_HOME}/code/schema.sql"
+SCHEMA_FILE="${GDD_HOME}/util/schema.sql"
 if [ ! -r ${SCHEMA_FILE} ]; then
 	echo "$0: ERROR: schema file is not readable" >&2
 	exit 1
