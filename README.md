@@ -54,7 +54,9 @@ We have a wiki for this project at
 		For Greenplum: `./util/create_input_schema.sh`
 		For Postgres: `./util/create_input_schema.sh pg`
 
-3. Make sure that user functions (ex: array_accum) are loaded into SQL *under the correct user ($DBUSER)*.  Run the SLQ in `util/add_user_functions.sql`
+3. Make sure that user functions in `util/add_user_functions.sql` are loaded into SQL *under the correct user ($DBUSER)*:
+		
+		psql -U {$DBUSER} -h {$PGHOST} -p {$PGPORT} {$DBNAME} -f util/add_user_functions.sql
 
 4. Make sure that GreenPlum's parallel file distribution server, `gpfdist`, is running with the correct settings (e.g. run `ps aux | grep gpfdist`; make sure that an intance is running with the correct $GPPATH and $GPPORT).  If not, then start a new one running on a free port:
 

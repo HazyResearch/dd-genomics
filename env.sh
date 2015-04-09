@@ -1,12 +1,15 @@
 #! /bin/bash
 
 # TODO: Specify these variables according to your system configuration!
-export DDUSER=         # the user running the application
-export DBUSER=$DDUSER  # the user logging in to the db- default is same as DDUSER
-export DBNAME=         # the name of the application database
-export PGHOST=         # the server running the database
-export PGPORT=         # the database access port
-export GPPORT=         # the port that gpfdist is running on
+# the user running the application
+export DDUSER=
+# the database user (default: the same as above) & connection vars
+export DBUSER=$DDUSER
+export DBHOST=
+export DBPORT=
+export DBNAME=
+# the port that gpfdist will run on (should be uique for each user on system!)
+export GPPORT=
 
 # TODO: Machine Configuration
 export MEMORY="256g"
@@ -24,22 +27,24 @@ export GDD_HOME=$APP_HOME
 export DEEPDIVE_HOME=/lfs/local/0/$DDUSER/deepdive
 
 # db variables
-export DBHOST=$PGHOST
-export GPHOST=$PGHOST
-export DBPORT=$PGPORT
 export PGUSER=$DBUSER
+export GPUSER=$DBUSER
+export PGHOST=$DBHOST
+export GPHOST=$DBHOST
+export PGPORT=$DBPORT
 export PGPASSWORD=${PGPASSWORD:-}
 
 # ***** GREENPLUM VARS *****
 #source /lfs/local/0/senwu/software/greenplum/greenplum-db/greenplum_path.sh
 export GPPATH=/lfs/local/0/$DDUSER/data/gp_data
 export GPHOME=/lfs/local/0/senwu/software/greenplum/greenplum-db
-export PATH=$GPHOME/bin:$GPHOME/ext/python/bin:$PATH
+export PATH=$GPHOME/bin:$PATH
+#export PATH=$GPHOME/ext/python/bin:$PATH
 export LD_LIBRARY_PATH=$GPHOME/lib:$GPHOME/ext/python/lib:$LD_LIBRARY_PATH
 export OPENSSL_CONF=$GPHOME/etc/openssl.cnf
 
 # Using ddlib, analysis util lib
-PYTHONPATH=$DEEPDIVE_HOME/ddlib:$DEEPDIVE_HOME/ddlib/ddlib:$REAL_DIRNAME/analysis/util:$PYTHONPATH
+export PYTHONPATH=$PYTHONPATH:$DEEPDIVE_HOME/ddlib:$DEEPDIVE_HOME/ddlib/ddlib:$REAL_DIRNAME/analysis/util
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DEEPDIVE_HOME/lib/dw_linux/lib:$DEEPDIVE_HOME/lib/dw_linux/lib64
 export PATH=$PATH:$DEEPDIVE_HOME/ddlib:$DEEPDIVE_HOME/sbt
 

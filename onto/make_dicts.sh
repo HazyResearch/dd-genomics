@@ -68,8 +68,7 @@ fi
 tail -n +2 "$RAW" | cut -f1,4 | sort > data/hpo_phenotype_genes.tsv
 
 # Get gene list
-wget https://github.com/HazyResearch/dd-genomics/raw/master/dicts/merged_genes_dict.tsv -O raw/merged_genes_dict.tsv
-cp raw/merged_genes_dict.tsv data/genes.tsv
+cp ../raw/merged_genes_dict.tsv data/genes.tsv
 
 # Run disease dictionary merge script
 python merge_diseases.py data
