@@ -31,19 +31,20 @@ export PGUSER=$DBUSER
 export PGPASSWORD=${PGPASSWORD:-}
 
 # ***** GREENPLUM VARS *****
+#source /lfs/local/0/senwu/software/greenplum/greenplum-db/greenplum_path.sh
 export GPPATH=/lfs/local/0/$DDUSER/data/gp_data
-export PATH=/lfs/local/0/senwu/software/greenplum/greenplum-db/bin:$PATH
-source /lfs/local/0/senwu/software/greenplum/greenplum-db/greenplum_path.sh
+export GPHOME=/lfs/local/0/senwu/software/greenplum/greenplum-db
+export PATH=$GPHOME/bin:$GPHOME/ext/python/bin:$PATH
+export LD_LIBRARY_PATH=$GPHOME/lib:$GPHOME/ext/python/lib:$LD_LIBRARY_PATH
+export OPENSSL_CONF=$GPHOME/etc/openssl.cnf
 
 # Using ddlib, analysis util lib
 PYTHONPATH=$DEEPDIVE_HOME/ddlib:$DEEPDIVE_HOME/ddlib/ddlib:$REAL_DIRNAME/analysis/util:$PYTHONPATH
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DEEPDIVE_HOME/lib/dw_linux/lib:$DEEPDIVE_HOME/lib/dw_linux/lib64
-PATH=$PATH:$DEEPDIVE_HOME/ddlib
-PATH=$PATH:$DEEPDIVE_HOME/sbt
+export PATH=$PATH:$DEEPDIVE_HOME/ddlib:$DEEPDIVE_HOME/sbt
 
 # Switch to python3
-unset PYTHONPATH
-unset PYTHONHOME
-export PATH=/lfs/local/0/senwu/software/python3/bin:$PATH
-export PYTHONPATH="$PYTHONPATH:/lfs/local/0/senwu/software/"
-
+#unset PYTHONPATH
+#unset PYTHONHOME
+#export PATH=/lfs/local/0/senwu/software/python3/bin:$PATH
+#export PYTHONPATH="$PYTHONPATH:/lfs/local/0/senwu/software/"

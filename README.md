@@ -64,7 +64,7 @@ We have a wiki for this project at
 
 		./util/copy_table_from_file.sh [DB_NAME] [TABLE_NAME] [TSV_FILE_PATH]
 
-NOTE: If using tsv extractors [we are as of 4/7/15], `TABLE_NAME=sentences_input`.
+  NOTE: If using tsv extractors [we are as of 4/7/15], `TABLE_NAME=sentences_input`.
 
 6. Fetch and process ontology files: `cd onto; ./make_dicts.sh`
 
