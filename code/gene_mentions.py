@@ -99,16 +99,16 @@ def get_mentions_for_row(row):
     if word in gene_names:
       mention = create_mention(row, i, 'NAME', word, word)
     elif word in gene_synonyms:
-      mention = create_mention(row, i, 'SYN', word, gene_synonyms[word])
+      mention = create_mention(row, i, 'SYN', gene_synonyms[word], word)
     elif word_lower in bad_gene_names:
       # forbid non-case-exact matches for these genes
       continue
     elif word_lower in gene_names_lower:
-      mention = create_mention(row, i, 'NAME_LOWER', word,
-                               gene_names_lower[word_lower])
+      mention = create_mention(row, i, 'NAME_LOWER',
+                               gene_names_lower[word_lower], word)
     elif word_lower in gene_synonyms_lower:
-      mention = create_mention(row, i, 'SYN_LOWER', word,
-                               gene_synonyms_lower[word_lower])
+      mention = create_mention(row, i, 'SYN_LOWER',
+                               gene_synonyms_lower[word_lower], word)
     if mention:
       mentions.append(mention)
   #if mentions:
