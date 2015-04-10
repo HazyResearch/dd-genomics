@@ -1,4 +1,14 @@
 """Miscellaneous shared tools for extractors."""
+import collections
+import os
+
+CODE_DIR = os.path.dirname(os.path.realpath(__file__))
+APP_HOME = os.path.dirname(CODE_DIR)
+
+
+Mention = collections.namedtuple(
+    'Mention', ['db_id', 'doc_id', 'sent_id', 'wordidxs', 'mention_id',
+                'mention_type', 'entity', 'words', 'is_correct'])
 
 def tsv_string_to_list(s, func=None, sep='|^|'):
   """Convert a TSV string from the sentences_input table to a list
@@ -23,7 +33,7 @@ def list_to_pg_array(l):
 
 def print_tsv_output(out_record):
   """Print a tuple as output of TSV extractor."""
-  values = ['\N']  # leave id field blank
+  values = []
   for x in out_record:
     if isinstance(x, list):
       cur_val = list_to_pg_array(x)

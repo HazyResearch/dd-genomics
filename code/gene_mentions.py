@@ -4,23 +4,17 @@ import extractor_util as util
 import os
 import sys
 
-CODE_DIR = os.path.dirname(os.path.realpath(__file__))
-APP_HOME = os.path.dirname(CODE_DIR)
-
 CACHE = dict()  # Cache results of disk I/O
 
 Row = collections.namedtuple(
     'Row', ['doc_id', 'sent_id', 'words', 'lemmas', 'poses', 'ners'])
-Mention = collections.namedtuple(
-    'Mention', ['doc_id', 'sent_id', 'wordidxs', 'mention_id', 'mention_type',
-                'entity', 'words', 'is_correct'])
 
 
 def read_genes():
   """Read in lists of gene names and synonyms."""
   all_names = set()
   all_synonyms = dict()
-  with open('%s/onto/data/genes.tsv' % APP_HOME) as f:
+  with open('%s/onto/data/genes.tsv' % util.APP_HOME) as f:
     for line in f:
       name, synonyms, full_names = line.strip(' \r\n').split('\t')
       # TODO: make use of full_names?  Currently ignored.
@@ -36,13 +30,13 @@ def read_genes():
 
 def read_bad_genes():
   """Read in a list of gene names/synonyms that are problematic."""
-  with open('%s/onto/manual/gene_english.tsv' % APP_HOME) as f:
+  with open('%s/onto/manual/gene_english.tsv' % util.APP_HOME) as f:
     # Genes that are also English words
     gene_english = set([x.strip().lower() for x in f])
-  with open('%s/onto/manual/gene_bigrams.tsv' % APP_HOME) as f:
+  with open('%s/onto/manual/gene_bigrams.tsv' % util.APP_HOME) as f:
     # Two-letter gene names
     gene_bigrams = set([x.strip().lower() for x in f])
-  with open('%s/onto/manual/gene_noisy.tsv' % APP_HOME) as f:
+  with open('%s/onto/manual/gene_noisy.tsv' % util.APP_HOME) as f:
     # Other problematic genes
     gene_noisy = set([x.strip().lower() for x in f])
   bad_genes = gene_english | gene_bigrams | gene_noisy
@@ -59,32 +53,18 @@ def parse_input_row(line):
              ners=util.tsv_string_to_list(tokens[5]))
 
 
-def get_supervision(row, wordidx, mention_type, entity, word):
-  """Applies distant supervision rules."""
-  # Two-letter capital words
-  if len(word) == 2 and word.isupper() and word.isalpha():
-    has_pub_date = 'DATE' in row.ners and 'NUMBER' in row.ners
-    # is or right next to a person/organization word
-    for j in range(max(0, wordidx - 1), min(wordidx + 2, len(row.words))):
-      if has_pub_date and row.ners[j] in ('PERSON', 'ORGANIZATION'):
-        return False
-    else:
-      return None
-  return True
-
-
 def create_mention(row, wordidx, mention_type, entity, word):
     """Create a mention record."""
     mention_id = '%s_%s_%d_1' % (row.doc_id, row.sent_id, wordidx)
-    is_correct = get_supervision(row, wordidx, mention_type, entity, word)
-    mention = Mention(doc_id=row.doc_id, 
-                      sent_id=row.sent_id,
-                      wordidxs=[wordidx],
-                      mention_id=mention_id,
-                      mention_type=mention_type, 
-                      entity=entity,
-                      words=[word],
-                      is_correct=is_correct)
+    mention = util.Mention(db_id='\N',  # leave id field blank
+                           doc_id=row.doc_id, 
+                           sent_id=row.sent_id,
+                           wordidxs=[wordidx],
+                           mention_id=mention_id,
+                           mention_type=mention_type, 
+                           entity=entity,
+                           words=[word],
+                           is_correct=None)
     return mention
 
 
@@ -111,11 +91,28 @@ def get_mentions_for_row(row):
                                gene_synonyms_lower[word_lower], word)
     if mention:
       mentions.append(mention)
-  #if mentions:
-  #  print >> sys.stderr, 'Sentence: %s' % ' '.join(row.words)
-  #  for mention in mentions:
-  #    print >> sys.stderr, '  Mention: (%s)' % ', '.join(str(x) for x in mention)
   return mentions
+
+
+def get_supervision(row, mention):
+  """Applies distant supervision rules."""
+  word = mention.words[0]
+  wordidx = mention.wordidxs[0]
+  # Two-letter capital words
+  if len(word) == 2 and word.isupper() and word.isalpha():
+    has_pub_date = 'DATE' in row.ners and 'NUMBER' in row.ners
+    # is or right next to a person/organization word
+    for j in range(max(0, wordidx - 1), min(wordidx + 2, len(row.words))):
+      if has_pub_date and row.ners[j] in ('PERSON', 'ORGANIZATION'):
+        return False
+    else:
+      return None
+  return True
+
+
+def create_supervised(row, mention):
+  is_correct = get_supervision(row, mention)
+  return mention._replace(is_correct=is_correct)
 
 
 def main():
@@ -123,7 +120,10 @@ def main():
   CACHE['bad_genes'] = read_bad_genes()
   mentions = []
   for line in sys.stdin:
-    mentions.extend(get_mentions_for_row(parse_input_row(line)))
+    row = parse_input_row(line)
+    new_mentions = get_mentions_for_row(row)
+    supervised_mentions = [create_supervised(row, m) for m in new_mentions]
+    mentions.extend(supervised_mentions)
   for mention in mentions:
     util.print_tsv_output(mention)
 
