@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import collections
 import extractor_util as util
+import re
 import os
 import sys
 
@@ -36,11 +37,20 @@ def read_bad_genes():
   with open('%s/onto/manual/gene_bigrams.tsv' % util.APP_HOME) as f:
     # Two-letter gene names
     gene_bigrams = set([x.strip().lower() for x in f])
+  bad_genes = gene_english | gene_bigrams
+  return bad_genes
+
+
+def read_misc_noisy_genes():
+  """Read Feng's manually compiled list of weird gene names
+  
+  It's not scalable to use a list like this for actual extraction, but this
+  is a good source of supervision.
+  """
   with open('%s/onto/manual/gene_noisy.tsv' % util.APP_HOME) as f:
     # Other problematic genes
     gene_noisy = set([x.strip().lower() for x in f])
-  bad_genes = gene_english | gene_bigrams | gene_noisy
-  return bad_genes
+  return gene_noisy
 
 
 def parse_input_row(line):
@@ -97,17 +107,36 @@ def get_mentions_for_row(row):
 def get_supervision(row, mention):
   """Applies distant supervision rules."""
   word = mention.words[0]
+  word_lower = word.lower()
   wordidx = mention.wordidxs[0]
-  # Two-letter capital words
-  if len(word) == 2 and word.isupper() and word.isalpha():
-    has_pub_date = 'DATE' in row.ners and 'NUMBER' in row.ners
-    # is or right next to a person/organization word
-    for j in range(max(0, wordidx - 1), min(wordidx + 2, len(row.words))):
-      if has_pub_date and row.ners[j] in ('PERSON', 'ORGANIZATION'):
-        return False
-    else:
-      return None
-  return True
+  print ' '.join(row.words)
+  print word_lower
+
+
+  # Gene names that are ambiguous
+  bad_genes = CACHE['bad_genes']  # English words and 2-letter abbreviations
+  misc_noisy_genes = CACHE['misc_noisy_genes']  # Feng's manual list of problem genes
+  sentence_all_upper = all(not x.isalpha() or x.isupper() for x in row.words)
+  print sentence_all_upper
+  if sentence_all_upper or mention.mention_type in ('NAME_LOWER', 'SYN_LOWER'):
+    # Sentence is entirely uppercase, or match is not exact case match
+    if word_lower in bad_genes or word_lower in misc_noisy_genes:
+      return False
+
+  # NER tag: word is or is next to a person/organization/location/date
+  for j in range(max(0, wordidx - 1), min(wordidx + 2, len(row.words))):
+    if row.ners[j] in ('PERSON', 'ORGANIZATION', 'LOCATION', 'DATE'):
+      return False
+
+  # Genes with complicated names are probably good for exact matches.
+  # Here, require at least 4 letters and 1 digit.
+  if mention.mention_type in ('NAME', 'SYN'):
+    # An exact case match
+    if re.match(r'[a-zA-Z]{3}[a-zA-Z]*[0-9]+', word):
+      return True
+
+  # Default to no supervision
+  return None
 
 
 def create_supervised(row, mention):
@@ -118,6 +147,7 @@ def create_supervised(row, mention):
 def main():
   CACHE['genes'] = read_genes()
   CACHE['bad_genes'] = read_bad_genes()
+  CACHE['misc_noisy_genes'] = read_misc_noisy_genes()
   mentions = []
   for line in sys.stdin:
     row = parse_input_row(line)
