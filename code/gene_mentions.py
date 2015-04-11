@@ -109,15 +109,12 @@ def get_supervision(row, mention):
   word = mention.words[0]
   word_lower = word.lower()
   wordidx = mention.wordidxs[0]
-  print ' '.join(row.words)
-  print word_lower
 
 
   # Gene names that are ambiguous
   bad_genes = CACHE['bad_genes']  # English words and 2-letter abbreviations
   misc_noisy_genes = CACHE['misc_noisy_genes']  # Feng's manual list of problem genes
   sentence_all_upper = all(not x.isalpha() or x.isupper() for x in row.words)
-  print sentence_all_upper
   if sentence_all_upper or mention.mention_type in ('NAME_LOWER', 'SYN_LOWER'):
     # Sentence is entirely uppercase, or match is not exact case match
     if word_lower in bad_genes or word_lower in misc_noisy_genes:
@@ -129,10 +126,10 @@ def get_supervision(row, mention):
       return False
 
   # Genes with complicated names are probably good for exact matches.
-  # Here, require at least 4 letters and 1 digit.
+  # Here, require at least 3 letters and 1 digit.
   if mention.mention_type in ('NAME', 'SYN'):
     # An exact case match
-    if re.match(r'[a-zA-Z]{3}[a-zA-Z]*[0-9]+', word):
+    if re.match(r'[a-zA-Z]{3}[a-zA-Z]*\d+\w*', word):
       return True
 
   # Default to no supervision

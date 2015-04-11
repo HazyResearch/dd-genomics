@@ -39,7 +39,6 @@ def create_sentence(row):
         ner=row.ners[i],
         dep_par=row.dep_parents[i],
         dep_label=row.dep_paths[i]))
-  print row
   return sentence
 
 
