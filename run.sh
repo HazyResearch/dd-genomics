@@ -19,4 +19,4 @@ else
 fi
 
 cd $DEEPDIVE_HOME
-sbt "run -c $APP_HOME/app.conf"
+sbt "run -c $APP_HOME/application.conf"
