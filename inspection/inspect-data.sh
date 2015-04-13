@@ -3,18 +3,25 @@
 # Author: Alex Ratner <ajratner@stanford.edu>
 # Created: 2015-01-31
 set -eu
-source ../env.sh
+
+if [ -f ../env_local.sh ]; then
+  echo "Using env_local.sh"
+  source ../env_local.sh
+else
+  echo "Using env.sh"
+  source ../env.sh
+fi
 
 [[ $# -eq 1 ]] || {
     echo "Usage: $0 SCRIPT_NAME"
     echo " where SCRIPT_NAME is one of:"
-    ls scripts | sed 's/^/  * /'
+    ls configs | sed 's/^/  * /'
     false
 }
 
-script=$1; shift
+mode=$1; shift
 
-task=$(date +%Y%m%d)-${script%%.sql}
+task=$(date +%Y%m%d)-${mode}
 if [[ -e $task ]]; then
     suffix=2
     while [[ -e $task.$suffix ]]; do
@@ -27,9 +34,9 @@ trap "rm -rf $task" ERR
 
 # create a folder for the config files and data to run in mindtagger
 mkdir $task
-cp scripts/$script $task/input.sql
-cp mindtagger_config/mindtagger.conf $task/.
-cp mindtagger_config/template.html $task/.
+cp configs/$mode/input.sql $task/input.sql
+cp configs/$mode/mindtagger.conf $task/.
+cp configs/$mode/template.html $task/.
 
 # get the data using the sql script
 psql -h $DBHOST -p $DBPORT -U $DBUSER $DBNAME \
