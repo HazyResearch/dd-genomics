@@ -50,36 +50,46 @@ def parse_line(line, array_sep='|^|'):
                   ners=cols[4].split(array_sep),
                   lemmas=cols[5].split(array_sep))
 
-def extract_candidates(line):
-  """Extracts candidate phenotype mentions from an input line as Sentence object"""
+def extract_candidates(tokens, s):
+  """Extracts candidate phenotype mentions from a (filtered) list of token tuples"""
+  if len(tokens) == 0: return []
   candidates = []
-  s = parse_line(line)
-  sl = len(s.words)
   m = Mention(None, s.doc_id, s.sent_id, None, None, None, None, None, None) 
 
-  # filter out stop words
-  tokens = [(i, s.words[i].lower(), s.lemmas[i]) for i in range(len(s.words))]
-  tokens = filter(lambda t : t[1] not in STOPWORDS and len(t[1]) > 2, tokens)
-  if len(tokens) == 0: return candidates
-
   # get all n-grams (w/ n <= MAX_LEN) and check for exact or exact lemma match
+  # we go through n in descending order to prefer the longest possible exact match
   MAX_LEN = 8
   sl = len(tokens)
-  for l in range(1, min(sl, MAX_LEN+1)):
+  for l in reversed(range(1, min(sl, MAX_LEN+1))):
     for start in range(sl-l+1):
       wordidxs, words, lemmas = zip(*tokens[start:(start+l)])
       exact = PHENOS[' '.join(words)]
       entity = exact if exact else PHENOS[' '.join(lemmas)]
+
+      # handle exact / exact lemma matches recursively to exclude overlapping mentions
+      # NOTE: this is something we definitely want to think about further!
       if entity:
         mid = '%s_%s_%s_%s' % (s.doc_id, s.sent_id, wordidxs[0], wordidxs[-1]) 
         candidates.append(m._replace(mention_id=mid, wordidxs=wordidxs, entity=entity, words=words))
+        return candidates + extract_candidates(tokens[:start], s) + extract_candidates(tokens[start+l:], s)
   return candidates
+
+
+def extract_candidates_from_line(line):
+  """Extracts candidate phenotype mentions from an input line as Sentence object"""
+  s = parse_line(line)
+
+  # filter stop words and process recursively as list of token tuple objects
+  tokens = [(i, s.words[i].lower(), s.lemmas[i]) for i in range(len(s.words))]
+  tokens = filter(lambda t : t[1] not in STOPWORDS and len(t[1]) > 2, tokens)
+  if len(tokens) == 0: return []
+  return extract_candidates(tokens, s)
 
 ### RUN ###
 # extract and supervise mention candidates
 candidates = []
 for line in sys.stdin:
-  candidates += extract_candidates(line)
+  candidates += extract_candidates_from_line(line)
 
 # print to stdout
 for c in candidates:
