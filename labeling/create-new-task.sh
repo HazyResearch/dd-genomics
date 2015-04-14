@@ -13,7 +13,14 @@ cd "$Here"
     ls templates | sed 's/^/  /'
     false
 }
-. ../env.sh
+
+if [ -f ../env_local.sh ]; then
+  echo "Using env_local.sh"
+  source ../env_local.sh
+else
+  echo "Using env.sh"
+  source ../env.sh
+fi
 
 TaskType=$1; shift
 
