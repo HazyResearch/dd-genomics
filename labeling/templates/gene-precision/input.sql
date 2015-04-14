@@ -6,8 +6,7 @@ COPY (
     , string_to_array(si.words, '|^|') as words
     , gm.entity
     , expectation
-    , gm.wordidxs[1] as mention_start
-    , gm.wordidxs[1] as mention_end
+    , gm.wordidxs
   FROM gene_mentions_is_correct_inference gmi
     , sentences_input si
     , gene_mentions gm
