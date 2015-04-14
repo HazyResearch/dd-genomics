@@ -11,6 +11,9 @@ export DBNAME=
 # the port that gpfdist will run on (should be uique for each user on system!)
 export GPPORT=
 
+# TODO: python packages (in long term get rid of stuff like this; in short term keep minimal)
+export PYTHONPATH=$PYTHONPATH:/lfs/local/0/ajratner/packages/lib/python2.7/site-packages
+
 # TODO: Machine Configuration
 export MEMORY="256g"
 export PARALLEL_GROUNDING="true"
