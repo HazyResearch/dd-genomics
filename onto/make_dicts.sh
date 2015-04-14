@@ -68,7 +68,7 @@ fi
 tail -n +2 "$RAW" | cut -f1,4 | sort > data/hpo_phenotype_genes.tsv
 
 # Get gene list
-cp ../raw/merged_genes_dict.tsv data/genes.tsv
+cp dicts/merged_genes_dict.tsv data/genes.tsv
 
 # Run disease dictionary merge script
 python merge_diseases.py data

@@ -1,48 +1,11 @@
 #!/usr/bin/env python
-from collections import namedtuple, defaultdict
+from collections import defaultdict
 import sys
 import re
 import os
 import random
 from itertools import chain
-
-# TODO: delete these and get from robin's util file post-merge
-# TODO: add in tuple type to Robin's code!
-def list_to_pg_array(l):
-  """Convert a list to a string that PostgreSQL's COPY FROM understands."""
-  return '{%s}' % ','.join(str(x) for x in l)
-
-def print_tsv_output(out_record):
-  """Print a tuple as output of TSV extractor."""
-  values = []
-  for x in out_record:
-    if isinstance(x, list) or isinstance(x, tuple):
-      cur_val = list_to_pg_array(x)
-    elif x is None:
-      cur_val = '\N'
-    else:
-      cur_val = x
-    values.append(cur_val)
-  print '\t'.join(str(x) for x in values)
-
-# TODO: move this stuff into util / merge with Robin's!
-Sentence = namedtuple('Sentence', ['doc_id', 'sent_id', 'words', 'poses', 'ners', 'lemmas'])
-Mention = namedtuple('Mention', ['dd_id', 'doc_id', 'sent_id', 'wordidxs', 'mention_id', 'mention_type', 'entity', 'words', 'is_correct'])
-
-def create_mention(sentence, wordidxs, words, entity, mention_type=None, is_correct=None):
-  """Create a mention record"""
-  mention_id = '%s_%s_%s_%s' % (sentence.doc_id, sentence.sent_id, wordidxs[0], wordidxs[-1])
-  if mention_type:
-    mention_id = '%s_%s' % (mention_id, mention_type)
-  return Mention(dd_id=None,
-                 doc_id=sentence.doc_id,
-                 sent_id=sentence.sent_id,
-                 wordidxs=wordidxs,
-                 mention_id=mention_id,
-                 mention_type=mention_type,
-                 entity=entity,
-                 words=words,
-                 is_correct=is_correct)
+from extractor_util import print_tsv_output, create_mention, Sentence, Mention
 
 def parse_line(line, array_sep='|^|'):
   """Parses input line from tsv extractor input, with |^|-encoded array format"""
