@@ -68,6 +68,10 @@ We have a wiki for this project at
 
   NOTE: If using tsv extractors [we are as of 4/7/15], `TABLE_NAME=sentences_input`.
 
+  Some ready-to-use data files are available on `raiders2` at `/lfs/raiders2/0/robinjia/data/genomics_sentences_input_data/`.
+  In particular, `genomics_10k_sentences.tsv` has 10k sentences (good for quick testing and debugging)
+  and `genomics_50k_docs.tsv` has 50k documents (gene extraction takes about 2 hours on `raiders2`).
+
 6. Fetch and process ontology files: `cd onto; ./make_dicts.sh`
 
 7. Select the appropriate pipeline in the app.conf file to be using

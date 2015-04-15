@@ -13,6 +13,6 @@ COPY (
   WHERE si.doc_id = gm.doc_id
     AND si.sent_id = gm.sent_id
     AND gm.mention_id = gmi.mention_id
-    AND expectation > 0.9
+    AND expectation <= 0.9
   ORDER BY random() LIMIT 100
 ) TO STDOUT WITH CSV HEADER;
