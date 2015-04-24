@@ -159,3 +159,51 @@ CREATE TABLE genepheno_features (
 	-- feature
 	feature text
 ) DISTRIBUTED BY (doc_id);
+
+-- Gene / Phenotype relation facts
+DROP TABLE IF EXISTS genepheno_facts CASCADE;
+CREATE TABLE genepheno_facts (
+	-- id for random variable
+	id bigint,
+  -- gene entity (gene symbol)
+  gene text,
+  -- phenotype entity (HPO ID)
+  pheno text,
+	-- is this a correct relation?
+	is_correct boolean
+) DISTRIBUTED BY (gene);
+
+-- "Cheat" by getting gene / phenotype relations from this table
+-- Should be sourced with a subset of true HPO relations
+-- This models what we would extract from literature
+DROP TABLE IF EXISTS genepheno_cheat CASCADE;
+CREATE TABLE genepheno_cheat (
+  -- gene entity (gene symbol)
+  gene text,
+  -- phenotype entity (HPO ID)
+  pheno text
+) DISTRIBUTED BY (gene);
+
+-- Whether a pathway is relevant to a phenotype
+DROP TABLE IF EXISTS pheno_pathway_relations CASCADE;
+CREATE TABLE pheno_pathway_relations (
+	-- id for random variable
+	id bigint,
+  -- phenotype entity (HPO ID)
+  pheno text,
+  -- Reactome pathway ID
+  pathway_id text,
+	-- is this a correct relation?
+	is_correct boolean
+) DISTRIBUTED BY (pheno);
+
+-- Features for pathway and phenotype relevancy
+DROP TABLE IF EXISTS pheno_pathway_features CASCADE;
+CREATE TABLE pheno_pathway_features (
+  -- phenotype entity (HPO ID)
+  pheno text,
+  -- Reactome pathway ID
+  pathway_id text,
+	-- feature
+	feature text
+) DISTRIBUTED BY (pheno);

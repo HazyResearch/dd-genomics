@@ -78,3 +78,25 @@ CREATE TABLE generifs (
 	-- 'labelled' gene that is contained in the geneRif
 	gene text
 ) DISTRIBUTED BY (doc_id);
+
+-- HPO phenotype DAG
+DROP TABLE IF EXISTS hpo_dag CASCADE;
+CREATE TABLE hpo_dag (
+  -- parent HPO ID
+  parent text,
+  -- child HPO ID
+  child text,
+  -- Is 'child' a child of 'Phenotypic Abnormality' (HP:0000118)
+  is_pheno boolean
+);
+
+-- Reactome pathways
+DROP TABLE IF EXISTS reactome_pathways CASCADE;
+CREATE TABLE reactome_pathways (
+  -- pathway (Reactome ID)
+  pathway_id text,
+  -- gene (HGNC symbol)
+  gene text,
+  -- pathway name
+  pathway_name text
+);
