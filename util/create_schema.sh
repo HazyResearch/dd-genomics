@@ -10,7 +10,7 @@ if [ ! -r ${SCHEMA_FILE} ]; then
 fi
 
 if [ "$1" == "pg" ]; then
-	sed 's/DISTRIBUTED BY (doc_id)//g' ${SCHEMA_FILE} | psql -X --set ON_ERROR_STOP=1 -d ${DBNAME} 
+	sed 's@DISTRIBUTED BY .*;@;@g' ${SCHEMA_FILE} | psql -X --set ON_ERROR_STOP=1 -d ${DBNAME} 
 else
 	psql -X --set ON_ERROR_STOP=1 -d ${DBNAME} -f ${SCHEMA_FILE} 
 fi
