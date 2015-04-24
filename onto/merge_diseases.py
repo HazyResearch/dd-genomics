@@ -7,7 +7,7 @@ if __name__ == "__main__":
     parser.add_argument('dir', help='Input and output directory.')
     args = parser.parse_args()
 
-    en_words = set([x.strip().lower() for x in open('%s/../../onto/data/english_words.tsv' % args.dir)])
+    en_words = set([x.strip().lower() for x in open('%s/../../onto/dicts/english_words.tsv' % args.dir)])
 
     hpo = [x.rstrip('\n').split('\t') for x in open('%s/hpo_phenotypes.tsv' % args.dir)]
     clinvar = [x.rstrip('\n').split('\t') for x in open('%s/diseases_clinvar.tsv' % args.dir)]
