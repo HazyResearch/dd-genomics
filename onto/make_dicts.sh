@@ -5,6 +5,7 @@ if [ ! -e "$RAW" ]; then
 	wget http://compbio.charite.de/hudson/job/hpo/lastStableBuild/artifact/hp/hp.obo -O "$RAW"
 fi
 python parse_hpo.py "$RAW" data/hpo_phenotypes.tsv
+python gen_hpo_dag.py > data/hpo_dag.tsv
 
 # Download and parse HPO disease annotations (DECIPHER, OMIM, ORPHANET mapped to HPO)
 # http://www.human-phenotype-ontology.org/contao/index.php/annotation-guide.html
@@ -66,6 +67,28 @@ if [ ! -e "$RAW" ]; then
 	wget http://compbio.charite.de/hudson/job/hpo.annotations.monthly/lastStableBuild/artifact/annotation/ALL_SOURCES_ALL_FREQUENCIES_phenotype_to_genes.txt -O "$RAW"
 fi
 tail -n +2 "$RAW" | cut -f1,4 | sort > data/hpo_phenotype_genes.tsv
+
+# Get hgnc to uniprot gene id mappings
+RAW="raw/hgnc_to_uniprot_raw.tsv"
+if [ ! -e "$RAW" ]; then
+  wget 'http://www.genenames.org/cgi-bin/download?col=gd_app_sym&col=md_prot_id&status=Approved&status_opt=2&where=&order_by=gd_app_sym_sort&format=text&limit=&hgnc_dbtag=on&submit=submit' -O "$RAW"
+fi
+tail -n +2 "$RAW" | sort > data/hgnc_to_uniprot.tsv 
+
+# Get Reactome data
+## Uniprot ID, Reactome ID, pathway name
+RAW="raw/reactome_uniprot_raw.tsv"
+if [ ! -e "$RAW" ]; then
+  wget http://www.reactome.org/download/current/UniProt2Reactome.txt -O "$RAW"
+fi
+awk -F '\t' '$6 == "Homo sapiens"' "$RAW" | cut -f1,2,4 > data/reactome_uniprot.tsv
+## Reactome pathway hierarchy
+RAW="raw/reactome_hierarchy_raw.tsv"
+if [ ! -e "$RAW" ]; then
+  wget http://www.reactome.org/download/current/ReactomePathwaysRelation.txt -O "$RAW"
+fi
+cp "$RAW" data/reactome_hierarchy.tsv
+python gen_reactome_db.py > data/reactome_db.tsv
 
 # Get gene list
 cp dicts/merged_genes_dict.tsv data/genes.tsv
