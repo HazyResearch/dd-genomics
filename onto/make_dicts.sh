@@ -45,7 +45,7 @@ python parse_do.py "$RAW" data/diseases_do.tsv
 # ORDO has diseases, genes, country names, etc. We take only nodes below children of "phenome".
 RAW="raw/ORDO.csv"
 if [ ! -e "$RAW" ]; then
-	wget "http://data.bioontology.org/ontologies/ORDO/download?apikey=8b5b7825-538d-40e0-9e9e-5ab9274a9aeb&download_format=csv"l -O raw/ORDO.csv.gz
+	wget "http://data.bioontology.org/ontologies/ORDO/download?apikey=8b5b7825-538d-40e0-9e9e-5ab9274a9aeb&download_format=csv" -O raw/ORDO.csv.gz
 	gunzip raw/ORDO.csv.gz
 fi
 grep '^http://www.orpha.net/ORDO/' raw/ORDO.csv | \
