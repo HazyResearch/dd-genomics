@@ -2,12 +2,12 @@
 
 # TODO: Specify these variables according to your system configuration!
 # the user running the application
-export DDUSER=
+export DDUSER=${DDUSER-${USER}}
 # the database user (default: the same as above) & connection vars
-export DBUSER=$DDUSER
-export DBHOST=
-export DBPORT=
-export DBNAME=
+export DBUSER=${DBUSER-${PGUSER-${DDUSER}}}
+export DBHOST=${DBHOST-${PGHOST}}
+export DBPORT=${DBPOST-${PGPORT-5432}}
+export DBNAME=${DBNAME-}
 # the port that gpfdist will run on (should be uique for each user on system!)
 export GPPORT=
 
@@ -27,7 +27,7 @@ DIRNAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 REAL_DIRNAME=`readlink -f ${DIRNAME}` || REAL_DIRNAME=`greadlink -f ${DIRNAME}`
 export APP_HOME=$REAL_DIRNAME
 export GDD_HOME=$APP_HOME
-export DEEPDIVE_HOME=/lfs/local/0/$DDUSER/deepdive
+export DEEPDIVE_HOME=${DEEPDIVE_HOME-/lfs/local/0/$DDUSER/deepdive}
 
 # db variables
 export PGUSER=$DBUSER
