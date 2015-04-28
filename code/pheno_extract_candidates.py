@@ -28,8 +28,8 @@ ENGLISH_WORDS = frozenset([w.strip() for w in open(onto_path('data/english_words
 # Load phenotypes (as phrases + as frozensets to allow permutations)
 # [See onto/prep_pheno_terms.py]
 # NOTE: for now, we don't distinguish between lemmatized / exact
-PHENOS = defaultdict(lambda : None)
-PHENO_SETS = defaultdict(lambda : None)
+PHENOS = {}
+PHENO_SETS = {}
 rows = [line.split('\t') for line in open(onto_path('data/pheno_terms.tsv'), 'rb')]
 for row in rows:
   hpoid, phrase, entry_type = [x.strip() for x in row]
@@ -56,8 +56,8 @@ def extract_candidates(tokens, s):
 
       # (1) Check for exact match (including exact match of lemmatized / stop words removed)
       phrase, lemma_phrase = [' '.join(x) for x in (words, lemmas)]
-      if PHENOS[phrase] or PHENOS[lemma_phrase]:
-        entity = PHENOS[phrase] if PHENOS[phrase] else PHENOS[lemma_phrase]
+      if phrase in PHENOS or lemma_phrase in PHENOS:
+        entity = PHENOS[phrase] if phrase in PHENOS else PHENOS[lemma_phrase]
 
         # Supervise exact matches as true; however if exact match is also a common english word,
         # label true w.p. < 1
@@ -73,8 +73,8 @@ def extract_candidates(tokens, s):
 
       # (2) Check for permuted match
       phrase_set, lemma_set = [frozenset(x) for x in (words, lemmas)]
-      if PHENO_SETS[phrase_set] or PHENO_SETS[lemma_set]:
-        entity = PHENO_SETS[phrase_set] if PHENO_SETS[phrase_set] else PHENO_SETS[lemma_set]
+      if phrase_set in PHENO_SETS or lemma_set in PHENO_SETS:
+        entity = PHENO_SETS[phrase_set] if phrase_set in PHENO_SETS else PHENO_SETS[lemma_set]
         candidates.append(create_mention(s, wordidxs, words, entity, 'PERM', None))
 
       # (3) Check for an exact match with one ommitted (interior) word/lemma
@@ -82,8 +82,8 @@ def extract_candidates(tokens, s):
         for j in range(1,len(words)-1):
           phrase, lemma_phrase = [' '.join([w for i,w in enumerate(x) if i != j]) \
                                     for x in (words, lemmas)]
-          if PHENOS[phrase] or PHENOS[lemma_phrase]:
-            entity = PHENOS[phrase] if PHENOS[phrase] else PHENOS[lemma_phrase]
+          if phrase in PHENOS or lemma_phrase in PHENOS:
+            entity = PHENOS[phrase] if phrase in PHENOS else PHENOS[lemma_phrase]
             candidates.append(create_mention(s, wordidxs, words, entity, 'OMIT_%s' % (j,), None))
   return candidates
 
