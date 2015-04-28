@@ -1,16 +1,22 @@
-#! /bin/sh
+#!/bin/bash -e
+set -beEu -o pipefail
+
 # 
-# Create the database tables
+# Create the output database tables
 # 
-echo $GDD_HOME
-SCHEMA_FILE="${GDD_HOME}/util/schema.sql"
-if [ ! -r ${SCHEMA_FILE} ]; then
-	echo "$0: ERROR: schema file is not readable" >&2
-	exit 1
+
+if [ "${GDD_HOME-}" == "" ]; then
+    echo "Set GDD_HOME to your Genomics DeepDive home directory."
+    exit 1
+fi
+if [ "${DBNAME-}" == "" ]; then
+    echo "Set DBNAME to your Genomics DeepDive database name."
+    exit 1
 fi
 
-if [ "$1" == "pg" ]; then
-	sed 's@DISTRIBUTED BY .*;@;@g' ${SCHEMA_FILE} | psql -X --set ON_ERROR_STOP=1 -d ${DBNAME} 
-else
-	psql -X --set ON_ERROR_STOP=1 -d ${DBNAME} -f ${SCHEMA_FILE} 
+SCHEMA_FILE="${GDD_HOME}/util/schema.sql"
+if [ ! -r ${SCHEMA_FILE} ]; then
+    echo "$0: ERROR: schema file is not readable" >&2
+    exit 1
 fi
+sed 's@DISTRIBUTED BY .*;@;@g' ${SCHEMA_FILE} | psql -q -X --set ON_ERROR_STOP=1 -d ${DBNAME} 
