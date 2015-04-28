@@ -95,9 +95,20 @@ def create_mention(sentence, wordidxs, words, entity, mention_type=None, is_corr
                  is_correct=is_correct)
 
 
+def pg_array_escape(tok):
+  """Escape a string that's meant to be in a Postgres array.
+  
+  We double-quote the string and escape backslashes and double-quotes.
+  """
+  if isinstance(tok, str):
+    escaped = tok.replace('\\', '\\\\').replace('"', '\\"')
+    return '"%s"' % escaped
+  else:
+    return str(tok)
+
 def list_to_pg_array(l):
   """Convert a list to a string that PostgreSQL's COPY FROM understands."""
-  return '{%s}' % ','.join(str(x) for x in l)
+  return '{%s}' % ','.join(pg_array_escape(x) for x in l)
 
 
 def print_tsv_output(out_record):
