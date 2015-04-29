@@ -5,7 +5,7 @@ import re
 import os
 import random
 from itertools import chain
-from extractor_util import print_tsv_output, create_mention, Sentence, Mention
+from extractor_util import print_tsv_output, create_mention, get_hpo_phenos, read_hpo_dag, Sentence, Mention
 
 def parse_line(line, array_sep='|^|'):
   """Parses input line from tsv extractor input, with |^|-encoded array format"""
@@ -25,6 +25,10 @@ STOPWORDS = frozenset([w.strip() for w in open(onto_path('manual/stopwords.tsv')
 # Load list of english words
 ENGLISH_WORDS = frozenset([w.strip() for w in open(onto_path('data/english_words.tsv'), 'rb')])
 
+# Load the HPO DAG
+hpo_dag = read_hpo_dag()
+hpo_phenos = set(get_hpo_phenos(hpo_dag))
+
 # Load phenotypes (as phrases + as frozensets to allow permutations)
 # [See onto/prep_pheno_terms.py]
 # NOTE: for now, we don't distinguish between lemmatized / exact
@@ -33,11 +37,12 @@ PHENO_SETS = {}
 rows = [line.split('\t') for line in open(onto_path('data/pheno_terms.tsv'), 'rb')]
 for row in rows:
   hpoid, phrase, entry_type = [x.strip() for x in row]
-  PHENOS[phrase] = hpoid
+  if hpoid in hpo_phenos:
+    PHENOS[phrase] = hpoid
 
-  # NOTE: do we have to worry about collisions here?  Probably not too big of deal because if there
-  # are multiple HPO entries that are permutations of the same set, likely one will exact match...
-  PHENO_SETS[frozenset(phrase.split())] = hpoid
+    # NOTE: do we have to worry about collisions here?  Probably not too big of deal because if there
+    # are multiple HPO entries that are permutations of the same set, likely one will exact match...
+    PHENO_SETS[frozenset(phrase.split())] = hpoid
 
 
 ### CANDIDATE EXTRACTION + POSITIVE SUPERVISION ###
