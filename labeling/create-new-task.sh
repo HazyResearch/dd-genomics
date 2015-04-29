@@ -50,4 +50,11 @@ echo "Running $task/input.sql to get input items from DeepDive database"
 psql -h $DBHOST -p $DBPORT -U $DBUSER $DBNAME \
     <$task/input.sql >$task/input.csv
 
+# optionally post-process the input csv
+if [[ -x $task/postprocess ]]; then
+  echo "Post-processing the input..."
+  $task/postprocess $task/input.csv > $task/input_tmp.csv
+  mv $task/input_tmp.csv $task/input.csv
+fi
+
 echo "Restart labeling/start-gui.sh again and choose task $task."

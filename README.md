@@ -168,31 +168,29 @@ Other analyses we might want (TODO):
 
 
 ## Performing Labeling & Data Inspection Tasks
+Another great way to understand the output of the DeepDive system is to inspect a sample of indiviual examples and perform error analysis.
+We use a GUI tool called [*Mindtagger*][mindtagger] to expedite the labeling tasks necessary for performing this evaluation.
+Mindtagger provides a clean interface for inspecting individual mention candidates.
 
-Having analyzed the output of DeepDive using the calibration plots, analysis scripts described above, and other means, you may want to inspect and/or label specific examples to improve the system.  We use a GUI tool called [*Mindtagger*][mindtagger] to expedite the labeling tasks necessary for evaluating the data products of DeepDive.
+We have created a set of Mindtagger labeling templates for genomics-related tasks.  First, create a new task by running
 
-### 1. Using Mindtagger to inspect data
-To inspect certain documents without wanting to label them- e.g. to get some quick intuition about a specific slice of the data while building feature extractors- run:
+	cd labeling
+	./create-new-task.sh TASK
 
-	./inspection/inspect-data.sh SQL_FILE
-	
-where `SQL_FILE` is your .sql query for getting the documents you want to inspect.  This will fetch the data and start the Mindtagger GUI.  See example queries in the `inspection/scripts` directory, or just run the above command with no arguments to list available ones.
+where TASK is the name of a labeling task (run `create-new-task.sh` with no arguments for a list of all tasks).
+Currently, the most useful tasks are:
 
-### 2. Using Mindtagger to label data
+* gene-precision: Selects 100 random gene mention candidates with score > .9.  User should see if any of them are wrong gene mentions.
+* gene-recall: Selects 100 random gene mention candidates with score < .9.  User should see if any of them are true gene mentions.
+* pheno-precision.  Selects 100 random phenotype mention candidates with score > .9.  User should see if any of them are wrong phenotype mentions.
 
-Provided are a set of Mindtagger labeling templates for e.g. precision, recall labeling tasks.  First, create a new task by running
+Hopefully, we'll eventually come up with a good way to assess phenotype extractor recall.
 
-	./labeling/create-new-task.sh TASK
+Once you've created your task(s), start the Mindtagger GUI by running:
 
-(run without args to view available tasks).  This will create a new output directory in `labeling/` where the output tags from the labeling will be stored.  Once all tasks are created, start the Mindtagger GUI by running:
-
-	./labeling/start-gui.sh
+	./start-gui.sh
 
 and then open a browser to [localhost][localhost] to view all the created tasks & label data!
-
-### 3. Using Mindtagger tags to supervise DeepDive
-*TODO*
-
 
 [deepdiverepo]: https://github.com/hazyresearch/deepdive
 [deepdivedocs]: http://deepdive.stanford.edu/index.html#documentation

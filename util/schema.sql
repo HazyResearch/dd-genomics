@@ -123,28 +123,12 @@ CREATE TABLE genepheno_relations (
 	id bigint,
 	-- document id
 	doc_id text,
-	-- gene mention sentence id
-	sent_id_1 int,
-	-- phenotype mention sentence id
-	sent_id_2 int,
 	-- relation id
 	relation_id text,
-	-- type
-	type text,
 	-- gene mention id
-	mention_id_1 text,
+	gene_mention_id text,
 	-- phenotype mention id
-	mention_id_2 text,
-	-- gene word indexes
-	wordidxs_1 int[],
-	-- phenotype word indexes
-	wordidxs_2 int[],
-	-- gene (words)
-	words_1 text[],
-	-- phenotype (words)
-	words_2 text[],
-	entity_1 text,
-	entity_2 text,
+	pheno_mention_id text,
 	-- is this a correct relation?
 	is_correct boolean
 ) DISTRIBUTED BY (doc_id);
