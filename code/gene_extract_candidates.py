@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import collections
 import extractor_util as util
+import random
 import re
 import os
 import sys
@@ -67,7 +68,11 @@ def get_mentions_for_row(row):
       for ensembl_id,mapping_type in exact_case_matches.union(lowercase_matches):
         mentions.append(util.create_mention(row, [i], [word], ensembl_id, mapping_type))
     elif word == word.upper() and word.isalnum() and not unicode(word).isnumeric() and len(word) > 2:
-      mentions.append(util.create_mention(row, [i], [word], 'ALL_UPPERCASE_NOT_GENE_SYMBOL', 'ALL_UPPERCASE_NOT_GENE_SYMBOL'))
+      if random.random() < 0.05:
+        mentions.append(util.create_mention(row, [i], [word], 'ALL_UPPERCASE_NOT_GENE_SYMBOL', 'ALL_UPPERCASE_NOT_GENE_SYMBOL'))
+    elif random.random() < 0.0001:
+        mentions.append(util.create_mention(row, [i], [word], 'RANDOM_WORD_NOT_GENE_SYMBOL', 'RANDOM_WORD_NOT_GENE_SYMBOL'))
+
   return mentions
 
 
@@ -79,7 +84,7 @@ def get_supervision(row, mention):
 
   # Negative Rule #1: words that are all uppercase but are not in the gene symbol
   # list are likely false mentions.
-  if mention.mention_type in ('ALL_UPPERCASE_NOT_GENE_SYMBOL'):
+  if mention.mention_type in ('ALL_UPPERCASE_NOT_GENE_SYMBOL', 'RANDOM_WORD_NOT_GENE_SYMBOL'):
     return False
 
   # Positive Rule #2: matches from papers that NCBI annotates as being about
