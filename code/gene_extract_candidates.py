@@ -8,46 +8,40 @@ import sys
 CACHE = dict()  # Cache results of disk I/O
 
 
-def read_genes():
-  """Read in lists of gene names and synonyms."""
-  all_names = set()
-  all_synonyms = dict()
-  with open('%s/onto/data/genes.tsv' % util.APP_HOME) as f:
-    for line in f:
-      name, synonyms, full_names = line.strip(' \r\n').split('\t')
-      # TODO: make use of full_names?  Currently ignored.
-      synonyms = set(synonyms.split('|'))
-      all_names.add(name)
-      for syn in synonyms:
-        all_synonyms[syn] = name
-  # Lower-case versions of names and synonyms
-  all_names_lower = {x.lower(): x for x in all_names}
-  all_synonyms_lower = {x.lower(): all_synonyms[x] for x in all_synonyms}
-  return (all_names, all_names_lower, all_synonyms, all_synonyms_lower)
-
-
-def read_bad_genes():
-  """Read in a list of gene names/synonyms that are problematic."""
-  with open('%s/onto/manual/gene_english.tsv' % util.APP_HOME) as f:
-    # Genes that are also English words
-    gene_english = set([x.strip().lower() for x in f])
-  with open('%s/onto/manual/gene_bigrams.tsv' % util.APP_HOME) as f:
-    # Two-letter gene names
-    gene_bigrams = set([x.strip().lower() for x in f])
-  bad_genes = gene_english | gene_bigrams
-  return bad_genes
-
-
-def read_misc_noisy_genes():
-  """Read Feng's manually compiled list of weird gene names
+def read_phrase_to_genes():
+  """Read in phrase to gene mappings. The format is TSV: <Phrase> <EnsemblGeneId> <MappingType>
   
-  It's not scalable to use a list like this for actual extraction, but this
-  is a good source of supervision.
+  <MappingType> is one of:
+    - OFFICIAL_GENE_SYMBOL
+    - GENE_SYMBOL_SYNONYM
+    - REFSEQ_ID
+    - ENSEMBL_GENE_ID
   """
-  with open('%s/onto/manual/gene_noisy.tsv' % util.APP_HOME) as f:
-    # Other problematic genes
-    gene_noisy = set([x.strip().lower() for x in f])
-  return gene_noisy
+  with open('%s/onto/data/phrase_to_ensembl.tsv' % util.APP_HOME) as f:
+    phrase_to_genes = collections.defaultdict(set)
+    lower_phrase_to_genes = collections.defaultdict(set)
+    for line in f:
+      phrase,ensembl_id,mapping_type = line.rstrip('\n').split('\t')
+      phrase_to_genes[phrase].add((ensembl_id,mapping_type))
+      lower_phrase_to_genes[phrase].add((ensembl_id,mapping_type))
+  
+  return phrase_to_genes, lower_phrase_to_genes
+
+
+def read_pubmed_to_genes():
+  """NCBI provides a list of articles (PMIDs) that discuss a particular gene (Entrez IDs).
+  These provide a nice positive distant supervision set, as mentions of a gene name in
+  an article about that gene are likely to be true mentions.
+  
+  This returns a dictionary that maps from Pubmed ID to a set of ENSEMBL genes mentioned
+  in that article.
+  """
+  pubmed_to_genes = collections.defaultdict(set)
+  with open('%s/onto/data/pmid_to_ensembl.tsv' % util.APP_HOME) as f:
+    for line in f:
+      pubmed,gene = line.rstrip('\n').split('\t')
+      pubmed_to_genes[pubmed].add(gene)
+  return pubmed_to_genes
 
 
 def parse_input_row(line):
@@ -61,26 +55,19 @@ def parse_input_row(line):
 
 
 def get_mentions_for_row(row):
-  gene_names, gene_names_lower, gene_synonyms, gene_synonyms_lower = CACHE['genes']
-  bad_gene_names = CACHE['bad_genes']
+  phrase_to_genes = CACHE['phrase_to_genes']
+  lower_phrase_to_genes = CACHE['lower_phrase_to_genes']
   mentions = []
+  
   for i, word in enumerate(row.words):
-    if len(word) == 1: continue
-    word_lower = word.lower()
-    mention = None
-    if word in gene_names:
-      mention = util.create_mention(row, [i], [word], word, 'NAME')
-    elif word in gene_synonyms:
-      mention = util.create_mention(row, [i], [word], gene_synonyms[word], 'SYN')
-    elif word_lower in bad_gene_names:
-      # forbid non-case-exact matches for these genes
-      continue
-    elif word_lower in gene_names_lower:
-      mention = util.create_mention(row, [i], [word], gene_names_lower[word_lower], 'NAME_LOWER')
-    elif word_lower in gene_synonyms_lower:
-      mention = util.create_mention(row, [i], [word], gene_synonyms_lower[word_lower], 'SYN_LOWER')
-    if mention:
-      mentions.append(mention)
+    if word in phrase_to_genes or word.lower() in lower_phrase_to_genes:
+      # Treat lowercase mappings the same as exact case ones for now.
+      exact_case_matches = phrase_to_genes[word]
+      lowercase_matches = phrase_to_genes[word.lower()]
+      for ensembl_id,mapping_type in exact_case_matches.union(lowercase_matches):
+        mentions.append(util.create_mention(row, [i], [word], ensembl_id, mapping_type))
+    elif word == word.upper() and word.isalnum() and not unicode(word).isnumeric() and len(word) > 2:
+      mentions.append(util.create_mention(row, [i], [word], 'ALL_UPPERCASE_NOT_GENE_SYMBOL', 'ALL_UPPERCASE_NOT_GENE_SYMBOL'))
   return mentions
 
 
@@ -90,25 +77,18 @@ def get_supervision(row, mention):
   word_lower = word.lower()
   wordidx = mention.wordidxs[0]
 
-  # Gene names that are ambiguous
-  bad_genes = CACHE['bad_genes']  # English words and 2-letter abbreviations
-  misc_noisy_genes = CACHE['misc_noisy_genes']  # Feng's manual list of problem genes
-  sentence_all_upper = all(not x.isalpha() or x.isupper() for x in row.words)
-  if sentence_all_upper or mention.mention_type in ('NAME_LOWER', 'SYN_LOWER'):
-    # Sentence is entirely uppercase, or match is not exact case match
-    if word_lower in bad_genes or word_lower in misc_noisy_genes:
-      return False
+  # Negative Rule #1: words that are all uppercase but are not in the gene symbol
+  # list are likely false mentions.
+  if mention.mention_type in ('ALL_UPPERCASE_NOT_GENE_SYMBOL'):
+    return False
 
-  # NER tag: word is or is next to a person/organization/location/date
-  for j in range(max(0, wordidx - 1), min(wordidx + 2, len(row.words))):
-    if row.ners[j] in ('PERSON', 'ORGANIZATION', 'LOCATION', 'DATE'):
-      return False
-
-  # Genes with complicated names are probably good for exact matches.
-  # Here, require at least 3 letters and 1 digit.
-  if mention.mention_type in ('NAME', 'SYN'):
-    # An exact case match
-    if re.match(r'[a-zA-Z]{3}[a-zA-Z]*\d+\w*', word):
+  # Positive Rule #2: matches from papers that NCBI annotates as being about
+  # the mentioned gene are likely true.
+  pubmed_to_genes = CACHE['pubmed_to_genes']
+  if '.'.join(row.doc_id.split('.')[1:]) == "html.txt.nlp.task":
+    pmid = row.doc_id.split('.')[0]
+    mention_ensembl_id = mention.entity.split(":")[0]
+    if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
       return True
 
   # Default to no supervision
@@ -121,9 +101,8 @@ def create_supervised(row, mention):
 
 
 def main():
-  CACHE['genes'] = read_genes()
-  CACHE['bad_genes'] = read_bad_genes()
-  CACHE['misc_noisy_genes'] = read_misc_noisy_genes()
+  CACHE['phrase_to_genes'],CACHE['lower_phrase_to_genes'] = read_phrase_to_genes()
+  CACHE['pubmed_to_genes'] = read_pubmed_to_genes()
   mentions = []
   for line in sys.stdin:
     row = parse_input_row(line)
