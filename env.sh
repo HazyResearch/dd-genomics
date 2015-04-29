@@ -2,7 +2,7 @@
 
 # TODO: Specify these variables according to your system configuration!
 # the user running the application
-export DDUSER=${DD_APPUSER-${USER}}
+export DDUSER=${DD_APPUSER-$(whoami)}
 # the database user (default: the same as above) & connection vars
 export DBUSER=${DD_DBUSER-${PGUSER-${DDUSER}}}
 export DBHOST=${DD_DBHOST-${PGHOST}}
