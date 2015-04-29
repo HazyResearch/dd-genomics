@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/bash -e
 #
 # Load a TSV file into a table using PostgreSQL COPY FROM command
 #
@@ -20,7 +20,7 @@ copy_from_file() {
 	SQL_COMMAND_FILE=`mktemp /tmp/ctff.XXXXX` || exit 1
 	abs_real_path $1
 	echo "COPY $TABLE FROM '${TSV_FILE_ABS_PATH}';" > ${SQL_COMMAND_FILE}
-	psql -U $DBUSER -h $DBHOST -p $DBPORT -X --set ON_ERROR_STOP=1 -d $DB -f ${SQL_COMMAND_FILE}
+	psql -U ${DD_DBUSER-${PGUSER-${DBUSER-$USER}}} -h ${DD_DBHOST-${PGHOST-$DBHOST}} -p ${DD_DBPORT-${PGPORT-${DBPORT-5432}}} -X --set ON_ERROR_STOP=1 -d $DB -f ${SQL_COMMAND_FILE}
 	rm ${SQL_COMMAND_FILE}
 }
 
