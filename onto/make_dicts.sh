@@ -73,7 +73,7 @@ RAW="raw/hgnc_to_uniprot_raw.tsv"
 if [ ! -e "$RAW" ]; then
   wget 'http://www.genenames.org/cgi-bin/download?col=gd_app_sym&col=md_prot_id&status=Approved&status_opt=2&where=&order_by=gd_app_sym_sort&format=text&limit=&hgnc_dbtag=on&submit=submit' -O "$RAW"
 fi
-tail -n +2 "$RAW" | sort > data/hgnc_to_uniprot.tsv 
+tail -n +2 "$RAW" | sort > data/hgnc_to_uniprot.tsv
 
 # Get Reactome data
 ## Uniprot ID, Reactome ID, pathway name
@@ -95,3 +95,16 @@ cp dicts/merged_genes_dict.tsv data/genes.tsv
 
 # Run disease dictionary merge script
 python merge_diseases.py data
+
+# get gene to pmid mappings
+RAW="raw/gene2pubmed.gz"
+wget ftp://ftp.ncbi.nih.gov/gene/DATA/gene2pubmed.gz -O "$RAW"
+RAW="raw/gene2ensembl.gz"
+wget ftp://ftp.ncbi.nih.gov/gene/DATA/gene2ensembl.gz -O "$RAW"
+# grab all the pmids that have less than 5 gene annotations since other genes have too many mappings for us to reasonably assess (gene collection papers, gwas, etc.)
+zcat raw/gene2pubmed.gz | awk '{if($1==9606) print $2"\t"$3}' |
+ sort -u  | cut -f2 | sort | uniq -c | awk '{if($1<=5) print $2}' | sort -u |
+ join -t$'\t' -j 1 /dev/stdin <(zcat raw/gene2pubmed.gz | awk '{if($1==9606) print $3"\t"$2}' | sort -u) |
+ sort -k2,2 |
+ join -t$'\t' -1 2 -2 1 /dev/stdin <(zcat raw/gene2ensembl.gz | awk '{if($1==9606) print $2"\t"$3}' | sort -u) |
+ cut -f2- | sort -u -o data/pmid_to_ensembl.tsv
