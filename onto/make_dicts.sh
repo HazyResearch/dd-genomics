@@ -108,3 +108,59 @@ zcat raw/gene2pubmed.gz | awk '{if($1==9606) print $2"\t"$3}' |
  sort -k2,2 |
  join -t$'\t' -1 2 -2 1 /dev/stdin <(zcat raw/gene2ensembl.gz | awk '{if($1==9606) print $2"\t"$3}' | sort -u) |
  cut -f2- | sort -u -o data/pmid_to_ensembl.tsv
+
+
+## Make the ENSEMBL gene maps files
+# 
+set -beEu -o pipefail
+
+# Starting from a table of: ENSEMBL_ID | canonical gene symbol | refseq ID
+if [ ! -f dicts/mart_export.txt ]; then
+	echo " No biomart file found! Downloading."
+	# Downloads a biomart file with columns: ensembl_ID | HGNC gene symbol | refseq_ID
+	wget -O dicts/mart_export.txt 'http://www.biomart.org/biomart/martservice?query=%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%0A%3C!DOCTYPE%20Query%3E%0A%3CQuery%20%20virtualSchemaName%20%3D%20%22default%22%20formatter%20%3D%20%22TSV%22%20header%20%3D%20%220%22%20uniqueRows%20%3D%20%220%22%20count%20%3D%20%22%22%20datasetConfigVersion%20%3D%20%220.6%22%20%3E%0A%09%09%09%0A%09%3CDataset%20name%20%3D%20%22hsapiens_gene_ensembl%22%20interface%20%3D%20%22default%22%20%3E%0A%09%09%3CAttribute%20name%20%3D%20%22ensembl_gene_id%22%20%2F%3E%0A%09%09%3CAttribute%20name%20%3D%20%22external_gene_name%22%20%2F%3E%0A%09%09%3CAttribute%20name%20%3D%20%22refseq_mrna%22%20%2F%3E%0A%09%3C%2FDataset%3E%0A%3C%2FQuery%3E'
+fi
+
+# Also starting with a table of: gene symbol | gene synonyms (separated by a pipe | between each) | full gene name
+if [ ! -f dicts/merged_genes_dict.tsv ]; then
+	echo " No merged_genes_dict.tsv file found!"
+	echo " "
+	echo " Ensure there is a /dicts/merged_genes_dict.tsv file."
+	echo " Available in dd-genomics/onto/dicts."
+	echo " "
+	exit 1;
+fi
+
+# Make a table of: ENSEMBL_ID | canonical gene symbol
+cut -f 1-2 dicts/mart_export.txt | sort | uniq | grep ENSG | awk '{ print $1":"$2 "\t" $2 }' > dicts/ensembl_symbols.txt 
+
+# Make a table of: gene symbol | gene synonyms (separated by a pipe | between each)
+cat dicts/merged_genes_dict.tsv | awk 'FS="\t" {print $1 "\t" $2}' > dicts/symbols_syns.txt
+
+# Make a table of: ENSEMBL ID | gene symbol | gene synonym
+awk 'NR==FNR {h[$1] = $2; next} { print $1, $2, h[$2] }' dicts/symbols_syns.txt dicts/ensembl_symbols.txt > dicts/ensembl_symbols_syns.txt 
+
+# Make a table of: ENSEMBL IDs | gene synonym | type (always the string "NON-CANONICAL_SYMBOL")       (one line per relationship)
+cat dicts/ensembl_symbols_syns.txt | awk '{if($3!=""){n=split($3,a,"|");for(i=1;i<=n;i++){ print $1 "\t" a[i] "\t" "NONCANONICAL_SYMBOL"}}  }' > dicts/ensembl_syns.txt
+
+# Make a table of: ENSEMBL ID | canonical gene symbol | type (always the string "CANONICAL_SYMBOL")
+cat dicts/ensembl_symbols.txt | awk '{ print $0 "\t" "CANONICAL_SYMBOL" }' > dicts/ensembl_symbols_canonical.txt
+
+# Make a table of: ENSEMBL_ID | refseq ID | type (always the string "REFSEQ")
+cat dicts/mart_export.txt | awk '{if(NF==3) print $1":"$2 "\t" $3 "\t" "REFSEQ" }' | grep NM_ | sort | uniq > dicts/ensembl_refseq.txt
+
+# Combine ensembl_refseq.txt, ensembl_symbols_canonical.txt, and ensembl_syns.txt to make a table of:
+# ENSEMBL ID | (symbol, synonym, refseq id) | type identifier (CANONICAL_SYMBOL, NON-CANONICAL_SYMBOL, REFSEQ)
+cat dicts/ensembl_refseq.txt dicts/ensembl_symbols_canonical.txt dicts/ensembl_syns.txt | sort | uniq > dicts/ensembl_map.tsv
+
+# OPTIONAL: delete all intermediate files
+rm dicts/ensembl_refseq.txt
+rm dicts/ensembl_symbols.txt
+rm dicts/ensembl_symbols_canonical.txt
+rm dicts/ensembl_symbols_syns.txt
+rm dicts/ensembl_syns.txt
+rm dicts/symbols_syns.txt
+
+
+# Copy the final table to the data folder for use by deepdive
+cp dicts/ensembl_map.tsv data/ensembl_genes.tsv
