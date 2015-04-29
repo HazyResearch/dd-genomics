@@ -19,7 +19,12 @@ GDD_HOME = os.environ['GDD_HOME']
 # - SnowballStemmer is much faster but has ~30% error rate
 # TODO: preprocess using Stanford CoreNLP lemmatizer for exact alignment w raw data?
 lemmatizer = WordNetLemmatizer()
-lemmatize = lambda w : lemmatizer.lemmatize(w)
+def lemmatize(w):
+  if w.isalpha():
+    return lemmatizer.lemmatize(w)
+  else:
+    # Things involving non-alphabetic characters, don't try to lemmatize
+    return w
 
 # STOPWORDS list
 STOPWORDS = [w.strip() for w in open('%s/onto/manual/stopwords.tsv' % (GDD_HOME,), 'rb')]
@@ -31,9 +36,9 @@ def normalize_phrase(p):
   """Lowercases, removes stop words, and lemmatizes inputted multi-word phrase"""
   out = []
 
-  # split into contiguous alphabetic segments, lower-case, filter stopwords, lemmatize
-  ws = [re.sub(r'[^a-z]', '', w) for w in p.lower().split()]
-  ws = [w for w in ws if len(w) > 2 and w not in STOPWORDS]
+  # split into contiguous alphanumeric segments, lower-case, filter stopwords, lemmatize
+  ws = [re.sub(r'[^a-z0-9]', '', w) for w in p.lower().split()]
+  ws = [w for w in ws if w not in STOPWORDS]
   ws = [lemmatize(w) for w in ws]
   out.append(' '.join(ws))
 
