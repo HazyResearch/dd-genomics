@@ -2,12 +2,12 @@
 
 # TODO: Specify these variables according to your system configuration!
 # the user running the application
-export DDUSER=
+export DDUSER=${DD_APPUSER-$(whoami)}
 # the database user (default: the same as above) & connection vars
-export DBUSER=$DDUSER
-export DBHOST=
-export DBPORT=
-export DBNAME=
+export DBUSER=${DD_DBUSER-${PGUSER-${DDUSER}}}
+export DBHOST=${DD_DBHOST-${PGHOST}}
+export DBPORT=${DD_DBPORT-${PGPORT-5432}}
+export DBNAME=${DD_DBNAME-}
 # the port that gpfdist will run on (should be uique for each user on system!)
 export GPPORT=
 
@@ -16,7 +16,7 @@ export PYTHONPATH=$PYTHONPATH:/lfs/local/0/ajratner/packages/lib/python2.7/site-
 
 # TODO: Machine Configuration
 export MEMORY="256g"
-export PARALLEL_GROUNDING="true"
+export PARALLEL_GROUNDING="${DD_PARALLEL_GROUNDING-true}"
 export PARALLELISM=80
 export SBT_OPTS="-Xmx$MEMORY"
 export JAVA_OPTS="-Xmx$MEMORY"
@@ -27,7 +27,7 @@ DIRNAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 REAL_DIRNAME=`readlink -f ${DIRNAME}` || REAL_DIRNAME=`greadlink -f ${DIRNAME}`
 export APP_HOME=$REAL_DIRNAME
 export GDD_HOME=$APP_HOME
-export DEEPDIVE_HOME=/lfs/local/0/$DDUSER/deepdive
+export DEEPDIVE_HOME=${DEEPDIVE_HOME-/lfs/local/0/$DDUSER/deepdive}
 
 # db variables
 export PGUSER=$DBUSER
