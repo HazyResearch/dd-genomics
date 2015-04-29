@@ -10,6 +10,8 @@ export DBPORT=${DD_DBPORT-${PGPORT-5432}}
 export DBNAME=${DD_DBNAME-}
 # the port that gpfdist will run on (should be uique for each user on system!)
 export GPPORT=
+# the type of postgres being used: "pg" for postgres | "gp" for greenplum
+export DBTYPE=
 
 # TODO: python packages (in long term get rid of stuff like this; in short term keep minimal)
 export PYTHONPATH=$PYTHONPATH:/lfs/local/0/ajratner/packages/lib/python2.7/site-packages

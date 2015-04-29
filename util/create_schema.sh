@@ -19,4 +19,14 @@ if [ ! -r ${SCHEMA_FILE} ]; then
     echo "$0: ERROR: schema file is not readable" >&2
     exit 1
 fi
-sed 's@DISTRIBUTED BY .*;@;@g' ${SCHEMA_FILE} | psql -q -X --set ON_ERROR_STOP=1 -d ${DD_DBNAME-${DBNAME-}}
+
+# Include DISTRIBUTED_BY clauses depending on db type
+if [ "${DBTYPE-}" == "" ]; then
+    echo "Set DBTYPE to your psql type (pg|gp)."
+    exit 1
+fi
+if [ "${DBTYPE}" == "pg" ]; then
+    sed 's@DISTRIBUTED BY .*;@;@g' ${SCHEMA_FILE} | psql -q -X --set ON_ERROR_STOP=1 -d ${DD_DBNAME-${DBNAME-}}
+else
+    psql -q -X --set ON_ERROR_STOP=1 -d ${DD_DBNAME-${DBNAME-}} -f ${SCHEMA_FILE}
+fi

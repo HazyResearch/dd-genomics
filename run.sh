@@ -18,5 +18,13 @@ else
   exit 1
 fi
 
+unset GDD_PIPELINE
+if [ "${1-}" == "" ]; then
+  echo "Usage: ./run.sh [PIPELINE_TO_RUN]"
+  exit 1
+else
+  export GDD_PIPELINE="$1"
+fi
+
 cd $DEEPDIVE_HOME
 sbt "run -c $APP_HOME/${APP_CONF:-application.conf}"
