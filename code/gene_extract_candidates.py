@@ -87,7 +87,7 @@ def get_supervision(row, mention):
   if mention.mention_type in ('ALL_UPPERCASE_NOT_GENE_SYMBOL', 'RANDOM_WORD_NOT_GENE_SYMBOL'):
     return False
 
-  # Positive Rule #2: matches from papers that NCBI annotates as being about
+  # Positive Rule #1: matches from papers that NCBI annotates as being about
   # the mentioned gene are likely true.
   pubmed_to_genes = CACHE['pubmed_to_genes']
   if '.'.join(row.doc_id.split('.')[1:]) == "html.txt.nlp.task":
