@@ -46,7 +46,7 @@ def get_features_for_row(row):
   sentence = create_sentence(row)
   span = ddlib.Span(begin_word_id=row.wordidxs[0], length=len(row.wordidxs))
   return [(row.doc_id, row.mention_id, feat)
-          for feat in ddlib.get_generic_features_mention(sentence, span)]
+          for feat in ddlib.get_generic_features_mention(sentence, span) if not (feat.startswith("LEMMA_SEQ") or feat.startswith("WORD_SEQ"))]
 
 
 def main():
