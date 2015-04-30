@@ -24,7 +24,7 @@ def read_phrase_to_genes():
     for line in f:
       phrase,ensembl_id,mapping_type = line.rstrip('\n').split('\t')
       phrase_to_genes[phrase].add((ensembl_id,mapping_type))
-      lower_phrase_to_genes[phrase].add((ensembl_id,mapping_type))
+      lower_phrase_to_genes[phrase.lower()].add((ensembl_id,mapping_type))
   
   return phrase_to_genes, lower_phrase_to_genes
 
