@@ -1,3 +1,7 @@
+"""
+Output fields:
+id, name, synonyms, related terms, alt IDs, parent, MeSh terms
+"""
 import argparse
 
 from obo_parser import parseGOOBO
@@ -17,6 +21,7 @@ if __name__ == "__main__":
             is_a = '|'.join(x.partition(' ')[0] for x in term['is_a']) if 'is_a' in term else ''
             synonyms = set()
             related = set()
+            mesh = set()
             for s in term.get('synonym', []):
                 if ' EXACT [' in s:
                     synonyms.add(s.split(' EXACT [')[0].strip('" '))
@@ -25,10 +30,17 @@ if __name__ == "__main__":
                     related.add(s.split('" ')[0].strip('"'))
             for n in term.get('xref', []):
                 if ' ' in n:
-                    synonyms.add(n.partition(' ')[-1].strip('" '))
+                    cur_syn = n.partition(' ')[-1].strip('" ')
+                    synonyms.add(cur_syn)
+                    xref_id = n.split(' ')[0]
+                    source = xref_id.split(':')[0]
+                    if source == 'MeSH':
+                      mesh.add(cur_syn)
+
             synonyms.discard(name)
             related.discard(name)
             synonyms = '|'.join(sorted(synonyms)) if synonyms else ''
             related = '|'.join(sorted(related)) if related else ''
-            out.write('\t'.join([id, name, synonyms, related, alt_ids, is_a]) + '\n')
+            mesh = '|'.join(sorted(mesh)) if mesh else ''
+            out.write('\t'.join([id, name, synonyms, related, alt_ids, is_a, mesh]) + '\n')
 

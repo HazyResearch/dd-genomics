@@ -1,5 +1,5 @@
 #!/bin/bash -e
-set -beEu -o pipefail
+set -beEu # -o pipefail
 
 # Check usage
 if [[ $# != 2 ]]; then
@@ -24,11 +24,11 @@ touch ${meshToPmidOut} && rm -f ${meshToPmidOut} && touch ${meshToPmidOut}
 
 # Use esearch.fcgi (http://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.ESearch) to retrieve
 # a list of PMIDs annotation with of the MESH terms in meshList.in.
-NCBI_BASE_URL="http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmax=999999&retmode=json"
+NCBI_BASE_URL="http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmax=999999&retmode=xml"
 while read meshTerm; do
     echo "Searching ${meshTerm}..." 1>&2
     wget -q "${NCBI_BASE_URL}&term=${meshTerm}[MeSH Terms]" -O - |
-        jq '.esearchresult.idlist[]' | tr -d '"' | sort -g | uniq |
+        grep '<Id>' | egrep -o '[0-9]+' | sort -gu |
         awk -v meshTerm="${meshTerm}" '{ print meshTerm "\t" $1; }' |
         tee >(cat >> ${meshToPmidOut}) | awk 'END { print "    " NR " results"; }' 1>&2
 done < ${meshListIn}
