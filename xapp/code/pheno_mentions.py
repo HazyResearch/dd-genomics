@@ -101,7 +101,7 @@ def run(doc_id, sent_id, words, lemmas, poses, ners):
         truth = None
         mtype = 'GSYM'
 
-      entity = diseases[iword] + ' ' + iword
+      entity = iword
       mid = '%s_%s_%d_1' % (doc_id, sent_id, i)
       yield doc_id, sent_id, [i], mid, mtype, entity, [word], truth
 
@@ -120,11 +120,13 @@ def run(doc_id, sent_id, words, lemmas, poses, ners):
         node = node[sword]
         depth += 1
         if '$' in node and depth > 1:
-          for ids, phrase in node['$']:
+          for k, (ids, phrase) in enumerate(node['$']):
             if phrase in diseases_bad:
               continue
-            entity = ids + ' ' + phrase
+            entity = phrase
             mid = '%s_%s_%d_%d' % (doc_id, sent_id, i, j - i + 1)
+            if len(node['$']) > 1:
+              mid += '~' + str(k + 1)
             wordids = range(i, j + 1)
             yield doc_id, sent_id, wordids, mid, 'PHRASE', entity, words[i: j + 1], True
       else:

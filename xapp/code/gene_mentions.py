@@ -29,9 +29,10 @@ def run(doc_id, sent_id, words, lemmas, poses, ners):
   else:
     import os
     APP_HOME = os.environ['GDD_HOME']
-    details = {}
     all_names = set()
-    all_synonyms = set()
+    dup_names = set()
+    all_synonyms = {}
+    dup_synonyms = set()
     en_words = set([x.strip().lower() for x in open('%s/onto/dicts/english_words.tsv' % APP_HOME)])
     gene_english = set([x.strip().lower() for x in open('%s/onto/manual/gene_english.tsv' % APP_HOME)])
     gene_bigrams = set([x.strip().lower() for x in open('%s/onto/manual/gene_bigrams.tsv' % APP_HOME)])
@@ -41,24 +42,31 @@ def run(doc_id, sent_id, words, lemmas, poses, ners):
     for line in open('%s/onto/data/genes.tsv' % APP_HOME):
       #plpy.info(line)
       name, synonyms, full_names = line.strip(' \r\n').split('\t')
-      synonyms = set(synonyms.split('|'))
+      synonyms = set(x.strip() for x in synonyms.split('|'))
       synonyms.discard(name)
-      full_names = set(full_names.split('|'))
-      all_names.add(name)
-      all_synonyms |= synonyms
-      details[name] = {
-        'syn': synonyms,
-        'full': full_names
-      }
+      synonyms.discard('')
+      full_names = set(x.strip() for x in full_names.split('|'))
+      if name in all_names:
+        dup_names.add(name)
+      else:
+        all_names.add(name)
+      for s in synonyms:
+        if s in all_synonyms:
+          # we assign the synonym to the first name
+          dup_synonyms.add(s)
+        else:
+          all_synonyms[s] = name
+    plpy.info('===== DUPLICATE GENE NAMES')
+    plpy.info('\n'.join(sorted(dup_names)))
+    plpy.info('===== DUPLICATE GENE SYNONYMS')
+    plpy.info(sorted(dup_synonyms))
     all_names -= gene_exclude
-    all_synonyms -= all_names
-    all_synonyms -= gene_exclude
+    all_synonyms = {s: n for s, n in all_synonyms.iteritems() if s not in all_names and s not in gene_exclude}
     genes = {
-      'details': details,
       'names': all_names,
       'synonyms': all_synonyms,
       'names_lower': {x.lower(): x for x in all_names},
-      'synonyms_lower': {x.lower(): x for x in all_synonyms},
+      'synonyms_lower': {x.lower(): y for x, y in all_synonyms.iteritems()},
       'exact_lower': set(x.lower() for x in gene_english | gene_bigrams | gene_noisy),
     }
     SD['genes'] = genes
@@ -74,11 +82,10 @@ def run(doc_id, sent_id, words, lemmas, poses, ners):
     match_type = None
     if word in genes['names']:
       match_type = 'NAME'
+      entity = word
     elif word in genes['synonyms']:
       match_type = 'SYN'
-
-    if match_type:
-      entity = word
+      entity = genes['synonyms'][word]
     else:
       if iword in genes['exact_lower']:
         continue

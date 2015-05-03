@@ -31,7 +31,7 @@ RAW="raw/clinvar_diseases.tsv"
 if [ ! -e "$RAW" ]; then
 	wget ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/disease_names -O "$RAW"
 fi
-awk -F'\t' '{printf "%s\t%s\n", $3, $1}' "$RAW" | tail -n +2 | sort | uniq | awk -F'\t' 'p==$1 && p {printf "|%s", $2;next} {if(!$1) $1="ClinVar"NR} {if(started){print ""};p=$1;started=1;printf "%s\t%s", $1,$2}END{print ""}' > data/diseases_clinvar.tsv
+awk -F'\t' '{printf "%s\t%s\n", $3, $1}' "$RAW" | tail -n +2 | sort | uniq | awk -F'\t' 'p==$1 && p {printf "|%s", $2;next} {if(!$1) $1="L"NR} {if(started){print ""};p=$1;started=1;printf "CLINVAR:%s\t%s", $1,$2}END{print ""}' > data/diseases_clinvar.tsv
 
 # DO diseases
 DO_DISEASES="data/diseases_do.tsv"
