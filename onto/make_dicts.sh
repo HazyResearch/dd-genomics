@@ -161,6 +161,24 @@ rm dicts/ensembl_symbols_syns.txt
 rm dicts/ensembl_syns.txt
 rm dicts/symbols_syns.txt
 
-
 # Copy the final table to the data folder for use by deepdive
 cp dicts/ensembl_map.tsv data/ensembl_genes.tsv
+
+# Get mesh terms that map to phenotypes in HPO
+cut -d $'\t' -f 7 data/hpo_phenotypes.tsv  | sort -u | tail -n +2 > data/meshList.txt
+
+# Get mesh to pubmed ID map
+if [! -f data/meshToPmid.tsv]; then
+  if [-f /lfs/raiders2/0/robinjia/data/meshToPmid.tsv ]; then
+    cp /lfs/raiders2/0/robinjia/data/meshToPmid.tsv data/meshToPmid.tsv
+  else
+    echo " Copying meshToPmid.tsv from local filesystem failed."
+    echo " If have access to raiders2, run scp username@raiders2:/lfs/raiders2/0/robinjia/data/meshToPmid.tsv"
+    echo " Otherwise, use ./makeMeshToPmid.sh to re-generate file by querying PubMed."
+    echo " Then, re-run this script."
+    exit 1
+  fi
+fi
+
+# Join to get HPO to pubmed ID map through MeSH
+join -t $'\t' -1 2 -2 1 -o 1.1,2.2 <(cut -f1,7 data/hpo_phenotypes.tsv | egrep -v $'\t''$' | sort -k2) data/meshToPmid.tsv > data/hpo_to_pmid_via_mesh.tsv

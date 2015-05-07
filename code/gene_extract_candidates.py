@@ -90,8 +90,8 @@ def get_supervision(row, mention):
   # Positive Rule #1: matches from papers that NCBI annotates as being about
   # the mentioned gene are likely true.
   pubmed_to_genes = CACHE['pubmed_to_genes']
-  if '.'.join(row.doc_id.split('.')[1:]) == "html.txt.nlp.task":
-    pmid = row.doc_id.split('.')[0]
+  pmid = util.get_pubmed_id_for_doc(row.doc_id)
+  if pmid:
     mention_ensembl_id = mention.entity.split(":")[0]
     if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
       return True

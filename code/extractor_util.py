@@ -139,3 +139,11 @@ def tsv_string_to_list(s, func=None, sep='|^|'):
   if func is None:
     func = lambda x: x
   return [func(x) for x in s.split(sep)]
+
+
+def get_pubmed_id_for_doc(doc_id):
+  """Converts document ID to pubmed ID, or None if not in right format."""
+  if '.'.join(doc_id.split('.')[1:]) == "html.txt.nlp.task":
+    return doc_id.split('.')[0]
+  return None
+

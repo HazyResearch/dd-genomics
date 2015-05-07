@@ -5,7 +5,7 @@ import re
 import os
 import random
 from itertools import chain
-from extractor_util import print_tsv_output, create_mention, get_hpo_phenos, read_hpo_dag, Sentence, Mention
+from extractor_util import print_tsv_output, create_mention, get_hpo_phenos, get_pubmed_id_for_doc, read_hpo_dag, Sentence, Mention
 
 def parse_line(line, array_sep='|^|'):
   """Parses input line from tsv extractor input, with |^|-encoded array format"""
@@ -28,6 +28,13 @@ ENGLISH_WORDS = frozenset([w.strip() for w in open(onto_path('data/english_words
 # Load the HPO DAG
 hpo_dag = read_hpo_dag()
 hpo_phenos = set(get_hpo_phenos(hpo_dag))
+
+# Load map from Pubmed ID to HPO term (via MeSH)
+PMID_TO_HPO = defaultdict(set)
+for line in open(onto_path('data/hpo_to_pmid_via_mesh.tsv')):
+  hpo_id, pmid = line.strip().split('\t')
+  PMID_TO_HPO[pmid].add(hpo_id)
+
 
 # Load phenotypes (as phrases + as frozensets to allow permutations)
 # [See onto/prep_pheno_terms.py]
@@ -66,10 +73,13 @@ def extract_candidates(tokens, s):
 
         # Supervise exact matches as true; however if exact match is also a common english word,
         # label true w.p. < 1
+        '''
         if len(words) == 1 and phrase in ENGLISH_WORDS:
           is_correct = True if random.random() < COMMON_WORD_PROB else None
         else:
           is_correct = True
+        '''
+        is_correct = None
 
         # handle exact / exact lemma matches recursively to exclude overlapping mentions
         candidates.append(create_mention(s, wordidxs, words, entity, 'EXACT', is_correct))
@@ -90,6 +100,19 @@ def extract_candidates(tokens, s):
           if phrase in PHENOS or lemma_phrase in PHENOS:
             entity = PHENOS[phrase] if phrase in PHENOS else PHENOS[lemma_phrase]
             candidates.append(create_mention(s, wordidxs, words, entity, 'OMIT_%s' % (j,), None))
+
+  # Add supervision via mesh terms
+  pubmed_id = get_pubmed_id_for_doc(s.doc_id)
+  if pubmed_id and pubmed_id in PMID_TO_HPO:
+    new_candidates = []
+    known_hpo = PMID_TO_HPO[pubmed_id]
+    for c in candidates:
+      if c.entity in known_hpo:
+        new_candidates.append(c._replace(is_correct=True))
+      else:
+        new_candidates.append(c)
+    candidates = new_candidates
+
   return candidates
 
 def extract_candidates_from_sentence(s):
