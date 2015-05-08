@@ -5,7 +5,7 @@ import re
 import os
 import random
 from itertools import chain
-from extractor_util import print_tsv_output, create_mention, get_hpo_phenos, get_pubmed_id_for_doc, read_hpo_dag, Sentence, Mention
+from extractor_util import print_tsv_output, create_mention, get_hpo_phenos, get_pubmed_id_for_doc, read_doi_to_pmid, read_hpo_dag, Sentence, Mention
 
 def parse_line(line, array_sep='|^|'):
   """Parses input line from tsv extractor input, with |^|-encoded array format"""
@@ -28,6 +28,9 @@ ENGLISH_WORDS = frozenset([w.strip() for w in open(onto_path('data/english_words
 # Load the HPO DAG
 hpo_dag = read_hpo_dag()
 hpo_phenos = set(get_hpo_phenos(hpo_dag))
+
+# Load map from DOI to PMID, for PLoS documents
+DOI_TO_PMID = read_doi_to_pmid()
 
 # Load map from Pubmed ID to HPO term (via MeSH)
 PMID_TO_HPO = defaultdict(set)
@@ -102,7 +105,7 @@ def extract_candidates(tokens, s):
             candidates.append(create_mention(s, wordidxs, words, entity, 'OMIT_%s' % (j,), None))
 
   # Add supervision via mesh terms
-  pubmed_id = get_pubmed_id_for_doc(s.doc_id)
+  pubmed_id = get_pubmed_id_for_doc(s.doc_id, doi_to_pmid=DOI_TO_PMID)
   if pubmed_id and pubmed_id in PMID_TO_HPO:
     new_candidates = []
     known_hpo = PMID_TO_HPO[pubmed_id]

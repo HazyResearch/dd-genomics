@@ -26,6 +26,6 @@ if __name__ == '__main__':
         util.print_tsv_output((pathway_id, hgnc, name))
       else:
         num_unrecognized += 1
-        print >> sys.stderr, 'Unrecognized Uniprot ID %s' % uniprot
+        # print >> sys.stderr, 'Unrecognized Uniprot ID %s' % uniprot
   print >> sys.stderr, 'Found %d unrecognized Uniprot IDs in Reactome' % (
       num_unrecognized)

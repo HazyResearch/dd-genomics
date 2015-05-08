@@ -17,7 +17,7 @@ if __name__ == "__main__":
     ordo = [x.rstrip('\n').split('\t') for x in open('%s/diseases_ordo.tsv' % args.dir)]
 
     hpo_pairs = []
-    for id, name, synonyms, related, alt_ids, is_a in hpo:
+    for id, name, synonyms, related, alt_ids, is_a, mesh_term in hpo:
         if synonyms:
             name += '|' + synonyms
         hpo_pairs.append([id, name])

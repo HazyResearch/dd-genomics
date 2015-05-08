@@ -1,6 +1,7 @@
 """Miscellaneous shared tools for extractors."""
 from collections import defaultdict, namedtuple
 import os
+import re
 
 CODE_DIR = os.path.dirname(os.path.realpath(__file__))
 APP_HOME = os.path.dirname(CODE_DIR)
@@ -13,6 +14,19 @@ Sentence = namedtuple(
 Mention = namedtuple(
     'Mention', ['dd_id', 'doc_id', 'sent_id', 'wordidxs', 'mention_id',
                 'mention_type', 'entity', 'words', 'is_correct'])
+
+PLOS_SUBTYPES_TO_DOI_ABBREV = {
+    'biol': '10.1371/journal.pbio',
+    'clin': '10.1371/journal.pctr',
+    'comput': '10.1371/journal.pcbi',
+    # Omit PlOS Currents.
+    'genet': '10.1371/journal.pgen',
+    'med': '10.1371/journal.pmed',
+    'negl': '10.1371/journal.pntd',
+    'negl': '10.1371/journal.pntd',
+    'one': '10.1371/journal.pone',
+    'pathog': '10.1371/journal.ppat',
+}
 
 
 class Dag:
@@ -141,9 +155,42 @@ def tsv_string_to_list(s, func=None, sep='|^|'):
   return [func(x) for x in s.split(sep)]
 
 
-def get_pubmed_id_for_doc(doc_id):
-  """Converts document ID to pubmed ID, or None if not in right format."""
+def get_pubmed_id_for_doc(doc_id, doi_to_pmid=None):
+  """Converts document ID to pubmed ID, or None if not in right format.
+  
+  doi_to_pmid is optional dict from DOI to PMID, for PLoS documents.
+  """
   if '.'.join(doc_id.split('.')[1:]) == "html.txt.nlp.task":
     return doc_id.split('.')[0]
+
+  # PLoS doc IDs look like 'PLoS_One_2010_Dec_14_5(12)_e15617.nxml.txt'
+  # Convert to DOI like '10.1371/journal.pone.0015617'
+  # Then convert DOI to PMID.
+  if doi_to_pmid:
+    plos_toks = doc_id.split('_')
+    if plos_toks[0] == 'PLoS':
+      plos_subtype = plos_toks[1].lower()
+      if plos_subtype in PLOS_SUBTYPES_TO_DOI_ABBREV:
+        doi_abbrev = PLOS_SUBTYPES_TO_DOI_ABBREV[plos_subtype]
+      else:
+        return None
+      doi_num_match = re.search(r'e([0-9]+)\.nxml\.txt', plos_toks[-1])
+      if doi_num_match:
+        doi_num = int(doi_num_match.group(1))
+      else:
+        return None
+      doi_id = '%s.%07d' % (doi_abbrev, doi_num)
+      if doi_id in doi_to_pmid:
+        return doi_to_pmid[doi_id]
+
   return None
 
+
+def read_doi_to_pmid():
+  """Reads map from DOI to PMID, for PLoS docuemnts."""
+  doi_to_pmid = dict()
+  with open('%s/onto/data/plos_doi_to_pmid.tsv' % APP_HOME) as f:
+    for line in f:
+      doi, pmid = line.strip().split('\t')
+      doi_to_pmid[doi] = pmid
+  return doi_to_pmid

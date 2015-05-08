@@ -44,7 +44,6 @@ def read_pubmed_to_genes():
       pubmed_to_genes[pubmed].add(gene)
   return pubmed_to_genes
 
-
 def parse_input_row(line):
   tokens = line.split('\t')
   return util.Sentence(doc_id=tokens[0],
@@ -90,7 +89,7 @@ def get_supervision(row, mention):
   # Positive Rule #1: matches from papers that NCBI annotates as being about
   # the mentioned gene are likely true.
   pubmed_to_genes = CACHE['pubmed_to_genes']
-  pmid = util.get_pubmed_id_for_doc(row.doc_id)
+  pmid = util.get_pubmed_id_for_doc(row.doc_id, doi_to_pmid=CACHE['doi_to_pmid'])
   if pmid:
     mention_ensembl_id = mention.entity.split(":")[0]
     if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
@@ -108,6 +107,7 @@ def create_supervised(row, mention):
 def main():
   CACHE['phrase_to_genes'],CACHE['lower_phrase_to_genes'] = read_phrase_to_genes()
   CACHE['pubmed_to_genes'] = read_pubmed_to_genes()
+  CACHE['doi_to_pmid'] = util.read_doi_to_pmid()
   mentions = []
   for line in sys.stdin:
     row = parse_input_row(line)

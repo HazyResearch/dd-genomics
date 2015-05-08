@@ -98,9 +98,13 @@ python merge_diseases.py data
 
 # get gene to pmid mappings
 RAW="raw/gene2pubmed.gz"
-wget ftp://ftp.ncbi.nih.gov/gene/DATA/gene2pubmed.gz -O "$RAW"
+if [ ! -e "$RAW" ]; then
+  wget ftp://ftp.ncbi.nih.gov/gene/DATA/gene2pubmed.gz -O "$RAW"
+fi
 RAW="raw/gene2ensembl.gz"
-wget ftp://ftp.ncbi.nih.gov/gene/DATA/gene2ensembl.gz -O "$RAW"
+if [ ! -e "$RAW" ]; then
+  wget ftp://ftp.ncbi.nih.gov/gene/DATA/gene2ensembl.gz -O "$RAW"
+fi
 # grab all the pmids that have less than 5 gene annotations since other genes have too many mappings for us to reasonably assess (gene collection papers, gwas, etc.)
 zcat raw/gene2pubmed.gz | awk '{if($1==9606) print $2"\t"$3}' |
  sort -u  | cut -f2 | sort | uniq -c | awk '{if($1<=5) print $2}' | sort -u |
@@ -168,12 +172,12 @@ cp dicts/ensembl_map.tsv data/ensembl_genes.tsv
 cut -d $'\t' -f 7 data/hpo_phenotypes.tsv  | sort -u | tail -n +2 > data/meshList.txt
 
 # Get mesh to pubmed ID map
-if [! -f data/meshToPmid.tsv]; then
+if [ ! -f data/meshToPmid.tsv ]; then
   if [-f /lfs/raiders2/0/robinjia/data/meshToPmid.tsv ]; then
     cp /lfs/raiders2/0/robinjia/data/meshToPmid.tsv data/meshToPmid.tsv
   else
     echo " Copying meshToPmid.tsv from local filesystem failed."
-    echo " If have access to raiders2, run scp username@raiders2:/lfs/raiders2/0/robinjia/data/meshToPmid.tsv"
+    echo " If have access to raiders2, run scp username@raiders2:/lfs/raiders2/0/robinjia/data/meshToPmid.tsv data/meshToPmid.tsv"
     echo " Otherwise, use ./makeMeshToPmid.sh to re-generate file by querying PubMed."
     echo " Then, re-run this script."
     exit 1
@@ -182,3 +186,14 @@ fi
 
 # Join to get HPO to pubmed ID map through MeSH
 join -t $'\t' -1 2 -2 1 -o 1.1,2.2 <(cut -f1,7 data/hpo_phenotypes.tsv | egrep -v $'\t''$' | sort -k2) data/meshToPmid.tsv > data/hpo_to_pmid_via_mesh.tsv
+
+# Get map between PMIDs and DOIs.
+RAW="raw/PMC-ids.csv"
+if [ ! -e "$RAW" ]; then
+  wget ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/PMC-ids.csv.gz -O - | zcat > $RAW
+fi
+# Extract plos DOIs that map to pubmed IDs.
+OUT="data/plos_doi_to_pmid.tsv"
+if [ ! -e "$OUT" ]; then
+  tail -n +2 raw/PMC-ids.csv | grep -i plos | cut -d ',' -f8,10 | tr ',' '\t' | grep -v $'\t''$' > "$OUT"
+fi
