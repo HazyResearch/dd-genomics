@@ -1,19 +1,14 @@
 """Assess phenotype recall relative to known HPO-PMID map."""
 import collections
+import random
 import sys
 
 sys.path.append('../code')
 import extractor_util as util
 
-def main(id_file, candidate_file):
-  # Load map from Pubmed ID to HPO term (via MeSH)
-  print >> sys.stderr, 'Loading pubmed-to-HPO distant supervision data via MeSH'
-  pmid_to_hpo = collections.defaultdict(set)
-  with open('%s/onto/data/hpo_to_pmid_via_mesh.tsv' % util.APP_HOME) as f:
-    for line in f:
-      hpo_id, pmid = line.strip().split('\t')
-      pmid_to_hpo[pmid].add(hpo_id)
+NUM_ERRORS_TO_SAMPLE = 50
 
+def main(id_file, candidate_file):
   # Load list of all pubmed IDs in the dataset
   print >> sys.stderr, 'Loading list of pubmed IDs from doc ID list.'
   pmids_in_data = set()
@@ -28,26 +23,76 @@ def main(id_file, candidate_file):
   print >> sys.stderr, '%d/%d documents have PubMed IDs.' % (
       len(pmids_in_data), num_docs)
 
-  # Load doc_id + HPO candidate pairs
-  print >> sys.stderr, 'Loading doc_id + HPO ID candidate pairs'
-  good_pairs = set()
-  for line in open(sys.argv[2]):
-    doc_id, hpo_id = line.strip().split('\t')
-    pmid = util.get_pubmed_id_for_doc(doc_id)
-    if pmid and hpo_id in pmid_to_hpo[pmid]:
-        good_pairs.add((pmid, hpo_id))
+  # Load map from Pubmed ID to HPO term via MeSH
+  print >> sys.stderr, 'Loading supervision data via MeSH'
+  mesh_supervision = collections.defaultdict(set)
+  with open('%s/onto/data/hpo_to_pmid_via_mesh.tsv' % util.APP_HOME) as f:
+    for line in f:
+      hpo_id, pmid = line.strip().split('\t')
+      if pmid in pmids_in_data:
+        mesh_supervision[pmid].add(hpo_id)
+
+  # Identify all true pairs from MeSH
+  true_pairs = set()
+  for pmid in pmids_in_data:
+    for hpo in mesh_supervision[pmid]:
+      true_pairs.add((pmid, hpo))
+
+  # Load map from Pubmed ID to HPO term based on extracted candidates
+  print >> sys.stderr, 'Loading extracted pheno candidates'
+  candidates = collections.defaultdict(set)
+  with open(candidate_file) as f:
+    for line in f:
+      doc_id, hpo_id = line.strip().split('\t')
+      pmid = util.get_pubmed_id_for_doc(doc_id)
+      candidates[pmid].add(hpo_id)
+
+  # Load HPO DAG
+  # We say we found a HPO term if we find either the exact HPO term
+  # or one of its children
+  hpo_dag = util.read_hpo_dag()
+
+  # Determine which true pairs had candidate mentions for them
+  found_pairs = set()
+  missed_pairs = set()
+  for pmid, hpo in true_pairs:
+    found_hpo_ids = candidates[pmid]
+    for cand_hpo in found_hpo_ids:
+      if cand_hpo == '\N': continue
+      if hpo_dag.has_child(hpo, cand_hpo):
+        found_pairs.add((pmid, hpo))
+        break
+    else:
+      missed_pairs.add((pmid, hpo))
 
   # Compute oracle recall
-  num_true = sum(len(pmid_to_hpo[x]) for x in pmids_in_data)
-  num_found = len(good_pairs)
-  print 'Oracle recall: %d/%d = %g' % (
+  num_true = len(true_pairs)
+  num_found = len(found_pairs)
+  print >> sys.stderr, 'Oracle recall: %d/%d = %g' % (
       num_found, num_true, float(num_found) / num_true)
 
   # Compute other statistics
   num_article = len(pmids_in_data)
-  num_annotated = sum(1 for x in pmids_in_data if len(pmid_to_hpo[x]) > 0)
-  print '%d/%d = %g pubmed articles had HPO annotation' % (
+  num_annotated = sum(1 for x in pmids_in_data if len(mesh_supervision[x]) > 0)
+  print >> sys.stderr, '%d/%d = %g pubmed articles had HPO annotation' % (
       num_annotated, num_article, float(num_annotated) / num_article)
+
+  # Read in HPO information
+  hpo_info_dict = dict()
+  with open('%s/onto/data/hpo_phenotypes.tsv' % util.APP_HOME) as f:
+    for line in f:
+      toks = line.strip('\r\n').split('\t')
+      hpo_id = toks[0]
+      hpo_info_dict[hpo_id] = toks[0:3]
+
+  # Sample some error cases
+  missed_sample = random.sample(list(missed_pairs), 100)
+  for pmid, hpo in missed_sample:
+    hpo_info = hpo_info_dict[hpo]
+    pubmed_url = 'http://www.ncbi.nlm.nih.gov/pubmed/%s' % pmid
+    hpo_url = 'www.human-phenotype-ontology.org/hpoweb/showterm?id=%s' % hpo
+    toks = [pubmed_url, hpo_url] + hpo_info
+    print '\t'.join(toks)
 
 
 if __name__ == '__main__':
