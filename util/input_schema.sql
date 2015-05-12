@@ -100,3 +100,12 @@ CREATE TABLE reactome_pathways (
   -- pathway name
   pathway_name text
 );
+
+-- Distantly supervision via MeSH: HPO to document map
+DROP TABLE IF EXISTS hpo_to_doc_via_mesh CASCADE;
+CREATE TABLE hpo_to_doc_via_mesh (
+  -- HPO ID
+  hpo_id text,
+  -- Document ID
+  doc_id text
+);

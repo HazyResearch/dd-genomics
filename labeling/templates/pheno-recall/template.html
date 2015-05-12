@@ -1,0 +1,36 @@
+<mindtagger mode="precision">
+
+  <template for="each-item">
+  The document from which this sentence came is annotated in MeSH to discuss <strong>{{item.entity}} ({{item.hpo_name}})</strong>: 
+    <blockquote>
+        <big mindtagger-word-array="item.words" array-format="postgres"></big>
+    </blockquote>
+
+    <!-- Enumerate features with weights (leveraging AngularJS a bit more)-->
+    <div class="row">
+      <div class="col-sm-offset-1 col-sm-10">
+        <h3>Most Influential Features</h3>
+        <table class="table table-striped table-condensed table-hover">
+          <thead><tr>
+              <th class="col-sm-1">Weight</th>
+              <th>Feature</th>
+          </tr></thead>
+          <tbody>
+            <tr ng-repeat="feature in item.features | parsedArray:'postgres'">
+              <td class="text-right">{{(item.weights | parsedArray:'postgres')[$index] | number:6}}</td>
+              <th>{{feature}}</th>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div mindtagger-item-details></div>
+  </template>
+
+  <template for="tags">
+    <span mindtagger-adhoc-tags></span>
+    <span mindtagger-note-tags></span>
+  </template>
+
+</mindtagger>

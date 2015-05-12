@@ -19,6 +19,11 @@ We have a wiki for this project at
 
   then run `./util/create_input_schema.sh`- *note that this will drop any pre-processed input data*.  NOTE: some ready-to-use data files are available on `raiders2` at `/lfs/raiders2/0/robinjia/data/genomics_sentences_input_data/`. In particular, `genomics_10k_sentences.tsv` has 10k sentences (good for quick testing and debugging) and `genomics_50k_docs.tsv` has 50k documents (gene extraction takes about 2 hours on `raiders2`).
 
+If you want to run certain mindtagger tasks (namely pheno-recall),
+you will also need to copy 
+`/lfs/raiders2/0/robinjia/data/genomics_sentences_input_data/hpo_to_plos_doc_id.tsv`
+to the `hpo_to_doc_via_mesh` table.
+
 4. To refresh / create the schema, run `./util/create_schema.sh`- *note that this will drop any output data from previous runs*.
 
 5. Make sure that user functions in `util/add_user_functions.sql` are loaded into SQL *under the correct user ($DBUSER)*:
