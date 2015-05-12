@@ -1,9 +1,18 @@
 COPY (
-  SELECT si.doc_id
-    , si.sent_id
-    , string_to_array(si.words, '|^|') as words
-    , mesh.hpo_id as entity
-  FROM sentences_input si, hpo_to_doc_via_mesh mesh
-  WHERE si.doc_id = mesh.doc_id
+  SELECT t.doc_id
+    , t.sent_id
+    , t.words
+    , t.entity
+    , pm.wordidxs
+  FROM (
+      SELECT si.doc_id as doc_id
+            , si.sent_id as sent_id
+            , string_to_array(si.words, '|^|') as words
+            , mesh.hpo_id as entity
+      FROM sentences_input si
+          , hpo_to_doc_via_mesh mesh
+      WHERE si.doc_id = mesh.doc_id) t
+    LEFT OUTER JOIN pheno_mentions pm
+    ON t.doc_id = pm.doc_id AND t.sent_id = pm.sent_id AND t.entity = pm.entity
   ORDER BY random() LIMIT 100
 ) TO STDOUT WITH CSV HEADER;
