@@ -45,12 +45,12 @@ export GPPATH=/lfs/local/0/$DDUSER/data/gp_data
 export GPHOME=/lfs/local/0/senwu/software/greenplum/greenplum-db
 export PATH=$GPHOME/bin:$PATH
 #export PATH=$GPHOME/ext/python/bin:$PATH
-export LD_LIBRARY_PATH=$GPHOME/lib:$GPHOME/ext/python/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GPHOME/lib:$GPHOME/ext/python/lib
 export OPENSSL_CONF=$GPHOME/etc/openssl.cnf
 
 # Using ddlib, analysis util lib
 export PYTHONPATH=$PYTHONPATH:$DEEPDIVE_HOME/ddlib:$DEEPDIVE_HOME/ddlib/ddlib:$REAL_DIRNAME/analysis/util
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DEEPDIVE_HOME/lib/dw_linux/lib:$DEEPDIVE_HOME/lib/dw_linux/lib64
+export LD_LIBRARY_PATH=$DEEPDIVE_HOME/lib/dw_linux/lib:$DEEPDIVE_HOME/lib/dw_linux/lib64:$LD_LIBRARY_PATH
 export PATH=$PATH:$DEEPDIVE_HOME/ddlib:$DEEPDIVE_HOME/sbt
 
 # Switch to python3
