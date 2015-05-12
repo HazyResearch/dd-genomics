@@ -197,3 +197,6 @@ OUT="data/plos_doi_to_pmid.tsv"
 if [ ! -e "$OUT" ]; then
   tail -n +2 raw/PMC-ids.csv | grep -i plos | cut -d ',' -f8,10 | tr ',' '\t' | grep -v $'\t''$' > "$OUT"
 fi
+
+# Deploy the "phrase to ENSEMBL" map
+bzip2 -cd manual/phrase_to_ensembl.tsv.bz2 > data/phrase_to_ensembl.tsv
