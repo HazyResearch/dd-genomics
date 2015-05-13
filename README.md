@@ -5,6 +5,8 @@ We have a wiki for this project at
 
 ### Running GDD: Basics
 
+*NOTE [Mac OSX]: If running on Mac OSX, some of the scripts used below (those using the linux `readlink` command) may fail; recommended fix for now is to hardcode paths locally...*
+
 1. Copy template file `env.sh` to `env_local.sh` and modify this file (it's ignored by git, and prefered by the run script).  Make sure to set:
 	* database variables: user, host, port, db-name, db-type (postgres vs. greenplum)
 	* _memory and parallelism options_
@@ -13,16 +15,14 @@ We have a wiki for this project at
 
 2. Create the database to be used if necessary
 
-3. [IF NO INPUT DATA LOADED] Load data if input data (e.g. `sentences` and/or `sentences_input`) not already loaded; if from tsv file you can use (usually loading `sentences_input` -> `TABLE_NAME=sentences_input`):
+3. [IF NO INPUT DATA LOADED] **If no existing input data (e.g. `sentences` and/or `sentences_input` tables) is loaded:** Create input schema by running `./util/create_input_schema.sh` (**NOTE: this will drop any input data already loaded!**).  Then load data: if from tsv file you can use (usually loading `sentences_input` -> `TABLE_NAME=sentences_input`):
 
 		./util/copy_table_from_file.sh [DB_NAME] [TABLE_NAME] [TSV_FILE_PATH]
 
-  then run `./util/create_input_schema.sh`- *note that this will drop any pre-processed input data*.
 NOTE: some ready-to-use data files are available on `raiders2` at `/lfs/raiders2/0/robinjia/data/genomics_sentences_input_data/`.
 `genomics_10k_sentences.tsv` has 10k sentences (good for quick testing and debugging) and `genomics_50k_docs.tsv` has 50k documents 
 (gene extraction takes about 2 hours on `raiders2`).
 There is also `plos_all_docs.tsv`, a separate, cleaner dataset based on HTML dumps from PLoS.
-
 If you want to run certain mindtagger tasks (namely pheno-recall),
 you will also need to copy 
 `/lfs/raiders2/0/robinjia/data/genomics_sentences_input_data/hpo_to_plos_doc_id.tsv`
