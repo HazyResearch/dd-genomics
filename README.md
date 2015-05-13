@@ -17,7 +17,11 @@ We have a wiki for this project at
 
 		./util/copy_table_from_file.sh [DB_NAME] [TABLE_NAME] [TSV_FILE_PATH]
 
-  then run `./util/create_input_schema.sh`- *note that this will drop any pre-processed input data*.  NOTE: some ready-to-use data files are available on `raiders2` at `/lfs/raiders2/0/robinjia/data/genomics_sentences_input_data/`. In particular, `genomics_10k_sentences.tsv` has 10k sentences (good for quick testing and debugging) and `genomics_50k_docs.tsv` has 50k documents (gene extraction takes about 2 hours on `raiders2`).
+  then run `./util/create_input_schema.sh`- *note that this will drop any pre-processed input data*.
+NOTE: some ready-to-use data files are available on `raiders2` at `/lfs/raiders2/0/robinjia/data/genomics_sentences_input_data/`.
+`genomics_10k_sentences.tsv` has 10k sentences (good for quick testing and debugging) and `genomics_50k_docs.tsv` has 50k documents 
+(gene extraction takes about 2 hours on `raiders2`).
+There is also `plos_all_docs.tsv`, a separate, cleaner dataset based on HTML dumps from PLoS.
 
 If you want to run certain mindtagger tasks (namely pheno-recall),
 you will also need to copy 
