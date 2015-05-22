@@ -21,7 +21,7 @@ AND
 AND 
 	t0.doc_id = t4.doc_id AND t0.words[1] = t4.acronym
 AND 
-	t0.expectation > 0.9
+	t0.expectation > 0.95
 ORDER BY random()
 LIMIT 100
 ) TO STDOUT WITH HEADER

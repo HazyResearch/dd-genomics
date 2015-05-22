@@ -118,7 +118,7 @@ set -beEu -o pipefail
 if [ ! -f dicts/mart_export.txt ]; then
 	echo " No biomart file found! Downloading."
 	# Downloads a biomart file with columns: ensembl_ID | HGNC gene symbol | refseq_ID
-	wget -O dicts/mart_export.txt 'http://www.biomart.org/biomart/martservice?query=%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%0A%3C!DOCTYPE%20Query%3E%0A%3CQuery%20%20virtualSchemaName%20%3D%20%22default%22%20formatter%20%3D%20%22TSV%22%20header%20%3D%20%220%22%20uniqueRows%20%3D%20%220%22%20count%20%3D%20%22%22%20datasetConfigVersion%20%3D%20%220.6%22%20%3E%0A%09%09%09%0A%09%3CDataset%20name%20%3D%20%22hsapiens_gene_ensembl%22%20interface%20%3D%20%22default%22%20%3E%0A%09%09%3CAttribute%20name%20%3D%20%22ensembl_gene_id%22%20%2F%3E%0A%09%09%3CAttribute%20name%20%3D%20%22external_gene_name%22%20%2F%3E%0A%09%09%3CAttribute%20name%20%3D%20%22refseq_mrna%22%20%2F%3E%0A%09%3C%2FDataset%3E%0A%3C%2FQuery%3E'
+	wget -O dicts/mart_export.txt 'http://www.biomart.org/biomart/martservice?query=%3C!DOCTYPE%20Query%3E%3CQuery%20%20virtualSchemaName%20=%20%22default%22%20formatter%20=%20%22TSV%22%20header%20=%20%220%22%20uniqueRows%20=%20%220%22%20count%20=%20%22%22%20datasetConfigVersion%20=%20%220.6%22%20%3E%3CDataset%20name%20=%20%22hsapiens_gene_ensembl%22%20interface%20=%20%22default%22%20%3E%3CFilter%20name%20=%20%22biotype%22%20value%20=%20%22protein_coding%22/%3E%3CAttribute%20name%20=%20%22ensembl_gene_id%22%20/%3E%3CAttribute%20name%20=%20%22hgnc_symbol%22%20/%3E%3CAttribute%20name%20=%20%22refseq_mrna%22%20/%3E%3C/Dataset%3E%3C/Query%3E ' 
 fi
 
 # Also starting with a table of: gene symbol | gene synonyms (separated by a pipe | between each) | full gene name
@@ -149,12 +149,20 @@ cat dicts/ensembl_symbols.txt | awk '{ print $0 "\t" "CANONICAL_SYMBOL" }' > dic
 # Make a table of: ENSEMBL_ID | refseq ID | type (always the string "REFSEQ")
 cat dicts/mart_export.txt | awk '{if(NF==3) print $1":"$2 "\t" $3 "\t" "REFSEQ" }' | grep NM_ | sort | uniq > dicts/ensembl_refseq.txt
 
+# Make a table of: ENSEMBL_ID | ENSEMBL_ID (without the cannonical gene symbol appended after a colon) | type (always the string "ENSEMBL ID")
+cut -f 1-2 dicts/mart_export.txt | sort | uniq | grep ENSG | awk '{ print $1":"$2 "\t" $1 "\t" "ENSEMBL_ID" }' > dicts/ensembl_direct.txt 
+
 # Combine ensembl_refseq.txt, ensembl_symbols_canonical.txt, and ensembl_syns.txt to make a table of:
 # ENSEMBL ID | (symbol, synonym, refseq id) | type identifier (CANONICAL_SYMBOL, NON-CANONICAL_SYMBOL, REFSEQ)
-cat dicts/ensembl_refseq.txt dicts/ensembl_symbols_canonical.txt dicts/ensembl_syns.txt | sort | uniq > dicts/ensembl_map.tsv
+cat dicts/ensembl_refseq.txt dicts/ensembl_symbols_canonical.txt dicts/ensembl_syns.txt dicts/ensembl_direct.txt | sort | uniq > dicts/ensembl_map.tsv
+
+# OPTIONAL: remove all entries with phrase length of 1 or 2 (no one- or two-letter genes) 
+cat dicts/ensembl_map.tsv | awk '{if(length($2)>2){print $0}}' > temp.txt
+mv temp.txt dicts/ensembl_map.tsv	
 
 # OPTIONAL: delete all intermediate files
 rm dicts/ensembl_refseq.txt
+rm dicts/ensembl_direct.txt
 rm dicts/ensembl_symbols.txt
 rm dicts/ensembl_symbols_canonical.txt
 rm dicts/ensembl_symbols_syns.txt
@@ -164,3 +172,15 @@ rm dicts/symbols_syns.txt
 
 # Copy the final table to the data folder for use by deepdive
 cp dicts/ensembl_map.tsv data/ensembl_genes.tsv
+
+# Get EntrezID to ENSEMBL ID mapping
+
+if [ ! -f dicts/entrez2ensembl.txt ]; then
+	echo " No entrez to ensembl map found! Downloading."
+	# Downloads a biomart file with columns: ENTREZ_ID | ENSEMBL_ID
+	wget -O dicts/entrez_raw.txt 'http://www.biomart.org/biomart/martservice?query=%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%0A%3C!DOCTYPE%20Query%3E%0A%3CQuery%20%20virtualSchemaName%20%3D%20%22default%22%20formatter%20%3D%20%22TSV%22%20header%20%3D%20%220%22%20uniqueRows%20%3D%20%220%22%20count%20%3D%20%22%22%20datasetConfigVersion%20%3D%20%220.6%22%20%3E%0A%09%09%09%0A%09%3CDataset%20name%20%3D%20%22hsapiens_gene_ensembl%22%20interface%20%3D%20%22default%22%20%3E%0A%09%09%3CAttribute%20name%20%3D%20%22entrezgene%22%20%2F%3E%0A%09%09%3CAttribute%20name%20%3D%20%22ensembl_gene_id%22%20%2F%3E%0A%09%3C%2FDataset%3E%0A%3C%2FQuery%3E'
+	# Remove all ENSEMBL IDs which do not also have an associated ENTREZ ID
+	cat dicts/entrez_raw.txt | awk '{if(NF>=2){print $0}}' > dicts/entrez2ensembl.txt
+	echo "Converting entrez_raw.txt to entrez2ensembl.txt."
+	rm dicts/entrez_raw.txt
+fi

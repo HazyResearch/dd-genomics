@@ -1,9 +1,11 @@
 COPY (
-  SELECT si.doc_id
+  SELECT DISTINCT ON (r,si.doc_id)
+     random() as r,
+     si.doc_id
     , si.sent_id
     , gm.mention_id
     , gm.type
-    , string_to_array(si.words, '|^|') as words
+    , string_to_array(si.words, '|^|') 
     , gm.entity
     , expectation
     , gm.wordidxs
@@ -27,5 +29,5 @@ COPY (
     AND gm.mention_id = gmi.mention_id
     and gm.mention_id = f.mention_id
     AND expectation > 0.9
-  ORDER BY random() LIMIT 100
+  ORDER BY r LIMIT 1000
 ) TO STDOUT WITH CSV HEADER;
