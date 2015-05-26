@@ -152,12 +152,10 @@ def tsv_string_to_list(s, func=lambda x : x, sep='|^|'):
   """
 
   # Auto-detect separator
-  if re.search(re.escape(sep), s):
-    split = s.split(sep)
-  elif re.search(r'^\{|\}$', s):
+  if re.search(r'^\{|\}$', s):
     split = re.split(r'\s*,\s*', re.sub(r'^\{\s*|\s*\}$', '', s))
   else:
-    raise ValueError("Unrecognized tsv list input: %s" % (s,))
+    split = s.split(sep)
 
   # split and apply function
   return [func(x) for x in split]
