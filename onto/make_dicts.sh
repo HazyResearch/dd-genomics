@@ -1,3 +1,4 @@
+cp dicts/english_words.tsv data/english_words.tsv
 
 # Download and parse HPO term list (with synonyms and graph edges)
 RAW="raw/hpo.obo"
@@ -106,11 +107,11 @@ if [ ! -e "$RAW" ]; then
   wget ftp://ftp.ncbi.nih.gov/gene/DATA/gene2ensembl.gz -O "$RAW"
 fi
 # grab all the pmids that have less than 5 gene annotations since other genes have too many mappings for us to reasonably assess (gene collection papers, gwas, etc.)
-zcat raw/gene2pubmed.gz | awk '{if($1==9606) print $2"\t"$3}' |
+gzip -dc raw/gene2pubmed.gz | awk '{if($1==9606) print $2"\t"$3}' |
  sort -u  | cut -f2 | sort | uniq -c | awk '{if($1<=5) print $2}' | sort -u |
- join -t$'\t' -j 1 /dev/stdin <(zcat raw/gene2pubmed.gz | awk '{if($1==9606) print $3"\t"$2}' | sort -u) |
+ join -t$'\t' -j 1 /dev/stdin <(gzip -dc raw/gene2pubmed.gz | awk '{if($1==9606) print $3"\t"$2}' | sort -u) |
  sort -k2,2 |
- join -t$'\t' -1 2 -2 1 /dev/stdin <(zcat raw/gene2ensembl.gz | awk '{if($1==9606) print $2"\t"$3}' | sort -u) |
+ join -t$'\t' -1 2 -2 1 /dev/stdin <(gzip -dc raw/gene2ensembl.gz | awk '{if($1==9606) print $2"\t"$3}' | sort -u) |
  cut -f2- | sort -u -o data/pmid_to_ensembl.tsv
 
 
@@ -190,7 +191,7 @@ join -t $'\t' -1 2 -2 1 -o 1.1,2.2 <(cut -f1,7 data/hpo_phenotypes.tsv | egrep -
 # Get map between PMIDs and DOIs.
 RAW="raw/PMC-ids.csv"
 if [ ! -e "$RAW" ]; then
-  wget ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/PMC-ids.csv.gz -O - | zcat > $RAW
+  wget ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/PMC-ids.csv.gz -O - | gzip -dc > $RAW
 fi
 # Extract plos DOIs that map to pubmed IDs.
 OUT="data/plos_doi_to_pmid.tsv"
