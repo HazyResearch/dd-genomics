@@ -11,12 +11,13 @@ NUM_ERRORS_TO_SAMPLE = 50
 def main(id_file, candidate_file):
   # Load list of all pubmed IDs in the dataset
   print >> sys.stderr, 'Loading list of pubmed IDs from doc ID list.'
+  doi_to_pmid = util.read_doi_to_pmid()
   pmids_in_data = set()
   num_docs = 0
   with open(id_file) as f:
     for line in f:
       doc_id = line.strip()
-      pmid = util.get_pubmed_id_for_doc(doc_id)
+      pmid = util.get_pubmed_id_for_doc(doc_id, doi_to_pmid=doi_to_pmid)
       if pmid:
         pmids_in_data.add(pmid)
       num_docs += 1
@@ -44,8 +45,9 @@ def main(id_file, candidate_file):
   with open(candidate_file) as f:
     for line in f:
       doc_id, hpo_id = line.strip().split('\t')
-      pmid = util.get_pubmed_id_for_doc(doc_id)
-      candidates[pmid].add(hpo_id)
+      pmid = util.get_pubmed_id_for_doc(doc_id, doi_to_pmid=doi_to_pmid)
+      if pmid:
+        candidates[pmid].add(hpo_id)
 
   # Load HPO DAG
   # We say we found a HPO term if we find either the exact HPO term
@@ -65,10 +67,10 @@ def main(id_file, candidate_file):
     else:
       missed_pairs.add((pmid, hpo))
 
-  # Compute oracle recall
+  # Compute recall
   num_true = len(true_pairs)
   num_found = len(found_pairs)
-  print >> sys.stderr, 'Oracle recall: %d/%d = %g' % (
+  print >> sys.stderr, 'Recall: %d/%d = %g' % (
       num_found, num_true, float(num_found) / num_true)
 
   # Compute other statistics
@@ -103,5 +105,6 @@ if __name__ == '__main__':
     print >> sys.stderr, '  e.g. /lfs/raiders2/0/robinjia/data/genomics_sentences_input_data/50k_doc_ids.tsv'
     print >> sys.stderr, 'candidates.tsv should have rows doc_id, hpo_id.'
     print >> sys.stderr, '  e.g. result of SELECT doc_id, entity FROM pheno_mentions'
+    print >> sys.stderr, '  or SELECT doc_id, entity FROM pheno_mentions_is_correct_inference WHERE expectation > 0.9'
     sys.exit(1)
   main(*sys.argv[1:])
