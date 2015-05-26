@@ -139,7 +139,7 @@ def print_tsv_output(out_record):
   print '\t'.join(str(x) for x in values)
 
   
-def tsv_string_to_list(s, func=None, sep='|^|'):
+def tsv_string_to_list(s, func=lambda x : x, sep='|^|'):
   """Convert a TSV string from the sentences_input table to a list
 
   Args:
@@ -150,9 +150,17 @@ def tsv_string_to_list(s, func=None, sep='|^|'):
   Returns:
     list of elements.
   """
-  if func is None:
-    func = lambda x: x
-  return [func(x) for x in s.split(sep)]
+
+  # Auto-detect separator
+  if re.search(re.escape(sep), s):
+    split = s.split(sep)
+  elif re.search(r'^\{|\}$', s):
+    split = re.split(r'\s*,\s*', re.sub(r'^\{\s*|\s*\}$', '', s))
+  else:
+    raise ValueError("Unrecognized tsv list input: %s" % (s,))
+
+  # split and apply function
+  return [func(x) for x in split]
 
 
 def get_pubmed_id_for_doc(doc_id, doi_to_pmid=None):
