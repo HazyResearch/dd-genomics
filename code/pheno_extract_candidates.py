@@ -112,8 +112,14 @@ def extract_candidates(tokens, s):
     for c in candidates:
       if c.entity in known_hpo:
         new_candidates.append(c._replace(is_correct=True))
-      else:
-        new_candidates.append(c)
+      elif c in hpo_dag.node_set:
+        for parent in known_hpo:
+          # If this is more specific than MeSH term, also consider true.
+          if hpo_dag.has_child(parent, c):
+            new_candidates.append(c._replace(is_correct=True))
+            break
+        else:
+          new_candidates.append(c)
     candidates = new_candidates
 
   return candidates
@@ -126,7 +132,7 @@ def extract_candidates_from_sentence(s):
 
 
 ### NEGATIVE SUPERVISION ###
-NEG_EX_PROB = 0.005
+NEG_EX_PROB = 0.001
 def negative_supervision(s, candidates):
   """Generate some negative examples"""
   negs = []
@@ -134,7 +140,8 @@ def negative_supervision(s, candidates):
   
   # pick a random noun phrase which does not overlap with candidate mentions
   covered = set(chain.from_iterable([m.wordidxs for m in candidates]))
-  nounidxs = set([i for i in range(len(s.words)) if s.poses[i].startswith("NN")])
+  nounidxs = set([i for i in range(len(s.words))
+                  if s.poses[i].startswith("NN") or s.poses[i].startswith("JJ")])
   x = sorted(list(nounidxs - covered))
   if len(x) > 0:
     ridxs = [random.randint(0, len(x)-1)]
