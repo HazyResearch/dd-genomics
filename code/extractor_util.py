@@ -2,9 +2,16 @@
 from collections import defaultdict, namedtuple
 import os
 import re
+import sys
+from __future__ import print_function
 
 CODE_DIR = os.path.dirname(os.path.realpath(__file__))
 APP_HOME = os.path.dirname(CODE_DIR)
+
+
+def print_error(*objs):
+"""Function to write to stderr"""
+  print("ERROR[UDF]: ", *objs, file=sys.stderr)
 
 
 Sentence = namedtuple(

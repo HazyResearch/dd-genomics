@@ -64,7 +64,13 @@ def main():
   # Extract features from each line
   features = []
   for line in sys.stdin:
-    features += get_features_for_candidate(parse_input_row(line))
+    row = parse_input_row(line)
+    try:
+      features += get_features_for_candidate(row)
+    except Exception as e:
+      util.print_error("ERROR in row.relation_id=%s" % (row.relation_id,))
+      util.print_error(e)
+
   for feature in features:
     util.print_tsv_output(feature)
 
