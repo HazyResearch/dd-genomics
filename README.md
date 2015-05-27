@@ -30,9 +30,7 @@ to the `hpo_to_doc_via_mesh` table.
 
 4. To refresh / create the schema, run `./util/create_schema.sh`- *note that this will drop any output data from previous runs*.
 
-5. Make sure that user functions in `util/add_user_functions.sql` are loaded into SQL *under the correct user ($DBUSER)*:
-	
-		psql -U ${DBUSER} -h ${PGHOST} -p ${PGPORT} ${DBNAME} -f util/add_user_functions.sql
+5. Make sure that the custom user functions have been loaded into Postgres for this user; to do so run `./util/add_user_functions.sh`.
 
 6. [GREENPLUM ONLY] Make sure that GreenPlum's parallel file distribution server, `gpfdist`, is running with the correct settings (e.g. run `ps aux | grep gpfdist`; make sure that an intance is running with the correct $GPPATH and $GPPORT).  If not, then start a new one running on a free port:
 
