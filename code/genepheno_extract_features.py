@@ -26,25 +26,10 @@ def parse_input_row(line):
              dep_parents=util.tsv_string_to_list(tokens[12], func=int),
              wordidxs=util.tsv_string_to_list(tokens[13], func=int))
 
-def create_ddlib_sentence(row):
-  """Create a list of ddlib.Word objects from input row."""
-  dds = []
-  for i, word in enumerate(row.words):
-    dds.append(ddlib.Word(
-        begin_char_offset=None,
-        end_char_offset=None,
-        word=word,
-        lemma=row.lemmas[i],
-        pos=row.poses[i],
-        ner=row.ners[i],
-        dep_par=row.dep_parents[i],
-        dep_label=row.dep_paths[i]))
-  return dds
-
 def get_features_for_candidate(row):
   """Extract features for candidate mention- both generic ones from ddlib & custom features"""
   features = []
-  dds = create_ddlib_sentence(row)
+  dds = util.create_ddlib_sentence(row)
 
   # (1) GENERIC FEATURES from ddlib
   gene_span = ddlib.Span(begin_word_id=row.gene_wordidxs[0], length=len(row.gene_wordidxs))
@@ -56,23 +41,6 @@ def get_features_for_candidate(row):
 # Helper for loading in manually defined keywords
 onto_path = lambda p : '%s/onto/%s' % (os.environ['GDD_HOME'], p)
 
-def main():
-
-  # Load user-defined dictionaries to be used in ddlib
-  ddlib.load_dictionary(onto_path("manual/genepheno_keywords.txt"), dict_id="gp_relation_kws")
-
-  # Extract features from each line
-  features = []
-  for line in sys.stdin:
-    row = parse_input_row(line)
-    try:
-      features += get_features_for_candidate(row)
-    except Exception as e:
-      util.print_error("ERROR in row.relation_id=%s" % (row.relation_id,))
-      util.print_error(e)
-
-  for feature in features:
-    util.print_tsv_output(feature)
-
 if __name__ == '__main__':
-  main()
+  ddlib.load_dictionary(onto_path("manual/genepheno_keywords.txt"), dict_id="gp_relation_kws")
+  util.run_main_tsv(row_parser=parse_input_row, row_fn=get_features_for_candidate)

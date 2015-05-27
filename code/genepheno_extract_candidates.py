@@ -1,21 +1,23 @@
 #!/usr/bin/env python
 import collections
 import extractor_util as util
+import data_util as dutil
 import os
 import random
 import re
 import sys
 
-
 CACHE = dict()  # Cache results of disk I/O
-NEGATIVE_EXAMPLE_PROB = .1
+
+NEGATIVE_EXAMPLE_PROB = 0.1
+
 Row = collections.namedtuple('Row', [
     'doc_id', 'gene_mention_id', 'gene_entity',
     'pheno_mention_id', 'pheno_entity'])
+
 Mention = collections.namedtuple('Mention', [
     'id', 'doc_id', 'relation_id', 'gene_mention_id', 'pheno_mention_id',
     'is_correct'])
-
 
 def read_supervision():
   """Reads genepheno supervision data (from charite)."""
@@ -26,11 +28,9 @@ def read_supervision():
       supervision_pairs.add((hpo_id, gene_symbol))
   return supervision_pairs
 
-
 def parse_input_row(line):
   tokens = line.strip().split('\t')
   return Row(*tokens)
-
 
 def create_mention_for_row(row):
   relation_id = '%s_%s' % (row.gene_mention_id, row.pheno_mention_id)
@@ -44,17 +44,6 @@ def create_mention_for_row(row):
   return (None, row.doc_id, relation_id, row.gene_mention_id,
           row.pheno_mention_id, is_correct)
 
-
-def main():
-  CACHE['supervision_data'] = read_supervision()
-  mentions = []
-  for line in sys.stdin:
-    row = parse_input_row(line)
-    mention = create_mention_for_row(row)
-    mentions.append(mention)
-  for mention in mentions:
-    util.print_tsv_output(mention)
-
-
 if __name__ == '__main__':
-  main()
+  CACHE['supervision_data'] = read_supervision()
+  util.run_main_tsv(row_parser=parse_input_row, row_fn=lambda row : [create_mention_for_row(row)])

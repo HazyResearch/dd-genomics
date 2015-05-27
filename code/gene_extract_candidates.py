@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 import collections
 import extractor_util as util
+import data_util as dutil
 import random
 import re
 import os
 import sys
 
 CACHE = dict()  # Cache results of disk I/O
-
 
 def read_phrase_to_genes():
   """Read in phrase to gene mappings. The format is TSV: <Phrase> <EnsemblGeneId> <MappingType>
@@ -25,9 +25,7 @@ def read_phrase_to_genes():
       phrase,ensembl_id,mapping_type = line.rstrip('\n').split('\t')
       phrase_to_genes[phrase].add((ensembl_id,mapping_type))
       lower_phrase_to_genes[phrase.lower()].add((ensembl_id,mapping_type))
-  
   return phrase_to_genes, lower_phrase_to_genes
-
 
 def read_pubmed_to_genes():
   """NCBI provides a list of articles (PMIDs) that discuss a particular gene (Entrez IDs).
@@ -53,12 +51,10 @@ def parse_input_row(line):
                        poses=util.tsv_string_to_list(tokens[4]),
                        ners=util.tsv_string_to_list(tokens[5]))
 
-
 def get_mentions_for_row(row):
   phrase_to_genes = CACHE['phrase_to_genes']
   lower_phrase_to_genes = CACHE['lower_phrase_to_genes']
   mentions = []
-  
   for i, word in enumerate(row.words):
     if word in phrase_to_genes or word.lower() in lower_phrase_to_genes:
       # Treat lowercase mappings the same as exact case ones for now.
@@ -71,9 +67,7 @@ def get_mentions_for_row(row):
         mentions.append(util.create_mention(row, [i], [word], 'ALL_UPPERCASE_NOT_GENE_SYMBOL', 'ALL_UPPERCASE_NOT_GENE_SYMBOL'))
     elif random.random() < 0.0001:
         mentions.append(util.create_mention(row, [i], [word], 'RANDOM_WORD_NOT_GENE_SYMBOL', 'RANDOM_WORD_NOT_GENE_SYMBOL'))
-
   return mentions
-
 
 def get_supervision(row, mention):
   """Applies distant supervision rules."""
@@ -89,7 +83,7 @@ def get_supervision(row, mention):
   # Positive Rule #1: matches from papers that NCBI annotates as being about
   # the mentioned gene are likely true.
   pubmed_to_genes = CACHE['pubmed_to_genes']
-  pmid = util.get_pubmed_id_for_doc(row.doc_id, doi_to_pmid=CACHE['doi_to_pmid'])
+  pmid = dutil.get_pubmed_id_for_doc(row.doc_id, doi_to_pmid=CACHE['doi_to_pmid'])
   if pmid:
     mention_ensembl_id = mention.entity.split(":")[0]
     if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
@@ -98,25 +92,15 @@ def get_supervision(row, mention):
   # Default to no supervision
   return None
 
-
-def create_supervised(row, mention):
-  is_correct = get_supervision(row, mention)
-  return mention._replace(is_correct=is_correct)
-
-
-def main():
-  CACHE['phrase_to_genes'],CACHE['lower_phrase_to_genes'] = read_phrase_to_genes()
-  CACHE['pubmed_to_genes'] = read_pubmed_to_genes()
-  CACHE['doi_to_pmid'] = util.read_doi_to_pmid()
-  mentions = []
-  for line in sys.stdin:
-    row = parse_input_row(line)
-    new_mentions = get_mentions_for_row(row)
-    supervised_mentions = [create_supervised(row, m) for m in new_mentions]
-    mentions.extend(supervised_mentions)
-  for mention in mentions:
-    util.print_tsv_output(mention)
-
+def get_supervised_mentions_for_row(row):
+  supervised_mentions = []
+  for mention in get_mentions_for_row(row):
+    is_correct = get_supervision(row, mention)
+    supervised_mentions.append(mention._replace(is_correct=is_correct))
+  return supervised_mentions
 
 if __name__ == '__main__':
-  main()
+  CACHE['phrase_to_genes'],CACHE['lower_phrase_to_genes'] = read_phrase_to_genes()
+  CACHE['pubmed_to_genes'] = read_pubmed_to_genes()
+  CACHE['doi_to_pmid'] = dutil.read_doi_to_pmid()
+  util.run_main_tsv(row_parser=parse_input_row, row_fn=get_supervised_mentions_for_row)

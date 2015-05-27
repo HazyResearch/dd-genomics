@@ -5,7 +5,8 @@ import re
 import os
 import random
 from itertools import chain
-from extractor_util import print_tsv_output, create_mention, get_hpo_phenos, get_pubmed_id_for_doc, read_doi_to_pmid, read_hpo_dag, Sentence, Mention
+from extractor_util import print_tsv_output, create_mention, Sentence, Mention, run_main_tsv, print_error
+from data_util import get_hpo_phenos, get_pubmed_id_for_doc, read_doi_to_pmid, read_hpo_dag
 
 def parse_line(line, array_sep='|^|'):
   """Parses input line from tsv extractor input, with |^|-encoded array format"""
@@ -156,16 +157,10 @@ def negative_supervision(s, candidates):
       create_mention(s, wordidxs, [s.words[i] for i in wordidxs], None, 'RAND_NEG', False))
   return negs
 
+def get_all_candidates_from_row(row):
+  candidates = extract_candidates_from_sentence(row)
+  candidates += negative_supervision(row, candidates)
+  return candidates
 
-### RUN ###
-# extract and supervise mention candidates
-candidates = []
-for line in sys.stdin:
-  s = parse_line(line)
-  cs = extract_candidates_from_sentence(s)
-  cs += negative_supervision(s, cs)
-  candidates += cs
-
-# print to stdout
-for c in candidates:
-  print_tsv_output(c)
+if __name__ == '__main__':
+  run_main_tsv(row_parser=parse_line, row_fn=get_all_candidates_from_row)

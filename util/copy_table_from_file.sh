@@ -7,6 +7,11 @@
 # Third argument is the path to the TSV file or to a directory containing tsv
 # files
 
+if [ "${GDD_HOME-}" == "" ]; then
+  echo "Environment variables not found; please source env_local.sh."
+  exit 1
+fi
+
 abs_real_path () { 
 	case "$1" in 
 		/*) TSV_FILE_ABS_PATH=`readlink -f $1`
