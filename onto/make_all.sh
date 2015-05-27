@@ -174,7 +174,7 @@ cut -d $'\t' -f 7 data/hpo_phenotypes.tsv  | sort -u | tail -n +2 > data/meshLis
 
 # Get mesh to pubmed ID map
 if [ ! -f data/meshToPmid.tsv ]; then
-  if [-f /lfs/raiders2/0/robinjia/data/meshToPmid.tsv ]; then
+  if [ -f /lfs/raiders2/0/robinjia/data/meshToPmid.tsv ]; then
     cp /lfs/raiders2/0/robinjia/data/meshToPmid.tsv data/meshToPmid.tsv
   else
     echo " Copying meshToPmid.tsv from local filesystem failed."

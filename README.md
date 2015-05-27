@@ -38,7 +38,7 @@ to the `hpo_to_doc_via_mesh` table.
 
 		gpfdist -d ${GPPATH} -p ${GPPORT} -m 268435456 &
 
-7. Fetch and process ontology files: `cd onto; ./make_dicts.sh`
+7. Fetch and process ontology files: `cd onto; ./make_all.sh`
 
 8. Run the appropriate pipeline: `./run.sh [PIPELINE_NAME]`
 
