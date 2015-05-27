@@ -53,7 +53,7 @@ def pg_array_escape(tok):
   Escape a string that's meant to be in a Postgres array.
   We double-quote the string and escape backslashes and double-quotes.
   """
-  return '"%s"' % str(tok).replace('\\', '\\\\').replace('"', '\\"')
+  return '"%s"' % str(tok).replace('\\', '\\\\').replace('"', '\\\\"')
 
 def list_to_pg_array(l):
   """Convert a list to a string that PostgreSQL's COPY FROM understands."""

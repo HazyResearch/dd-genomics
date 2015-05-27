@@ -12,12 +12,8 @@ CACHE = dict()  # Cache results of disk I/O
 NEGATIVE_EXAMPLE_PROB = 0.1
 
 Row = collections.namedtuple('Row', [
-    'doc_id', 'gene_mention_id', 'gene_entity',
-    'pheno_mention_id', 'pheno_entity'])
-
-Mention = collections.namedtuple('Mention', [
-    'id', 'doc_id', 'relation_id', 'gene_mention_id', 'pheno_mention_id',
-    'is_correct'])
+    'doc_id', 'sent_id', 'gene_mention_id', 'gene_entity', 'gene_wordidxs',
+    'pheno_mention_id', 'pheno_entity', 'pheno_wordidxs'])
 
 def read_supervision():
   """Reads genepheno supervision data (from charite)."""
@@ -41,8 +37,9 @@ def create_mention_for_row(row):
   elif random.random() < NEGATIVE_EXAMPLE_PROB:
     # Randomly choose some examples to supervise as negatives
     is_correct = False
-  return (None, row.doc_id, relation_id, row.gene_mention_id,
-          row.pheno_mention_id, is_correct)
+  return (None, relation_id, row.doc_id, row.sent_id, row.gene_mention_id, \
+          row.gene_entity, row.gene_wordidxs, row.pheno_mention_id, row.pheno_entity, \
+          row.pheno_wordidxs, is_correct)
 
 if __name__ == '__main__':
   CACHE['supervision_data'] = read_supervision()

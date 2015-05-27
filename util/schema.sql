@@ -121,14 +121,24 @@ DROP TABLE IF EXISTS genepheno_relations CASCADE;
 CREATE TABLE genepheno_relations (
 	-- id for random variable
 	id bigint,
-	-- document id
-	doc_id text,
 	-- relation id
 	relation_id text,
+	-- document id
+	doc_id text,
+        -- sentence id
+	sent_id int,
 	-- gene mention id
 	gene_mention_id text,
+        -- gene entity
+        gene_entity text,
+        -- gene word indexes
+        gene_wordidxs int[],
 	-- phenotype mention id
 	pheno_mention_id text,
+        -- pheno entity
+        pheno_entity text,
+        -- pheno word indexes
+        pheno_wordidxs int[],
 	-- is this a correct relation?
 	is_correct boolean
 ) DISTRIBUTED BY (doc_id);
