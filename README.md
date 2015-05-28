@@ -40,6 +40,32 @@ to the `hpo_to_doc_via_mesh` table.
 
 8. Run the appropriate pipeline: `./run.sh [PIPELINE_NAME]`
 
+### Running Dashboard for Reports
+
+Make sure you have run `util/update-mindbender.sh` at least once.
+It will download the `util/mindbender` command, which includes Mindtagger as well as Dashboard.
+
+To produce a set of reports using Dashboard after a GDD run, use the following steps:
+```bash
+(
+. env_local.sh
+export GDD_PIPELINE=
+util/mindbender snapshot
+)
+```
+This will produce a set of reports under a directory pointed by `snapshot/LATEST` as configured in `snapshot-default.conf`.
+
+To view the produced reports, you can use the Dashboard GUI by starting it with the following command and opening the URL it prints:
+```bash
+(
+. env_local.sh
+export GDD_PIPELINE=
+PORT=12345 util/mindbender dashboard
+)
+```
+You may need to change `PORT=12345` value if someone else is already using it.
+When Dashboard URL is loaded in your web browser, you can navigate to the first snapshot in the top "View Snapshots" dropdown.
+
 
 ### Performing Labeling & Data Inspection Tasks
 Another great way to understand the output of the DeepDive system is to inspect a sample of indiviual examples and perform error analysis.
