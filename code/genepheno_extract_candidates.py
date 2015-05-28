@@ -11,9 +11,30 @@ CACHE = dict()  # Cache results of disk I/O
 
 NEGATIVE_EXAMPLE_PROB = 0.1
 
-Row = collections.namedtuple('Row', [
-    'doc_id', 'sent_id', 'gene_mention_id', 'gene_entity', 'gene_wordidxs',
-    'pheno_mention_id', 'pheno_entity', 'pheno_wordidxs'])
+# This defines the Row object that we read in to the extractor
+parser = util.RowParser([
+          ('doc_id', 'text'),
+          ('sent_id', 'int'),
+          ('gene_mention_id', 'text'),
+          ('gene_entity', 'text'),
+          ('gene_wordidxs', 'int[]'),
+          ('pheno_mention_id', 'text'),
+          ('pheno_entity', 'text'),
+          ('pheno_wordidxs', 'int[]')])
+
+# This defines the output Relation object
+Relation = collections.namedtuple('Relation', [
+            'dd_id',
+            'relation_id',
+            'doc_id',
+            'sent_id',
+            'gene_mention_id',
+            'gene_entity',
+            'gene_wordidxs',
+            'pheno_mention_id',
+            'pheno_entity',
+            'pheno_wordidxs',
+            'is_correct'])
 
 def read_supervision():
   """Reads genepheno supervision data (from charite)."""
@@ -24,23 +45,20 @@ def read_supervision():
       supervision_pairs.add((hpo_id, gene_symbol))
   return supervision_pairs
 
-def parse_input_row(line):
-  tokens = line.strip().split('\t')
-  return Row(*tokens)
-
 def create_mention_for_row(row):
   relation_id = '%s_%s' % (row.gene_mention_id, row.pheno_mention_id)
   entity_pair = (row.pheno_entity, row.gene_entity)
   is_correct = None
   if entity_pair in CACHE['supervision_data']:
     is_correct = True
+
+  # Randomly choose some examples to supervise as negatives
   elif random.random() < NEGATIVE_EXAMPLE_PROB:
-    # Randomly choose some examples to supervise as negatives
     is_correct = False
-  return (None, relation_id, row.doc_id, row.sent_id, row.gene_mention_id, \
-          row.gene_entity, row.gene_wordidxs, row.pheno_mention_id, row.pheno_entity, \
-          row.pheno_wordidxs, is_correct)
+  return Relation(None, relation_id, row.doc_id, row.sent_id, row.gene_mention_id, \
+      row.gene_entity, row.gene_wordidxs, row.pheno_mention_id, row.pheno_entity, \
+      row.pheno_wordidxs, is_correct)
 
 if __name__ == '__main__':
   CACHE['supervision_data'] = read_supervision()
-  util.run_main_tsv(row_parser=parse_input_row, row_fn=lambda row : [create_mention_for_row(row)])
+  util.run_main_tsv(row_parser=parser.parse_tsv_row, row_fn=lambda row : [create_mention_for_row(row)])

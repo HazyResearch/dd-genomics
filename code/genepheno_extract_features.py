@@ -5,27 +5,22 @@ import os
 import sys
 import ddlib
 
-Row = namedtuple('Row', ['relation_id', 'doc_id', 'sent_id', 'gene_mention_id', 'gene_wordidxs',
-            'pheno_mention_id', 'pheno_wordidxs', 'words', 'lemmas', 'poses', 'ners', 'dep_paths',
-            'dep_parents', 'wordidxs'])
-
-def parse_input_row(line):
-  tokens = line.split('\t')
-  return Row(relation_id=tokens[0],
-             doc_id=tokens[1],
-             sent_id=int(tokens[2]),
-             gene_mention_id=tokens[3],
-             gene_wordidxs=util.tsv_string_to_list(tokens[4], func=int),
-             pheno_mention_id=tokens[5],
-             pheno_wordidxs=util.tsv_string_to_list(tokens[6], func=int),
-             words=util.tsv_string_to_list(tokens[7]),
-             lemmas=util.tsv_string_to_list(tokens[8]),
-             poses=util.tsv_string_to_list(tokens[9]),
-             ners=util.tsv_string_to_list(tokens[10]),
-             dep_paths=util.tsv_string_to_list(tokens[11]),
-             dep_parents=util.tsv_string_to_list(tokens[12], func=int),
-             wordidxs=util.tsv_string_to_list(tokens[13], func=int))
-
+parser = util.RowParser([
+          ('relation_id', 'text'),
+          ('doc_id', 'text'),
+          ('sent_id', 'int'),
+          ('gene_mention_id', 'text'),
+          ('gene_wordidxs', 'int[]'),
+          ('pheno_mention_id', 'text'),
+          ('pheno_wordidxs', 'int[]'),
+          ('words', 'text[]'),
+          ('lemmas', 'text[]'),
+          ('poses', 'text[]'),
+          ('ners', 'text[]'),
+          ('dep_paths', 'text[]'),
+          ('dep_parents', 'int[]'),
+          ('wordidxs', 'int[]')])
+          
 def get_features_for_candidate(row):
   """Extract features for candidate mention- both generic ones from ddlib & custom features"""
   features = []
@@ -43,4 +38,4 @@ onto_path = lambda p : '%s/onto/%s' % (os.environ['GDD_HOME'], p)
 
 if __name__ == '__main__':
   ddlib.load_dictionary(onto_path("manual/genepheno_keywords.txt"), dict_id="gp_relation_kws")
-  util.run_main_tsv(row_parser=parse_input_row, row_fn=get_features_for_candidate)
+  util.run_main_tsv(row_parser=parser.parse_tsv_row, row_fn=get_features_for_candidate)

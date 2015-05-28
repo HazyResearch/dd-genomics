@@ -1,22 +1,33 @@
 #!/usr/bin/env python
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 import sys
 import re
 import os
 import random
 from itertools import chain
-from extractor_util import print_tsv_output, create_mention, Sentence, Mention, run_main_tsv, print_error
+import extractor_util as util
 from data_util import get_hpo_phenos, get_pubmed_id_for_doc, read_doi_to_pmid, read_hpo_dag
 
-def parse_line(line, array_sep='|^|'):
-  """Parses input line from tsv extractor input, with |^|-encoded array format"""
-  cols = line.split('\t')
-  return Sentence(doc_id=cols[0],
-                  sent_id=int(cols[1]),
-                  words=cols[2].split(array_sep),
-                  poses=cols[3].split(array_sep),
-                  ners=cols[4].split(array_sep),
-                  lemmas=cols[5].split(array_sep))
+# This defines the Row object that we read in to the extractor
+parser = util.RowParser([
+          ('doc_id', 'text'),
+          ('sent_id', 'int'),
+          ('words', 'text[]'),
+          ('lemmas', 'text[]'),
+          ('poses', 'text[]'),
+          ('ners', 'text[]')])
+
+# This defines the output Mention object
+Mention = namedtuple('Mention', [
+            'dd_id',
+            'doc_id',
+            'sent_id',
+            'wordidxs',
+            'mention_id',
+            'mention_type',
+            'entity',
+            'words',
+            'is_correct'])
 
 # Load stop words list
 # [See onto/gen_basic_stopwords.py]
@@ -63,6 +74,7 @@ def extract_candidates(tokens, s):
   """Extracts candidate phenotype mentions from a (filtered) list of token tuples"""
   if len(tokens) == 0: return []
   candidates = []
+  m = Mention(dd_id=None, doc_id=s.doc_id, sent_id=s.sent_id, wordidxs=None, mention_id=None, mention_type=None, entity=None, words=None, is_correct=None)
 
   # get all n-grams (w/ n <= MAX_LEN) and check for exact or exact lemma match
   # we go through n in descending order to prefer the longest possible exact match
@@ -86,7 +98,11 @@ def extract_candidates(tokens, s):
         is_correct = None
 
         # handle exact / exact lemma matches recursively to exclude overlapping mentions
-        candidates.append(create_mention(s, wordidxs, words, entity, 'EXACT', is_correct))
+        mtype = 'EXACT'
+        mid = '%s_%s_%s_%s_%s' % (s.doc_id, s.sent_id, wordidxs[0], wordidxs[-1], mtype)
+        candidates.append(
+          m._replace(wordidxs=wordidxs, words=words, entity=entity, mention_id=mid, 
+          mention_type=mtype, is_correct=is_correct))
         return candidates + extract_candidates(tokens[:start], s) \
                           + extract_candidates(tokens[start+l:], s)
 
@@ -94,7 +110,10 @@ def extract_candidates(tokens, s):
       phrase_set, lemma_set = [frozenset(x) for x in (words, lemmas)]
       if phrase_set in PHENO_SETS or lemma_set in PHENO_SETS:
         entity = PHENO_SETS[phrase_set] if phrase_set in PHENO_SETS else PHENO_SETS[lemma_set]
-        candidates.append(create_mention(s, wordidxs, words, entity, 'PERM', None))
+        mtype = 'PERM'
+        mid = '%s_%s_%s_%s_%s' % (s.doc_id, s.sent_id, wordidxs[0], wordidxs[-1], mtype)
+        candidates.append(
+          m._replace(wordidxs=wordidxs, words=words, entity=entity, mention_id=mid, mention_type=mtype))
 
       # (3) Check for an exact match with one ommitted (interior) word/lemma
       if len(words) > 2:
@@ -103,7 +122,10 @@ def extract_candidates(tokens, s):
                                     for x in (words, lemmas)]
           if phrase in PHENOS or lemma_phrase in PHENOS:
             entity = PHENOS[phrase] if phrase in PHENOS else PHENOS[lemma_phrase]
-            candidates.append(create_mention(s, wordidxs, words, entity, 'OMIT_%s' % (j,), None))
+            mtype = 'OMIT_%s' % j
+            mid = '%s_%s_%s_%s_%s' % (s.doc_id, s.sent_id, wordidxs[0], wordidxs[-1], mtype)
+            candidates.append(
+              m._replace(wordidxs=wordidxs, words=words, entity=entity, mention_id=mid, mention_type=mtype))
 
   # Add supervision via mesh terms
   pubmed_id = get_pubmed_id_for_doc(s.doc_id, doi_to_pmid=DOI_TO_PMID)
@@ -122,7 +144,6 @@ def extract_candidates(tokens, s):
         else:
           new_candidates.append(c)
     candidates = new_candidates
-
   return candidates
 
 def extract_candidates_from_sentence(s):
@@ -131,14 +152,13 @@ def extract_candidates_from_sentence(s):
   tokens = filter(lambda t : t[1] not in STOPWORDS and len(t[1]) > 2, tokens)
   return extract_candidates(tokens, s)
 
-
 ### NEGATIVE SUPERVISION ###
 NEG_EX_PROB = 0.001
 def negative_supervision(s, candidates):
   """Generate some negative examples"""
   negs = []
   if random.random() > NEG_EX_PROB: return negs
-  
+
   # pick a random noun phrase which does not overlap with candidate mentions
   covered = set(chain.from_iterable([m.wordidxs for m in candidates]))
   nounidxs = set([i for i in range(len(s.words))
@@ -153,8 +173,12 @@ def negative_supervision(s, candidates):
       else:
         break
     wordidxs = [x[j] for j in ridxs]
+    mtype = 'RAND_NEG'
+    mid = '%s_%s_%s_%s_%s' % (s.doc_id, s.sent_id, wordidxs[0], wordidxs[-1], mtype)
     negs.append(
-      create_mention(s, wordidxs, [s.words[i] for i in wordidxs], None, 'RAND_NEG', False))
+      Mention(dd_id=None, doc_id=s.doc_id, sent_id=s.sent_id, wordidxs=wordidxs,
+        mention_id=mid, mention_type=mtype, entity=None, words=[s.words[i] for i in wordidxs],
+        is_correct=False))
   return negs
 
 def get_all_candidates_from_row(row):
@@ -163,4 +187,4 @@ def get_all_candidates_from_row(row):
   return candidates
 
 if __name__ == '__main__':
-  run_main_tsv(row_parser=parse_line, row_fn=get_all_candidates_from_row)
+  util.run_main_tsv(row_parser=parser.parse_tsv_row, row_fn=get_all_candidates_from_row)

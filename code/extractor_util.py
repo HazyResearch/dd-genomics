@@ -11,27 +11,51 @@ def print_error(err_string):
   """Function to write to stderr"""
   sys.stderr.write("ERROR[UDF]: " + err_string + "\n")
 
-Sentence = namedtuple(
-    'Sentence', ['doc_id', 'sent_id', 'words', 'poses', 'ners', 'lemmas'])
+def tsv_string_to_list(s, func=lambda x : x, sep='|^|'):
+  """Convert a TSV string from the sentences_input table to a list,
+  optionally applying a fn to each element"""
 
-Mention = namedtuple(
-    'Mention', ['dd_id', 'doc_id', 'sent_id', 'wordidxs', 'mention_id',
-                'mention_type', 'entity', 'words', 'is_correct'])
+  # Auto-detect separator
+  if re.search(r'^\{|\}$', s):
+    split = re.split(r'\s*,\s*', re.sub(r'^\{\s*|\s*\}$', '', s))
+  else:
+    split = s.split(sep)
 
-def create_mention(sentence, wordidxs, words, entity, mention_type=None, is_correct=None):
-  """Create a mention (unary) record"""
-  mention_id = '%s_%s_%s_%s' % (sentence.doc_id, sentence.sent_id, wordidxs[0], wordidxs[-1])
-  if mention_type:
-    mention_id = '%s_%s' % (mention_id, mention_type)
-  return Mention(dd_id=None,
-                 doc_id=sentence.doc_id,
-                 sent_id=sentence.sent_id,
-                 wordidxs=wordidxs,
-                 mention_id=mention_id,
-                 mention_type=mention_type,
-                 entity=entity,
-                 words=words,
-                 is_correct=is_correct)
+  # split and apply function
+  return [func(x) for x in split]
+
+class Row:
+  def __str__(self):
+    return '<Row(' + ', '.join("%s=%s" % x for x in self.__dict__.iteritems()) + ')>'
+  def __repr__(self):
+    return str(self)
+
+RP_PARSERS = {
+  'text' : lambda x : str(x),
+  'text[]' : lambda x : tsv_string_to_list(x),
+  'int' : lambda x : int(x),
+  'int[]' : lambda x : tsv_string_to_list(x, func=int)
+}
+
+class RowParser:
+  """
+  Initialized with a list of duples (field_name, field_type)- see RP_PARSERS dict
+  Is a factory for simple Row class parsed from e.g. tsv input lines
+  """
+  def __init__(self, fields):
+    self.fields = fields
+
+  def parse_tsv_row(self, line):
+    row = Row()
+    cols = line.split('\t')
+    for i,col in enumerate(cols):
+      field_name, field_type = self.fields[i]
+      if RP_PARSERS.has_key(field_type):
+        val = RP_PARSERS[field_type](col)
+      else:
+        raise Exception("Unsupported type %s for RowParser class- please add.")
+      setattr(row, field_name, val)
+    return row
 
 def create_ddlib_sentence(row):
   """Create a list of ddlib.Word objects from input row."""
@@ -91,15 +115,3 @@ def run_main_tsv(row_parser, row_fn):
   for line in lines_out:
     print_tsv_output(line)
 
-def tsv_string_to_list(s, func=lambda x : x, sep='|^|'):
-  """Convert a TSV string from the sentences_input table to a list,
-  optionally applying a fn to each element"""
-
-  # Auto-detect separator
-  if re.search(r'^\{|\}$', s):
-    split = re.split(r'\s*,\s*', re.sub(r'^\{\s*|\s*\}$', '', s))
-  else:
-    split = s.split(sep)
-
-  # split and apply function
-  return [func(x) for x in split]
