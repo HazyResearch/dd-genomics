@@ -1,5 +1,5 @@
 env_local.sh
-data*
+data/*
 
 # Vim swap files
 *.*.sw*
