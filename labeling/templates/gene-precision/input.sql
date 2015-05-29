@@ -5,7 +5,7 @@ COPY (
     , si.sent_id
     , gm.mention_id
     , gm.type
-    , string_to_array(si.words, '|^|') 
+    , string_to_array(si.words, '|^|') as words 
     , gm.entity
     , expectation
     , gm.wordidxs
