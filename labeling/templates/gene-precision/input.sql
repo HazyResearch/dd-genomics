@@ -1,16 +1,16 @@
 COPY (
   SELECT DISTINCT ON (r,si.doc_id)
-     random() as r,
-     si.doc_id
-    , si.sent_id
+    si.sent_id
     , gm.mention_id
     , gm.type
-    , string_to_array(si.words, '|^|') 
+    , string_to_array(si.words, '|^|') as words 
     , gm.entity
     , expectation
     , gm.wordidxs
     , features
     , weights
+    , random() as r
+    , si.doc_id
   FROM gene_mentions_is_correct_inference gmi
     , sentences_input si
     , gene_mentions gm
