@@ -81,7 +81,7 @@ def get_mentions_for_row(row):
       elif word == word.upper() and len(word) > 2 and word.isalnum() and not unicode(word).isnumeric():
         if random.random() < 0.05:
           mentions.append(util.create_mention(row, [i], [word], 'ALL_UPPERCASE_NOT_GENE_SYMBOL', 'ALL_UPPERCASE_NOT_GENE_SYMBOL'))
-      elif random.random() < 0.002:
+      elif random.random() < 0.002 and not  '"' in word:
           mentions.append(util.create_mention(row, [i], [word], 'RANDOM_WORD_NOT_GENE_SYMBOL', 'RANDOM_WORD_NOT_GENE_SYMBOL'))
 
   return mentions
