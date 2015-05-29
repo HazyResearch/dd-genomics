@@ -1,5 +1,9 @@
 # The Genomics DeepDive (GDD) Project
 
+### GDD Setup notes
+
+1. [5/28/15]: The sampler used is currently in the `sample_evidence` branch of the sampler [repo][sampler-se].  To use an existing compiled binary for linux, just move `util/sampler-dw-linux` to `$DEEPDIVE_HOME/util/sampler-dw-linux`.  To recompile the binary, clone the sampler repo, follow instructions, then move the compiled binary to the same location.
+
 ### Running GDD: Basics
 
 *NOTE [Mac OSX]: If running on Mac OSX, some of the scripts used below (those using the linux `readlink` command) may fail; recommended fix for now is to hardcode paths locally...*
@@ -112,6 +116,7 @@ and then open a browser to [localhost][localhost] to view all the created tasks 
   *Note: this may take a while to start, as it waits for GreenPlum first...*
 
 
+[sampler-se]: https://github.com/HazyResearch/sampler/tree/sample_evidence
 [deepdiverepo]: https://github.com/hazyresearch/deepdive
 [deepdivedocs]: http://deepdive.stanford.edu/index.html#documentation
 [mindtagger]: https://github.com/netj/mindbender
