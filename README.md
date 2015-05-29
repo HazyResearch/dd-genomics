@@ -1,8 +1,5 @@
 # The Genomics DeepDive (GDD) Project
 
-We have a wiki for this project at
-<http://dev.stanford.edu/confluence/display/collaborators/DeepDive+Genomics>
-
 ### Running GDD: Basics
 
 *NOTE [Mac OSX]: If running on Mac OSX, some of the scripts used below (those using the linux `readlink` command) may fail; recommended fix for now is to hardcode paths locally...*
@@ -67,7 +64,7 @@ You may need to change `PORT=12345` value if someone else is already using it.
 When Dashboard URL is loaded in your web browser, you can navigate to the first snapshot in the top "View Snapshots" dropdown.
 
 
-### Performing Labeling & Data Inspection Tasks
+### Running Mindtagger for Labeling and Evaluation
 Another great way to understand the output of the DeepDive system is to inspect a sample of indiviual examples and perform error analysis.
 We use a GUI tool called [*Mindtagger*][mindtagger] to expedite the labeling tasks necessary for performing this evaluation.
 Mindtagger provides a clean interface for inspecting individual mention candidates.
@@ -93,7 +90,7 @@ Once you've created your task(s), start the Mindtagger GUI by running:
 and then open a browser to [localhost][localhost] to view all the created tasks & label data!
 
 
-
+### Etc.
 #### *Installing DeepDive via Docker*
 
 1. Install Docker (see [Docker installation guide][docker-install])
