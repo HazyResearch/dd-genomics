@@ -6,6 +6,7 @@ import random
 import re
 import os
 import sys
+import string
 
 CACHE = dict()  # Cache results of disk I/O
 
@@ -31,19 +32,19 @@ Mention = collections.namedtuple('Mention', [
             'is_correct'])
 
 def read_phrase_to_genes():
-  """Read in phrase to gene mappings. The format is TSV: <Phrase> <EnsemblGeneId> <MappingType>
+  """Read in phrase to gene mappings. The format is TSV: <EnsemblGeneId> <Phrase> <MappingType>
   
   <MappingType> is one of:
-    - OFFICIAL_GENE_SYMBOL
-    - GENE_SYMBOL_SYNONYM
+    - CANONICAL_GENE_SYMBOL
+    - NONCANONICAL_GENE_SYMBOL
     - REFSEQ_ID
-    - ENSEMBL_GENE_ID
+    - ENSEMBL_ID
   """
-  with open('%s/onto/data/phrase_to_ensembl.tsv' % util.APP_HOME) as f:
+  with open('%s/onto/data/ensembl_genes.tsv' % util.APP_HOME) as f:
     phrase_to_genes = collections.defaultdict(set)
     lower_phrase_to_genes = collections.defaultdict(set)
     for line in f:
-      phrase,ensembl_id,mapping_type = line.rstrip('\n').split('\t')
+      ensembl_id,phrase,mapping_type = line.rstrip('\n').split('\t')
       phrase_to_genes[phrase].add((ensembl_id,mapping_type))
       lower_phrase_to_genes[phrase.lower()].add((ensembl_id,mapping_type))
   return phrase_to_genes, lower_phrase_to_genes
@@ -68,28 +69,36 @@ def get_mentions_for_row(row):
   phrase_to_genes = CACHE['phrase_to_genes']
   lower_phrase_to_genes = CACHE['lower_phrase_to_genes']
   mentions = []
-  for i, word in enumerate(row.words):
-    mid = '%s_%s_%s' % (row.doc_id, row.sent_id, i)
-    m = Mention(dd_id=None, doc_id=row.doc_id, sent_id=row.sent_id, wordidxs=[i], mention_id=mid, mention_type=None, entity=None, words=[word], is_correct=None)
+  skip_sentence = False
 
-    # Exact match- treat lowercase mappings the same as exact case ones for now.
-    if word in phrase_to_genes or word.lower() in lower_phrase_to_genes:
+  # Throw out gene candidates whose sentences contain these words or elements of words:
+  exclude_list = ['scholar.google.com/scholar', 'http://', 'https://']
+  for word in row.words:
+    if any(x in word for x in exclude_list): 
+      skip_sentence = True
 
-      exact_case_matches = phrase_to_genes[word]
-      lowercase_matches = phrase_to_genes[word.lower()]
+  # Throw out gene candidates whose sentences do not contain a coreNLP-tagged verb     
+  if any(x in ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ'] for x in row.poses) and not (skip_sentence): 
+    for i, word in enumerate(row.words):
+      mid = '%s_%s_%s' % (row.doc_id, row.sent_id, i)
+      m = Mention(dd_id=None, doc_id=row.doc_id, sent_id=row.sent_id, wordidxs=[i], mention_id=mid, mention_type=None, entity=None, words=[word], is_correct=None)
 
-      # TODO: is this a problem that there could be multiple matches here?  Would there ever be?
-      for eid, mapping_type in exact_case_matches.union(lowercase_matches):
-        mentions.append(m._replace(entity=eid, mention_type=mapping_type))
+      # Treat lowercase mappings the same as exact case ones for now.
+      # Do not learn any 1-letter words
+      if (word in phrase_to_genes or word.lower() in lower_phrase_to_genes) and (len(word)>1):
+        exact_case_matches = phrase_to_genes[word]
+        lowercase_matches = phrase_to_genes[word.lower()]
+        for eid, mapping_type in exact_case_matches.union(lowercase_matches):
+          mentions.append(m._replace(entity=eid, mention_type=mapping_type))
 
-    # Non-match all uppercase negative supervision
-    elif word == word.upper() and word.isalnum() and not unicode(word).isnumeric() and len(word) > 2:
-      if random.random() < 0.05:
-        mentions.append(m._replace(mention_type='ALL_UPPER_NOT_GENE_SYMBOL', is_correct=False))
+      # Non-match all uppercase negative supervision
+      elif word == word.upper() and len(word) > 2 and word.isalnum() and not unicode(word).isnumeric():
+        if random.random() < 0.05:
+          mentions.append(m._replace(mention_type='ALL_UPPER_NOT_GENE_SYMBOL', is_correct=False))
 
-    # Random negative supervision
-    elif random.random() < 0.0001:
-      mentions.append(m._replace(mention_type='RAND_WORD_NOT_GENE_SYMBOL', is_correct=False))
+      # Random negative supervision
+      elif random.random() < 0.002:
+        mentions.append(m._replace(mention_type='RAND_WORD_NOT_GENE_SYMBOL', is_correct=False))
   return mentions
 
 def get_supervision(row, mention):
@@ -106,6 +115,14 @@ def get_supervision(row, mention):
     mention_ensembl_id = mention.entity.split(":")[0]
     if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
       return True
+
+  # Positive Rule#2: Genes on the gene list with complicated names (3 letters
+  # and 1 digit) are probably good for exact matches.
+  """
+  if mention.mention_type in ('CANONICAL_SYMBOL','NONCANONICAL_SYMBOL'):
+    if re.match(r'[a-zA-Z]{3}[a-zA-Z]*\d+\w*', word):
+      return True
+  """
 
   # Default to existing supervision
   return mention.is_correct
