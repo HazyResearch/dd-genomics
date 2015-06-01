@@ -1,6 +1,9 @@
 env_local.sh
 data/*
 /util/mindbender
+report-templates/
+snapshot/
+.application.conf*
 
 # Vim swap files
 *.*.sw*
