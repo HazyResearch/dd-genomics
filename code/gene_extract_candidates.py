@@ -69,37 +69,34 @@ def get_mentions_for_row(row):
   phrase_to_genes = CACHE['phrase_to_genes']
   lower_phrase_to_genes = CACHE['lower_phrase_to_genes']
   mentions = []
-  skip_sentence = False
 
-  # Throw out gene candidates whose sentences contain these words or elements of words:
-  exclude_list = ['scholar.google.com/scholar', 'http://', 'https://']
-  for word in row.words:
-    if any(x in word for x in exclude_list): 
-      skip_sentence = True
+  # Skip row if sentence doesn't contain a verb, contains URL, etc.
+  if util.skip_row(row):
+    return mentions
 
-  # Throw out gene candidates whose sentences do not contain a coreNLP-tagged verb     
-  if any(x in ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ'] for x in row.poses) and not (skip_sentence): 
-    for i, word in enumerate(row.words):
-      mid = '%s_%s_%s' % (row.doc_id, row.sent_id, i)
-      m = Mention(dd_id=None, doc_id=row.doc_id, sent_id=row.sent_id, wordidxs=[i], mention_id=mid, mention_type=None, entity=None, words=[word], is_correct=None)
+  for i, word in enumerate(row.words):
+    
+    # Make a template mention object- will have mention_id opt with entity (ensemble_id) appended
+    mid = '%s_%s_%s' % (row.doc_id, row.sent_id, i)
+    m = Mention(dd_id=None, doc_id=row.doc_id, sent_id=row.sent_id, wordidxs=[i], mention_id=mid, mention_type=None, entity=None, words=[word], is_correct=None)
 
-      # Treat lowercase mappings the same as exact case ones for now.
-      # HACK[MORGAN]
-      # Do not learn any 2-letter words
-      if (word in phrase_to_genes or word.lower() in lower_phrase_to_genes) and (len(word)>2):
-        exact_case_matches = phrase_to_genes[word]
-        lowercase_matches = phrase_to_genes[word.lower()]
-        for eid, mapping_type in exact_case_matches.union(lowercase_matches):
-          mentions.append(m._replace(entity=eid, mention_type=mapping_type))
+    # Treat lowercase mappings the same as exact case ones for now.
+    # HACK[MORGAN]: Do not learn any 2-letter words
+    if (word in phrase_to_genes or word.lower() in lower_phrase_to_genes) and (len(word)>2):
+      exact_case_matches = phrase_to_genes[word]
+      lowercase_matches = phrase_to_genes[word.lower()]
+      for eid, mapping_type in exact_case_matches.union(lowercase_matches):
+        mentions.append(
+          m._replace(mention_id=mid+'_'+eid, entity=eid, mention_type=mapping_type))
 
-      # Non-match all uppercase negative supervision
-      elif word == word.upper() and len(word) > 2 and word.isalnum() and not unicode(word).isnumeric():
-        if random.random() < 0.05:
-          mentions.append(m._replace(mention_type='ALL_UPPER_NOT_GENE_SYMBOL', is_correct=False))
+    # Non-match all uppercase negative supervision
+    elif word==word.upper() and len(word)>2 and word.isalnum() and not unicode(word).isnumeric():
+      if random.random() < 0.05:
+        mentions.append(m._replace(mention_type='ALL_UPPER_NOT_GENE_SYMBOL', is_correct=False))
 
-      # Random negative supervision
-      elif random.random() < 0.002:
-        mentions.append(m._replace(mention_type='RAND_WORD_NOT_GENE_SYMBOL', is_correct=False))
+    # Random negative supervision
+    elif random.random() < 0.002:
+      mentions.append(m._replace(mention_type='RAND_WORD_NOT_GENE_SYMBOL', is_correct=False))
   return mentions
 
 def get_supervision(row, mention):

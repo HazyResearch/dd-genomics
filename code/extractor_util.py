@@ -5,6 +5,28 @@ import re
 import sys
 import ddlib
 
+# HACK[Alex]: this is probably justified but a bit hackey still...
+def skip_row(row):
+  """
+  Filter sentences dynamically which we want to skip for now uniformly across all extractors
+  NOTE: could do this as preprocessing step but since this is a bit of a hack should be more
+  transparent...
+  Assumes Row object has words, poses attributes
+  """
+
+  # Require that there is a verb in the sentence
+  if not any(pos.startswith("VB") for pos in row.poses):
+    return True
+
+  # Filter out by certain specific identifying tokens
+  exclude_strings = ['http://', 'https://']
+  exclude_patterns = ['\w+\.(com|org|edu|gov)']
+  for ex in [re.escape(s) for s in exclude_strings] + exclude_patterns:
+    for word in row.words:
+      if re.search(ex, word, re.I|re.S):
+        return True
+  return False
+
 APP_HOME = os.environ['GDD_HOME']
 
 def print_error(err_string):

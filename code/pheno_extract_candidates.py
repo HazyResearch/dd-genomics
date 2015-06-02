@@ -60,11 +60,15 @@ rows = [line.split('\t') for line in open(onto_path('data/pheno_terms.tsv'), 'rb
 for row in rows:
   hpoid, phrase, entry_type = [x.strip() for x in row]
   if hpoid in hpo_phenos:
-    PHENOS[phrase] = hpoid
-
-    # NOTE: do we have to worry about collisions here?  Probably not too big of deal because if there
-    # are multiple HPO entries that are permutations of the same set, likely one will exact match...
-    PHENO_SETS[frozenset(phrase.split())] = hpoid
+    if phrase in PHENOS:
+      PHENOS[phrase].append(hpoid)
+    else:
+      PHENOS[phrase] = [hpoid]
+    phrase_bow = frozenset(phrase.split())
+    if phrase_bow in PHENO_SETS:
+      PHENO_SETS[phrase_bow].append(hpoid)
+    else:
+      PHENO_SETS[phrase_bow] = [hpoid]
 
 
 ### CANDIDATE EXTRACTION + POSITIVE SUPERVISION ###
@@ -85,35 +89,38 @@ def extract_candidates(tokens, s):
       # (1) Check for exact match (including exact match of lemmatized / stop words removed)
       phrase, lemma_phrase = [' '.join(x) for x in (words, lemmas)]
       if phrase in PHENOS or lemma_phrase in PHENOS:
-        entity = PHENOS[phrase] if phrase in PHENOS else PHENOS[lemma_phrase]
+        entities = PHENOS[phrase] if phrase in PHENOS else PHENOS[lemma_phrase]
 
         # Supervise exact matches as true; however if exact match is also a common english word,
         # label true w.p. < 1
+        # NOTE: delete this but confirm that supervision method below high enough yield...
         '''
         if len(words) == 1 and phrase in ENGLISH_WORDS:
           is_correct = True if random.random() < COMMON_WORD_PROB else None
         else:
           is_correct = True
         '''
-        is_correct = None
 
         # handle exact / exact lemma matches recursively to exclude overlapping mentions
         mtype = 'EXACT'
-        mid = '%s_%s_%s_%s_%s' % (s.doc_id, s.sent_id, wordidxs[0], wordidxs[-1], mtype)
-        candidates.append(
-          m._replace(wordidxs=wordidxs, words=words, entity=entity, mention_id=mid, 
-          mention_type=mtype, is_correct=is_correct))
+        for entity in entities:
+          mid = '%s_%s_%s_%s_%s_%s' % (s.doc_id,s.sent_id,wordidxs[0],wordidxs[-1],mtype,entity)
+          candidates.append(
+            m._replace(wordidxs=wordidxs, words=words, entity=entity, mention_id=mid, 
+              mention_type=mtype))
         return candidates + extract_candidates(tokens[:start], s) \
                           + extract_candidates(tokens[start+l:], s)
 
       # (2) Check for permuted match
       phrase_set, lemma_set = [frozenset(x) for x in (words, lemmas)]
       if phrase_set in PHENO_SETS or lemma_set in PHENO_SETS:
-        entity = PHENO_SETS[phrase_set] if phrase_set in PHENO_SETS else PHENO_SETS[lemma_set]
+        entities = PHENO_SETS[phrase_set] if phrase_set in PHENO_SETS else PHENO_SETS[lemma_set]
         mtype = 'PERM'
-        mid = '%s_%s_%s_%s_%s' % (s.doc_id, s.sent_id, wordidxs[0], wordidxs[-1], mtype)
-        candidates.append(
-          m._replace(wordidxs=wordidxs, words=words, entity=entity, mention_id=mid, mention_type=mtype))
+        for entity in entities:
+          mid = '%s_%s_%s_%s_%s_%s' % (s.doc_id,s.sent_id,wordidxs[0],wordidxs[-1],mtype,entity)
+          candidates.append(
+            m._replace(wordidxs=wordidxs, words=words, entity=entity, mention_id=mid,
+              mention_type=mtype))
 
       # (3) Check for an exact match with one ommitted (interior) word/lemma
       if len(words) > 2:
@@ -121,11 +128,13 @@ def extract_candidates(tokens, s):
           phrase, lemma_phrase = [' '.join([w for i,w in enumerate(x) if i != j]) \
                                     for x in (words, lemmas)]
           if phrase in PHENOS or lemma_phrase in PHENOS:
-            entity = PHENOS[phrase] if phrase in PHENOS else PHENOS[lemma_phrase]
+            entities = PHENOS[phrase] if phrase in PHENOS else PHENOS[lemma_phrase]
             mtype = 'OMIT_%s' % j
-            mid = '%s_%s_%s_%s_%s' % (s.doc_id, s.sent_id, wordidxs[0], wordidxs[-1], mtype)
-            candidates.append(
-              m._replace(wordidxs=wordidxs, words=words, entity=entity, mention_id=mid, mention_type=mtype))
+            for entity in entities:
+              mid='%s_%s_%s_%s_%s_%s'%(s.doc_id,s.sent_id,wordidxs[0],wordidxs[-1],mtype,entity)
+              candidates.append(
+                m._replace(wordidxs=wordidxs, words=words, entity=entity, mention_id=mid,
+                  mention_type=mtype))
 
   # Add supervision via mesh terms
   pubmed_id = get_pubmed_id_for_doc(s.doc_id, doi_to_pmid=DOI_TO_PMID)
@@ -137,6 +146,7 @@ def extract_candidates(tokens, s):
         new_candidates.append(c._replace(is_correct=True))
       elif c in hpo_dag.node_set:
         for parent in known_hpo:
+
           # If this is more specific than MeSH term, also consider true.
           if hpo_dag.has_child(parent, c):
             new_candidates.append(c._replace(is_correct=True))
@@ -148,6 +158,12 @@ def extract_candidates(tokens, s):
 
 def extract_candidates_from_sentence(s):
   """Extracts candidate phenotype mentions from an input line as Sentence object"""
+
+  # Skip row if sentence doesn't contain a verb, contains URL, etc.
+  if util.skip_row(row):
+    return mentions
+
+  # Split into list of token tuples & process recursively
   tokens = [(i, s.words[i].lower(), s.lemmas[i]) for i in range(len(s.words))]
   tokens = filter(lambda t : t[1] not in STOPWORDS and len(t[1]) > 2, tokens)
   return extract_candidates(tokens, s)
