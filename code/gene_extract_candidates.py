@@ -84,8 +84,9 @@ def get_mentions_for_row(row):
       m = Mention(dd_id=None, doc_id=row.doc_id, sent_id=row.sent_id, wordidxs=[i], mention_id=mid, mention_type=None, entity=None, words=[word], is_correct=None)
 
       # Treat lowercase mappings the same as exact case ones for now.
-      # Do not learn any 1-letter words
-      if (word in phrase_to_genes or word.lower() in lower_phrase_to_genes) and (len(word)>1):
+      # HACK[MORGAN]
+      # Do not learn any 2-letter words
+      if (word in phrase_to_genes or word.lower() in lower_phrase_to_genes) and (len(word)>2):
         exact_case_matches = phrase_to_genes[word]
         lowercase_matches = phrase_to_genes[word.lower()]
         for eid, mapping_type in exact_case_matches.union(lowercase_matches):

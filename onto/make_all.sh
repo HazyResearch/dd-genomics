@@ -165,8 +165,8 @@ cut -f 1-2 dicts/mart_export.txt | sort | uniq | grep ENSG | awk '{ print $1":"$
 cat dicts/ensembl_refseq.txt dicts/ensembl_symbols_canonical.txt dicts/ensembl_syns.txt dicts/ensembl_direct.txt | sort | uniq > dicts/ensembl_map.tsv
 
 # OPTIONAL: remove all entries with phrase length of 1 or 2 (no one- or two-letter genes) 
-cat dicts/ensembl_map.tsv | awk '{if(length($2)>2){print $0}}' > temp.txt
-mv temp.txt dicts/ensembl_map.tsv	
+#cat dicts/ensembl_map.tsv | awk '{if(length($2)>2){print $0}}' > temp.txt
+#mv temp.txt dicts/ensembl_map.tsv	
 
 # OPTIONAL: delete all intermediate files
 rm dicts/ensembl_refseq.txt
