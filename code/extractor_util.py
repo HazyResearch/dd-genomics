@@ -114,4 +114,3 @@ def run_main_tsv(row_parser, row_fn):
 
   for line in lines_out:
     print_tsv_output(line)
-

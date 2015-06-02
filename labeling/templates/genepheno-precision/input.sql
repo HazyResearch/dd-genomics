@@ -44,5 +44,5 @@ COPY (
     AND r.relation_id = f.relation_id 
     AND r.expectation > 0.9
   ORDER BY random()
-  LIMIT 10
+  LIMIT 100
 ) TO STDOUT WITH CSV HEADER;
