@@ -5,19 +5,20 @@ import sys
 
 sys.path.append('../code')
 import extractor_util as util
+import data_util as dutil
 
 NUM_ERRORS_TO_SAMPLE = 50
 
 def main(id_file, candidate_file):
   # Load list of all pubmed IDs in the dataset
   print >> sys.stderr, 'Loading list of pubmed IDs from doc ID list.'
-  doi_to_pmid = util.read_doi_to_pmid()
+  doi_to_pmid = dutil.read_doi_to_pmid()
   pmids_in_data = set()
   num_docs = 0
   with open(id_file) as f:
     for line in f:
       doc_id = line.strip()
-      pmid = util.get_pubmed_id_for_doc(doc_id, doi_to_pmid=doi_to_pmid)
+      pmid = dutil.get_pubmed_id_for_doc(doc_id, doi_to_pmid=doi_to_pmid)
       if pmid:
         pmids_in_data.add(pmid)
       num_docs += 1
@@ -45,14 +46,14 @@ def main(id_file, candidate_file):
   with open(candidate_file) as f:
     for line in f:
       doc_id, hpo_id = line.strip().split('\t')
-      pmid = util.get_pubmed_id_for_doc(doc_id, doi_to_pmid=doi_to_pmid)
+      pmid = dutil.get_pubmed_id_for_doc(doc_id, doi_to_pmid=doi_to_pmid)
       if pmid:
         candidates[pmid].add(hpo_id)
 
   # Load HPO DAG
   # We say we found a HPO term if we find either the exact HPO term
   # or one of its children
-  hpo_dag = util.read_hpo_dag()
+  hpo_dag = dutil.read_hpo_dag()
 
   # Determine which true pairs had candidate mentions for them
   found_pairs = set()

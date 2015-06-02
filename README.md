@@ -84,8 +84,11 @@ Currently, the most useful tasks are:
 * gene-precision: Selects 100 random gene mention candidates with score > .9.  User should see if any of them are wrong gene mentions.
 * gene-recall: Selects 100 random gene mention candidates with score < .9.  User should see if any of them are true gene mentions.
 * pheno-precision.  Selects 100 random phenotype mention candidates with score > .9.  User should see if any of them are wrong phenotype mentions.
+* pheno-recall.  ?
+* genepheno-precision.  Selects 100 random genepheno candidates with score > .9.
+* genepheno-recall.  Selects 100 random genepheno candidates with gene & pheno scores > .8 but genepheno relation score <= .9.
 
-Hopefully, we'll eventually come up with a good way to assess phenotype extractor recall.
+See `eval/` directory for specific scripts for evaluation in other ways (e.g. pheno recall evaluation against MeSH).
 
 Once you've created your task(s), start the Mindtagger GUI by running:
 
