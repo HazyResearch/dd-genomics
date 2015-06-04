@@ -46,11 +46,6 @@ def read_supervision():
   return supervision_pairs
 
 def create_mention_for_row(row):
-
-  # Skip row if sentence doesn't contain a verb, contains URL, etc.
-  if util.skip_row(row):
-    return mentions
-
   relation_id = '%s_%s' % (row.gene_mention_id, row.pheno_mention_id)
   entity_pair = (row.pheno_entity, row.gene_entity)
   is_correct = None

@@ -160,8 +160,8 @@ def extract_candidates_from_sentence(s):
   """Extracts candidate phenotype mentions from an input line as Sentence object"""
 
   # Skip row if sentence doesn't contain a verb, contains URL, etc.
-  if util.skip_row(row):
-    return mentions
+  if util.skip_row(s):
+    return []
 
   # Split into list of token tuples & process recursively
   tokens = [(i, s.words[i].lower(), s.lemmas[i]) for i in range(len(s.words))]
