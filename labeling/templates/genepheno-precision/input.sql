@@ -1,7 +1,8 @@
 COPY (
   SELECT 
     r.relation_id  as relation_id
-    , r.gene_entity || ' -- ' || r.pheno_entity as relation_name
+    , r.gene_entity as gene_name
+    , r.pheno_entity as pheno_name
     , r.gene_wordidxs as gene_wordidxs
     , r.pheno_wordidxs as pheno_wordidxs 
     , string_to_array(si.words, '|^|') as words

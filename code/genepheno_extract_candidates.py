@@ -36,13 +36,31 @@ Relation = collections.namedtuple('Relation', [
             'pheno_wordidxs',
             'is_correct'])
 
+def gene_symbol_to_ensembl_id_map():
+  """Maps a gene symbol from CHARITE -> ensembl ID"""
+  with open('%s/onto/data/ensembl_genes.tsv' % util.APP_HOME) as f:
+    eid_map = collections.defaultdict(set)
+    for line in f:
+      eid, phrase, mapping_type = line.rstrip('\n').split('\t')
+      eid_map[phrase].add(eid)
+      eid_map[phrase.lower()].add(eid)
+  return eid_map
+
+EID_MAP = gene_symbol_to_ensembl_id_map()
+
+HPO_DAG = dutil.read_hpo_dag()
+
 def read_supervision():
   """Reads genepheno supervision data (from charite)."""
   supervision_pairs = set()
   with open('%s/onto/data/hpo_phenotype_genes.tsv' % util.APP_HOME) as f:
     for line in f:
       hpo_id, gene_symbol = line.strip().split('\t')
-      supervision_pairs.add((hpo_id, gene_symbol))
+      hpo_ids = [hpo_id] + [parent for parent in HPO_DAG.edges[hpo_id]]
+      eids = EID_MAP[gene_symbol]
+      for h in hpo_ids:
+        for e in eids:
+          supervision_pairs.add((h,e))
   return supervision_pairs
 
 def create_mention_for_row(row):

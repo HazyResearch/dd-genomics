@@ -99,7 +99,7 @@ def get_mentions_for_row(row):
       mentions.append(m._replace(mention_type='RAND_WORD_NOT_GENE_SYMBOL', is_correct=False))
   return mentions
 
-def get_supervision(row, mention):
+def get_positive_supervision_for_mention(row, mention):
   """Applies additional distant supervision rules."""
   word = mention.words[0]
   word_lower = word.lower()
@@ -128,7 +128,7 @@ def get_supervision(row, mention):
 def get_supervised_mentions_for_row(row):
   supervised_mentions = []
   for mention in get_mentions_for_row(row):
-    is_correct = get_supervision(row, mention)
+    is_correct = get_positive_supervision_for_mention(row, mention)
     supervised_mentions.append(mention._replace(is_correct=is_correct))
   return supervised_mentions
 

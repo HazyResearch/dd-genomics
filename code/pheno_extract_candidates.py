@@ -73,7 +73,7 @@ for row in rows:
 
 ### CANDIDATE EXTRACTION + POSITIVE SUPERVISION ###
 MAX_LEN = 8
-COMMON_WORD_PROB = 0.4
+COMMON_WORD_PROB = 0.1
 def extract_candidates(tokens, s):
   """Extracts candidate phenotype mentions from a (filtered) list of token tuples"""
   if len(tokens) == 0: return []
@@ -94,12 +94,10 @@ def extract_candidates(tokens, s):
         # Supervise exact matches as true; however if exact match is also a common english word,
         # label true w.p. < 1
         # NOTE: delete this but confirm that supervision method below high enough yield...
-        '''
         if len(words) == 1 and phrase in ENGLISH_WORDS:
           is_correct = True if random.random() < COMMON_WORD_PROB else None
         else:
           is_correct = True
-        '''
 
         # handle exact / exact lemma matches recursively to exclude overlapping mentions
         mtype = 'EXACT'
@@ -107,7 +105,7 @@ def extract_candidates(tokens, s):
           mid = '%s_%s_%s_%s_%s_%s' % (s.doc_id,s.sent_id,wordidxs[0],wordidxs[-1],mtype,entity)
           candidates.append(
             m._replace(wordidxs=wordidxs, words=words, entity=entity, mention_id=mid, 
-              mention_type=mtype))
+              mention_type=mtype, is_correct=is_correct))
         return candidates + extract_candidates(tokens[:start], s) \
                           + extract_candidates(tokens[start+l:], s)
 
@@ -169,18 +167,21 @@ def extract_candidates_from_sentence(s):
   return extract_candidates(tokens, s)
 
 ### NEGATIVE SUPERVISION ###
-NEG_EX_PROB = 0.001
 def negative_supervision(s, candidates):
-  """Generate some negative examples"""
+  """Generate some negative examples in 1:1 ratio with positive examples"""
   negs = []
-  if random.random() > NEG_EX_PROB: return negs
+  n_negs = len([c for c in candidates if c.is_correct])
+  if n_negs == 0:
+    return negs
 
-  # pick a random noun phrase which does not overlap with candidate mentions
+  # pick random noun / adj phrases which do not overlap with candidate mentions
   covered = set(chain.from_iterable([m.wordidxs for m in candidates]))
-  nounidxs = set([i for i in range(len(s.words))
-                  if s.poses[i].startswith("NN") or s.poses[i].startswith("JJ")])
-  x = sorted(list(nounidxs - covered))
-  if len(x) > 0:
+  idxs = set([i for i in range(len(s.words)) if re.match(r'NN*|JJ*', s.poses[i])])
+
+  for i in range(n_negs):
+    x = sorted(list(idxs - covered))
+    if len(x) == 0:
+      break
     ridxs = [random.randint(0, len(x)-1)]
     while random.random() > 0.5:
       j = ridxs[-1]
@@ -195,6 +196,8 @@ def negative_supervision(s, candidates):
       Mention(dd_id=None, doc_id=s.doc_id, sent_id=s.sent_id, wordidxs=wordidxs,
         mention_id=mid, mention_type=mtype, entity=None, words=[s.words[i] for i in wordidxs],
         is_correct=False))
+    for i in wordidxs:
+      covered.add(i)
   return negs
 
 def get_all_candidates_from_row(row):
