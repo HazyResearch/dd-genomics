@@ -66,6 +66,14 @@ def read_supervision():
 def create_mention_for_row(row):
   relation_id = '%s_%s' % (row.gene_mention_id, row.pheno_mention_id)
   entity_pair = (row.pheno_entity, row.gene_entity)
+
+  # Some patterns to skip:
+
+  # If we see <PHENO> (<GENE>) where starting letters are all the same, skip-
+  # This is a pheno abbreivation (which said gene false match named after)
+  #if row.pheno_wordidxs[-1] + 2 == row.gene_wordidxs[0] and row
+  # TODO
+
   is_correct = None
   if entity_pair in CACHE['supervision_data']:
     is_correct = True
@@ -73,10 +81,10 @@ def create_mention_for_row(row):
   # Randomly choose some examples to supervise as negatives
   elif random.random() < NEGATIVE_EXAMPLE_PROB:
     is_correct = False
-  return Relation(None, relation_id, row.doc_id, row.sent_id, row.gene_mention_id, \
+  return [Relation(None, relation_id, row.doc_id, row.sent_id, row.gene_mention_id, \
       row.gene_entity, row.gene_wordidxs, row.pheno_mention_id, row.pheno_entity, \
-      row.pheno_wordidxs, is_correct)
+      row.pheno_wordidxs, is_correct)]
 
 if __name__ == '__main__':
   CACHE['supervision_data'] = read_supervision()
-  util.run_main_tsv(row_parser=parser.parse_tsv_row, row_fn=lambda row : [create_mention_for_row(row)])
+  util.run_main_tsv(row_parser=parser.parse_tsv_row, row_fn=create_mention_for_row)

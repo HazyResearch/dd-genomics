@@ -1,21 +1,38 @@
-import extractor_util
+import extractor_util as util
+import sys
 from itertools import groupby
 from operator import itemgetter
 from collections import defaultdict
 
 class DepPathDAG:
-    def __init__(self, words, dep_paths, dep_parents):
-        self.dep_labels = dep_paths
-        self.roots = []
-        self.words = words
-        self.edges = defaultdict(list)
+  def __init__(self, dep_paths, dep_parents):
+    self.dep_labels = dep_paths
+    self.roots = []
+    self.edges = defaultdict(list)
+    for i, dep_parent in enumerate(dep_parents):
+      dep_parent = int(dep_parent)
+      if dep_parent == -1:
+        self.roots.append(i)
+      else:
+        self.edges[dep_parent].append(i)
+        self.edges[i].append(dep_parent)
 
-        for i, dep_parent in enumerate(dep_parents):
-            dep_parent = int(dep_parent)
-            if dep_parent == -1:
-                self.roots.append(i)
-            else:
-                self.edges[dep_parent].append(i)
+  def min_path(self, start_idx, end_idx, path=[]):
+    """Given two word indexes, find the shortest path between them"""
+    path = path + [start_idx]
+    if start_idx == end_idx:
+      return path
+    if not self.edges.has_key(start_idx):
+      return None
+    shortest = None
+    for node in self.edges[start_idx]:
+      if node not in path:
+        newpath = self.min_path(node, end_idx, path)
+        if newpath:
+          if not shortest or len(newpath) < len(shortest):
+            shortest = newpath
+    return shortest
+
 
 # These functions are to manipulate dependency paths to ease the construction of features.
 
@@ -47,26 +64,6 @@ def find_closest_phrase_by_pos(mention, sentence, dep_path_dag, pos):
     ranges.sort(key=lambda interval: min(abs(interval[0]-mention_middle), abs(interval[1]-mention_middle)))
     return [sentence.words[ind] for ind in ranges[0]], [i for i in ranges[0]]
 
-def find_shortest_path(graph, start, end, path=[]):
-        path = path + [start]
-        if start == end:
-            return path
-        if not graph.has_key(start):
-            return None
-        shortest = None
-        for node in graph[start]:
-            if node not in path:
-                newpath = find_shortest_path(graph, node, end, path)
-                if newpath:
-                    if not shortest or len(newpath) < len(shortest):
-                        shortest = newpath
-        return shortest
-
-def find_shortest_path_length(graph, start, end):
-    best_path = find_shortest_path(graph, start, end)
-    if best_path is not None:
-        return len(best_path)
-    return len(find_shortest_path(graph, end, start))
 
 # Given a list of keywords, if the keyword appears in a given sentence make it a feature
 # but with its distance in the dependency tree to the first word of the candidate mention.
@@ -83,3 +80,29 @@ def extract_features_using_keywords(keywords, sentence, dep_path_dag, mention):
         if word in keywords:
             path_length = find_shortest_path_length(dep_path_dag.edges, i, mention_start)
             yield 'FEATURE_CLOSE_%s_DIST_%s' % (word, path_length)
+
+
+# Testing (from psql command line output file)
+if __name__ == '__main__':
+  line = open(sys.argv[1], 'rb').read()
+
+  # This defines the Row object that we read in to the extractor
+  parser = util.RowParser([
+            ('doc_id', 'text'),
+            ('sent_id', 'int'),
+            ('words', 'text[]'),
+            ('lemmas', 'text[]'),
+            ('poses', 'text[]'),
+            ('ners', 'text[]'),
+            ('dep_paths', 'text[]'),
+            ('dep_parents', 'int[]')])
+  row = parser.parse_tsv_row(line)
+
+  # Make the DEP_DAG
+  dep_dag = DepPathDAG(row.dep_paths, row.dep_parents)
+  START_IDX = 12
+  END_IDX = 18
+  print "Min path from %s -> %s:" % (row.words[START_IDX], row.words[END_IDX])
+  min_path = dep_dag.min_path(START_IDX, END_IDX)
+  print "Path = %s" % (" -> ".join([row.words[p] for p in min_path]),)
+  print "Len = %s" % len(min_path)
