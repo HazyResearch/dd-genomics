@@ -73,7 +73,6 @@ for row in rows:
 
 ### CANDIDATE EXTRACTION + POSITIVE SUPERVISION ###
 MAX_LEN = 8
-COMMON_WORD_PROB = 0.1
 def extract_candidates(tokens, s):
   """Extracts candidate phenotype mentions from a (filtered) list of token tuples"""
   if len(tokens) == 0: return []
@@ -91,21 +90,12 @@ def extract_candidates(tokens, s):
       if phrase in PHENOS or lemma_phrase in PHENOS:
         entities = PHENOS[phrase] if phrase in PHENOS else PHENOS[lemma_phrase]
 
-        # Supervise exact matches as true; however if exact match is also a common english word,
-        # label true w.p. < 1
-        # NOTE: delete this but confirm that supervision method below high enough yield...
-        if len(words) == 1 and phrase in ENGLISH_WORDS:
-          is_correct = True if random.random() < COMMON_WORD_PROB else None
-        else:
-          is_correct = True
-
         # handle exact / exact lemma matches recursively to exclude overlapping mentions
         mtype = 'EXACT'
         for entity in entities:
           mid = '%s_%s_%s_%s_%s_%s' % (s.doc_id,s.sent_id,wordidxs[0],wordidxs[-1],mtype,entity)
           candidates.append(
-            m._replace(wordidxs=wordidxs, words=words, entity=entity, mention_id=mid, 
-              mention_type=mtype, is_correct=is_correct))
+            m._replace(wordidxs=wordidxs, words=words, entity=entity, mention_id=mid, mention_type=mtype))
         return candidates + extract_candidates(tokens[:start], s) \
                           + extract_candidates(tokens[start+l:], s)
 
@@ -133,26 +123,8 @@ def extract_candidates(tokens, s):
               candidates.append(
                 m._replace(wordidxs=wordidxs, words=words, entity=entity, mention_id=mid,
                   mention_type=mtype))
-
-  # Add supervision via mesh terms
-  pubmed_id = get_pubmed_id_for_doc(s.doc_id, doi_to_pmid=DOI_TO_PMID)
-  if pubmed_id and pubmed_id in PMID_TO_HPO:
-    new_candidates = []
-    known_hpo = PMID_TO_HPO[pubmed_id]
-    for c in candidates:
-      if c.entity in known_hpo:
-        new_candidates.append(c._replace(is_correct=True))
-      elif c in hpo_dag.node_set:
-        for parent in known_hpo:
-
-          # If this is more specific than MeSH term, also consider true.
-          if hpo_dag.has_child(parent, c):
-            new_candidates.append(c._replace(is_correct=True))
-            break
-        else:
-          new_candidates.append(c)
-    candidates = new_candidates
   return candidates
+
 
 def extract_candidates_from_sentence(s):
   """Extracts candidate phenotype mentions from an input line as Sentence object"""
@@ -166,8 +138,42 @@ def extract_candidates_from_sentence(s):
   tokens = filter(lambda t : t[1] not in STOPWORDS and len(t[1]) > 2, tokens)
   return extract_candidates(tokens, s)
 
+
+COMMON_WORD_PROB = 0.1
+def get_mention_supervision(row, mention):
+  """Get the supervision for a candidate mention"""
+
+  # Filter as negative some based on specific rules- taking priority
+  POST_NEG_MATCHES = r'cell(s|\slines?)?'
+  phrase_post = " ".join(row.words[mention.wordidxs[-1]:])
+  if re.search(POST_NEG_MATCHES, phrase_post, flags=re.I):
+    return False
+
+  # Supervise exact matches as true; however if exact match is also a common english word,
+  # label true w.p. < 1
+  if mention.mention_type == 'EXACT':
+    if len(words) == 1 and phrase in ENGLISH_WORDS and random.random() < COMMON_WORD_PROB:
+      return True
+    else:
+      return True
+
+  # Add supervision via mesh terms
+  pubmed_id = get_pubmed_id_for_doc(row.doc_id, doi_to_pmid=DOI_TO_PMID)
+  if pubmed_id and pubmed_id in PMID_TO_HPO:
+    known_hpo = PMID_TO_HPO[pubmed_id]
+    if mention.entity in known_hpo:
+      return True
+
+    # If this is more specific than MeSH term, also consider true.
+    elif mention.entity in hpo_dag.node_set:
+      for parent in known_hpo:
+        if hpo_dag.has_child(parent, mention.entity):
+          return True
+  return None
+
+
 ### NEGATIVE SUPERVISION ###
-def negative_supervision(s, candidates):
+def generate_rand_negatives(s, candidates):
   """Generate some negative examples in 1:1 ratio with positive examples"""
   negs = []
   n_negs = len([c for c in candidates if c.is_correct])
@@ -201,9 +207,13 @@ def negative_supervision(s, candidates):
   return negs
 
 def get_all_candidates_from_row(row):
-  candidates = extract_candidates_from_sentence(row)
-  candidates += negative_supervision(row, candidates)
-  return candidates
+  supervised_mentions = []
+  for mention in extract_candidates_from_sentence(row):
+    is_correct = get_mention_supervision(row, mention)
+    supervised_mentions.append(mention._replace(is_correct=is_correct)
+  supervised_mentions += generate_rand_negatives(row, supervised_mentions)
+  return supervised_mentions
+
 
 if __name__ == '__main__':
   util.run_main_tsv(row_parser=parser.parse_tsv_row, row_fn=get_all_candidates_from_row)

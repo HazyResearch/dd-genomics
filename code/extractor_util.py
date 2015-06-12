@@ -14,6 +14,10 @@ def skip_row(row):
   Assumes Row object has words, poses attributes
   """
 
+  # Hack[Alex]: upper limit for sentences, specifically to deal w preprocessing errors
+  if len(row.words) > 150:
+    return True
+
   # Require that there is a verb in the sentence
   if not any(pos.startswith("VB") for pos in row.poses):
     return True
