@@ -3,6 +3,7 @@ import sys
 
 sys.path.append('../code')
 import extractor_util as util
+import data_util as dutil
 
 if __name__ == '__main__':
   uniprot_to_hgnc = dict()
