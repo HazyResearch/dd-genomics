@@ -20,7 +20,11 @@ parser = util.RowParser([
           ('gene_wordidxs', 'int[]'),
           ('pheno_mention_id', 'text'),
           ('pheno_entity', 'text'),
-          ('pheno_wordidxs', 'int[]')])
+          ('pheno_wordidxs', 'int[]'),
+          ('words', 'text[]'),
+          ('lemmas', 'text[]'),
+          ('dep_paths', 'text[]'),
+          ('dep_parents', 'int[]')])
 
 # This defines the output Relation object
 Relation = collections.namedtuple('Relation', [
@@ -71,8 +75,22 @@ def create_mention_for_row(row):
 
   # If we see <PHENO> (<GENE>) where starting letters are all the same, skip-
   # This is a pheno abbreivation (which said gene false match named after)
-  #if row.pheno_wordidxs[-1] + 2 == row.gene_wordidxs[0] and row
-  # TODO
+  if row.pheno_wordidxs[-1] + 2 == row.gene_wordidxs[0]:
+    pi = row.pheno_wordidxs[-1]
+    if row.words[pi+1] == '(':
+      slp = ''.join([row.words[wi][0] for wi in row.pheno_wordidxs]).lower()
+      if slp == row.words[row.gene_wordidxs[0]].lower():
+        return []
+
+  # Handle preprocessing error here- failure to split sentences on citations
+  # HACK[Alex]
+  if row.gene_wordidxs[0] < row.pheno_wordidxs[0]:
+    between_range = range(row.gene_wordidxs[0]+1, row.pheno_wordidxs[0])
+  else:
+    between_range = range(row.pheno_wordidxs[-1]+1, row.gene_wordidxs[0])
+  for wi in between_range:
+    if re.search(r'\.\d+(,\d+)', wi):
+      return []
 
   is_correct = None
   if entity_pair in CACHE['supervision_data']:
