@@ -151,8 +151,9 @@ def get_mention_supervision(row, mention):
 
   # Supervise exact matches as true; however if exact match is also a common english word,
   # label true w.p. < 1
+  phrase = " ".join(mention.words).lower()
   if mention.mention_type == 'EXACT':
-    if len(words) == 1 and phrase in ENGLISH_WORDS and random.random() < COMMON_WORD_PROB:
+    if len(row.words) == 1 and phrase in ENGLISH_WORDS and random.random() < COMMON_WORD_PROB:
       return True
     else:
       return True
@@ -210,7 +211,7 @@ def get_all_candidates_from_row(row):
   supervised_mentions = []
   for mention in extract_candidates_from_sentence(row):
     is_correct = get_mention_supervision(row, mention)
-    supervised_mentions.append(mention._replace(is_correct=is_correct)
+    supervised_mentions.append(mention._replace(is_correct=is_correct))
   supervised_mentions += generate_rand_negatives(row, supervised_mentions)
   return supervised_mentions
 

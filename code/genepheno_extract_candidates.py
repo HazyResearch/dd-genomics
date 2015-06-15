@@ -89,7 +89,7 @@ def create_mention_for_row(row):
   else:
     between_range = range(row.pheno_wordidxs[-1]+1, row.gene_wordidxs[0])
   for wi in between_range:
-    if re.search(r'\.\d+(,\d+)', wi):
+    if re.search(r'\.\d+(,\d+)', row.words[wi]):
       return []
 
   is_correct = None
