@@ -1,3 +1,5 @@
+#! /bin/bash
+
 cp dicts/english_words.tsv data/english_words.tsv
 
 # Download and parse HPO term list (with synonyms and graph edges)
@@ -22,7 +24,8 @@ awk -F'\t' '{printf "%s:%s\t%s\n", $1, $2, $3}' data/hpo_disease_phenotypes.tsv 
 # Download OMIM for disease names
 if [ ! -e "raw/omim.txt" ]; then
 	wget ftp://ftp.omim.org/OMIM/omim.txt.Z -O raw/omim.txt.Z
-	uncompress raw/omim.txt.Z
+	# use `uncompress' if gunzip does not work
+	gunzip raw/omim.txt.Z
 fi
 python parse_omim.py raw/omim.txt data/diseases_omim.tsv
 
