@@ -1,6 +1,6 @@
 #! /bin/bash
 
-export JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8 -Xms128m -Xmx4096m"
+export JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8" 
 
 if [ -f env_local.sh ]; then
   echo "Using env_local.sh"
