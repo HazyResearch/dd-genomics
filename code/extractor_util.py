@@ -50,6 +50,11 @@ def tsv_string_to_list(s, func=lambda x : x, sep='|^|'):
   # split and apply function
   return [func(x) for x in split]
 
+
+def tsv_string_to_listoflists(s, func=lambda x : x, sep1='|~|', sep2='|^|'):
+  """Convert a TSV string from sentences_input table to a list of lists"""
+  return tsv_string_to_list(s, func=lambda x : tsv_string_to_list(x, func=func, sep=sep2), sep=sep1)
+
 class Row:
   def __str__(self):
     return '<Row(' + ', '.join("%s=%s" % x for x in self.__dict__.iteritems()) + ')>'
@@ -60,7 +65,8 @@ RP_PARSERS = {
   'text' : lambda x : str(x),
   'text[]' : lambda x : tsv_string_to_list(x),
   'int' : lambda x : int(x),
-  'int[]' : lambda x : tsv_string_to_list(x, func=int)
+  'int[]' : lambda x : tsv_string_to_list(x, func=int),
+  'int[][]' : lambda x : tsv_string_to_listoflists(x, func=int)
 }
 
 class RowParser:

@@ -2,6 +2,7 @@
 import collections
 import extractor_util as util
 import data_util as dutil
+import dep_util as deps
 import os
 import random
 import re
@@ -15,16 +16,17 @@ NEGATIVE_EXAMPLE_PROB = 0.1
 parser = util.RowParser([
           ('doc_id', 'text'),
           ('sent_id', 'int'),
-          ('gene_mention_id', 'text'),
-          ('gene_entity', 'text'),
-          ('gene_wordidxs', 'int[]'),
-          ('pheno_mention_id', 'text'),
-          ('pheno_entity', 'text'),
-          ('pheno_wordidxs', 'int[]'),
           ('words', 'text[]'),
           ('lemmas', 'text[]'),
+          ('poses', 'text[]'),
           ('dep_paths', 'text[]'),
-          ('dep_parents', 'int[]')])
+          ('dep_parents', 'int[]'),
+          ('gene_mention_ids', 'text[]'),
+          ('gene_entities', 'text[]'),
+          ('gene_wordidxs', 'int[][]'),
+          ('pheno_mention_ids', 'text[]'),
+          ('pheno_entities', 'text[]'),
+          ('pheno_wordidxs', 'int[][]')])
 
 # This defines the output Relation object
 Relation = collections.namedtuple('Relation', [

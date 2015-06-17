@@ -7,6 +7,8 @@
 # Third argument is the path to the TSV file or to a directory containing tsv
 # files
 
+echo "NOTE: this script adds to the specified table, does not truncate it!"
+
 if [ "${GDD_HOME-}" == "" ]; then
   echo "Environment variables not found; please source env_local.sh."
   exit 1
