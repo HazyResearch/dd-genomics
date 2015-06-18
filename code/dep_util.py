@@ -34,6 +34,9 @@ class DepPathDAG:
     return shortest
 
 
+# NOTE: the below out-of-class functions are not yet tested
+# TODO: test and/or delete the below fns
+
 # These functions are to manipulate dependency paths to ease the construction of features.
 
 # Given a candidate mention (n-gram), find the closest contiguous sequence of a specified

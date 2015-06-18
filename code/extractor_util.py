@@ -127,22 +127,3 @@ def print_tsv_output(out_record):
       cur_val = x
     values.append(cur_val)
   print '\t'.join(str(x) for x in values)
-
-def run_main_tsv(row_parser, row_fn):
-  """
-  Runs through lines in sys.stdin, applying row_fn(row_parser(line))
-  Assumes that this outputs a list of rows, which get printed out in tsv format
-  Has standard error handling for malformed rows- optimally row_fn returns object with pretty print
-  """
-  lines_out = []
-  for line in sys.stdin:
-    row = row_parser(line)
-    try:
-      lines_out += row_fn(row)
-    
-    # A malformed input line will often mess up the word indexing...
-    except IndexError:
-      print_error("Error with row: %s" % (row,))
-
-  for line in lines_out:
-    print_tsv_output(line)
