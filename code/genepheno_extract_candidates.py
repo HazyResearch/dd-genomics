@@ -90,8 +90,32 @@ def extract_candidate_relations(row):
   dep_dag = deps.DepPathDAG(row.dep_paths, row.dep_parents)
 
   # Create the list of possible G,P pairs with their dependency path distances
+  pairs = []
+  for i,gid in enumerate(row.gene_mention_ids):
+    for j,pid in enumerate(row.pheno_mention_ids):
+      dpds = []
+      for ii in row.gene_wordidxs[i]:
+        for jj in row.pheno_wordidxs[j]:
+          dpds.append(len(dep_dag.min_path(ii, jj)))
+      dpd = min(dpds)
+      pairs.append([dpd, i, j])
 
-
+  # Select which of the pairs will be considered
+  HARD_MAX_DEP_PATH_DIST = 7
+  pairs.sort()
+  pairs = filter(lambda p : p[0] < HARD_MAX_DEP_PATH_DIST, pairs)
+  seen_g = {}
+  seen_p = {}
+  take_pairs = []
+  for p in pairs:
+    d, i, j = p
+    
+    # HACK[Alex]: may or may not be hack, needs to be tested- for now be quite restrictive
+    if (i in seen_g and seen_g[i] < d) or (j in seen_p and seen_p[j] < d):
+      continue
+    seen_g[i] = d
+    seen_p[j] = d
+    take_pairs.append((i,j))
 
 
 NEGATIVE_EXAMPLE_PROB = 0.1

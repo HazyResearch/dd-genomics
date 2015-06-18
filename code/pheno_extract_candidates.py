@@ -102,6 +102,7 @@ def extract_candidate_mentions(row):
               words=None, mention_id=None, mention_type=None, entity=None, is_correct=None)
   for n in reversed(range(1, min(len(row.words), MAX_LEN)+1)):
     for i in range(len(row.words)-n+1):
+      mid_base = '%s_%s_%s_%s' % (row.doc_id, row.sent_id, i, i+n-1)
       wordidxs = range(i,i+n)
       words = [w.lower() for w in row.words[i:i+n]]
       lemmas = [w.lower() for w in row.lemmas[i:i+n]]
@@ -111,12 +112,13 @@ def extract_candidate_mentions(row):
         continue
 
       # skip this window if it is sub-optimal: e.g. starts with a skip word, etc.
-      if not keep_word(words[0]) or not keep_word(words[-1]):
+      if not all(map(keep_word, [words[0], lemmas[0], words[-1], lemmas[-1]])):
         continue
       
-      mid_base = '%s_%s_%s_%s' % (row.doc_id, row.sent_id, i, i+n-1)
-      ws = filter(keep_word, words)
-      lws = filter(keep_word, lemmas)
+      # Note: we filter stop words coordinated between word and lemma lists
+      # (i.e. if lemmatized version of a word is stop word, it should be stop word too)
+      # This also keeps these filtered lists in sync!
+      ws, lws = zip(*[(words[k], lemmas[k]) for k in range(n) if keep_word(words[k]) and keep_word(lemmas[k])])
 
       # (1) Check for exact match (including exact match of lemmatized / stop words removed)
       # If found add to split list so as not to consider subset phrases
