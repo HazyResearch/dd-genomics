@@ -41,6 +41,23 @@ to the `hpo_to_doc_via_mesh` table.
 
 8. Run the appropriate pipeline: `./run.sh [PIPELINE_NAME]`
 
+### Notes on Simple Debugging Routines
+
+#### Basic TSV extractor debugging
+In one very simple routine, we can just find some sentences in the databse that would be decent for testing; for example, for basic debugging of the `pheno_extract_candidates.py` UDF, we can execute the following query in psql:
+	
+	COPY (SELECT 
+	        doc_id, sent_id, words, lemmas, poses, ners 
+	      FROM sentences_input 
+	      WHERE words LIKE '%myeloid%'
+	      LIMIT 10)
+	TO '/tmp/pheno_extractor_debugging_myeloid_10.tsv' 
+	WITH DELIMITER '\t';
+
+We then just debug using print statements in the code & etc. as we normally would with any standalone python script:
+
+	python code/pheno_extract_candidates.py < /tmp/pheno_extractor_debugging_myeloid_10.tsv
+
 ### Running Dashboard for Reports
 
 Make sure you have run `util/update-mindbender.sh` at least once.
@@ -95,28 +112,6 @@ Once you've created your task(s), start the Mindtagger GUI by running:
 	./start-gui.sh
 
 and then open a browser to [localhost][localhost] to view all the created tasks & label data!
-
-
-### Etc.
-#### *Installing DeepDive via Docker*
-
-1. Install Docker (see [Docker installation guide][docker-install])
-2. Create a new directory with at least 20GB of free space, and copy the file named `Dockerfile` in this directory into it, then `cd` into it
-3. Run the following:
-		
-		docker build -t deepdive . 
-		docker run -d --privileged --name db -h gphost readr/greenplum
-		docker run -t -d --link db:db --name deepdive deepdive bash
-		docker exec -ti deepdive bash
-		cd ~/deepdive
-		make test
-
-4. ***Note: currently we are having issues with running `docker build`; need to stop and restart multiple times before we finish... Does eventually finish though***
-5. DeepDive & Greenplum will now run in the background; to open up a shell again, run:
-
-		docker exec -ti deepdive bash
-		
-  *Note: this may take a while to start, as it waits for GreenPlum first...*
 
 
 [sampler-se]: https://github.com/HazyResearch/sampler/tree/sample_evidence
