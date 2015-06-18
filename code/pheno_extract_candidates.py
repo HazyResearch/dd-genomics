@@ -73,7 +73,7 @@ def load_pheno_terms():
 MAX_LEN = 8
 
 def keep_word(w):
-  return (w not in STOPWORDS and len(w) > 2)
+  return (w.lower() not in STOPWORDS and len(w) > 2)
 
 def extract_candidate_mentions(row):
   """Extracts candidate phenotype mentions from an input row object"""
@@ -103,8 +103,8 @@ def extract_candidate_mentions(row):
   for n in reversed(range(1, min(len(row.words), MAX_LEN)+1)):
     for i in range(len(row.words)-n+1):
       wordidxs = range(i,i+n)
-      words = row.words[i:i+n]
-      lemmas = row.lemmas[i:i+n]
+      words = [w.lower() for w in row.words[i:i+n]]
+      lemmas = [w.lower() for w in row.lemmas[i:i+n]]
 
       # skip this window if it intersects with the split set
       if not split_indices.isdisjoint(wordidxs):
