@@ -46,19 +46,17 @@ to the `hpo_to_doc_via_mesh` table.
 #### Basic TSV extractor debugging
 In one very simple routine, we can just find some sentences in the databse that would be decent for testing; for example, for basic debugging of the `pheno_extract_candidates.py` UDF, we can execute the following query in psql:
 	
-	COPY (
-	  SELECT 
-	    doc_id, sent_id, words, lemmas, poses, ners 
-	  FROM sentences_input 
-	  WHERE words LIKE '%myeloid%'
-	  LIMIT 10
-	)
+	COPY (SELECT 
+	        doc_id, sent_id, words, lemmas, poses, ners 
+	      FROM sentences_input 
+	      WHERE words LIKE '%myeloid%'
+	      LIMIT 10)
 	TO '/tmp/pheno_extractor_debugging_myeloid_10.tsv' 
 	WITH DELIMITER '\t';
 
-We then copy this output file to our main folder and test out the extractor, using print statements in the code & etc. as we normally would with any standalone python script:
+We then just debug using print statements in the code & etc. as we normally would with any standalone python script:
 
-	python code/pheno_extract_candidates.py < pheno_extractor_debugging_myeloid_10.tsv
+	python code/pheno_extract_candidates.py < /tmp/pheno_extractor_debugging_myeloid_10.tsv
 
 ### Running Dashboard for Reports
 
