@@ -254,7 +254,6 @@ if __name__ == '__main__':
 
   # Read TSV data in as Row objects
   for line in sys.stdin:
-    print line
     row = parser.parse_tsv_row(line)
 
     # Skip row if sentence doesn't contain a verb, contains URL, etc.
