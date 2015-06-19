@@ -69,47 +69,43 @@ def read_pubmed_to_genes():
   return pubmed_to_genes
 
 
-def get_mentions_for_row(row):
+def extract_candidate_mentions(row):
   phrase_to_genes = CACHE['phrase_to_genes']
   lower_phrase_to_genes = CACHE['lower_phrase_to_genes']
   mentions = []
   for i, word in enumerate(row.words):
     
-    # Make a template mention object- will have mention_id opt with entity (ensemble_id) appended
-    mid = '%s_%s_%s' % (row.doc_id, row.sent_id, i)
-    m = Mention(dd_id=None, doc_id=row.doc_id, sent_id=row.sent_id, wordidxs=[i], mention_id=mid, mention_type=None, entity=None, words=[word], is_correct=None)
-
     # Treat lowercase mappings the same as exact case ones for now.
     # HACK[MORGAN]: Do not learn any 2-letter words
     if (word in phrase_to_genes or word.lower() in lower_phrase_to_genes) and (len(word)>2):
       exact_case_matches = phrase_to_genes[word]
       lowercase_matches = phrase_to_genes[word.lower()]
       for eid, mapping_type in exact_case_matches.union(lowercase_matches):
-        mentions.append(
-          m._replace(mention_id=mid+'_'+eid, entity=eid, mention_type=mapping_type))
+        mentions.append(create_supervised_mention(row, i, eid, mapping_type))
   return mentions
 
 
-def get_supervision_for_mention(row, mention):
-  """Applies additional distant supervision rules."""
-  word = mention.words[0]
+def create_supervised_mention(row, i, entity=None, mention_type=None):
+  """Given a Row object consisting of a sentence, create & supervise a Mention output object"""
+  word = row.words[i]
   word_lower = word.lower()
-  wordidx = mention.wordidxs[0]
+  mid = '%s_%s_%s_%s_%s' % (row.doc_id, row.sent_id, i, entity, mention_type)
+  m = Mention(None, row.doc_id, row.sent_id, [i], mid, mention_type, entity, [word], None)
 
   # Positive Rule #1: matches from papers that NCBI annotates as being about
   # the mentioned gene are likely true.
   pubmed_to_genes = CACHE['pubmed_to_genes']
   pmid = dutil.get_pubmed_id_for_doc(row.doc_id, doi_to_pmid=CACHE['doi_to_pmid'])
-  if pmid and mention.entity:
-    mention_ensembl_id = mention.entity.split(":")[0]
+  if pmid and entity:
+    mention_ensembl_id = entity.split(":")[0]
     if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
-      return True, 'NCBI_ANNOTATION_TRUE'
+      return m._replace(is_correct=True, mention_type='%s_NCBI_ANNOTATION_TRUE' % mention_type)
 
   # Negative Rule #1: "GENE cells / cell lines"
   RGX_CELL_LINES = r'\+?\s*cell(s|\slines?)'
-  phrase_post = ' '.join(row.words[wordidx+1:])
+  phrase_post = ' '.join(row.words[i+1:])
   if re.match(RGX_CELL_LINES, phrase_post, flags=re.I):
-    return False, 'CELL_LINES'
+    return m._replace(is_correct=False, mention_type='CELL_LINES')
 
   # Positive Rule #2: Genes on the gene list with complicated names (3 letters
   # and 1 digit) are probably good for exact matches.
@@ -118,9 +114,7 @@ def get_supervision_for_mention(row, mention):
     if re.match(r'[a-zA-Z]{3}[a-zA-Z]*\d+\w*', word):
       return True
   """
-
-  # Default to existing supervision
-  return mention.is_correct, mention.mention_type
+  return m
 
 
 def get_negative_mentions(row, mentions, d, per_row_max=2):
@@ -152,14 +146,6 @@ def get_negative_mentions(row, mentions, d, per_row_max=2):
   return negs
 
 
-def get_supervised_mentions_for_row(row):
-  supervised_mentions = []
-  for mention in get_mentions_for_row(row):
-    is_correct, mention_type = get_supervision_for_mention(row, mention)
-    supervised_mentions.append(mention._replace(is_correct=is_correct, mention_type=mention_type))
-  return supervised_mentions
-
-
 if __name__ == '__main__':
 
   # load static data
@@ -180,7 +166,7 @@ if __name__ == '__main__':
 
     # Find candidate mentions & supervise
     try:
-      mentions = get_supervised_mentions_for_row(row)
+      mentions = extract_candidate_mentions(row)
     except IndexError:
       util.print_error("Error with row: %s" % (row,))
       continue

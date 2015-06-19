@@ -98,11 +98,8 @@ def extract_candidate_mentions(row):
       seq = []
 
   # Next, pass a window of size n (dec.) over the sentence looking for candidate mentions
-  m = Mention(dd_id=None, doc_id=row.doc_id, sent_id=row.sent_id, wordidxs=None, \
-              words=None, mention_id=None, mention_type=None, entity=None, is_correct=None)
   for n in reversed(range(1, min(len(row.words), MAX_LEN)+1)):
     for i in range(len(row.words)-n+1):
-      mid_base = '%s_%s_%s_%s' % (row.doc_id, row.sent_id, i, i+n-1)
       wordidxs = range(i,i+n)
       words = [w.lower() for w in row.words[i:i+n]]
       lemmas = [w.lower() for w in row.lemmas[i:i+n]]
@@ -125,11 +122,8 @@ def extract_candidate_mentions(row):
       p, lp = map(' '.join, [ws, lws])
       if p in PHENOS or lp in PHENOS:
         entities = PHENOS[p] if p in PHENOS else PHENOS[lp]
-        mention_type = 'EXACT'
         for entity in entities:
-          mid = '%s_%s_%s' % (mid_base, mention_type, entity)
-          mentions.append(m._replace(wordidxs=wordidxs, words=words, entity=entity, \
-                                     mention_id=mid, mention_type=mention_type))
+          mentions.append(create_supervised_mention(row, wordidxs, entity, 'EXACT'))
         split_indices.update(wordidxs)
         continue
 
@@ -138,11 +132,8 @@ def extract_candidate_mentions(row):
       ps, lps = map(frozenset, [ws, lws])
       if (len(ps)==len(ws) and ps in PHENO_SETS) or (len(lps)==len(lws) and lps in PHENO_SETS):
         entities = PHENO_SETS[ps] if ps in PHENO_SETS else PHENO_SETS[lps]
-        mention_type = 'PERM'
         for entity in entities:
-          mid = '%s_%s_%s' % (mid_base, mention_type, entity)
-          mentions.append(m._replace(wordidxs=wordidxs, words=words, entity=entity, \
-                                     mention_id=mid, mention_type=mention_type))
+          mentions.append(create_supervised_mention(row, wordidxs, entity, 'PERM'))
         continue
 
       # (3) Check for an exact match with one ommitted (interior) word/lemma
@@ -152,49 +143,48 @@ def extract_candidate_mentions(row):
           p, lp = [' '.join([w for i,w in enumerate(x) if i != omit]) for x in [ws, lws]]
           if p in PHENOS or lp in PHENOS:
             entities = PHENOS[p] if p in PHENOS else PHENOS[lp]
-            mention_type = 'OMIT_%s' % omit
             for entity in entities:
-              mid = '%s_%s_%s' % (mid_base, mention_type, entity)
-              mentions.append(m._replace(wordidxs=wordidxs, words=words, entity=entity, \
-                                         mention_id=mid, mention_type=mention_type))
+              mentions.append(create_supervised_mention(row, wordidxs, entity, 'OMIT_%s' % omit))
   return mentions    
 
 
 ### DISTANT SUPERVISION ###
 COMMON_WORD_PROB = 0.1
-def get_mention_supervision(row, mention):
-  """Get the supervision for a candidate mention"""
+def create_supervised_mention(row, idxs, entity=None, mention_type=None):
+  """Given a Row object consisting of a sentence, create & supervise a Mention output object"""
+  words = [row.words[i] for i in idxs]
+  mid = '%s_%s_%s_%s_%s_%s' % (row.doc_id, row.sent_id, idxs[0], idxs[-1], mention_type, entity)
+  m = Mention(None, row.doc_id, row.sent_id, idxs, mid, mention_type, entity, words, None)
 
   # Filter as negative some based on specific rules- taking priority
   POST_NEG_MATCHES = r'cell(s|\slines?)?'
-  phrase_post = " ".join(row.words[mention.wordidxs[-1]:])
+  phrase_post = " ".join(row.words[idxs[-1]:])
   if re.search(POST_NEG_MATCHES, phrase_post, flags=re.I):
-    return False, 'CELL_LINES'
+    return m._replace(is_correct=False, mention_type='CELL_LINES')
 
   # Add supervision via mesh terms
   pubmed_id = dutil.get_pubmed_id_for_doc(row.doc_id, doi_to_pmid=DOI_TO_PMID)
   if pubmed_id and pubmed_id in PMID_TO_HPO:
-    known_hpo = PMID_TO_HPO[pubmed_id]
-    if mention.entity in known_hpo:
-      return True, mention.mention_type + '_MESH_SUPERV'
+    if entity in PMID_TO_HPO[pubmed_id]:
+      return m._replace(is_correct=True, mention_type='%s_MESH_SUPERV' % mention_type)
 
     # If this is more specific than MeSH term, also consider true.
-    elif mention.entity in hpo_dag.node_set:
-      for parent in known_hpo:
-        if hpo_dag.has_child(parent, mention.entity):
-          return True, mention.mention_type + '_MESH_CHILD_SUPERV'
+    elif entity in hpo_dag.node_set:
+      for parent in PMID_TO_HPO[pubmed_id]:
+        if hpo_dag.has_child(parent, entity):
+          return m._replace(is_correct=True, mention_type='%s_MESH_CHILD_SUPERV' % mention_type)
 
   # Supervise exact matches as true; however if exact match is also a common english word,
   # label true w.p. < 1
-  phrase = " ".join(mention.words).lower()
-  if mention.mention_type == 'EXACT':
-    if len(row.words) == 1 and phrase in ENGLISH_WORDS and random.random() < COMMON_WORD_PROB:
-      return True, 'EXACT_AND_ENGLISH_WORD'
+  phrase = " ".join(words).lower()
+  if mention_type == 'EXACT':
+    if len(words) == 1 and phrase in ENGLISH_WORDS and random.random() < COMMON_WORD_PROB:
+      return m._replace(is_correct=True, mention_type='EXACT_AND_ENGLISH_WORD')
     else:
-      return True, 'EXACT'
+      return m._replace(is_correct=True)
 
   # Else default to existing values / NULL
-  return None, mention.mention_type
+  return m
 
 
 ### RANDOM NEGATIVE SUPERVISION ###
@@ -232,15 +222,6 @@ def generate_rand_negatives(s, candidates):
   return negs
 
 
-def get_all_candidates_from_row(row):
-  supervised_mentions = []
-  for mention in extract_candidate_mentions(row):
-    is_correct, mention_type = get_mention_supervision(row, mention)
-    supervised_mentions.append(mention._replace(is_correct=is_correct,mention_type=mention_type))
-  supervised_mentions += generate_rand_negatives(row, supervised_mentions)
-  return supervised_mentions
-
-
 if __name__ == '__main__':
   onto_path = lambda p : '%s/onto/%s' % (os.environ['GDD_HOME'], p)
 
@@ -264,7 +245,8 @@ if __name__ == '__main__':
 
     # find candidate mentions & supervise
     try:
-      mentions = get_all_candidates_from_row(row)
+      mentions = extract_candidate_mentions(row)
+      mentions += generate_rand_negatives(row, mentions)
     except IndexError:
       util.print_error("Error with row: %s" % (row,))
       continue
