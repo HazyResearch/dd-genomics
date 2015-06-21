@@ -1,3 +1,9 @@
+parser/bin/
+parser/build/
+parser/lib/
+*.jar
+parser/sample_data/
+
 env_local.sh
 data/*
 /util/mindbender

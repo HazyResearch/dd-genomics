@@ -1,0 +1,39 @@
+<project name="parser" basedir="." default="main">
+  
+  <property name="src.dir" value="src" />
+  <property name="build.dir" value="build" />
+  <property name="classes.dir" value="${build.dir}/classes" />
+  <property name="jar.dir" value="." />
+  <property name="lib.dir" value="lib" />
+
+  <property name="debuglevel" value="source,lines,vars" />
+  
+  <path id="classpath">
+    <fileset dir="${lib.dir}" includes="**/*.jar" />
+  </path>
+
+  <path id="application" location="${jar.dir}/${ant.project.name}.jar"/>
+
+  <target name="clean">
+    <delete dir="${build.dir}" />
+  </target>
+
+  <target name="compile">
+    <mkdir dir="${classes.dir}" />
+    <javac debug="true" debuglevel="${debuglevel}" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath"/>
+  </target>
+
+  <target name="jar" depends="compile">
+    <manifestclasspath property="jar.classpath" jarfile="${jar.dir}/${ant.project.name}.jar">
+      <classpath refid="classpath" />
+    </manifestclasspath>
+    <jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}">
+      <manifest>
+        <attribute name="Main-Class" value="parser.Main" />
+        <attribute name="Class-Path" value="${jar.classpath}" />
+      </manifest>
+    </jar>
+  </target>
+  
+  <target name="main" depends="clean,jar" />
+</project>
