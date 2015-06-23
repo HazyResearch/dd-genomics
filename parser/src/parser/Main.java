@@ -26,7 +26,7 @@ public class Main {
         for (OutputDoc outDoc : outDocs) {
           System.out.print(outDoc.docName);
           System.out.print("\t");
-          System.out.print("\"" + outDoc.docText.replace("\"", "\\\"") + "\"");
+          System.out.print(outDoc.docText);
           System.out.print("\n");
         }
       }
