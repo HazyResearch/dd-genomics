@@ -1,5 +1,7 @@
 package parser;
 
+import parser.config.*;
+
 import java.io.InputStream;
 import java.io.FileInputStream;
 import java.util.ArrayList;

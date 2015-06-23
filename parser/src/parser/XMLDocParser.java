@@ -1,5 +1,7 @@
 package parser;
 
+import parser.config.XMLDocConfig;
+
 import java.io.InputStream;
 import java.io.FileInputStream;
 import javax.xml.stream.XMLInputFactory;
@@ -21,7 +23,7 @@ public class XMLDocParser {
   private void skipSection(String localName) {
     try {
       for (int e = parser.next(); e != XMLStreamConstants.END_DOCUMENT; e = parser.next()) {
-        if (e == XMLStreamConstants.END_ELEMENT && parser.getLocalName() == localName) {
+        if (e == XMLStreamConstants.END_ELEMENT && parser.getLocalName().equals(localName)) {
           break;
         }
       }
@@ -33,17 +35,37 @@ public class XMLDocParser {
   // TODO: actually parse text nicely: add spaces in appropriate places, convert B/I/etc -> markdown, etc!
   private String getFlatElementText(String elementName) {
     StringBuilder section = new StringBuilder();
+    String localName;
     try {
-      for (int e = parser.next(); e != XMLStreamConstants.END_DOCUMENT; e = parser.next()) {
-        if (e == XMLStreamConstants.CHARACTERS) {
-          section.append(parser.getText());
-        } else if (e == XMLStreamConstants.END_ELEMENT && parser.getLocalName() == elementName) {
-          break;
-        } else if (e == XMLStreamConstants.START_ELEMENT && config.skipSection(parser.getLocalName())) {
-          skipSection(parser.getLocalName());
+      loop: for (int e = parser.next(); e != XMLStreamConstants.END_DOCUMENT; e = parser.next()) {
+        switch (e) {
+          case XMLStreamConstants.CHARACTERS:
+            section.append(parser.getText());
+            break;
+
+          case XMLStreamConstants.END_ELEMENT:
+            localName = parser.getLocalName();
+            if (parser.getLocalName().equals(elementName)) {
+              break loop; 
+            } else if (config.isSplitSection(localName)) {
+              if (section.charAt(section.length()-1) != '.') { section.append("."); }
+              section.append(" ");
+            } else if (config.isMarkdown(localName)) {
+              section.append(config.getMarkdown(localName));
+            }
+            break;
+
+          case XMLStreamConstants.START_ELEMENT:
+            localName = parser.getLocalName();
+            if (config.isSkipSection(localName)) {
+              skipSection(localName);
+            } else if (config.isMarkdown(localName)) {
+              section.append(config.getMarkdown(localName));
+            }
+            break;
         }
       }
-      return section.toString();
+      return config.cleanup(section.toString());
     } catch (XMLStreamException ex) {
       System.out.println(ex);
       return "";
@@ -54,6 +76,7 @@ public class XMLDocParser {
    * Go through the XML document, pulling out certain flat sections as individual output files.
    */
   public ArrayList<OutputDoc> parse() {
+    String docId = null;
     ArrayList<OutputDoc> outDocs = new ArrayList<OutputDoc>();
     try {
       parser = factory.createXMLStreamReader(this.xmlStream);
@@ -61,11 +84,15 @@ public class XMLDocParser {
         int event = parser.next();
         if (event == XMLStreamConstants.START_ELEMENT) {
           String localName = parser.getLocalName();
-          if (config.getSection(localName)) {
 
-            // TODO: get doc id!
-            String docId = "DOC_ID";
-            String docName = docId + "." + config.sectionName(localName);
+          // Try to get the doc id
+          if (docId == null && config.isDocIdSection(parser)) {
+            docId = config.formatDocId(getFlatElementText(localName));
+
+          // get sections that are in scope
+          } else if (config.isInScope(localName)) {
+            assert docId != null;
+            String docName = docId + "." + config.getSectionName(localName);
             OutputDoc outDoc = new OutputDoc(docName, getFlatElementText(localName));
             outDocs.add(outDoc);
           }
