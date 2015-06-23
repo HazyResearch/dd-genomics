@@ -23,9 +23,11 @@ parser = util.RowParser([
           ('gene_mention_ids', 'text[]'),
           ('gene_entities', 'text[]'),
           ('gene_wordidxs', 'int[][]'),
+          ('gene_is_corrects', 'boolean[]'),
           ('pheno_mention_ids', 'text[]'),
           ('pheno_entities', 'text[]'),
-          ('pheno_wordidxs', 'int[][]')])
+          ('pheno_wordidxs', 'int[][]'),
+          ('pheno_is_corrects', 'boolean[]')])
 
 
 # This defines the output Relation object
@@ -40,7 +42,8 @@ Relation = collections.namedtuple('Relation', [
             'pheno_mention_id',
             'pheno_entity',
             'pheno_wordidxs',
-            'is_correct'])
+            'is_correct',
+            'relation_type'])
 
 
 def gene_symbol_to_ensembl_id_map():
@@ -92,6 +95,12 @@ def extract_candidate_relations(row, superv_diff=0):
   pairs = []
   for i,gid in enumerate(row.gene_mention_ids):
     for j,pid in enumerate(row.pheno_mention_ids):
+
+      # Do not consider overlapping mention pairs
+      if len(set(row.gene_wordidxs[i]).intersection(row.pheno_wordidxs[j])) > 0:
+        continue
+
+      # Get the min path length between any of the g / p phrase words
       ds = []
       for ii in row.gene_wordidxs[i]:
         for jj in row.pheno_wordidxs[j]:
@@ -107,19 +116,29 @@ def extract_candidate_relations(row, superv_diff=0):
   pairs = filter(lambda p : p[0] < HARD_MAX_DEP_PATH_DIST, pairs)
   seen_g = {}
   seen_p = {}
+  seen_pairs = {}
   for p in pairs:
     d, i, j = p
+
+    # If the same entity occurs several times in a sentence, only take best one
+    e = '%s_%s' % (row.gene_entities[i], row.pheno_entities[j])
+    if e in seen_pairs and d > seen_pairs[e]:
+      continue
+    else:
+      seen_pairs[e] = d
     
     # HACK[Alex]: may or may not be hack, needs to be tested- for now be quite restrictive
+    """
     if (i in seen_g and seen_g[i] < d) or (j in seen_p and seen_p[j] < d):
       continue
+    """
     seen_g[i] = d
     seen_p[j] = d
-    relations += create_supervised_relations(row, i, j, superv_diff)
+    relations.append(create_supervised_relation(row, i, j, superv_diff))
   return relations
 
 
-def create_supervised_relations(row, i, j, superv_diff):
+def create_supervised_relation(row, i, j, superv_diff):
   """
   Given a Row object with a sentence and several gene and pheno objects, create and 
   supervise a Relation output object for the ith gene and jth pheno objects
@@ -129,21 +148,15 @@ def create_supervised_relations(row, i, j, superv_diff):
   gene_mention_id = row.gene_mention_ids[i]
   gene_entity = row.gene_entities[i]
   gene_wordidxs = row.gene_wordidxs[i]
+  gene_is_correct = row.gene_is_corrects[i]
   pheno_mention_id = row.pheno_mention_ids[j]
   pheno_entity = row.pheno_entities[j]
   pheno_wordidxs = row.pheno_wordidxs[j]
+  pheno_is_correct = row.pheno_is_corrects[j]
 
-  # Some patterns to skip:
-
-  # If we see <PHENO> (<GENE>) where starting letters are all the same, skip-
-  # This is a pheno abbreivation (which said gene false match named after)
-  # TODO: improve and/or generalize this
-  if pheno_wordidxs[-1] + 2 == gene_wordidxs[0]:
-    pi = pheno_wordidxs[-1]
-    if row.words[pi+1] == '(':
-      slp = ''.join([row.words[wi][0] for wi in pheno_wordidxs]).lower()
-      if slp == row.words[gene_wordidxs[0]].lower():
-        return []
+  relation_id = '%s_%s' % (gene_mention_id, pheno_mention_id)
+  r = Relation(None, relation_id, row.doc_id, row.sent_id, gene_mention_id, gene_entity, \
+               gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, None, None)
 
   # Handle preprocessing error here- failure to split sentences on citations
   # HACK[Alex]
@@ -153,21 +166,24 @@ def create_supervised_relations(row, i, j, superv_diff):
     between_range = range(pheno_wordidxs[-1]+1, gene_wordidxs[0])
   for wi in between_range:
     if re.search(r'\.\d+(,\d+)', row.words[wi]):
-      return []
+      return r._replace(is_correct=False, relation_type='SPLIT_SENTENCE')
+
+  # label any example where either the gene, pheno or both is false as neg example
+  if not (gene_is_correct != False and pheno_is_correct != False):
+    return r._replace(is_correct=False, relation_type='G_ANDOR_P_FALSE')
 
   # positive supervision via Charite
-  is_correct = None
   if (pheno_entity, gene_entity) in CACHE['supervision_data']:
-    is_correct = True
+    return r._replace(is_correct=True, relation_type='CHARITE_SUP')
 
   # Randomly choose some negative examples, throttled by current imbalance in counts
+  """
   elif random.random() < 0.1*superv_diff:
     is_correct = False
+  """
 
   # Return GP relation object
-  relation_id = '%s_%s' % (gene_mention_id, pheno_mention_id)
-  return [Relation(None, relation_id, row.doc_id, row.sent_id, gene_mention_id, gene_entity, \
-                   gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct)]
+  return r
 
 
 if __name__ == '__main__':
@@ -183,11 +199,14 @@ if __name__ == '__main__':
     row = parser.parse_tsv_row(line)
     
     # find candidate mentions & supervise
+    relations = extract_candidate_relations(row, superv_diff=pos_count-neg_count)
+    """
     try:
       relations = extract_candidate_relations(row, superv_diff=pos_count-neg_count)
     except IndexError:
       util.print_error("Error with row: %s" % (row,))
       continue
+    """
 
     pos_count += len(filter(lambda r : r.is_correct, relations))
     neg_count += len(filter(lambda r : r.is_correct is False, relations))
