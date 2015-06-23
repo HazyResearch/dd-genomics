@@ -95,6 +95,12 @@ def extract_candidate_relations(row, superv_diff=0):
   pairs = []
   for i,gid in enumerate(row.gene_mention_ids):
     for j,pid in enumerate(row.pheno_mention_ids):
+
+      # Do not consider overlapping mention pairs
+      if len(set(row.gene_wordidxs[i]).intersection(row.pheno_wordidxs[j])) > 0:
+        continue
+
+      # Get the min path length between any of the g / p phrase words
       ds = []
       for ii in row.gene_wordidxs[i]:
         for jj in row.pheno_wordidxs[j]:
