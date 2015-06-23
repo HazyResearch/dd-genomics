@@ -93,7 +93,8 @@ CREATE TABLE genepheno_relations (
         -- pheno word indexes
         pheno_wordidxs int[],
 	-- is this a correct relation?
-	is_correct boolean
+	is_correct boolean,
+        type text
 ) DISTRIBUTED BY (doc_id);
 
 -- G/P relation mentions features

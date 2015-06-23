@@ -15,7 +15,7 @@ def skip_row(row):
   """
 
   # Hack[Alex]: upper limit for sentences, specifically to deal w preprocessing errors
-  if len(row.words) > 150:
+  if len(row.words) > 90:
     return True
 
   # Require that there is a verb in the sentence
@@ -35,7 +35,7 @@ APP_HOME = os.environ['GDD_HOME']
 
 def print_error(err_string):
   """Function to write to stderr"""
-  sys.stderr.write("ERROR[UDF]: " + err_string + "\n")
+  sys.stderr.write("ERROR[UDF]: " + str(err_string) + "\n")
 
 def tsv_string_to_list(s, func=lambda x : x, sep='|^|'):
   """Convert a TSV string from the sentences_input table to a list,
@@ -48,7 +48,7 @@ def tsv_string_to_list(s, func=lambda x : x, sep='|^|'):
     split = s.split(sep)
 
   # split and apply function
-  return [func(x) for x in split]
+  return [func(x.strip()) for x in split]
 
 
 def tsv_string_to_listoflists(s, func=lambda x : x, sep1='|~|', sep2='|^|'):
@@ -61,12 +61,25 @@ class Row:
   def __repr__(self):
     return str(self)
 
+def bool_parser(b):
+  if b == 't':
+    return True
+  elif b == 'f':
+    return False
+  elif b == 'NULL' or b == '\\N':
+    return None
+  else:
+    raise Exception("Unrecognized bool type in RowParser:bool_parser: %s" % b)
+
+# NOTE: array_to_string doesn't work well for bools!  Just pass psql array out!
 RP_PARSERS = {
   'text' : lambda x : str(x),
   'text[]' : lambda x : tsv_string_to_list(x),
   'int' : lambda x : int(x),
   'int[]' : lambda x : tsv_string_to_list(x, func=int),
-  'int[][]' : lambda x : tsv_string_to_listoflists(x, func=int)
+  'int[][]' : lambda x : tsv_string_to_listoflists(x, func=int),
+  'boolean' : lambda x : bool_parser(x),
+  'boolean[]' : lambda x : tsv_string_to_list(x, func=bool_parser)
 }
 
 class RowParser:
@@ -83,7 +96,7 @@ class RowParser:
     for i,col in enumerate(cols):
       field_name, field_type = self.fields[i]
       if RP_PARSERS.has_key(field_type):
-        val = RP_PARSERS[field_type](col)
+        val = RP_PARSERS[field_type](col.strip())
       else:
         raise Exception("Unsupported type %s for RowParser class- please add.")
       setattr(row, field_name, val)

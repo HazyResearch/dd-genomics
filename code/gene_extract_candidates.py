@@ -74,6 +74,10 @@ def extract_candidate_mentions(row):
   lower_phrase_to_genes = CACHE['lower_phrase_to_genes']
   mentions = []
   for i, word in enumerate(row.words):
+
+    # HACK[Alex]: skip genes in parentheses; this may be good in general but don't know...
+    if i > 0 and row.words[i-1] == '(':
+      continue
     
     # Treat lowercase mappings the same as exact case ones for now.
     # HACK[MORGAN]: Do not learn any 2-letter words
