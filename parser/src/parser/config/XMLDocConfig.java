@@ -34,6 +34,15 @@ public abstract class XMLDocConfig {
   public boolean isSplitSection(String section) { return splitSections.contains(section); }
 
   /**
+   * Elements to split at. For inline tags, do not e.g. add a period before.
+   */
+  protected HashSet<String> splitTags = new HashSet<String>();
+  protected void addSplitTags(String[] splits) { 
+    for (String split : splits) { splitTags.add(split); }
+  }
+  public boolean isSplitTag(String tag) { return splitTags.contains(tag); }
+
+  /**
    * Converting html / xml tags to markdown wrappers
    */
   protected HashMap<String, String> markdown = new HashMap<String, String>();

@@ -10,10 +10,6 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import java.util.ArrayList;
 
-// http://www.xml.com/pub/a/2003/09/17/stax.html
-// http://tutorials.jenkov.com/java-xml/sax-example.html
-// https://docs.oracle.com/javase/tutorial/jaxp/sax/parsing.html
-
 public class XMLDocParser {
   private InputStream xmlStream;
   private XMLInputFactory factory;
@@ -32,7 +28,6 @@ public class XMLDocParser {
     }
   }
 
-  // TODO: actually parse text nicely: add spaces in appropriate places, convert B/I/etc -> markdown, etc!
   private String getFlatElementText(String elementName) {
     StringBuilder section = new StringBuilder();
     String localName;
@@ -49,6 +44,8 @@ public class XMLDocParser {
               break loop; 
             } else if (config.isSplitSection(localName)) {
               if (section.charAt(section.length()-1) != '.') { section.append("."); }
+              section.append(" ");
+            } else if (config.isSplitTag(localName)) {
               section.append(" ");
             } else if (config.isMarkdown(localName)) {
               section.append(config.getMarkdown(localName));

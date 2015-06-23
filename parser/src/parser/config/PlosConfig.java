@@ -22,9 +22,10 @@ public class PlosConfig extends XMLDocConfig {
   public String cleanup(String doc) {
     String out = doc.replaceAll("\\s{2,}", " ");
     
-    // Deal with removal of <xref> tags
-    out = out.replaceAll("\\s+(\\((\\s*,)*\\)|-|–)?\\s*\\.", ".");
+    // Deal with stuff left after removal of <xref> tags
+    out = out.replaceAll("\\s+(\\s|\\(|\\)|,|-|–)*\\.", ".");
 
+    out = out.replaceAll("\\s+,", ",");
     return out;
   }
 
@@ -37,8 +38,11 @@ public class PlosConfig extends XMLDocConfig {
     String[] skipSections = {"title", "xref", "table-wrap", "table", "object-id", "label", "caption", "ext-link"};
     addSkipSections(skipSections); 
 
-    String[] splitSections = {"p", "div", "li"};
+    String[] splitSections = {"p", "div", "li", "ref"};
     addSplitSections(splitSections); 
+
+    String[] splitTags = {"surname"};
+    addSplitTags(splitTags); 
 
     markdown.put("bold", "**");
     markdown.put("b", "**");
