@@ -3,9 +3,14 @@ package parser;
 import parser.config.*;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 public class Main {
 
@@ -14,6 +19,7 @@ public class Main {
       System.out.println("Usage: java -ea -jar parser.jar [FILE OR DIR]");
       System.exit(0);
     }
+
     ArrayList<File> files = getAllFiles(args[0]);
 
     XMLDocConfig config = new PlosConfig();
@@ -22,12 +28,23 @@ public class Main {
       for (File file : files) {
         InputStream xmlInput = new FileInputStream(file);
         XMLDocParser docParser = new XMLDocParser(xmlInput, config);
-        ArrayList<OutputDoc> outDocs = docParser.parse();
-        for (OutputDoc outDoc : outDocs) {
+
+        // TODO: make this actually streaming?  I.e. call a docParser.getNext() method
+        for (OutputDoc outDoc : docParser.parse()) {
+
+          // JSON
+          JSONObject obj = new JSONObject();
+          obj.put("item_id", outDoc.docName);
+          obj.put("content", outDoc.docText);
+          System.out.println(obj.toJSONString());
+
+          // TSV
+          /*
           System.out.print(outDoc.docName);
           System.out.print("\t");
           System.out.print(outDoc.docText);
           System.out.print("\n");
+          */
         }
       }
     } catch (Throwable err) {

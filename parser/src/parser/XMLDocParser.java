@@ -9,6 +9,9 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 public class XMLDocParser {
   private InputStream xmlStream;
@@ -43,7 +46,9 @@ public class XMLDocParser {
             if (parser.getLocalName().equals(elementName)) {
               break loop; 
             } else if (config.isSplitSection(localName)) {
-              if (section.charAt(section.length()-1) != '.') { section.append("."); }
+              if (section.length() > 0 && section.charAt(section.length()-1) != '.') { 
+                section.append("."); 
+              }
               section.append(" ");
             } else if (config.isSplitTag(localName)) {
               section.append(" ");
@@ -73,6 +78,7 @@ public class XMLDocParser {
    * Go through the XML document, pulling out certain flat sections as individual output files.
    */
   public ArrayList<OutputDoc> parse() {
+    HashSet<String> seenNames = new HashSet<String>();
     String docId = null;
     ArrayList<OutputDoc> outDocs = new ArrayList<OutputDoc>();
     try {
@@ -90,6 +96,8 @@ public class XMLDocParser {
           } else if (config.isInScope(localName)) {
             assert docId != null;
             String docName = docId + "." + config.getSectionName(localName);
+            if (seenNames.contains(docName)) { docName = iterateName(docName); }
+            seenNames.add(docName);
             OutputDoc outDoc = new OutputDoc(docName, getFlatElementText(localName));
             outDocs.add(outDoc);
           }
@@ -102,6 +110,14 @@ public class XMLDocParser {
       System.out.println(ex);
     }
     return outDocs;
+  }
+
+  private String iterateName(String name) {
+    Pattern p = Pattern.compile("\\d+$");
+    Matcher m = p.matcher(name);
+    int num = 1;
+    if (m.find()) { num = Integer.parseInt(m.group()) + 1; }
+    return name + "." + Integer.toString(num);
   }
 
   /**

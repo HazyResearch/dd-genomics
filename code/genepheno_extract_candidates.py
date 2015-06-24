@@ -76,6 +76,19 @@ def read_supervision():
   return supervision_pairs
 
 
+# TODO: move to util file
+def read_manual_list(name):
+  """Reads in simple list of words in TSV format"""
+  words = []
+  with open('%s/onto/manual/%s.tsv' % (util.APP_HOME, name)) as f:
+    for line in f:
+      words.append(line.strip().lower())
+  return frozenset(words)
+
+POS_SUPERVISION_WORDS = read_manual_list('gp_pos_words')
+NEG_SUPERVISION_WORDS = read_manual_list('gp_neg_words')
+
+
 ### CANDIDATE EXTRACTION ###
 
 def extract_candidate_relations(row, superv_diff=0):
@@ -154,6 +167,8 @@ def create_supervised_relation(row, i, j, superv_diff):
   pheno_wordidxs = row.pheno_wordidxs[j]
   pheno_is_correct = row.pheno_is_corrects[j]
 
+  row_words = set([w.lower() for w in row.words + row.lemmas])
+
   relation_id = '%s_%s' % (gene_mention_id, pheno_mention_id)
   r = Relation(None, relation_id, row.doc_id, row.sent_id, gene_mention_id, gene_entity, \
                gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, None, None)
@@ -172,15 +187,15 @@ def create_supervised_relation(row, i, j, superv_diff):
   if not (gene_is_correct != False and pheno_is_correct != False):
     return r._replace(is_correct=False, relation_type='G_ANDOR_P_FALSE')
 
-  # positive supervision via Charite
-  if (pheno_entity, gene_entity) in CACHE['supervision_data']:
-    return r._replace(is_correct=True, relation_type='CHARITE_SUP')
+  # neg supervision word
+  # TODO: handle n-grams too
+  if len(row_words.intersection(NEG_SUPERVISION_WORDS)) > 0:
+    return r._replace(is_correct=False, relation_type='NEG_WORDS')
 
-  # Randomly choose some negative examples, throttled by current imbalance in counts
-  """
-  elif random.random() < 0.1*superv_diff:
-    is_correct = False
-  """
+  # positive supervision via Charite
+  # TODO: take dep paths into account here too?  E.g. if pos word on a dep path between the G,P?
+  if (pheno_entity, gene_entity) in CACHE['supervision_data'] and len(row_words.intersection(POS_SUPERVISION_WORDS)) > 0:
+    return r._replace(is_correct=True, relation_type='CHARITE_SUP_POS_WORDS')
 
   # Return GP relation object
   return r
