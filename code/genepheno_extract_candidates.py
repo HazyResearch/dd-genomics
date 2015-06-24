@@ -147,7 +147,9 @@ def extract_candidate_relations(row, superv_diff=0):
     """
     seen_g[i] = d
     seen_p[j] = d
-    relations.append(create_supervised_relation(row, i, j, superv_diff))
+    r = create_supervised_relation(row, i, j, superv_diff)
+    if r is not None:
+      relations.append(r)
   return relations
 
 
@@ -169,33 +171,57 @@ def create_supervised_relation(row, i, j, superv_diff):
 
   row_words = set([w.lower() for w in row.words + row.lemmas])
 
+  if gene_wordidxs[-1] < pheno_wordidxs[0]:
+    between_range = range(gene_wordidxs[-1]+1, pheno_wordidxs[0])
+  else:
+    between_range = range(pheno_wordidxs[-1]+1, gene_wordidxs[0])
+  between_phrase = ' '.join(row.words[i] for i in between_range)
+
   relation_id = '%s_%s' % (gene_mention_id, pheno_mention_id)
   r = Relation(None, relation_id, row.doc_id, row.sent_id, gene_mention_id, gene_entity, \
                gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, None, None)
 
   # Handle preprocessing error here- failure to split sentences on citations
   # HACK[Alex]
-  if gene_wordidxs[0] < pheno_wordidxs[0]:
-    between_range = range(gene_wordidxs[0]+1, pheno_wordidxs[0])
-  else:
-    between_range = range(pheno_wordidxs[-1]+1, gene_wordidxs[0])
   for wi in between_range:
     if re.search(r'\.\d+(,\d+)', row.words[wi]):
       return r._replace(is_correct=False, relation_type='SPLIT_SENTENCE')
 
+  # label adjacent mentions as false
+  if re.search(r'[a-z]{3,}', between_phrase, flags=re.I) is None:
+    if random.random() < 0.5*superv_diff or random.random() < 0.01:
+      return r._replace(is_correct=False, relation_type='G_P_ADJACENT')
+    else:
+      return None
+
   # label any example where either the gene, pheno or both is false as neg example
   if not (gene_is_correct != False and pheno_is_correct != False):
-    return r._replace(is_correct=False, relation_type='G_ANDOR_P_FALSE')
+    if random.random() < 0.5*superv_diff or random.random() < 0.01:
+      return r._replace(is_correct=False, relation_type='G_ANDOR_P_FALSE')
+    else:
+      return None
 
   # neg supervision word
   # TODO: handle n-grams too
   if len(row_words.intersection(NEG_SUPERVISION_WORDS)) > 0:
-    return r._replace(is_correct=False, relation_type='NEG_WORDS')
+    if (pheno_entity, gene_entity) in CACHE['supervision_data']:
+      return r._replace(is_correct=False, relation_type='CHARITE_SUP_NEG_WORDS')
+    else:
+      return r._replace(is_correct=False, relation_type='NEG_WORDS')
 
   # positive supervision via Charite
   # TODO: take dep paths into account here too?  E.g. if pos word on a dep path between the G,P?
-  if (pheno_entity, gene_entity) in CACHE['supervision_data'] and len(row_words.intersection(POS_SUPERVISION_WORDS)) > 0:
-    return r._replace(is_correct=True, relation_type='CHARITE_SUP_POS_WORDS')
+  if (pheno_entity, gene_entity) in CACHE['supervision_data']:
+    if len(row_words.intersection(POS_SUPERVISION_WORDS)) > 0:
+      return r._replace(is_correct=True, relation_type='CHARITE_SUP_POS_WORDS')
+    else:
+      is_correct = True if random.random() < 0.1 else None
+      return r._replace(is_correct=is_correct, relation_type='CHARITE_SUP')
+
+  # label any relations where a positive word occurs *between* the G and P as correct
+  # TODO: do this for dep paths too!
+  if len(POS_SUPERVISION_WORDS.intersection(row.words[i] for i in between_range)) > 0:
+    return r._replace(is_correct=True, relation_type='POS_WORD_BETWEEN')
 
   # Return GP relation object
   return r

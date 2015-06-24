@@ -37,8 +37,10 @@ def get_features_for_candidate(row):
 
   # (2) Are the gene and pheno mentions directly adjacent?
   # TODO: buckets for distance between them > 0?
+  """
   if row.gene_wordidxs[-1] == row.pheno_wordidxs[0] - 1 or row.gene_wordidxs[0] == row.pheno_wordidxs[-1] + 1:
     features.append(f._replace(name='G_P_ADJACENT'))
+  """
   return features
 
 # Helper for loading in manually defined keywords
