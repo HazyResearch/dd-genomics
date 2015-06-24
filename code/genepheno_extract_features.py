@@ -22,6 +22,7 @@ parser = util.RowParser([
           ('wordidxs', 'int[]')])
 
 Feature = namedtuple('Feature', ['doc_id', 'relation_id', 'name'])
+
           
 def get_features_for_candidate(row):
   """Extract features for candidate mention- both generic ones from ddlib & custom features"""
@@ -42,6 +43,7 @@ def get_features_for_candidate(row):
     features.append(f._replace(name='G_P_ADJACENT'))
   """
   return features
+
 
 # Helper for loading in manually defined keywords
 onto_path = lambda p : '%s/onto/%s' % (os.environ['GDD_HOME'], p)
