@@ -1,14 +1,20 @@
 ### Parser
 
-A simple XML / HTML parser for pulling out document sections, with some markdown-esque preservation of xml/html tags.
+A simple XML / HTML parser for pulling out document sections, with some markdown-esque preservation of xml/html tags.  This is run as the first component of the end-to-end preprocessing:
 
-To run end-to-end along with NLP preprocessing using the bazaar lib, make sure the `BAZAAR_DIR` variable and run options are set correctly in `run.sh`, then run:
-  
+1. **XML parsing [this lib]**
+2. NLP preprocessing [bazaar / coreNLP]
+3. Loading into db [psql]
+
+To install and compile, run:
+
     ./get_deps.sh
     ant
-    ./run.sh [XML DIRECTORY OR FILE]
+
+To run end-to-end, make sure the `BAZAAR_DIR`, `PARALLELISM` and db variables are set correctly in `dd-genomics/env_local.sh`, then run, specifying whether to add to an existing table or create one:
+  
+    ./run.sh [In: a directory of / single xml file] [out: db table] ["create"|"add"]
 
 #### To-do:
-* Clean up run script
 * Parse document metadata
 * Parallelize XML parsing?
