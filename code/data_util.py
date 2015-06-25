@@ -7,20 +7,6 @@ import sys
 
 APP_HOME = os.environ['GDD_HOME']
 
-PLOS_SUBTYPES_TO_DOI_ABBREV = {
-    'biol': '10.1371/journal.pbio',
-    'clin': '10.1371/journal.pctr',
-    'comput': '10.1371/journal.pcbi',
-    # Omit PlOS Currents.
-    'genet': '10.1371/journal.pgen',
-    'med': '10.1371/journal.pmed',
-    'negl': '10.1371/journal.pntd',
-    'negl': '10.1371/journal.pntd',
-    'one': '10.1371/journal.pone',
-    'pathog': '10.1371/journal.ppat',
-}
-
-
 class Dag:
   """Class representing a directed acyclic graph."""
   def __init__(self, nodes, edges):
@@ -85,33 +71,22 @@ def read_hpo_synonyms():
 
 
 def get_pubmed_id_for_doc(doc_id, doi_to_pmid=None):
-  """Converts document ID to pubmed ID, or None if not in right format.
-  
+  """
+  Converts document ID to pubmed ID, or None if not in right format.
   doi_to_pmid is optional dict from DOI to PMID, for PLoS documents.
   """
   if '.'.join(doc_id.split('.')[1:]) == "html.txt.nlp.task":
     return doc_id.split('.')[0]
-
-  # PLoS doc IDs look like 'PLoS_One_2010_Dec_14_5(12)_e15617.nxml.txt'
+  
+  # PLoS doc IDs should look like '10.1371.journal.pone.0015617.Abstract.2'
   # Convert to DOI like '10.1371/journal.pone.0015617'
   # Then convert DOI to PMID.
   if doi_to_pmid:
-    plos_toks = doc_id.split('_')
-    if plos_toks[0] == 'PLoS':
-      plos_subtype = plos_toks[1].lower()
-      if plos_subtype in PLOS_SUBTYPES_TO_DOI_ABBREV:
-        doi_abbrev = PLOS_SUBTYPES_TO_DOI_ABBREV[plos_subtype]
-      else:
-        return None
-      doi_num_match = re.search(r'e([0-9]+)\.nxml\.txt', plos_toks[-1])
-      if doi_num_match:
-        doi_num = int(doi_num_match.group(1))
-      else:
-        return None
-      doi_id = '%s.%07d' % (doi_abbrev, doi_num)
+    plos_toks = doc_id.split('.')
+    if plos_toks[2] == 'journal' and plos_toks[3].startswith("p"):
+      doi_id = '.'.join(plos_toks[:2]) + '/' + '.'.join(plos_toks[2:5])
       if doi_id in doi_to_pmid:
         return doi_to_pmid[doi_id]
-
   return None
 
 
