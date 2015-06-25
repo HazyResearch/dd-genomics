@@ -4,6 +4,7 @@ import extractor_util as util
 import os
 import sys
 import ddlib
+import re
 
 # This defines the Row object that we read in to the extractor
 parser = util.RowParser([
@@ -35,10 +36,14 @@ def get_features_for_row(row):
             for feat in ddlib.get_generic_features_mention(sentence, span) if not (feat.startswith("LEMMA_SEQ") or feat.startswith("WORD_SEQ"))]
   
   # (2) Include gene type as a feature
+  # Note: including this as feature creates massive overfitting, for obvious reasons
+  # We need neg supervision of canonical & noncanonical symbols, then can / should try adding this feature
+  """
   for t in ENSEMBL_TYPES:
     if re.search(re.escape(t), row.mention_type, flags=re.I):
       features.append(f._replace(name='GENE_TYPE[%s]' % t))
       break
+  """
   return features
 
 if __name__ == '__main__':

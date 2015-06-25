@@ -33,6 +33,17 @@ class DepPathDAG:
             shortest = newpath
     return shortest
 
+  def min_path_phrases(self, start_idxs, end_idxs):
+    """Gived two sets of indexes, find the min path"""
+    ds = []
+    for i in start_idxs:
+      for j in end_idxs:
+        min_path = self.min_path(i,j)
+        if min_path:
+          ds.append((len(min_path), min_path))
+    return min(ds)[1] if len(ds) > 0 else None
+
+
 
 # NOTE: the below out-of-class functions are not yet tested
 # TODO: test and/or delete the below fns

@@ -1,5 +1,6 @@
 """Miscellaneous shared tools for maniuplating data used in the UDFs"""
 from collections import defaultdict, namedtuple
+import extractor_util as util
 import os
 import re
 import sys
@@ -18,6 +19,7 @@ PLOS_SUBTYPES_TO_DOI_ABBREV = {
     'one': '10.1371/journal.pone',
     'pathog': '10.1371/journal.ppat',
 }
+
 
 class Dag:
   """Class representing a directed acyclic graph."""
@@ -44,6 +46,7 @@ class Dag:
     self._has_child_memoizer[parent][child] = False
     return False
 
+
 def read_hpo_dag():
   with open('%s/onto/data/hpo_phenotypes.tsv' % APP_HOME) as f:
     nodes = []
@@ -59,10 +62,12 @@ def read_hpo_dag():
         edges[child] = []
     return Dag(nodes, edges)
 
+
 def get_hpo_phenos(hpo_dag, parent='HP:0000118'):
   """Get only the children of 'Phenotypic Abnormality' (HP:0000118)."""
   return [hpo_term for hpo_term in hpo_dag.nodes
           if hpo_dag.has_child(parent, hpo_term)]
+
 
 def read_hpo_synonyms():
   syn_dict = dict()
@@ -77,6 +82,7 @@ def read_hpo_synonyms():
         for syn in syn_str.split('|'):
           syn_dict[syn] = node
   return syn_dict
+
 
 def get_pubmed_id_for_doc(doc_id, doi_to_pmid=None):
   """Converts document ID to pubmed ID, or None if not in right format.
@@ -108,6 +114,7 @@ def get_pubmed_id_for_doc(doc_id, doi_to_pmid=None):
 
   return None
 
+
 def read_doi_to_pmid():
   """Reads map from DOI to PMID, for PLoS docuemnts."""
   doi_to_pmid = dict()
@@ -116,3 +123,23 @@ def read_doi_to_pmid():
       doi, pmid = line.strip().split('\t')
       doi_to_pmid[doi] = pmid
   return doi_to_pmid
+
+
+def gene_symbol_to_ensembl_id_map():
+  """Maps a gene symbol from CHARITE -> ensembl ID"""
+  with open('%s/onto/data/ensembl_genes.tsv' % util.APP_HOME) as f:
+    eid_map = defaultdict(set)
+    for line in f:
+      eid, phrase, mapping_type = line.rstrip('\n').split('\t')
+      eid_map[phrase].add(eid)
+      eid_map[phrase.lower()].add(eid)
+  return eid_map
+
+
+def read_manual_list(name):
+  """Reads in simple list of words in TSV format"""
+  words = []
+  with open('%s/onto/manual/%s.tsv' % (util.APP_HOME, name)) as f:
+    for line in f:
+      words.append(line.strip().lower())
+  return frozenset(words)

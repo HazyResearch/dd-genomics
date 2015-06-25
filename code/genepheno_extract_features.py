@@ -18,8 +18,8 @@ parser = util.RowParser([
           ('poses', 'text[]'),
           ('ners', 'text[]'),
           ('dep_paths', 'text[]'),
-          ('dep_parents', 'int[]'),
-          ('wordidxs', 'int[]')])
+          ('dep_parents', 'int[]')])
+
 
 Feature = namedtuple('Feature', ['doc_id', 'relation_id', 'name'])
 

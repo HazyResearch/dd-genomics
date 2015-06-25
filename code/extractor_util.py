@@ -5,6 +5,15 @@ import re
 import sys
 import ddlib
 
+def concat_rgx(strings=[], rgxs=[]):
+  r = r'|'.join(re.escape(w) for w in strings)
+  if len(rgxs) > 0:
+    if len(strings) > 0:
+      r += r'|'
+    r += r'(' + r')|('.join(rgxs) + r')'
+  return r
+
+
 # HACK[Alex]: this is probably justified but a bit hackey still...
 def skip_row(row):
   """

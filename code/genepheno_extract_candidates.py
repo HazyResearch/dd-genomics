@@ -22,10 +22,12 @@ parser = util.RowParser([
           ('dep_parents', 'int[]'),
           ('gene_mention_ids', 'text[]'),
           ('gene_entities', 'text[]'),
+          ('gene_mention_types', 'text[]'),
           ('gene_wordidxs', 'int[][]'),
           ('gene_is_corrects', 'boolean[]'),
           ('pheno_mention_ids', 'text[]'),
           ('pheno_entities', 'text[]'),
+          ('pheno_mention_types', 'text[]'),
           ('pheno_wordidxs', 'int[][]'),
           ('pheno_is_corrects', 'boolean[]')])
 
@@ -45,22 +47,8 @@ Relation = collections.namedtuple('Relation', [
             'is_correct',
             'relation_type'])
 
-
-def gene_symbol_to_ensembl_id_map():
-  """Maps a gene symbol from CHARITE -> ensembl ID"""
-  with open('%s/onto/data/ensembl_genes.tsv' % util.APP_HOME) as f:
-    eid_map = collections.defaultdict(set)
-    for line in f:
-      eid, phrase, mapping_type = line.rstrip('\n').split('\t')
-      eid_map[phrase].add(eid)
-      eid_map[phrase.lower()].add(eid)
-  return eid_map
-
-
-EID_MAP = gene_symbol_to_ensembl_id_map()
-
+EID_MAP = dutil.gene_symbol_to_ensembl_id_map()
 HPO_DAG = dutil.read_hpo_dag()
-
 
 def read_supervision():
   """Reads genepheno supervision data (from charite)."""
@@ -74,19 +62,6 @@ def read_supervision():
         for e in eids:
           supervision_pairs.add((h,e))
   return supervision_pairs
-
-
-# TODO: move to util file
-def read_manual_list(name):
-  """Reads in simple list of words in TSV format"""
-  words = []
-  with open('%s/onto/manual/%s.tsv' % (util.APP_HOME, name)) as f:
-    for line in f:
-      words.append(line.strip().lower())
-  return frozenset(words)
-
-POS_SUPERVISION_WORDS = read_manual_list('gp_pos_words')
-NEG_SUPERVISION_WORDS = read_manual_list('gp_neg_words')
 
 
 ### CANDIDATE EXTRACTION ###
@@ -114,14 +89,9 @@ def extract_candidate_relations(row, superv_diff=0):
         continue
 
       # Get the min path length between any of the g / p phrase words
-      ds = []
-      for ii in row.gene_wordidxs[i]:
-        for jj in row.pheno_wordidxs[j]:
-          min_path = dep_dag.min_path(ii, jj)
-          if min_path:
-            ds.append(len(min_path))
-      if len(ds) > 0:
-        pairs.append([min(ds), i, j])
+      min_path = dep_dag.min_path_phrases(row.gene_wordidxs[i], row.pheno_wordidxs[j])
+      if min_path:
+        pairs.append([len(min_path), i, j])
 
   # Select which of the pairs will be considered
   HARD_MAX_DEP_PATH_DIST = 7
@@ -147,13 +117,13 @@ def extract_candidate_relations(row, superv_diff=0):
     """
     seen_g[i] = d
     seen_p[j] = d
-    r = create_supervised_relation(row, i, j, superv_diff)
+    r = create_supervised_relation(row, i, j, superv_diff, dep_dag)
     if r is not None:
       relations.append(r)
   return relations
 
 
-def create_supervised_relation(row, i, j, superv_diff):
+def create_supervised_relation(row, i, j, superv_diff, dep_dag=None):
   """
   Given a Row object with a sentence and several gene and pheno objects, create and 
   supervise a Relation output object for the ith gene and jth pheno objects
@@ -162,6 +132,7 @@ def create_supervised_relation(row, i, j, superv_diff):
   """
   gene_mention_id = row.gene_mention_ids[i]
   gene_entity = row.gene_entities[i]
+  gene_mention_type = row.gene_mention_types[i]
   gene_wordidxs = row.gene_wordidxs[i]
   gene_is_correct = row.gene_is_corrects[i]
   pheno_mention_id = row.pheno_mention_ids[j]
@@ -169,58 +140,111 @@ def create_supervised_relation(row, i, j, superv_diff):
   pheno_wordidxs = row.pheno_wordidxs[j]
   pheno_is_correct = row.pheno_is_corrects[j]
 
-  row_words = set([w.lower() for w in row.words + row.lemmas])
-
-  if gene_wordidxs[-1] < pheno_wordidxs[0]:
-    between_range = range(gene_wordidxs[-1]+1, pheno_wordidxs[0])
-  else:
-    between_range = range(pheno_wordidxs[-1]+1, gene_wordidxs[0])
-  between_phrase = ' '.join(row.words[i] for i in between_range)
+  # HACK[Alex]: IGNORE ALL NONCANONICAL HERE!!!
+  if re.search(r'noncanonical', gene_mention_type, flags=re.I):
+    return None
 
   relation_id = '%s_%s' % (gene_mention_id, pheno_mention_id)
   r = Relation(None, relation_id, row.doc_id, row.sent_id, gene_mention_id, gene_entity, \
                gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, None, None)
 
-  # Handle preprocessing error here- failure to split sentences on citations
-  # HACK[Alex]
-  for wi in between_range:
-    if re.search(r'\.\d+(,\d+)', row.words[wi]):
-      return r._replace(is_correct=False, relation_type='SPLIT_SENTENCE')
-
-  # label adjacent mentions as false
-  if re.search(r'[a-z]{3,}', between_phrase, flags=re.I) is None:
-    if random.random() < 0.5*superv_diff or random.random() < 0.01:
-      return r._replace(is_correct=False, relation_type='G_P_ADJACENT')
-    else:
-      return None
-
-  # label any example where either the gene, pheno or both is false as neg example
+  ## DS RULE: label any example where either the gene, pheno or both is false as neg example
   if not (gene_is_correct != False and pheno_is_correct != False):
     if random.random() < 0.5*superv_diff or random.random() < 0.01:
       return r._replace(is_correct=False, relation_type='G_ANDOR_P_FALSE')
     else:
       return None
 
-  # neg supervision word
-  # TODO: handle n-grams too
-  if len(row_words.intersection(NEG_SUPERVISION_WORDS)) > 0:
+  # Get the set of row words, between words
+  row_words = set([w.lower() for w in row.words + row.lemmas])
+  gene = row.words[gene_wordidxs[0]]
+  pheno = ' '.join(row.words[i] for i in pheno_wordidxs)
+  if gene_wordidxs[-1] < pheno_wordidxs[0]:
+    between_range = range(gene_wordidxs[-1]+1, pheno_wordidxs[0])
+  else:
+    between_range = range(pheno_wordidxs[-1]+1, gene_wordidxs[0])
+  between_phrase = ' '.join(row.words[i] for i in between_range).lower()
+  between_phrase_lemma = ' '.join(row.lemmas[i] for i in between_range).lower()
+  whole_phrase = ' '.join(row.words).lower()
+  whole_phrase_lemma = ' '.join(row.lemmas).lower()
+
+  # Get intersection with some pos / neg patterns
+  # TODO: clean all this up!!
+  POS_WORDS = ['mutation', 'mutate', 'cause', 'implicate']
+  NEG_WORDS = ['expression', 'express', 'coexpression', 'coexpress', 'co-expression', 'co-express', 'correlate', 'risk-factor', 'risk factor', 'snp', 'single nucleotide polymorphism', 'gwas', 'genome wide association study', 'genome-wide association study', 'found an association']
+  POS_RGXS = []
+  NEG_RGXS = [r'rs\d+', r'population((\-|\s+)based)?\s+study', r'potential\s+(therapeutic\s+)?target']
+  POS_RGX = util.concat_rgx(strings=POS_WORDS, rgxs=POS_RGXS)
+  NEG_RGX = util.concat_rgx(strings=NEG_WORDS, rgxs=NEG_RGXS)
+
+  # get indices of matches in sentence
+  """
+  pos_match_idx = []
+  for m in re.finditer(POS_RGX, whole_phrase):
+    pos_match_idx += range(m.start(), m.end())
+  """
+
+  POS_PATTERNS = [r'{{G}},?\s(a\s{{P}}\sgene|a\sgene\sfor\s{{P}})', r'{{P}}\sgene,?\s{{G}}']
+  NEG_PATTERNS = [r'{{G}}\s+level', r'{{P}}\scauses?\s{{G}}']
+  POS_PATTERNS, NEG_PATTERNS = [[re.sub(r'{{G}}', re.escape(gene), re.sub(r'{{P}}', re.escape(pheno), p)) for p in ps] for ps in [POS_PATTERNS, NEG_PATTERNS]]
+  POS_RGX_P = util.concat_rgx(rgxs=POS_PATTERNS)
+  NEG_RGX_P = util.concat_rgx(rgxs=NEG_PATTERNS)
+
+  # TODO: CLEAN ALL THIS UP!!!
+
+  # word between
+  # TODO: *or* on dep path!
+  pos_a = False
+  neg_a = False
+  if re.search(POS_RGX, between_phrase) or re.search(POS_RGX, between_phrase_lemma):
+    pos_a = True
+  if re.search(NEG_RGX, between_phrase) or re.search(NEG_RGX, between_phrase_lemma):
+    neg_a = True
+
+  # word match
+  pos_b = False
+  neg_b = False
+  if pos_a or re.search(POS_RGX, whole_phrase) or re.search(POS_RGX, whole_phrase_lemma):
+    pos_b = True
+  if neg_a or re.search(NEG_RGX, whole_phrase) or re.search(NEG_RGX, whole_phrase_lemma):
+    neg_b = True
+
+  # GP PATTERN MATCH
+  pos_c = False
+  neg_c = False
+  if re.search(POS_RGX_P, whole_phrase) or re.search(POS_RGX_P, whole_phrase_lemma):
+    pos_c = True
+  if re.search(NEG_RGX_P, whole_phrase) or re.search(NEG_RGX_P, whole_phrase_lemma):
+    neg_c = True
+
+  ## DS RULE: label adjacent mentions as false
+  if re.search(r'[a-z]{3,}', between_phrase, flags=re.I) is None:
+    if random.random() < 0.5*superv_diff or random.random() < 0.01:
+      return r._replace(is_correct=False, relation_type='G_P_ADJACENT')
+    else:
+      return None
+
+  ## DS RULE: positive supervision via Charite
+  if (pheno_entity, gene_entity) in CACHE['supervision_data']:
+    #if len(row_words.intersection(POS_SUPERVISION_WORDS)) > 0:
+    if pos_b or pos_c:
+      return r._replace(is_correct=True, relation_type='CHARITE_SUP_POS_WORDS')
+    else:
+      #is_correct = True if random.random() < 0.1 else None
+      is_correct=True
+      return r._replace(is_correct=is_correct, relation_type='CHARITE_SUP')
+
+  ## DS RULE: neg supervision word
+  #if len(row_words.intersection(NEG_SUPERVISION_WORDS)) > 0:
+  if neg_b or neg_c:
     if (pheno_entity, gene_entity) in CACHE['supervision_data']:
       return r._replace(is_correct=False, relation_type='CHARITE_SUP_NEG_WORDS')
     else:
       return r._replace(is_correct=False, relation_type='NEG_WORDS')
 
-  # positive supervision via Charite
-  # TODO: take dep paths into account here too?  E.g. if pos word on a dep path between the G,P?
-  if (pheno_entity, gene_entity) in CACHE['supervision_data']:
-    if len(row_words.intersection(POS_SUPERVISION_WORDS)) > 0:
-      return r._replace(is_correct=True, relation_type='CHARITE_SUP_POS_WORDS')
-    else:
-      is_correct = True if random.random() < 0.1 else None
-      return r._replace(is_correct=is_correct, relation_type='CHARITE_SUP')
-
-  # label any relations where a positive word occurs *between* the G and P as correct
-  # TODO: do this for dep paths too!
-  if len(POS_SUPERVISION_WORDS.intersection(row.words[i] for i in between_range)) > 0:
+  ## DS RULE: label any relations where a positive word occurs *between* the G and P as correct
+  #if len(POS_SUPERVISION_WORDS.intersection(row.words[i] for i in between_range)) > 0:
+  if pos_a or pos_c:
     return r._replace(is_correct=True, relation_type='POS_WORD_BETWEEN')
 
   # Return GP relation object
@@ -231,6 +255,10 @@ if __name__ == '__main__':
 
   # load in static data
   CACHE['supervision_data'] = read_supervision()
+  """
+  POS_SUPERVISION_WORDS = dutil.read_manual_list('gp_pos_words')
+  NEG_SUPERVISION_WORDS = dutil.read_manual_list('gp_neg_words')
+  """
 
   # generate the mentions, while trying to keep the supervision approx. balanced
   # print out right away so we don't bloat memory...
