@@ -45,6 +45,7 @@ COPY (
     AND r.pheno_mention_id = pm.mention_id
     AND r.relation_id = f.relation_id 
     AND r.expectation > 0.9
+    AND r.is_correct IS NULL
     --AND gm.expectation > 0.5
     --AND pm.expectation > 0.5
   ORDER BY random()

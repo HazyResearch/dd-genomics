@@ -1,5 +1,17 @@
 # The Genomics DeepDive (GDD) Project
 
+### TO-DO LIST [updated: 7/2/15]
+
+#### High-level / major
+* GP: Handle / better define causal vs. associative connection (use multinomial?)
+* GP: Handle negation, also hypotheticals (e.g. "might be", "we hypothesize", etc.)
+* G: Handle non-canonicals better, calibrate / increase precision 
+* P: Integrate UMLS to increase vocabulary & better control synonyms list
+* Add in genetic variant tagging (as preprocessing extractor)
+
+#### Specific / minor
+* G: add supervision using acronym definition sections
+
 ### GDD Setup notes
 
 1. [5/28/15]: The sampler used is currently in the `sample_evidence` branch of the sampler [repo][sampler-se].  To use an existing compiled binary for linux, just move `util/sampler-dw-linux` to `$DEEPDIVE_HOME/util/sampler-dw-linux`.  To recompile the binary, clone the sampler repo, follow instructions, then move the compiled binary to the same location.

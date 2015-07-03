@@ -14,6 +14,8 @@
     <!-- <span class="text-muted">{{item.sentences_after | concatArray:'postgres'}}</span> -->
   </blockquote>
 
+  <b>TYPE: <i>{{item.relation_type}}</i></b><br/>
+
   <!-- Enumerate features with weights (leveraging AngularJS a bit more)-->
   <div class="row">
     <div class="col-sm-offset-1 col-sm-10">
@@ -23,16 +25,14 @@
           <th>Feature</th>
         </tr></thead>
 	<tbody>
-          <tr ng-repeat="feature in (item.features | parsedArray:'postgres') | limitTo:10 track by $index">
-            <td class="text-right">{{(item.weights | parsedArray:'postgres')[$index] | number:4}}</td>
-            <th>{{feature}}</th>
-          </tr>
+<!--	  <tr ng-repeat="feature in item.features | parsedArray:'postgres' track by $index">
+	    <td class="text-right">{{(item.weights | parsedArray:'postgres')[$index] | number:6}}</td>
+	    <th>{{feature}}</th>
+	  </tr> -->
 	</tbody>
       </table>
     </div>
   </div>
-
-  <b>TYPE: <i>{{item.relation_type}}</i></b><br/>
 
   <div mindtagger-item-details></div>
 </template>

@@ -64,7 +64,6 @@ def read_hpo_synonyms():
       syn_dict[node] = node
       syn_str = toks[4]
       if syn_str:
-        print syn_str
         for syn in syn_str.split('|'):
           syn_dict[syn] = node
   return syn_dict

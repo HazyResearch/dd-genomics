@@ -5,7 +5,7 @@ import re
 import sys
 import ddlib
 
-def concat_rgx(strings=[], rgxs=[]):
+def rgx_comp(strings=[], rgxs=[]):
   r = r'|'.join(re.escape(w) for w in strings)
   if len(rgxs) > 0:
     if len(strings) > 0:

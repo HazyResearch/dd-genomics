@@ -75,17 +75,15 @@ def extract_candidate_mentions(row):
   mentions = []
   for i, word in enumerate(row.words):
 
-    # HACK[Alex]: skip genes in parentheses; this may be good in general but don't know...
-    if i > 0 and row.words[i-1] == '(':
-      continue
-    
     # Treat lowercase mappings the same as exact case ones for now.
     # HACK[MORGAN]: Do not learn any 2-letter words
     if (word in phrase_to_genes or word.lower() in lower_phrase_to_genes) and (len(word)>2):
       exact_case_matches = phrase_to_genes[word]
       lowercase_matches = phrase_to_genes[word.lower()]
       for eid, mapping_type in exact_case_matches.union(lowercase_matches):
-        mentions.append(create_supervised_mention(row, i, eid, mapping_type))
+        m = create_supervised_mention(row, i, eid, mapping_type)
+        if m:
+          mentions.append(m)
   return mentions
 
 
@@ -96,8 +94,23 @@ def create_supervised_mention(row, i, entity=None, mention_type=None):
   mid = '%s_%s_%s_%s_%s' % (row.doc_id, row.sent_id, i, entity, mention_type)
   m = Mention(None, row.doc_id, row.sent_id, [i], mid, mention_type, entity, [word], None)
 
-  # Positive Rule #1: matches from papers that NCBI annotates as being about
-  # the mentioned gene are likely true.
+  ## DS RULE: skip genes in parentheses; this may be good in general but don't know...
+  if i > 0 and (row.words[i-1] == '(' or row.words[i-1] == '-LRB-'):
+    if random.random() < 0.1:
+      return m._replace(is_correct=False, mention_type='PARENTHESIS')
+    else:
+      return None
+    
+  ## DS RULE: "GENE cells / cell lines"
+  RGX_CELL_LINES = r'\+?\s*cell(s|\slines?)'
+  phrase_post = ' '.join(row.words[i+1:])
+  if re.match(RGX_CELL_LINES, phrase_post, flags=re.I):
+    if random.random() < 0.1:
+      return m._replace(is_correct=False, mention_type='CELL_LINES')
+    else:
+      return None
+
+  ## DS RULE: matches from papers that NCBI annotates as being about the mentioned gene are likely true.
   pubmed_to_genes = CACHE['pubmed_to_genes']
   pmid = dutil.get_pubmed_id_for_doc(row.doc_id, doi_to_pmid=CACHE['doi_to_pmid'])
   if pmid and entity:
@@ -105,14 +118,7 @@ def create_supervised_mention(row, i, entity=None, mention_type=None):
     if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
       return m._replace(is_correct=True, mention_type='%s_NCBI_ANNOTATION_TRUE' % mention_type)
 
-  # Negative Rule #1: "GENE cells / cell lines"
-  RGX_CELL_LINES = r'\+?\s*cell(s|\slines?)'
-  phrase_post = ' '.join(row.words[i+1:])
-  if re.match(RGX_CELL_LINES, phrase_post, flags=re.I):
-    return m._replace(is_correct=False, mention_type='CELL_LINES')
-
-  # Positive Rule #2: Genes on the gene list with complicated names (3 letters
-  # and 1 digit) are probably good for exact matches.
+  ## DS RULE: Genes on the gene list with complicated names are probably good for exact matches.
   """
   if mention.mention_type in ('CANONICAL_SYMBOL','NONCANONICAL_SYMBOL'):
     if re.match(r'[a-zA-Z]{3}[a-zA-Z]*\d+\w*', word):
