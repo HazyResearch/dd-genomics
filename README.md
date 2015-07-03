@@ -55,7 +55,9 @@ to the `hpo_to_doc_via_mesh` table.
 
 7. Fetch and process ontology files: `cd onto; ./make_all.sh`
 
-8. Run the appropriate pipeline: `./run.sh [PIPELINE_NAME]`
+8. install nltk: `sudo pip install nltk`. Download the corpora wordnet: in Python: `import nltk; nltk.download()` and download the corpora wordnet.
+
+9. Run the appropriate pipeline: `./run.sh [PIPELINE_NAME]`
 
 ### Notes on Simple Debugging Routines
 
