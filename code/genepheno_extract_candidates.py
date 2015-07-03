@@ -148,19 +148,25 @@ def create_supervised_relation(row, i, j, superv_diff, dep_dag=None):
   lemma_phrase = ' '.join(row.lemmas)
   b = sorted([gene_wordidxs[0], gene_wordidxs[-1], pheno_wordidxs[0], pheno_wordidxs[-1]])[1:-1]
   between_phrase = ' '.join(row.words[i] for i in range(b[0]+1,b[1]))
+  between_phrase_lemmas = ' '.join(row.lemmas[i] for i in range(b[0]+1,b[1]))
+
+  dep_path_between = frozenset(dep_dag.min_path_sets(gene_wordidxs, pheno_wordidxs)) if dep_dag else None
 
   relation_id = '%s_%s' % (gene_mention_id, pheno_mention_id)
   r = Relation(None, relation_id, row.doc_id, row.sent_id, gene_mention_id, gene_entity, \
                gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, None, None)
   
+  # distant supervision rules & hyperparameters
+  # NOTE: see config.py for all documentation & values
   SR = config.SUPERVISION_RULES['genepheno']
 
-  # HACK[Alex]: IGNORE ALL NONCANONICAL HERE!!!
+  # Note here: (a) can be extended to multinomial, and (b) sets negative rule preference
+  VALS = [('neg', False), ('pos', True)]
+
   if SR.get('ignore-noncanonical'):
     if re.search(r'noncanonical', gene_mention_type, flags=re.I):
       return None
 
-  ## DS RULE: label any example where either the gene, pheno or both is false as neg example
   if SR.get('g-or-p-false'):
     opts = SR['g-or-p-false']
     if not (gene_is_correct != False and pheno_is_correct != False):
@@ -169,7 +175,6 @@ def create_supervised_relation(row, i, j, superv_diff, dep_dag=None):
       else:
         return None
 
-  ## DS RULE: label adjacent mentions as false
   if SR.get('adjacent-false'):
     if re.search(r'[a-z]{3,}', between_phrase, flags=re.I) is None:
       if random.random() < 0.5*superv_diff or random.random() < 0.01:
@@ -177,37 +182,47 @@ def create_supervised_relation(row, i, j, superv_diff, dep_dag=None):
       else:
         return None
 
-  ## DS RULE: specific words / phrases anywhere in the sentence
   if SR.get('phrases-in-sent'):
     opts = SR['phrases-in-sent']
-    if len(opts['neg']) + len(opts['neg-rgx']) > 0 and \
-      re.search(util.rgx_comp(opts['neg'], rgxs=opts['neg-rgx']), phrase + ' ' + lemma_phrase, flags=re.I):
-      return r._replace(is_correct=False, relation_type='PHRASE_NEG')
+    for name,val in VALS:
+      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0 and \
+        re.search(util.rgx_comp(opts[name], rgxs=opts['%s-rgx' % name]), phrase + ' ' + lemma_phrase, flags=re.I):
+        return r._replace(is_correct=val, relation_type='PHRASE_%s' % name)
 
-    if len(opts['pos']) + len(opts['pos-rgx']) > 0 and \
-      re.search(util.rgx_comp(opts['pos'], rgxs=opts['pos-rgx']), phrase + ' ' + lemma_phrase, flags=re.I):
-      return r._replace(is_correct=True, relation_type='PHRASE_POS')
+  if SR.get('phrases-in-between'):
+    opts = SR['phrases-in-between']
+    for name,val in VALS:
+      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0 and \
+        re.search(util.rgx_comp(opts[name], rgxs=opts['%s-rgx' % name]), between_phrase + ' ' + between_phrase_lemmas, flags=re.I):
+        return r._replace(is_correct=val, relation_type='PHRASE_BETWEEN_%s' % name)
 
-  ## DS RULES: rules based on dep paths
-  if SR.get('dep-lemmas') and dep_dag:
-    opts = SR['dep-lemmas']
-    d = dep_dag.path_len_sets(gene_wordidxs, [i for i,x in enumerate(row.lemmas) if x in opts['neg-g']])
-    if d and d < opts['max-dist'] + 1:
-      return r._replace(is_correct=False, relation_type='DEP_LEMMA_NEG_G')
+  if SR.get('primary-verb-modifiers') and dep_dag:
+    opts = SR['primary-verb-modifiers']
+    if dep_path_between:
+      verbs_between = [i for i in dep_path_between if row.poses[i].startswith("VB")]
+      if len(verbs_between) > 0:
+        for name,val in VALS:
+          mod_words = [i for i,x in enumerate(row.lemmas) if x in opts[name]]
+          mod_words += [i for i,x in enumerate(row.dep_paths) if x in opts['%s-dep-tag' % name]]
+          d = dep_dag.path_len_sets(verbs_between, mod_words)
+          if d and d < opts['max-dist'] + 1:
+            return r._replace(is_correct=val, relation_type='PRIMARY_VB_MOD_%s' % name) 
 
-    d = dep_dag.path_len_sets(pheno_wordidxs, [i for i,x in enumerate(row.lemmas) if x in opts['neg-p']])
-    if d and d < opts['max-dist'] + 1:
-      return r._replace(is_correct=False, relation_type='DEP_LEMMA_NEG_P')
+  if SR.get('dep-lemma-connectors') and dep_dag:
+    opts = SR['dep-lemma-connectors']
+    for name,val in VALS:
+      if dep_path_between and \
+        len([i for i,x in enumerate(row.lemmas) if i in dep_path_between and x in opts[name]]) > 0:
+        return r._replace(is_correct=val, relation_type='DEP_LEMMA_CONNECT_%s' % name)
 
-    d = dep_dag.path_len_sets(gene_wordidxs, [i for i,x in enumerate(row.lemmas) if x in opts['pos-g']])
-    if d and d < opts['max-dist'] + 1:
-      return r._replace(is_correct=True, relation_type='DEP_LEMMA_POS_G')
+  if SR.get('dep-lemma-neighbors') and dep_dag:
+    opts = SR['dep-lemma-neighbors']
+    for name,val in VALS:
+      for entity in ['g','p']:
+        d = dep_dag.path_len_sets(gene_wordidxs, [i for i,x in enumerate(row.lemmas) if x in opts['%s-%s' % (name,entity)]])
+        if d and d < opts['max-dist'] + 1:
+          return r._replace(is_correct=val, relation_type='DEP_LEMMA_NB_%s_%s' % (name,entity))
 
-    d = dep_dag.path_len_sets(pheno_wordidxs, [i for i,x in enumerate(row.lemmas) if x in opts['pos-p']])
-    if d and d < opts['max-dist'] + 1:
-      return r._replace(is_correct=True, relation_type='DEP_LEMMA_POS_P')
-
-  ## DS RULE: positive supervision via Charite
   if SR.get('charite-all-pos'):
     if (pheno_entity, gene_entity) in CHARITE_PAIRS:
       return r._replace(is_correct=True, relation_type='CHARITE_SUP') 

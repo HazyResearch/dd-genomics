@@ -49,6 +49,21 @@ class DepPathDAG:
           min_path_len = self._path_len(min_path)
     return min_path
 
+  def min_path_sets(self, idx, jdx):
+    """Return the minimum path between the closest members of two sets of indexes"""
+    min_path_len = None
+    min_path = None
+    if len(idx) == 0 or len(jdx) == 0:
+      return min_path
+    for i in idx:
+      for j in jdx:
+        p = self.min_path(i,j)
+        l = self._path_len(p) if p else None
+        if l and (min_path_len is None or l < min_path_len):
+          min_path_len = l
+          min_path = p
+    return min_path
+
   def path_len(self, i, j):
     """Get the 'path length' i.e. the length of the min path between i and j"""
     min_path = self.min_path(i, j)
@@ -57,12 +72,5 @@ class DepPathDAG:
   def path_len_sets(self, idx, jdx):
     """Return the path length (length of minimum path) between the closest
     members of two sets of indexes"""
-    min_path_len = None
-    if len(idx) == 0 or len(jdx) == 0:
-      return min_path_len
-    for i in idx:
-      for j in jdx:
-        l = self.path_len(i,j)
-        if l and (min_path_len is None or l < min_path_len):
-          min_path_len = l
-    return min_path_len
+    min_path = self.min_path_sets(idx,jdx)
+    return self._path_len(min_path) if min_path else None
