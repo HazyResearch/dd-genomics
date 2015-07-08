@@ -54,7 +54,7 @@ SUPERVISION_RULES = {
     'primary-verb-modifiers' : {
       'max-dist' : 1,
       'pos' : [],
-      'neg' : ['might'],
+      'neg' : ['might', 'may'],
       'pos-dep-tag' : [],
       'neg-dep-tag' : ['neg']
     },
@@ -62,7 +62,7 @@ SUPERVISION_RULES = {
     # Supervise GP pairs as T/F based on words (e.g. esp verbs) on the min dep path connecting them
     'dep-lemma-connectors' : {
       'pos' : ['cause'],
-      'neg' : ['associate', 'correlate']
+      'neg' : ['associate', 'correlate', 'implicate']
     },
 
     # Supervise GP pairs as T/F based on dependency-path neighbor lemmas of G and P
@@ -88,5 +88,5 @@ FEATURES = {
 }
 
 DELTA_IMPROVEMENT = {
-  'subset'    : 'sent-with-might.sql'
+  'subset'    : 'inferred.sql'
 }
