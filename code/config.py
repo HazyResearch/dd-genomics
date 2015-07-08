@@ -86,3 +86,7 @@ FEATURES = {
   'pheno'     : [],
   'genepheno' : []
 }
+
+DELTA_IMPROVEMENT = {
+  'subset'    : 'sent-with-might.sql'
+}
