@@ -157,7 +157,6 @@ def get_negative_mentions(row, mentions, d, per_row_max=2):
 
 
 if __name__ == '__main__':
-
   # load static data
   CACHE['phrase_to_genes'],CACHE['lower_phrase_to_genes'] = read_phrase_to_genes()
   CACHE['pubmed_to_genes'] = read_pubmed_to_genes()
