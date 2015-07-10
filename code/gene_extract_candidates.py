@@ -184,10 +184,10 @@ if __name__ == '__main__':
     neg_count += len([m for m in mentions if m.is_correct is False])
 
     # add negative supervision
-    if pos_count > neg_count:
-      negs = get_negative_mentions(row, mentions, pos_count - neg_count)
-      neg_count += len(negs)
-      mentions += negs
+    # if pos_count > neg_count:
+    #   negs = get_negative_mentions(row, mentions, pos_count - neg_count)
+    #   neg_count += len(negs)
+    #   mentions += negs
 
     # print output
     for mention in mentions:
