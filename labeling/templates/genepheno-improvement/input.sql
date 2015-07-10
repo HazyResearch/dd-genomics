@@ -12,7 +12,7 @@ COPY (
     , r.weights as weights
     , r.diff as diff
   FROM
-    delta_increment_test r 
+    genepheno_delta_improvement r
   ORDER BY random()
   LIMIT 100
 ) TO STDOUT WITH CSV HEADER;
