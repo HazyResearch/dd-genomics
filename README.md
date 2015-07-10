@@ -81,6 +81,9 @@ We then just debug using print statements in the code & etc. as we normally woul
 Make sure you have run `util/update-mindbender.sh` at least once.
 It will download the `util/mindbender` command, which includes Mindtagger as well as Dashboard.
 
+(On raiders2, to get the correct psql version, do: ```export
+PATH=/dfs/scratch1/netj/wrapped/greenplum:$PATH``` first.)
+
 To produce a set of reports using Dashboard after a GDD run, use the following steps:
 ```bash
 (
