@@ -88,6 +88,6 @@ FEATURES = {
 }
 
 DELTA_IMPROVEMENT = {
-  'genepheno'    : 'inferred.sql'
+  'genepheno'    : 'inferred.sql',
   'gene'    : 'inferred.sql'
 }
