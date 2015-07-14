@@ -88,6 +88,7 @@ FEATURES = {
 }
 
 DELTA_IMPROVEMENT = {
-  'genepheno'    : 'inferred.sql',
-  'gene'         : 'all.sql'
+  'genepheno_inference'    : 'inferred.sql',
+  'genepheno_supervision'  : 'all.sql',
+  'gene_inference'         : 'all.sql'
 }
