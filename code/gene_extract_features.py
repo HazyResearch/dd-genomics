@@ -5,6 +5,7 @@ import os
 import sys
 import ddlib
 import re
+from config import FEATURES
 
 # This defines the Row object that we read in to the extractor
 parser = util.RowParser([
@@ -26,14 +27,20 @@ ENSEMBL_TYPES = ['NONCANONICAL', 'CANONICAL', 'REFSEQ']
 
 
 def get_features_for_row(row):
+  OPTS = FEATURES['gene']
   features = []
   f = Feature(doc_id=row.doc_id, mention_id=row.mention_id, name=None)
 
   # (1) Get generic ddlib features
   sentence = util.create_ddlib_sentence(row)
   span = ddlib.Span(begin_word_id=row.mention_wordidxs[0], length=len(row.mention_wordidxs))
-  features += [f._replace(name=feat) \
-            for feat in ddlib.get_generic_features_mention(sentence, span) if not (feat.startswith("LEMMA_SEQ") or feat.startswith("WORD_SEQ"))]
+  generic_features = [f._replace(name=feat) for feat in ddlib.get_generic_features_mention(sentence, span)]
+
+  # Optionally filter out some generic features
+  if 'exclude_generic' in OPTS:
+    generic_features = filter(lambda feat : not feat.startswith(tuple(OPTS['exclude_generic'])), generic_features)
+
+  features += generic_features
   
   # (2) Include gene type as a feature
   # Note: including this as feature creates massive overfitting, for obvious reasons

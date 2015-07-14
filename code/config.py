@@ -2,7 +2,6 @@
 # correlates, associated
 # negation / hypothetical -> look for words modifying the closest verb to both G and P?
 
-
 # Hyperparameters / switches for the candidate extraction stage
 HARD_FILTERS = {
   'gene'      : {},
@@ -82,7 +81,9 @@ SUPERVISION_RULES = {
 
 # Hyperparameters / switches for features
 FEATURES = {
-  'gene'      : [],
-  'pheno'     : [],
-  'genepheno' : []
+  'gene'      : {
+    #'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
+  },
+  'pheno'     : {},
+  'genepheno' : {}
 }
