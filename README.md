@@ -1,20 +1,24 @@
 # The Genomics DeepDive (GDD) Project
 
-### TO-DO LIST [updated: 7/2/15]
+### TO-DO LIST [updated 7/3/15]
 
 #### High-level / major
+* Get Dashboard up & running with Charite comparison script included [work with Jaeho & Mike]
 * GP: Handle / better define causal vs. associative connection (use multinomial?)
-* GP: Handle negation, also hypotheticals (e.g. "might be", "we hypothesize", etc.)
+* GP: Handle negation, also hypotheticals (e.g. "might be", "we hypothesize", etc.) *[See some initial attempts]
 * G: Handle non-canonicals better, calibrate / increase precision 
 * P: Integrate UMLS to increase vocabulary & better control synonyms list
 * Add in genetic variant tagging (as preprocessing extractor)
 
 #### Specific / minor
+* [7/3/15] GP: too many negative supervisions with new rules for e.g. getting rid of "associated" / "correlated" & some negations / "might"! -> need to calibrate / adjust
 * G: add supervision using acronym definition sections
 
 ### GDD Setup notes
 
-1. [5/28/15]: The sampler used is currently in the `sample_evidence` branch of the sampler [repo][sampler-se].  To use an existing compiled binary for linux, just move `util/sampler-dw-linux` to `$DEEPDIVE_HOME/util/sampler-dw-linux`.  To recompile the binary, clone the sampler repo, follow instructions, then move the compiled binary to the same location.
+1. [7/3/15]: The current testing / dev dataset is in the genomics_ajratner db (login as `psql -U ajratner -h raiders2 -p 6432 genomics_ajratner` -> then copy to own db) sentences table- this is 30k docs of PLoS XML-preprocessed evenly balanced between PLoS ONE & PLoS other.
+2. [7/3/15]: The full PLoS + PMC XML data is currently being (slowly) copied to `/dfs/scratch0/ajratner/pmc_raw`.  A subset (PLoS) is already in `/dfs/scratch0/ajratner/dd_raw_docs`).
+3. [5/28/15]: The sampler used is currently in the `sample_evidence` branch of the sampler [repo][sampler-se].  To use an existing compiled binary for linux, just move `util/sampler-dw-linux` to `$DEEPDIVE_HOME/util/sampler-dw-linux`.  To recompile the binary, clone the sampler repo, follow instructions, then move the compiled binary to the same location.
 
 ### Running GDD: Basics
 
@@ -51,7 +55,9 @@ to the `hpo_to_doc_via_mesh` table.
 
 7. Fetch and process ontology files: `cd onto; ./make_all.sh`
 
-8. Run the appropriate pipeline: `./run.sh [PIPELINE_NAME]`
+8. install nltk: `sudo pip install nltk`. Download the corpora wordnet: in Python: `import nltk; nltk.download()` and download the corpora wordnet.
+
+9. Run the appropriate pipeline: `./run.sh [PIPELINE_NAME]`
 
 ### Notes on Simple Debugging Routines
 
@@ -74,6 +80,9 @@ We then just debug using print statements in the code & etc. as we normally woul
 
 Make sure you have run `util/update-mindbender.sh` at least once.
 It will download the `util/mindbender` command, which includes Mindtagger as well as Dashboard.
+
+(On raiders2, to get the correct psql version, do: ```export
+PATH=/dfs/scratch1/netj/wrapped/greenplum:$PATH``` first.)
 
 To produce a set of reports using Dashboard after a GDD run, use the following steps:
 ```bash

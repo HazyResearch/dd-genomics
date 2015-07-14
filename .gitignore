@@ -75,3 +75,6 @@ docs/_build/
 
 *~
 #*#
+
+onto/dicts/ensembl_map.tsv
+onto/dicts/hugo_export.txt

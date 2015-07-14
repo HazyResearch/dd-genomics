@@ -1,3 +1,5 @@
+#! /usr/bin/env bash
+
 cp dicts/english_words.tsv data/english_words.tsv
 
 # Download and parse HPO term list (with synonyms and graph edges)

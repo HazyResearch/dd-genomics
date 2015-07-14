@@ -157,7 +157,6 @@ def get_negative_mentions(row, mentions, d, per_row_max=2):
 
 
 if __name__ == '__main__':
-
   # load static data
   CACHE['phrase_to_genes'],CACHE['lower_phrase_to_genes'] = read_phrase_to_genes()
   CACHE['pubmed_to_genes'] = read_pubmed_to_genes()
@@ -185,10 +184,10 @@ if __name__ == '__main__':
     neg_count += len([m for m in mentions if m.is_correct is False])
 
     # add negative supervision
-    if pos_count > neg_count:
-      negs = get_negative_mentions(row, mentions, pos_count - neg_count)
-      neg_count += len(negs)
-      mentions += negs
+    # if pos_count > neg_count:
+    #   negs = get_negative_mentions(row, mentions, pos_count - neg_count)
+    #   neg_count += len(negs)
+    #   mentions += negs
 
     # print output
     for mention in mentions:

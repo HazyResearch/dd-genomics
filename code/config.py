@@ -61,7 +61,7 @@ SUPERVISION_RULES = {
     # Supervise GP pairs as T/F based on words (e.g. esp verbs) on the min dep path connecting them
     'dep-lemma-connectors' : {
       'pos' : ['cause'],
-      'neg' : ['associate', 'correlate']
+      'neg' : ['associate', 'correlate', 'implicate']
     },
 
     # Supervise GP pairs as T/F based on dependency-path neighbor lemmas of G and P
@@ -86,4 +86,10 @@ FEATURES = {
   },
   'pheno'     : {},
   'genepheno' : {}
+}
+
+DELTA_IMPROVEMENT = {
+  'genepheno_inference'    : 'inferred.sql',
+  'genepheno_supervision'  : 'all.sql',
+  'gene_inference'         : 'all.sql'
 }
