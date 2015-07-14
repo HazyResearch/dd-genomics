@@ -12,7 +12,7 @@ COPY (
     , r.weights as weights
     , r.diff as diff
   FROM
-    genepheno_delta_improvement r
+    genepheno_inference_delta_improvement r
   ORDER BY random()
   LIMIT 100
 ) TO STDOUT WITH CSV HEADER;

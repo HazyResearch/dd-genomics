@@ -10,7 +10,7 @@ COPY (
     , r.doc_id
     , r.diff
   FROM
-    gene_delta_improvement r
+    gene_inference_delta_improvement r
   ORDER BY random()
   LIMIT 100
 ) TO STDOUT WITH CSV HEADER;
