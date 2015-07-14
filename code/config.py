@@ -54,7 +54,7 @@ SUPERVISION_RULES = {
     'primary-verb-modifiers' : {
       'max-dist' : 1,
       'pos' : [],
-      'neg' : ['might', 'may'],
+      'neg' : ['might'],
       'pos-dep-tag' : [],
       'neg-dep-tag' : ['neg']
     },
