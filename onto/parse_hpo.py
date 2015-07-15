@@ -31,7 +31,7 @@ if __name__ == "__main__":
             for n in term.get('xref', []):
                 if ' ' in n:
                     cur_syn = n.partition(' ')[-1].strip('" ')
-                    synonyms.add(cur_syn)
+                    #synonyms.add(cur_syn)
                     xref_id = n.split(' ')[0]
                     source = xref_id.split(':')[0]
                     if source == 'MeSH':
