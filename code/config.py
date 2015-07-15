@@ -15,17 +15,19 @@ GENE = {
 
   ## Supervision Rules
   'SR' : {
-    'dep-lemma-neighbors-rgx' : {
-      'max-dist' : 1,
-      'pos' : ['gene', 'protein'],
-      'neg' : ['\+?\s*cell(s|\slines?)'],
+    # Label some P mentions based on the toks / phrases that follow
+    'post-match' : {
+      'pos' : [],
+      'neg' : [],
+      'pos-rgx' : [],
+      'neg-rgx' : [r'cell(s|\slines?)']
     },
 
     'parenthesized-false' : True,
     
     'pubmed-paper-genes-true' : True,
 
-    'use-two-letter-genes': False
+    'min-word-len' : 3,
 
   },
 
