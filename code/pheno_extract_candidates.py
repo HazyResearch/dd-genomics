@@ -7,6 +7,7 @@ import random
 from itertools import chain
 import extractor_util as util
 import data_util as dutil
+import config
 
 
 # This defines the Row object that we read in to the extractor
@@ -30,15 +31,6 @@ Mention = namedtuple('Mention', [
             'entity',
             'words',
             'is_correct'])
-
-
-def load_pmid_to_hpo():
-  """Load map from Pubmed ID to HPO term (via MeSH)"""
-  pmid_to_hpo = defaultdict(set)
-  for line in open(onto_path('data/hpo_to_pmid_via_mesh.tsv')):
-    hpo_id, pmid = line.strip().split('\t')
-    pmid_to_hpo[pmid].add(hpo_id)
-  return pmid_to_hpo
 
 
 def load_pheno_terms():
@@ -68,12 +60,11 @@ def load_pheno_terms():
 
 
 ### CANDIDATE EXTRACTION ###
-
-# HACK[Alex]: this maximum phenotype mention length is arbitrary... should be tested!
-MAX_LEN = 8
+HF = config.HARD_FILTERS['pheno']
+SR = config.SUPERVISION_RULES['pheno']
 
 def keep_word(w):
-  return (w.lower() not in STOPWORDS and len(w) > 2)
+  return (w.lower() not in STOPWORDS and len(w) > HF['min-word-len'] - 1)
 
 def extract_candidate_mentions(row):
   """Extracts candidate phenotype mentions from an input row object"""
@@ -84,21 +75,20 @@ def extract_candidate_mentions(row):
   split_indices = set()
 
   # split on certain characters / words e.g. commas
-  SPLIT_LIST = frozenset([',', ';'])
-  split_indices.update([i for i,w in enumerate(row.words) if w in SPLIT_LIST])
+  split_indices.update([i for i,w in enumerate(row.words) if w in HF['split-list']])
 
-  # split on segments of more than 2 consecutive skip words
+  # split on segments of more than M consecutive skip words
   seq = []
   for i,w in enumerate(row.words):
     if not keep_word(w):
       seq.append(i)
     else:
-      if len(seq) > 2:
+      if len(seq) > HF['split-max-stops']:
         split_indices.update(seq)
       seq = []
 
   # Next, pass a window of size n (dec.) over the sentence looking for candidate mentions
-  for n in reversed(range(1, min(len(row.words), MAX_LEN)+1)):
+  for n in reversed(range(1, min(len(row.words), HF['max-len'])+1)):
     for i in range(len(row.words)-n+1):
       wordidxs = range(i,i+n)
       words = [w.lower() for w in row.words[i:i+n]]
@@ -129,56 +119,58 @@ def extract_candidate_mentions(row):
 
       # (2) Check for permuted match
       # Note: avoid repeated words here!
-      ps, lps = map(frozenset, [ws, lws])
-      if (len(ps)==len(ws) and ps in PHENO_SETS) or (len(lps)==len(lws) and lps in PHENO_SETS):
-        entities = PHENO_SETS[ps] if ps in PHENO_SETS else PHENO_SETS[lps]
-        for entity in entities:
-          mentions.append(create_supervised_mention(row, wordidxs, entity, 'PERM'))
-        continue
+      if HF['permuted']:
+        ps, lps = map(frozenset, [ws, lws])
+        if (len(ps)==len(ws) and ps in PHENO_SETS) or (len(lps)==len(lws) and lps in PHENO_SETS):
+          entities = PHENO_SETS[ps] if ps in PHENO_SETS else PHENO_SETS[lps]
+          for entity in entities:
+            mentions.append(create_supervised_mention(row, wordidxs, entity, 'PERM'))
+          continue
 
       # (3) Check for an exact match with one ommitted (interior) word/lemma
       # Note: only consider ommiting non-stop words!
-      if len(ws) > 2:
-        for omit in range(1, len(ws)-1):
-          p, lp = [' '.join([w for i,w in enumerate(x) if i != omit]) for x in [ws, lws]]
-          if p in PHENOS or lp in PHENOS:
-            entities = PHENOS[p] if p in PHENOS else PHENOS[lp]
-            for entity in entities:
-              mentions.append(create_supervised_mention(row, wordidxs, entity, 'OMIT_%s' % omit))
+      if HF['omitted-interior']:
+        if len(ws) > 2:
+          for omit in range(1, len(ws)-1):
+            p, lp = [' '.join([w for i,w in enumerate(x) if i != omit]) for x in [ws, lws]]
+            if p in PHENOS or lp in PHENOS:
+              entities = PHENOS[p] if p in PHENOS else PHENOS[lp]
+              for entity in entities:
+                mentions.append(create_supervised_mention(row, wordidxs, entity, 'OMIT_%s' % omit))
   return mentions    
 
 
 ### DISTANT SUPERVISION ###
-COMMON_WORD_PROB = 0.1
 def create_supervised_mention(row, idxs, entity=None, mention_type=None):
   """Given a Row object consisting of a sentence, create & supervise a Mention output object"""
   words = [row.words[i] for i in idxs]
   mid = '%s_%s_%s_%s_%s_%s' % (row.doc_id, row.sent_id, idxs[0], idxs[-1], mention_type, entity)
   m = Mention(None, row.doc_id, row.sent_id, idxs, mid, mention_type, entity, words, None)
 
-  # Filter as negative some based on specific rules- taking priority
-  POST_NEG_MATCHES = r'cell(s|\slines?)?'
-  phrase_post = " ".join(row.words[idxs[-1]:])
-  if re.search(POST_NEG_MATCHES, phrase_post, flags=re.I):
-    return m._replace(is_correct=False, mention_type='CELL_LINES')
+  if SR.get('post-match'):
+    opts = SR['post-match']
+    phrase_post = " ".join(row.words[idxs[-1]:])
+    for name,val in config.VALS:
+      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0 and \
+        re.search(util.rgx_comp(opts[name], opts['%s-rgx' % name]), phrase_post, flags=re.I):
+        return m._replace(is_correct=val, mention_type='POST_MATCH')
 
-  # Add supervision via mesh terms
-  pubmed_id = dutil.get_pubmed_id_for_doc(row.doc_id, doi_to_pmid=DOI_TO_PMID)
-  if pubmed_id and pubmed_id in PMID_TO_HPO:
-    if entity in PMID_TO_HPO[pubmed_id]:
-      return m._replace(is_correct=True, mention_type='%s_MESH_SUPERV' % mention_type)
+  if SR.get('mesh-supervise'):
+    pubmed_id = dutil.get_pubmed_id_for_doc(row.doc_id, doi_to_pmid=DOI_TO_PMID)
+    if pubmed_id and pubmed_id in PMID_TO_HPO:
+      if entity in PMID_TO_HPO[pubmed_id]:
+        return m._replace(is_correct=True, mention_type='%s_MESH_SUPERV' % mention_type)
 
-    # If this is more specific than MeSH term, also consider true.
-    elif entity in hpo_dag.node_set:
-      for parent in PMID_TO_HPO[pubmed_id]:
-        if hpo_dag.has_child(parent, entity):
-          return m._replace(is_correct=True, mention_type='%s_MESH_CHILD_SUPERV' % mention_type)
+      # If this is more specific than MeSH term, also consider true.
+      elif SR.get('mesh-specific-true') and entity in hpo_dag.node_set:
+        for parent in PMID_TO_HPO[pubmed_id]:
+          if hpo_dag.has_child(parent, entity):
+            return m._replace(is_correct=True, mention_type='%s_MESH_CHILD_SUPERV' % mention_type)
 
-  # Supervise exact matches as true; however if exact match is also a common english word,
-  # label true w.p. < 1
   phrase = " ".join(words).lower()
   if mention_type == 'EXACT':
-    if len(words) == 1 and phrase in ENGLISH_WORDS and random.random() < COMMON_WORD_PROB:
+    if SR.get('exact-english-word') and \
+      len(words) == 1 and phrase in ENGLISH_WORDS and random.random() < SR['exact-english-word']['p']:
       return m._replace(is_correct=True, mention_type='EXACT_AND_ENGLISH_WORD')
     else:
       return m._replace(is_correct=True)
@@ -197,7 +189,7 @@ def generate_rand_negatives(s, candidates):
 
   # pick random noun / adj phrases which do not overlap with candidate mentions
   covered = set(chain.from_iterable([m.wordidxs for m in candidates]))
-  idxs = set([i for i in range(len(s.words)) if re.match(r'NN.?|JJ.?', s.poses[i])])
+  idxs = set([i for i in range(len(s.words)) if re.match(SR['rand-negs']['pos-tag-rgx'], s.poses[i])])
 
   for i in range(n_negs):
     x = sorted(list(idxs - covered))
@@ -232,7 +224,7 @@ if __name__ == '__main__':
   hpo_dag = dutil.read_hpo_dag()
   hpo_phenos = set(dutil.get_hpo_phenos(hpo_dag))
   DOI_TO_PMID = dutil.read_doi_to_pmid()
-  PMID_TO_HPO = load_pmid_to_hpo()
+  PMID_TO_HPO = dutil.load_pmid_to_hpo()
   PHENOS, PHENO_SETS = load_pheno_terms()
 
   # Read TSV data in as Row objects
@@ -246,7 +238,8 @@ if __name__ == '__main__':
     # find candidate mentions & supervise
     try:
       mentions = extract_candidate_mentions(row)
-      mentions += generate_rand_negatives(row, mentions)
+      if SR.get('rand-negs'):
+        mentions += generate_rand_negatives(row, mentions)
     except IndexError:
       util.print_error("Error with row: %s" % (row,))
       continue
