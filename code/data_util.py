@@ -7,6 +7,8 @@ import sys
 
 APP_HOME = os.environ['GDD_HOME']
 
+onto_path = lambda p : '%s/onto/%s' % (os.environ['GDD_HOME'], p)
+
 class Dag:
   """Class representing a directed acyclic graph."""
   def __init__(self, nodes, edges):
