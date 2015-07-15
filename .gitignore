@@ -1,6 +1,6 @@
 parser/bin/
 parser/build/
-parser/lib/
+parser/lib/*.jar
 *.jar
 parser/sample_data/
 

@@ -74,3 +74,13 @@ class DepPathDAG:
     members of two sets of indexes"""
     min_path = self.min_path_sets(idx,jdx)
     return self._path_len(min_path) if min_path else None
+
+  def neighbors(self, idx):
+    """Return the indices or neighboring words (0-indexed return value)"""
+    rv = []
+    for i in xrange(0, len(self.dep_parents)):
+      if dep_parents[i] == idx:
+        rv.append(i)
+      elif i == idx:
+        rv.append(dep_parents[i])
+    return rv

@@ -3,6 +3,8 @@
 # extraction hyperparameters / configurations
 BOOL_VALS = [('neg', False), ('pos', True)]
 
+# Note here: (a) can be extended to multinomial, and (b) sets negative rule preference
+VALS = [('neg', False), ('pos', True)]
 
 ### GENE
 GENE = {
@@ -12,13 +14,25 @@ GENE = {
   'HF' : {},
 
   ## Supervision Rules
-  'SR' : {},
+  'SR' : {
+    'dep-lemma-neighbors-rgx' : {
+      'max-dist' : 1,
+      'pos' : ['gene', 'protein'],
+      'neg' : ['\+?\s*cell(s|\slines?)'],
+    },
+
+    'parenthesized-false' : True,
+    
+    'pubmed-paper-genes-true' : True,
+
+    'use-two-letter-genes': False
+
+  },
 
   ## Features
   'F' : {
     #'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
   }
-}
 
 
 ### PHENO
@@ -97,7 +111,7 @@ GENE_PHENO = {
 
     # Only consider the closest GP pairs by dep-path distance such that all G,P are covered
     'take-best-only' : True
-  },
+  }
 
   ## Supervision Rules
   'SR' : {
