@@ -78,9 +78,7 @@ class DepPathDAG:
   def neighbors(self, idx):
     """Return the indices or neighboring words (0-indexed return value)"""
     rv = []
-    for i in xrange(0, len(self.dep_parents)):
-      if dep_parents[i] == idx:
+    for i in xrange(0, len(self.edges)):
+      if idx in self.edges[i]:
         rv.append(i)
-      elif i == idx:
-        rv.append(dep_parents[i])
     return rv

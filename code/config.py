@@ -11,7 +11,9 @@ GENE = {
   'vals' : BOOL_VALS,
 
   ## Hard Filters (for candidate extraction)
-  'HF' : {},
+  'HF' : {
+    'min-word-len': 3
+  },
 
   ## Supervision Rules
   'SR' : {
@@ -24,15 +26,16 @@ GENE = {
     },
 
     'pre-neighbor-match' : {
-      'pos' : []
-      'neg' : ['(', '-LRB-']
-    }
+      'pos' : [],
+      'neg' : ['(', '-LRB-'],
+      'pos-rgx': [],
+      'neg-rgx': []
+    },
 
     'pubmed-paper-genes-true' : True,
 
-    'complicated-gene-names-true': False,
+    'complicated-gene-names-true': False
 
-    'min-word-len' : 3,
 
   },
 
@@ -40,6 +43,7 @@ GENE = {
   'F' : {
     #'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
   }
+}
 
 
 ### PHENO
@@ -120,7 +124,7 @@ GENE_PHENO = {
 
     # Only consider the closest GP pairs by dep-path distance such that all G,P are covered
     'take-best-only' : True
-  }
+  },
 
   ## Supervision Rules
   'SR' : {

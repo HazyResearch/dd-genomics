@@ -7,6 +7,7 @@ import re
 import os
 import sys
 import string
+import config
 
 CACHE = dict()  # Cache results of disk I/O
 
@@ -34,8 +35,8 @@ Mention = collections.namedtuple('Mention', [
             'is_correct'])
 
 ### CANDIDATE EXTRACTION ###
-HF = config.PHENO['HF']
-SR = config.PHENO['SR']
+HF = config.GENE['HF']
+SR = config.GENE['SR']
 
 def read_phrase_to_genes():
   """Read in phrase to gene mappings. The format is TSV: <EnsemblGeneId> <Phrase> <MappingType>
@@ -78,7 +79,7 @@ def extract_candidate_mentions(row):
   mentions = []
   for i, word in enumerate(row.words):
     # Treat lowercase mappings the same as exact case ones for now.
-    if (word in phrase_to_genes or word.lower() in lower_phrase_to_genes) and (len(word) >= SR['min-word-len']):
+    if (word in phrase_to_genes or word.lower() in lower_phrase_to_genes) and (len(word) >= HF['min-word-len']):
       exact_case_matches = phrase_to_genes[word]
       lowercase_matches = phrase_to_genes[word.lower()]
       for eid, mapping_type in exact_case_matches.union(lowercase_matches):
@@ -87,6 +88,8 @@ def extract_candidate_mentions(row):
           mentions.append(m)
   return mentions
 
+### DISTANT SUPERVISION ###
+VALS = config.GENE['vals']
 def create_supervised_mention(row, i, entity=None, mention_type=None):
   """Given a Row object consisting of a sentence, create & supervise a Mention output object"""
   word = row.words[i]
@@ -107,7 +110,7 @@ def create_supervised_mention(row, i, entity=None, mention_type=None):
     pre_neighbor = row.words[i-1]
     for name,val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0 and \
-        re.search(util.rgx_comp(opts[name], opts['%s-rgx' % name]), pre_neighbor, flags=re.I)
+        re.search(util.rgx_comp(opts[name], opts['%s-rgx' % name]), pre_neighbor, flags=re.I):
         return m._replace(is_correct=val, mention_type='PRE_NEIGHBOR_MATCH')
 
   ## DS RULE: matches from papers that NCBI annotates as being about the mentioned gene are likely true.

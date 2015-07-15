@@ -107,3 +107,6 @@ CREATE TABLE genepheno_features (
 	-- feature
 	feature text
 ) DISTRIBUTED BY (doc_id);
+
+DROP TABLE IF EXISTS test_nlp;
+CREATE TABLE test_nlp (id bigint);
