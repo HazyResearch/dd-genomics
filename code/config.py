@@ -1,16 +1,32 @@
 # CONFIG
 # The master configuration file for candidate extraction, distant supervision and feature
 # extraction hyperparameters / configurations
+BOOL_VALS = [('neg', False), ('pos', True)]
 
 
-VALS = [('neg', False), ('pos', True)]
+### GENE
+GENE = {
+  'vals' : BOOL_VALS,
 
-# Hyperparameters / switches for the candidate extraction stage
-HARD_FILTERS = {
-  'gene'      : {},
+  ## Hard Filters (for candidate extraction)
+  'HF' : {},
+
+  ## Supervision Rules
+  'SR' : {},
+
+  ## Features
+  'F' : {
+    #'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
+  }
+}
+
+
+### PHENO
+PHENO = {
+  'vals' : BOOL_VALS,
   
-  'pheno'     : {
-    
+  ## Hard Filters (for candidate extraction)
+  'HF' : {
     # Maximum n-gram length to consider
     'max-len' : 8,
 
@@ -30,25 +46,8 @@ HARD_FILTERS = {
     'omitted-interior' : True
   },
 
-  'genepheno' : {
-
-    # Upper-bound the max min-dependency-path length between G and P
-    'max-dep-path-dist' : 7,
-
-    # Only consider the closest GP pairs for duplicate GP pairs
-    'take-best-only-dups' : True,
-
-    # Only consider the closest GP pairs by dep-path distance such that all G,P are covered
-    'take-best-only' : True
-  }
-}
-
-
-# Hyperparameters / switches for distant supervision rules 
-SUPERVISION_RULES = {
-  'gene'      : {},
-  'pheno'     : {
-    
+  ## Supervision Rules
+  'SR' : {
     # Label some P mentions based on the toks / phrases that follow
     'post-match' : {
       'pos' : [],
@@ -73,8 +72,35 @@ SUPERVISION_RULES = {
     }
   },
 
-  'genepheno' : {
+  ## Features
+  'F' : {
+    # Add the closest verb by raw distance
+    'closest-verb' : True,
 
+    # Incorporate user keyword dictionaries via DDLIB
+    'sentence-kws' : True
+  }
+}
+
+
+### GENE-PHENO
+GENE_PHENO = {
+  'vals' : BOOL_VALS,
+  
+  ## Hard Filters (for candidate extraction)
+  'HF' : {
+    # Upper-bound the max min-dependency-path length between G and P
+    'max-dep-path-dist' : 7,
+
+    # Only consider the closest GP pairs for duplicate GP pairs
+    'take-best-only-dups' : True,
+
+    # Only consider the closest GP pairs by dep-path distance such that all G,P are covered
+    'take-best-only' : True
+  },
+
+  ## Supervision Rules
+  'SR' : {
     # Whether to include GP pairs with no or long dep path links as neg. supervision (vs. skip)
     'bad-dep-paths' : True,
 
@@ -125,14 +151,16 @@ SUPERVISION_RULES = {
 
     # Label T all GP pairs in Charite dataset (and that haven't already been labeled T/F)
     'charite-all-pos' : True
-  }
+  },
+
+  ## Features
+  'F' : {}
 }
 
 
 # Hyperparameters / switches for features
 FEATURES = {
   'gene'      : {
-    #'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
   },
   'pheno'     : {},
   'genepheno' : {}

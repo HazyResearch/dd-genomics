@@ -60,8 +60,8 @@ def load_pheno_terms():
 
 
 ### CANDIDATE EXTRACTION ###
-HF = config.HARD_FILTERS['pheno']
-SR = config.SUPERVISION_RULES['pheno']
+HF = config.PHENO['HF']
+SR = config.PHENO['SR']
 
 def keep_word(w):
   return (w.lower() not in STOPWORDS and len(w) > HF['min-word-len'] - 1)
@@ -141,6 +141,7 @@ def extract_candidate_mentions(row):
 
 
 ### DISTANT SUPERVISION ###
+VALS = config.PHENO['vals']
 def create_supervised_mention(row, idxs, entity=None, mention_type=None):
   """Given a Row object consisting of a sentence, create & supervise a Mention output object"""
   words = [row.words[i] for i in idxs]
@@ -150,7 +151,7 @@ def create_supervised_mention(row, idxs, entity=None, mention_type=None):
   if SR.get('post-match'):
     opts = SR['post-match']
     phrase_post = " ".join(row.words[idxs[-1]:])
-    for name,val in config.VALS:
+    for name,val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0 and \
         re.search(util.rgx_comp(opts[name], opts['%s-rgx' % name]), phrase_post, flags=re.I):
         return m._replace(is_correct=val, mention_type='POST_MATCH')

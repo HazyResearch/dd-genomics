@@ -5,7 +5,7 @@ import os
 import sys
 import ddlib
 import re
-from config import FEATURES
+import config
 
 # This defines the Row object that we read in to the extractor
 parser = util.RowParser([
@@ -27,7 +27,7 @@ ENSEMBL_TYPES = ['NONCANONICAL', 'CANONICAL', 'REFSEQ']
 
 
 def get_features_for_row(row):
-  OPTS = FEATURES['gene']
+  OPTS = config.GENE['F']
   features = []
   f = Feature(doc_id=row.doc_id, mention_id=row.mention_id, name=None)
 
@@ -37,7 +37,7 @@ def get_features_for_row(row):
   generic_features = [f._replace(name=feat) for feat in ddlib.get_generic_features_mention(sentence, span)]
 
   # Optionally filter out some generic features
-  if 'exclude_generic' in OPTS:
+  if OPTS.get('exclude_generic'):
     generic_features = filter(lambda feat : not feat.startswith(tuple(OPTS['exclude_generic'])), generic_features)
 
   features += generic_features

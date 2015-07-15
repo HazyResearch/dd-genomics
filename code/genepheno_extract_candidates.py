@@ -73,8 +73,8 @@ def extract_candidate_relations(row, superv_diff=0):
   Optionally pass in the current difference between pos & neg supervision counts
   And use for supervision
   """
-  HF = config.HARD_FILTERS['genepheno']
-  SR = config.SUPERVISION_RULES['genepheno']
+  HF = config.GENE_PHENO['HF']
+  SR = config.GENE_PHENO['SR']
 
   relations = []
 
@@ -158,10 +158,8 @@ def create_supervised_relation(row, i, j, superv_diff, dep_dag=None):
   
   # distant supervision rules & hyperparameters
   # NOTE: see config.py for all documentation & values
-  SR = config.SUPERVISION_RULES['genepheno']
-
-  # Note here: (a) can be extended to multinomial, and (b) sets negative rule preference
-  VALS = [('neg', False), ('pos', True)]
+  SR = config.GENE_PHENO['SR']
+  VALS = config.GENE_PHENO['vals']
 
   if SR.get('ignore-noncanonical'):
     if re.search(r'noncanonical', gene_mention_type, flags=re.I):

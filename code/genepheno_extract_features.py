@@ -35,13 +35,6 @@ def get_features_for_candidate(row):
   pheno_span = ddlib.Span(begin_word_id=row.pheno_wordidxs[0], length=len(row.pheno_wordidxs))
   features += [f._replace(name=feat) \
                     for feat in ddlib.get_generic_features_relation(dds, gene_span, pheno_span)]
-
-  # (2) Are the gene and pheno mentions directly adjacent?
-  # TODO: buckets for distance between them > 0?
-  """
-  if row.gene_wordidxs[-1] == row.pheno_wordidxs[0] - 1 or row.gene_wordidxs[0] == row.pheno_wordidxs[-1] + 1:
-    features.append(f._replace(name='G_P_ADJACENT'))
-  """
   return features
 
 
