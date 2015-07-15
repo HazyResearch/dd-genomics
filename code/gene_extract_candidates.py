@@ -33,6 +33,9 @@ Mention = collections.namedtuple('Mention', [
             'words',
             'is_correct'])
 
+### CANDIDATE EXTRACTION ###
+HF = config.PHENO['HF']
+SR = config.PHENO['SR']
 
 def read_phrase_to_genes():
   """Read in phrase to gene mappings. The format is TSV: <EnsemblGeneId> <Phrase> <MappingType>
@@ -68,21 +71,14 @@ def read_pubmed_to_genes():
       pubmed_to_genes[pubmed].add(gene)
   return pubmed_to_genes
 
-### CANDIDATE EXTRACTION ###
 
 def extract_candidate_mentions(row):
-  HR = config.HARD_FILTERS['gene']
-  SR = config.SUPERVISION_RULES['gene']
-
   phrase_to_genes = CACHE['phrase_to_genes']
   lower_phrase_to_genes = CACHE['lower_phrase_to_genes']
   mentions = []
   for i, word in enumerate(row.words):
-    # HACK Treat lowercase mappings the same as exact case ones for now.
-    if (word in phrase_to_genes or word.lower() in lower_phrase_to_genes):
-      if not SR['use-two-letter-genes']:
-        if len(word) <= 2:
-          continue
+    # Treat lowercase mappings the same as exact case ones for now.
+    if (word in phrase_to_genes or word.lower() in lower_phrase_to_genes) and (len(word) >= SR['min-word-len']):
       exact_case_matches = phrase_to_genes[word]
       lowercase_matches = phrase_to_genes[word.lower()]
       for eid, mapping_type in exact_case_matches.union(lowercase_matches):
@@ -98,38 +94,37 @@ def create_supervised_mention(row, i, entity=None, mention_type=None):
   mid = '%s_%s_%s_%s_%s' % (row.doc_id, row.sent_id, i, entity, mention_type)
   m = Mention(None, row.doc_id, row.sent_id, [i], mid, mention_type, entity, [word], None)
 
-  ## DS RULE: skip genes in parentheses; this may be good in general but don't know...
-  if SR['parenthesized-false']:
-    if i > 0 and (row.words[i-1] == '(' or row.words[i-1] == '-LRB-'):
-      if random.random() < 0.1:
-        return m._replace(is_correct=False, mention_type='PARENTHESIS')
-      else:
-        return None
-    
-  if SR.get('dep-lemma-neighbors-rgx') and dep_dag:
-    opts = SR['dep-lemma-neighbors-rgx']
+  if SR.get('post-match'):
+    opts = SR['post-match']
+    phrase_post = " ".join(row.words[i+1:])
     for name,val in VALS:
-      patterns = [ re.compile(regex) for regex in opts[name] ]
-      d = dep_dag.path_len_sets(wordidxs, [i for i,x in enumerate(row.lemmas) if any([p.match(x) for p in patterns])])
-      if d and d < opts['max-dist'] + 1:
-        return m._replace(is_correct=val, relation_type='DEP_LEMMA_NB_%s' % name)
+      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0 and \
+        re.search(util.rgx_comp(opts[name], opts['%s-rgx' % name]), phrase_post, flags=re.I):
+        return m._replace(is_correct=val, mention_type='POST_MATCH')
+
+  if SR.get('pre-neighbor-match') and i > 0:
+    opts = SR['pre-neighbor-match']
+    pre_neighbor = row.words[i-1]
+    for name,val in VALS:
+      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0 and \
+        re.search(util.rgx_comp(opts[name], opts['%s-rgx' % name]), pre_neighbor, flags=re.I)
+        return m._replace(is_correct=val, mention_type='PRE_NEIGHBOR_MATCH')
 
   ## DS RULE: matches from papers that NCBI annotates as being about the mentioned gene are likely true.
-  pubmed_to_genes = CACHE['pubmed_to_genes']
-  pmid = dutil.get_pubmed_id_for_doc(row.doc_id, doi_to_pmid=CACHE['doi_to_pmid'])
-  if pmid and entity:
-    mention_ensembl_id = entity.split(":")[0]
-    if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
-      return m._replace(is_correct=True, mention_type='%s_NCBI_ANNOTATION_TRUE' % mention_type)
+  if SR['pubmed-paper-genes-true']:
+    pubmed_to_genes = CACHE['pubmed_to_genes']
+    pmid = dutil.get_pubmed_id_for_doc(row.doc_id, doi_to_pmid=CACHE['doi_to_pmid'])
+    if pmid and entity:
+      mention_ensembl_id = entity.split(":")[0]
+      if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
+        return m._replace(is_correct=True, mention_type='%s_NCBI_ANNOTATION_TRUE' % mention_type)
 
   ## DS RULE: Genes on the gene list with complicated names are probably good for exact matches.
-  """
-  if mention.mention_type in ('CANONICAL_SYMBOL','NONCANONICAL_SYMBOL'):
-    if re.match(r'[a-zA-Z]{3}[a-zA-Z]*\d+\w*', word):
-      return True
-  """
+  if SR['complicated-gene-names-true']:
+    if mention.mention_type in ('CANONICAL_SYMBOL','NONCANONICAL_SYMBOL'):
+      if re.match(r'[a-zA-Z]{3}[a-zA-Z]*\d+\w*', word):
+        return True
   return m
-
 
 def get_negative_mentions(row, mentions, d, per_row_max=2):
   """Generate random / pseudo-random negative examples, trying to keep set approx. balanced"""
@@ -188,7 +183,7 @@ if __name__ == '__main__':
     neg_count += len([m for m in mentions if m.is_correct is False])
 
     # add negative supervision
-    if pos_count > neg_count:
+    if pos_count > neg_count and SR['rand-negs']:
       negs = get_negative_mentions(row, mentions, pos_count - neg_count)
       neg_count += len(negs)
       mentions += negs

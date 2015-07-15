@@ -23,9 +23,14 @@ GENE = {
       'neg-rgx' : [r'cell(s|\slines?)']
     },
 
-    'parenthesized-false' : True,
-    
+    'pre-neighbor-match' : {
+      'pos' : []
+      'neg' : ['(', '-LRB-']
+    }
+
     'pubmed-paper-genes-true' : True,
+
+    'complicated-gene-names-true': False,
 
     'min-word-len' : 3,
 
@@ -59,7 +64,9 @@ PHENO = {
     'permuted' : True,
 
     # Consider exact matches with one ommited *interior* word
-    'omitted-interior' : True
+    'omitted-interior' : True,
+
+    'rand-negs' : True
   },
 
   ## Supervision Rules
