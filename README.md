@@ -1,18 +1,7 @@
 # The Genomics DeepDive (GDD) Project
 
-### TO-DO LIST [updated 7/3/15]
-
-#### High-level / major
-* Get Dashboard up & running with Charite comparison script included [work with Jaeho & Mike]
-* GP: Handle / better define causal vs. associative connection (use multinomial?)
-* GP: Handle negation, also hypotheticals (e.g. "might be", "we hypothesize", etc.) *[See some initial attempts]
-* G: Handle non-canonicals better, calibrate / increase precision 
-* P: Integrate UMLS to increase vocabulary & better control synonyms list
-* Add in genetic variant tagging (as preprocessing extractor)
-
-#### Specific / minor
-* [7/3/15] GP: too many negative supervisions with new rules for e.g. getting rid of "associated" / "correlated" & some negations / "might"! -> need to calibrate / adjust
-* G: add supervision using acronym definition sections
+#### TO-DO LIST
+See Milestones/Issues.
 
 ### GDD Setup notes
 
