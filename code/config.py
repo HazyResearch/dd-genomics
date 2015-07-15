@@ -32,10 +32,18 @@ GENE = {
       'neg-rgx': []
     },
 
+    'neighbor-match': {
+      'pos' : ['gene', 'protein'],
+      'neg' : [],
+      'pos-rgx': [],
+      'neg-rgx': []
+    },
+
     'pubmed-paper-genes-true' : True,
 
-    'complicated-gene-names-true': False
+    'complicated-gene-names-true': False,
 
+    'rand-negs': True
 
   },
 

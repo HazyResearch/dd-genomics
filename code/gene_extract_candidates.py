@@ -8,6 +8,7 @@ import os
 import sys
 import string
 import config
+import dep_util as deps
 
 CACHE = dict()  # Cache results of disk I/O
 
@@ -17,6 +18,8 @@ parser = util.RowParser([
           ('doc_id', 'text'),
           ('sent_id', 'int'),
           ('words', 'text[]'),
+          ('dep_paths', 'text[]'),
+          ('dep_parents', 'int[]'),
           ('lemmas', 'text[]'),
           ('poses', 'text[]'),
           ('ners', 'text[]')])
@@ -96,6 +99,7 @@ def create_supervised_mention(row, i, entity=None, mention_type=None):
   word_lower = word.lower()
   mid = '%s_%s_%s_%s_%s' % (row.doc_id, row.sent_id, i, entity, mention_type)
   m = Mention(None, row.doc_id, row.sent_id, [i], mid, mention_type, entity, [word], None)
+  dep_dag = deps.DepPathDAG(row.dep_parents, row.dep_paths, row.words)
 
   if SR.get('post-match'):
     opts = SR['post-match']
@@ -103,7 +107,7 @@ def create_supervised_mention(row, i, entity=None, mention_type=None):
     for name,val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0 and \
         re.search(util.rgx_comp(opts[name], opts['%s-rgx' % name]), phrase_post, flags=re.I):
-        return m._replace(is_correct=val, mention_type='POST_MATCH')
+        return m._replace(is_correct=val, mention_type='POST_MATCH_%s_%s' % (name, val))
 
   if SR.get('pre-neighbor-match') and i > 0:
     opts = SR['pre-neighbor-match']
@@ -111,7 +115,7 @@ def create_supervised_mention(row, i, entity=None, mention_type=None):
     for name,val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0 and \
         re.search(util.rgx_comp(opts[name], opts['%s-rgx' % name]), pre_neighbor, flags=re.I):
-        return m._replace(is_correct=val, mention_type='PRE_NEIGHBOR_MATCH')
+        return m._replace(is_correct=val, mention_type='PRE_NEIGHBOR_MATCH_%s_%s' % (name, val))
 
   ## DS RULE: matches from papers that NCBI annotates as being about the mentioned gene are likely true.
   if SR['pubmed-paper-genes-true']:
@@ -127,6 +131,16 @@ def create_supervised_mention(row, i, entity=None, mention_type=None):
     if mention.mention_type in ('CANONICAL_SYMBOL','NONCANONICAL_SYMBOL'):
       if re.match(r'[a-zA-Z]{3}[a-zA-Z]*\d+\w*', word):
         return True
+
+  if SR.get('neighbor-match'):
+    opts = SR['neighbor-match']
+    for name,val in VALS:
+      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
+        for neighbor_idx in dep_dag.neighbors(i):
+          neighbor = row.words[neighbor_idx]
+          if re.search(util.rgx_comp(opts[name], opts['%s-rgx' % name]), neighbor, flags=re.I):
+            return m._replace(is_correct=val, mention_type='NEIGHBOR_MATCH_%s_%s' % (name, val))
+
   return m
 
 def get_negative_mentions(row, mentions, d, per_row_max=2):
