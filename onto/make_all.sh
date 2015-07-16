@@ -226,3 +226,17 @@ if [ ! -f dicts/entrez2ensembl.txt ]; then
 	echo "Converting entrez_raw.txt to entrez2ensembl.txt."
 	rm dicts/entrez_raw.txt
 fi
+
+# use Harendra's wizard phenotype to gene list; canonicalize it (i.e. for each
+# gene with associated phenotype, associate all parent phenotypes up to 118=phenotypic abnormality
+# with the gene as well
+./canonicalize_gene_phenotype.py | sort | uniq > data/canon_phenotype_to_ensgene.map
+join -1 1 -2 1 \
+  <(cat data/ensembl_genes.tsv | 
+    grep -P '\tCANONICAL' | 
+    awk -F'[:\t]' '{print $1, $2}' | 
+    sort | uniq) \
+  <(cat data/canon_phenotype_to_ensgene.map | 
+    awk '{print $2, $1}' |
+    sort | uniq) |
+  awk '{print $3"\t"$2}' | sort > data/canon_phenotype_to_gene.map

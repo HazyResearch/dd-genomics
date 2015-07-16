@@ -52,7 +52,7 @@ HPO_DAG = dutil.read_hpo_dag()
 def read_supervision():
   """Reads genepheno supervision data (from charite)."""
   supervision_pairs = set()
-  with open('%s/onto/data/hpo_phenotype_genes.tsv' % util.APP_HOME) as f:
+  with open('%s/onto/data/canon_phenotype_to_gene.map' % util.APP_HOME) as f:
     for line in f:
       hpo_id, gene_symbol = line.strip().split('\t')
       hpo_ids = [hpo_id] + [parent for parent in HPO_DAG.edges[hpo_id]]
