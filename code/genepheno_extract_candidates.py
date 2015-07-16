@@ -161,10 +161,6 @@ def create_supervised_relation(row, i, j, superv_diff, dep_dag=None):
   SR = config.GENE_PHENO['SR']
   VALS = config.GENE_PHENO['vals']
 
-  if SR.get('ignore-noncanonical'):
-    if re.search(r'noncanonical', gene_mention_type, flags=re.I):
-      return None
-
   if SR.get('g-or-p-false'):
     opts = SR['g-or-p-false']
     if not (gene_is_correct != False and pheno_is_correct != False):

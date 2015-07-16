@@ -12,6 +12,10 @@ GENE = {
 
   ## Hard Filters (for candidate extraction)
   'HF' : {
+    # Restricting the ENSEMBL mapping types we consider
+    # Types: CANONICAL_SYMBOL, NONCANONICAL_SYMBOL, REFSEQ
+    'ensembl-mapping-types' : ['CANONICAL_SYMBOL'],
+
     'min-word-len': 3
   },
 
@@ -138,9 +142,6 @@ GENE_PHENO = {
   'SR' : {
     # Whether to include GP pairs with no or long dep path links as neg. supervision (vs. skip)
     'bad-dep-paths' : True,
-
-    # Whether to ignore GP pairs with a noncanonical gene
-    'ignore-noncanonical' : True,
 
     # Subsample GP pairs where G and/or P is neg. example as neg. GP supervision
     'g-or-p-false' : {'diff' : 0.5, 'rand' : 0.01},

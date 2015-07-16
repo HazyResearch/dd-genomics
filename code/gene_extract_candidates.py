@@ -42,21 +42,15 @@ HF = config.GENE['HF']
 SR = config.GENE['SR']
 
 def read_phrase_to_genes():
-  """Read in phrase to gene mappings. The format is TSV: <EnsemblGeneId> <Phrase> <MappingType>
-  
-  <MappingType> is one of:
-    - CANONICAL_GENE_SYMBOL
-    - NONCANONICAL_GENE_SYMBOL
-    - REFSEQ_ID
-    - ENSEMBL_ID
-  """
+  """Read in phrase to gene mappings. The format is TSV: <EnsemblGeneId> <Phrase> <MappingType>"""
   with open('%s/onto/data/ensembl_genes.tsv' % util.APP_HOME) as f:
     phrase_to_genes = collections.defaultdict(set)
     lower_phrase_to_genes = collections.defaultdict(set)
     for line in f:
       ensembl_id,phrase,mapping_type = line.rstrip('\n').split('\t')
-      phrase_to_genes[phrase].add((ensembl_id,mapping_type))
-      lower_phrase_to_genes[phrase.lower()].add((ensembl_id,mapping_type))
+      if mapping_type in HF['ensembl-mapping-types']:
+        phrase_to_genes[phrase].add((ensembl_id,mapping_type))
+        lower_phrase_to_genes[phrase.lower()].add((ensembl_id,mapping_type))
   return phrase_to_genes, lower_phrase_to_genes
 
 
@@ -90,6 +84,7 @@ def extract_candidate_mentions(row):
         if m:
           mentions.append(m)
   return mentions
+
 
 ### DISTANT SUPERVISION ###
 VALS = config.GENE['vals']
