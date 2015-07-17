@@ -69,7 +69,7 @@ CREATE TABLE pheno_features (
 	feature text
 ) DISTRIBUTED BY (doc_id);
 
--- Gene / Phenotype relation mentions
+-- Gene / Phenotype mentions
 DROP TABLE IF EXISTS genepheno_relations CASCADE;
 CREATE TABLE genepheno_relations (
 	-- id for random variable
@@ -92,7 +92,62 @@ CREATE TABLE genepheno_relations (
         pheno_entity text,
         -- pheno word indexes
         pheno_wordidxs int[],
-	-- is this a correct relation?
+	-- length of g-p dependency path; -1 if no or bat dep. path
+        dep_path_len int
+) DISTRIBUTED BY (doc_id);
+
+-- Gene / Phenotype association mentions
+DROP TABLE IF EXISTS genepheno_association CASCADE;
+CREATE TABLE genepheno_association (
+	-- id for random variable
+	id bigint,
+	-- relation id
+	relation_id text,
+	-- document id
+	doc_id text,
+        -- sentence id
+	sent_id int,
+	-- gene mention id
+	gene_mention_id text,
+        -- gene entity
+        gene_entity text,
+        -- gene word indexes
+        gene_wordidxs int[],
+	-- phenotype mention id
+	pheno_mention_id text,
+        -- pheno entity
+        pheno_entity text,
+        -- pheno word indexes
+        pheno_wordidxs int[],
+	-- is it an associative relationship?
+	is_correct boolean,
+        type text
+) DISTRIBUTED BY (doc_id);
+ 
+-- Gene / Phenotype association mentions
+DROP TABLE IF EXISTS genepheno_causation CASCADE;
+CREATE TABLE genepheno_causation (
+	-- id for random variable
+	id bigint,
+	-- relation id
+	relation_id text,
+	-- document id
+	doc_id text,
+        -- sentence id
+	sent_id int,
+	-- gene mention id
+	gene_mention_id text,
+        -- gene entity
+        gene_entity text,
+        -- gene word indexes
+        gene_wordidxs int[],
+	-- phenotype mention id
+	pheno_mention_id text,
+        -- pheno entity
+        pheno_entity text,
+        -- pheno word indexes
+        pheno_wordidxs int[],
+	-- is it a causative relationship?
 	is_correct boolean,
         type text
 ) DISTRIBUTED BY (doc_id);
