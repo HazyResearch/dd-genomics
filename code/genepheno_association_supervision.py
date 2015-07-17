@@ -11,5 +11,5 @@ import config
 import genepheno_supervision_util
 
 if __name__ == '__main__':
-  SR = config.GENE_PHENO['causation']['SR']
+  SR = config.GENE_PHENO['association']['SR']
   supervise(SR)

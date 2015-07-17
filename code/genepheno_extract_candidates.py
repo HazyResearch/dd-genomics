@@ -40,9 +40,11 @@ Relation = collections.namedtuple('Relation', [
             'gene_mention_id',
             'gene_entity',
             'gene_wordidxs',
+            'gene_is_correct',
             'pheno_mention_id',
             'pheno_entity',
-            'pheno_wordidxs'])
+            'pheno_wordidxs',
+            'pheno_is_correct'])
 
 ### CANDIDATE EXTRACTION ###
 
@@ -120,7 +122,8 @@ def create_relation(row, i, j, dep_dag=None):
 
   relation_id = '%s_%s' % (gene_mention_id, pheno_mention_id)
   r = Relation(None, relation_id, row.doc_id, row.sent_id, gene_mention_id, gene_entity, \
-               gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs)
+               gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, \
+               pheno_wordidxs, pheno_is_correct)
 
   return r
 

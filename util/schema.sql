@@ -86,12 +86,16 @@ CREATE TABLE genepheno_relations (
         gene_entity text,
         -- gene word indexes
         gene_wordidxs int[],
+        -- correct gene mention?
+        gene_is_correct boolean,
 	-- phenotype mention id
 	pheno_mention_id text,
         -- pheno entity
         pheno_entity text,
         -- pheno word indexes
         pheno_wordidxs int[],
+        -- correct pheno mention?
+        pheno_is_correct boolean
 ) DISTRIBUTED BY (doc_id);
 
 -- Gene / Phenotype association mentions
