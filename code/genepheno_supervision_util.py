@@ -157,7 +157,7 @@ def create_supervised_relation(row, superv_diff, SR):
   # Return GP relation object
   return r
 
-def supervise(SR):
+def supervise(supervision_rules):
   # load in static data
   CHARITE_PAIRS = read_supervision()
 
@@ -169,7 +169,7 @@ def supervise(SR):
   for line in sys.stdin:
     row = parser.parse_tsv_row(line)
     
-    supervised_relation = create_supervised_relation(row, superv_diff=pos_count-neg_count, SR=SR)
+    supervised_relation = create_supervised_relation(row, superv_diff=pos_count-neg_count, SR=supervision_rules)
 
     pos_count += len(filter(lambda r : r.is_correct, relations))
     neg_count += len(filter(lambda r : r.is_correct is False, relations))

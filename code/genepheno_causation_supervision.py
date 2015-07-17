@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 import collections
 import extractor_util as util
 import data_util as dutil
@@ -8,8 +10,8 @@ import re
 import sys
 import config
 
-import genepheno_supervision_util
+import genepheno_supervision_util as sv
 
 if __name__ == '__main__':
-  SR = config.GENE_PHENO['causation']['SR']
-  supervise(SR)
+  sr = config.GENE_PHENO['causation']['SR']
+  sv.supervise(sr)
