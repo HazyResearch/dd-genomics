@@ -14,8 +14,9 @@ def get_parents(bottom_id, dag, root_id='HP:0000118'):
     if bottom_id == root_id:
       return set([bottom_id])
     rv = set()
-    for parent in dag.edges[bottom_id]:
-      rv |= get_parents(parent, dag)
+    if bottom_id in dag.edges:
+      for parent in dag.edges[bottom_id]:
+        rv |= get_parents(parent, dag)
     rv.add(bottom_id)
     return rv
 
