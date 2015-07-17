@@ -92,8 +92,6 @@ CREATE TABLE genepheno_relations (
         pheno_entity text,
         -- pheno word indexes
         pheno_wordidxs int[],
-	-- length of g-p dependency path; -1 if no or bat dep. path
-        dep_path_len int
 ) DISTRIBUTED BY (doc_id);
 
 -- Gene / Phenotype association mentions

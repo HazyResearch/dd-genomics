@@ -125,68 +125,136 @@ PHENO = {
 ### GENE-PHENO
 GENE_PHENO = {
   'vals' : BOOL_VALS,
-  
-  ## Hard Filters (for candidate extraction)
-  'HF' : {
-    # Upper-bound the max min-dependency-path length between G and P
-    'max-dep-path-dist' : 7,
 
-    # Only consider the closest GP pairs for duplicate GP pairs
-    'take-best-only-dups' : True,
+  'causation': {
+    ## Hard Filters (for candidate extraction)
+    'HF' : {
+      # Upper-bound the max min-dependency-path length between G and P
+      'max-dep-path-dist' : 7,
 
-    # Only consider the closest GP pairs by dep-path distance such that all G,P are covered
-    'take-best-only' : True
+      # Only consider the closest GP pairs for duplicate GP pairs
+      'take-best-only-dups' : True,
+
+      # Only consider the closest GP pairs by dep-path distance such that all G,P are covered
+      'take-best-only' : True
+    },
+
+    ## Supervision Rules
+    'SR' : {
+      # Whether to include GP pairs with no or long dep path links as neg. supervision (vs. skip)
+      'bad-dep-paths' : True,
+
+      # Subsample GP pairs where G and/or P is neg. example as neg. GP supervision
+      'g-or-p-false' : {'diff' : 0.5, 'rand' : 0.01},
+
+      # Supervise G adjacent to P as false
+      'adjacent-false' : True,
+
+      # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
+      'phrases-in-sent' : {
+        'pos' : ['caused by mutations'],
+        'neg' : ['risk', 'variance', 'patients', 'gwas', 'association study', 'reported', 'therapeutic utility', 'methylated genes', 'transcription factor', 'viral', 'virus', 'pathogen', 'families', 'possible association'],
+        'pos-rgx' : [],
+        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\d+\s+(adult|patient|studie|subject)s']
+      },
+
+      # Supervise as T/F based on phrases (exact or regex) only between the G and P mentions
+      'phrases-in-between' : False,
+
+      # Try to find the verb connecting the G and P, and supervise based on modifiers
+      # (e.g. negation, etc) of this verb
+      'primary-verb-modifiers' : {
+        'max-dist' : 1,
+        'pos' : [],
+        'neg' : ['might'],
+        'pos-dep-tag' : [],
+        'neg-dep-tag' : ['neg']
+      },
+
+      # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
+      'dep-lemma-connectors' : {
+        'pos' : ['cause'],
+        'neg' : ['associate', 'correlate', 'implicate']
+      },
+
+      # Supervise GP pairs as T/F based on dependency-path neighbor lemmas of G and P
+      'dep-lemma-neighbors' : {
+        'max-dist' : 1,
+        'pos-g' : ['cause', 'mutate', 'mutation', 'variant', 'allele'],
+        'pos-p' : ['gene', 'mutation', 'mutate'],
+        'neg-g' : ['express', 'expression', 'coexpression', 'coexpress', 'co-expression', 'co-express', 'overexpress', 'overexpression', 'over-expression', 'over-express', 'somatic', 'infection', 'interacts', 'regulate', 'up-regulate', 'upregulate', 'down-regulate', 'downregulate'],
+        'neg-p' : []
+      },
+
+      # Label T all GP pairs in Charite dataset (and that haven't already been labeled T/F)
+      'charite-all-pos' : True
+    }
   },
 
-  ## Supervision Rules
-  'SR' : {
-    # Whether to include GP pairs with no or long dep path links as neg. supervision (vs. skip)
-    'bad-dep-paths' : True,
+  'association': {
+    ## Hard Filters (for candidate extraction)
+    'HF' : {
+      # Upper-bound the max min-dependency-path length between G and P
+      'max-dep-path-dist' : 7,
 
-    # Subsample GP pairs where G and/or P is neg. example as neg. GP supervision
-    'g-or-p-false' : {'diff' : 0.5, 'rand' : 0.01},
+      # Only consider the closest GP pairs for duplicate GP pairs
+      'take-best-only-dups' : True,
 
-    # Supervise G adjacent to P as false
-    'adjacent-false' : True,
-
-    # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
-    'phrases-in-sent' : {
-      'pos' : ['caused by mutations'],
-      'neg' : ['risk', 'variance', 'patients', 'gwas', 'association study', 'reported', 'therapeutic utility', 'methylated genes', 'transcription factor', 'viral', 'virus', 'pathogen', 'families', 'possible association'],
-      'pos-rgx' : [],
-      'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\d+\s+(adult|patient|studie|subject)s']
+      # Only consider the closest GP pairs by dep-path distance such that all G,P are covered
+      'take-best-only' : True
     },
 
-    # Supervise as T/F based on phrases (exact or regex) only between the G and P mentions
-    'phrases-in-between' : False,
+    ## Supervision Rules
+    'SR' : {
+      # Whether to include GP pairs with no or long dep path links as neg. supervision (vs. skip)
+      'bad-dep-paths' : True,
 
-    # Try to find the verb connecting the G and P, and supervise based on modifiers
-    # (e.g. negation, etc) of this verb
-    'primary-verb-modifiers' : {
-      'max-dist' : 1,
-      'pos' : [],
-      'neg' : ['might'],
-      'pos-dep-tag' : [],
-      'neg-dep-tag' : ['neg']
-    },
+      # Subsample GP pairs where G and/or P is neg. example as neg. GP supervision
+      'g-or-p-false' : {'diff' : 0.5, 'rand' : 0.01},
 
-    # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
-    'dep-lemma-connectors' : {
-      'pos' : ['cause'],
-      'neg' : ['associate', 'correlate', 'implicate']
-    },
+      # Supervise G adjacent to P as false
+      'adjacent-false' : True,
 
-    # Supervise GP pairs as T/F based on dependency-path neighbor lemmas of G and P
-    'dep-lemma-neighbors' : {
-      'max-dist' : 1,
-      'pos-g' : ['cause', 'mutate', 'mutation', 'variant', 'allele'],
-      'pos-p' : ['gene', 'mutation', 'mutate'],
-      'neg-g' : ['express', 'expression', 'coexpression', 'coexpress', 'co-expression', 'co-express', 'overexpress', 'overexpression', 'over-expression', 'over-express', 'somatic', 'infection', 'interacts', 'regulate', 'up-regulate', 'upregulate', 'down-regulate', 'downregulate'],
-      'neg-p' : []
-    },
+      # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
+      'phrases-in-sent' : {
+        'pos' : ['caused by mutations'],
+        'neg' : ['risk', 'variance', 'patients', 'gwas', 'association study', 'reported', 'therapeutic utility', 'methylated genes', 'transcription factor', 'viral', 'virus', 'pathogen', 'families', 'possible association'],
+        'pos-rgx' : [],
+        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\d+\s+(adult|patient|studie|subject)s']
+      },
 
-    # Label T all GP pairs in Charite dataset (and that haven't already been labeled T/F)
-    'charite-all-pos' : True
+      # Supervise as T/F based on phrases (exact or regex) only between the G and P mentions
+      'phrases-in-between' : False,
+
+      # Try to find the verb connecting the G and P, and supervise based on modifiers
+      # (e.g. negation, etc) of this verb
+      'primary-verb-modifiers' : {
+        'max-dist' : 1,
+        'pos' : [],
+        'neg' : ['might'],
+        'pos-dep-tag' : [],
+        'neg-dep-tag' : ['neg']
+      },
+
+      # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
+      'dep-lemma-connectors' : {
+        'pos' : ['cause'],
+        'neg' : ['associate', 'correlate', 'implicate']
+      },
+
+      # Supervise GP pairs as T/F based on dependency-path neighbor lemmas of G and P
+      'dep-lemma-neighbors' : {
+        'max-dist' : 1,
+        'pos-g' : ['cause', 'mutate', 'mutation', 'variant', 'allele'],
+        'pos-p' : ['gene', 'mutation', 'mutate'],
+        'neg-g' : ['express', 'expression', 'coexpression', 'coexpress', 'co-expression', 'co-express', 'overexpress', 'overexpression', 'over-expression', 'over-express', 'somatic', 'infection', 'interacts', 'regulate', 'up-regulate', 'upregulate', 'down-regulate', 'downregulate'],
+        'neg-p' : []
+      },
+
+      # Label T all GP pairs in Charite dataset (and that haven't already been labeled T/F)
+      'charite-all-pos' : True
+    }
+
   },
 
   ## Features

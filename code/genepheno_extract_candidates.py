@@ -42,8 +42,7 @@ Relation = collections.namedtuple('Relation', [
             'gene_wordidxs',
             'pheno_mention_id',
             'pheno_entity',
-            'pheno_wordidxs',
-            'dep_path_len'])
+            'pheno_wordidxs'])
 
 ### CANDIDATE EXTRACTION ###
 
@@ -97,13 +96,13 @@ def extract_candidate_relations(row):
 
     seen_g[i] = d
     seen_p[j] = d
-    r = create_relation(row, d, i, j, dep_dag)
+    r = create_relation(row, i, j, dep_dag)
     if r is not None:
       relations.append(r)
   return relations
 
 
-def create_relation(row, dep_path_len, i, j, dep_dag=None):
+def create_relation(row, i, j, dep_dag=None):
   """
   Given a Row object with a sentence and several gene and pheno objects, create
   a Relation output object for the ith gene and jth pheno objects
@@ -121,7 +120,7 @@ def create_relation(row, dep_path_len, i, j, dep_dag=None):
 
   relation_id = '%s_%s' % (gene_mention_id, pheno_mention_id)
   r = Relation(None, relation_id, row.doc_id, row.sent_id, gene_mention_id, gene_entity, \
-               gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, dep_path_len)
+               gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs)
 
   return r
 
