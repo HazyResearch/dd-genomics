@@ -156,17 +156,17 @@ def create_supervised_mention(row, idxs, entity=None, mention_type=None):
         re.search(util.rgx_comp(opts[name], opts['%s-rgx' % name]), phrase_post, flags=re.I):
         return m._replace(is_correct=val, mention_type='POST_MATCH')
 
-  #  if SR.get('mesh-supervise'):
-  #    pubmed_id = dutil.get_pubmed_id_for_doc(row.doc_id, doi_to_pmid=DOI_TO_PMID)
-  #    if pubmed_id and pubmed_id in PMID_TO_HPO:
-  #      if entity in PMID_TO_HPO[pubmed_id]:
-  #        return m._replace(is_correct=True, mention_type='%s_MESH_SUPERV' % mention_type)
-  #
-  #      # If this is more specific than MeSH term, also consider true.
-  #      elif SR.get('mesh-specific-true') and entity in hpo_dag.node_set:
-  #        for parent in PMID_TO_HPO[pubmed_id]:
-  #          if hpo_dag.has_child(parent, entity):
-  #            return m._replace(is_correct=True, mention_type='%s_MESH_CHILD_SUPERV' % mention_type)
+  if SR.get('mesh-supervise'):
+    pubmed_id = dutil.get_pubmed_id_for_doc(row.doc_id, doi_to_pmid=DOI_TO_PMID)
+    if pubmed_id and pubmed_id in PMID_TO_HPO:
+      if entity in PMID_TO_HPO[pubmed_id]:
+        return m._replace(is_correct=True, mention_type='%s_MESH_SUPERV' % mention_type)
+  
+      # If this is more specific than MeSH term, also consider true.
+      elif SR.get('mesh-specific-true') and entity in hpo_dag.node_set:
+        for parent in PMID_TO_HPO[pubmed_id]:
+          if hpo_dag.has_child(parent, entity):
+            return m._replace(is_correct=True, mention_type='%s_MESH_CHILD_SUPERV' % mention_type)
 
   phrase = " ".join(words).lower()
   if mention_type == 'EXACT':
@@ -225,7 +225,7 @@ if __name__ == '__main__':
   hpo_dag = dutil.read_hpo_dag()
   hpo_phenos = set(dutil.get_hpo_phenos(hpo_dag))
   DOI_TO_PMID = dutil.read_doi_to_pmid()
-  # PMID_TO_HPO = dutil.load_pmid_to_hpo(pmids)
+  PMID_TO_HPO = dutil.load_pmid_to_hpo()
   PHENOS, PHENO_SETS = load_pheno_terms()
 
   # Read TSV data in as Row objects

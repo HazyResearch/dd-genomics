@@ -59,6 +59,9 @@ def read_supervision():
           supervision_pairs.add((h,e))
   return supervision_pairs
 
+# count_g_or_p_false_none = 0 
+# count_adjacent_false_none = 0 
+
 def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
   """
   Given a Row object with a sentence and several gene and pheno objects, create and 
@@ -88,22 +91,31 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
   relation_id = '%s_%s' % (gene_mention_id, pheno_mention_id)
   r = Relation(None, relation_id, row.doc_id, row.sent_id, gene_mention_id, gene_entity, \
                gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, None, None)
-  if dep_dag:
-    path_len_sets = dep_dag.path_len_sets(gene_wordidxs, pheno_wordidxs)
-    if not path_len_sets and SR.get('bad-dep-paths'):
+  path_len_sets = dep_dag.path_len_sets(gene_wordidxs, pheno_wordidxs)
+  if not path_len_sets:
+    if SR.get('bad-dep-paths'):
       return r._replace(is_correct=False, relation_type='BAD_OR_NO_DEP_PATH')
+    else:
+      return None
 
   dep_path_between = frozenset(dep_dag.min_path_sets(gene_wordidxs, pheno_wordidxs)) if dep_dag else None
   
   # distant supervision rules & hyperparameters
   # NOTE: see config.py for all documentation & values
+
+  # global count_g_or_p_false_none
+  # global count_adjacent_false_none
   
   if SR.get('g-or-p-false'):
     opts = SR['g-or-p-false']
-    if not gene_is_correct or not pheno_is_correct:
+    # The following line looks like it was written by a prosimian, but it is actually correct.
+    # Do not mess with the logic unless you know what you're doing.
+    # (Consider that Boolean variables can and will take the value ``None'' in this language.)
+    if not (gene_is_correct != False and pheno_is_correct != False):
       if random.random() < opts['diff']*superv_diff or random.random() < opts['rand']:
         return r._replace(is_correct=False, relation_type='G_ANDOR_P_FALSE')
       else:
+        # count_g_or_p_false_none += 1
         return None
 
   if SR.get('adjacent-false'):
@@ -111,6 +123,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
       if random.random() < 0.5*superv_diff or random.random() < 0.01:
         return r._replace(is_correct=False, relation_type='G_P_ADJACENT')
       else:
+        # count_adjacent_false_none += 1
         return None
 
   VALS = config.GENE_PHENO['vals']
@@ -175,8 +188,11 @@ def supervise(supervision_rules, hard_filters):
     relation = create_supervised_relation(row, superv_diff=pos_count-neg_count, SR=supervision_rules, HF=hard_filters, charite_pairs=CHARITE_PAIRS)
     
     if relation:
-      if relation.is_correct:
+      if relation.is_correct == True:
         pos_count += 1
-      else:
+      elif relation.is_correct == False:
         neg_count += 1
       util.print_tsv_output(relation)
+  # sys.stderr.write('count_g_or_p_false_none: %s\n' % count_g_or_p_false_none)
+  # sys.stderr.write('count_adjacent_false_none: %s\n' % count_adjacent_false_none)
+

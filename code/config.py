@@ -215,7 +215,7 @@ GENE_PHENO = {
       # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
       'phrases-in-sent' : {
         'pos' : ['caused by mutations'],
-        'neg' : ['risk', 'variance', 'patients', 'gwas', 'association study', 'reported', 'therapeutic utility', 'methylated genes', 'transcription factor', 'viral', 'virus', 'pathogen', 'families', 'possible association'],
+        'neg' : ['risk', 'variance', 'patients', 'therapeutic utility', 'methylated genes', 'transcription factor', 'viral', 'virus', 'pathogen', 'families'],
         'pos-rgx' : [],
         'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\d+\s+(adult|patient|studie|subject)s']
       },
@@ -235,8 +235,8 @@ GENE_PHENO = {
 
       # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
       'dep-lemma-connectors' : {
-        'pos' : ['cause'],
-        'neg' : ['associate', 'correlate', 'implicate']
+        'pos' : ['cause', 'associate', 'correlate', 'implicate'],
+        'neg' : []
       },
 
       # Supervise GP pairs as T/F based on dependency-path neighbor lemmas of G and P

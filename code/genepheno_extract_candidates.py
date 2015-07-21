@@ -63,11 +63,16 @@ def extract_candidate_relations(row):
 
   # Create the list of possible G,P pairs with their dependency path distances
   pairs = []
+  countCandidates = 0
+  count1 = 0
+  count2 = 0
+  count3 = 0
   for i,gid in enumerate(row.gene_mention_ids):
     for j,pid in enumerate(row.pheno_mention_ids):
 
       # Do not consider overlapping mention pairs
       if len(set(row.gene_wordidxs[i]).intersection(row.pheno_wordidxs[j])) > 0:
+        count1 += 1
         continue
 
       # Get the min path length between any of the g / p phrase words
@@ -86,6 +91,7 @@ def extract_candidate_relations(row):
     if HF.get('take-best-only-dups'):
       e = '%s_%s' % (row.gene_entities[i], row.pheno_entities[j])
       if e in seen_pairs and d > seen_pairs[e]:
+        count2 += 1
         continue
       else:
         seen_pairs[e] = d
@@ -94,13 +100,18 @@ def extract_candidate_relations(row):
     # Only take the set of best pairs which still provides coverage of all entities
     if HF.get('take-best-only'):
       if (i in seen_g and seen_g[i] < d) or (j in seen_p and seen_p[j] < d):
+        count3 += 1
         continue
 
     seen_g[i] = d
     seen_p[j] = d
     r = create_relation(row, i, j, dep_dag)
-    if r is not None:
-      relations.append(r)
+    countCandidates += 1
+    relations.append(r)
+  # sys.stderr.write("candidate count: " + str(countCandidates) + '\n')
+  sys.stderr.write('count1: %s\n' % count1)
+  sys.stderr.write('count2: %s\n' % count2)
+  sys.stderr.write('count3: %s\n' % count3)
   return relations
 
 
