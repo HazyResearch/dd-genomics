@@ -14,4 +14,5 @@ import genepheno_supervision_util as sv
 
 if __name__ == '__main__':
   sr = config.GENE_PHENO['causation']['SR']
-  sv.supervise(sr)
+  hf = config.GENE_PHENO['HF']
+  sv.supervise(sr, hf)

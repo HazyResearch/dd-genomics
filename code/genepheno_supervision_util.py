@@ -59,7 +59,7 @@ def read_supervision():
           supervision_pairs.add((h,e))
   return supervision_pairs
 
-def create_supervised_relation(row, superv_diff, SR):
+def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
   """
   Given a Row object with a sentence and several gene and pheno objects, create and 
   supervise a Relation output object for the ith gene and jth pheno objects
@@ -73,6 +73,8 @@ def create_supervised_relation(row, superv_diff, SR):
   pheno_mention_id = row.pheno_mention_id
   pheno_entity = row.pheno_entity
   pheno_wordidxs = row.pheno_wordidxs
+  gene_is_correct = row.gene_is_correct
+  pheno_is_correct = row.pheno_is_correct
 
   phrase = ' '.join(row.words)
   lemma_phrase = ' '.join(row.lemmas)
@@ -83,22 +85,22 @@ def create_supervised_relation(row, superv_diff, SR):
   # Create a dependencies DAG for the sentence
   dep_dag = deps.DepPathDAG(row.dep_parents, row.dep_paths, row.words, max_path_len=HF['max-dep-path-dist'])
 
+  relation_id = '%s_%s' % (gene_mention_id, pheno_mention_id)
+  r = Relation(None, relation_id, row.doc_id, row.sent_id, gene_mention_id, gene_entity, \
+               gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, None, None)
   if dep_dag:
     path_len_sets = dep_dag.path_len_sets(gene_wordidxs, pheno_wordidxs)
     if not path_len_sets and SR.get('bad-dep-paths'):
       return r._replace(is_correct=False, relation_type='BAD_OR_NO_DEP_PATH')
 
   dep_path_between = frozenset(dep_dag.min_path_sets(gene_wordidxs, pheno_wordidxs)) if dep_dag else None
-  relation_id = '%s_%s' % (gene_mention_id, pheno_mention_id)
-  r = Relation(None, relation_id, row.doc_id, row.sent_id, gene_mention_id, gene_entity, \
-               gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, None, None)
   
   # distant supervision rules & hyperparameters
   # NOTE: see config.py for all documentation & values
   
   if SR.get('g-or-p-false'):
     opts = SR['g-or-p-false']
-    if not (gene_is_correct != False and pheno_is_correct != False):
+    if not gene_is_correct or not pheno_is_correct:
       if random.random() < opts['diff']*superv_diff or random.random() < opts['rand']:
         return r._replace(is_correct=False, relation_type='G_ANDOR_P_FALSE')
       else:
@@ -111,6 +113,7 @@ def create_supervised_relation(row, superv_diff, SR):
       else:
         return None
 
+  VALS = config.GENE_PHENO['vals']
   if SR.get('phrases-in-sent'):
     opts = SR['phrases-in-sent']
     for name,val in VALS:
@@ -153,30 +156,27 @@ def create_supervised_relation(row, superv_diff, SR):
           return r._replace(is_correct=val, relation_type='DEP_LEMMA_NB_%s_%s' % (name,entity))
 
   if SR.get('charite-all-pos'):
-    if (pheno_entity, gene_entity) in CHARITE_PAIRS:
+    if (pheno_entity, gene_entity) in charite_pairs:
       return r._replace(is_correct=True, relation_type='CHARITE_SUP') 
 
   # Return GP relation object
   return r
 
-def supervise(supervision_rules):
-  # load in static data
-  CHARITE_PAIRS = read_supervision()
-
+def supervise(supervision_rules, hard_filters):
   # generate the mentions, while trying to keep the supervision approx. balanced
   # print out right away so we don't bloat memory...
   pos_count = 0
   neg_count = 0
-  VALS = config.GENE_PHENO['vals']
+  # load in static data
+  CHARITE_PAIRS = read_supervision()
   for line in sys.stdin:
     row = parser.parse_tsv_row(line)
     
-    supervised_relation = create_supervised_relation(row, superv_diff=pos_count-neg_count, SR=supervision_rules)
-
-    pos_count += len(filter(lambda r : r.is_correct, relations))
-    neg_count += len(filter(lambda r : r.is_correct is False, relations))
-
-    # print output
-    for relation in relations:
+    relation = create_supervised_relation(row, superv_diff=pos_count-neg_count, SR=supervision_rules, HF=hard_filters, charite_pairs=CHARITE_PAIRS)
+    
+    if relation:
+      if relation.is_correct:
+        pos_count += 1
+      else:
+        neg_count += 1
       util.print_tsv_output(relation)
-

@@ -3,9 +3,6 @@
 # extraction hyperparameters / configurations
 BOOL_VALS = [('neg', False), ('pos', True)]
 
-# Note here: (a) can be extended to multinomial, and (b) sets negative rule preference
-VALS = [('neg', False), ('pos', True)]
-
 ### GENE
 GENE = {
   'vals' : BOOL_VALS,
@@ -124,21 +121,21 @@ PHENO = {
 
 ### GENE-PHENO
 GENE_PHENO = {
+  ## Hard Filters (for candidate extraction)
+  'HF' : {
+    # Upper-bound the max min-dependency-path length between G and P
+    'max-dep-path-dist' : 7,
+
+    # Only consider the closest GP pairs for duplicate GP pairs
+    'take-best-only-dups' : True,
+
+    # Only consider the closest GP pairs by dep-path distance such that all G,P are covered
+    'take-best-only' : True
+  },
+
   'vals' : BOOL_VALS,
 
   'causation': {
-    ## Hard Filters (for candidate extraction)
-    'HF' : {
-      # Upper-bound the max min-dependency-path length between G and P
-      'max-dep-path-dist' : 7,
-
-      # Only consider the closest GP pairs for duplicate GP pairs
-      'take-best-only-dups' : True,
-
-      # Only consider the closest GP pairs by dep-path distance such that all G,P are covered
-      'take-best-only' : True
-    },
-
     ## Supervision Rules
     'SR' : {
       # Whether to include GP pairs with no or long dep path links as neg. supervision (vs. skip)
