@@ -9,9 +9,13 @@ fi
 
 parser="parser.jar"
 
-if [ "$4" -eq "abstracts" ]
+if [ ! -z ${4+x} ]
 then
+if [ "$4" == "abstracts" ]
+then
+  echo "Using Titles and Abstracts Parser"
   parser="parser-titles-abstracts.jar"
+fi
 fi
 
 if [ "${BAZAAR_DIR-}" == "" ]; then
