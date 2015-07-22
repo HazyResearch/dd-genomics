@@ -132,7 +132,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
     opts = SR['phrases-in-sent']
     for name,val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
-        match = util.rgx_mult_search(opts[name], opts['%s-rgx' % name], phrase + ' ' + lemma_phrase, flags=re.I)
+        match = util.rgx_mult_search(phrase + ' ' + lemma_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
           return r._replace(is_correct=val, relation_supertype='PHRASE_%s' % name, relation_subtype=match)
 
@@ -140,7 +140,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
     opts = SR['phrases-in-between']
     for name,val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
-        match = util.rgx_mult_search(opts[name], opts['%s-rgx' % name], between_phrase + ' ' + between_phrase_lemmas, flags=re.I)
+        match = util.rgx_mult_search(between_phrase + ' ' + between_phrase_lemmas, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
           return r._replace(is_correct=val, relation_supertype='PHRASE_BETWEEN_%s' % name, relation_subtype=match)
 

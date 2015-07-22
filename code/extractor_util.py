@@ -13,7 +13,7 @@ def rgx_comp(strings=[], rgxs=[]):
     r += r'(' + r')|('.join(rgxs) + r')'
   return r
 
-def rgx_mult_search(strings=[], rgxs=[], phrase, flags=re.I):
+def rgx_mult_search(phrase, strings=[], rgxs=[], flags=re.I):
   for s in strings:
     regex = re.escape(s)
     if re.search(regex, phrase, flags):

@@ -154,7 +154,7 @@ def create_supervised_mention(row, idxs, entity=None, mention_supertype=None, me
     phrase_post = " ".join(row.words[idxs[-1]:])
     for name,val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
-        match = util.rgx_mult_search(opts[name], opts['%s-rgx' % name], phrase_post, flags=re.I)
+        match = util.rgx_mult_search(phrase_post, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
           return m._replace(is_correct=val, mention_supertype='POST_MATCH_%s_%s' % (name, val), mention_subtype=match)
 

@@ -102,7 +102,7 @@ def create_supervised_mention(row, i, entity=None, mention_supertype=None, menti
     phrase_post = " ".join(row.words[i+1:])
     for name,val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
-        match = util.rgx_mult_search(opts[name], opts['%s-rgx' % name], phrase_post, flags=re.I)
+        match = util.rgx_mult_search(phrase_post, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
           return m._replace(is_correct=val, mention_supertype='POST_MATCH_%s_%s' % (name, val), mention_subtype=match)
 
@@ -111,7 +111,7 @@ def create_supervised_mention(row, i, entity=None, mention_supertype=None, menti
     pre_neighbor = row.words[i-1]
     for name,val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
-        match = util.rgx_mult_search(opts[name], opts['%s-rgx' % name], pre_neighbor, flags=re.I)
+        match = util.rgx_mult_search(pre_neighbor, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
           return m._replace(is_correct=val, mention_supertype='PRE_NEIGHBOR_MATCH_%s_%s' % (name, val), mention_subtype=match)
 
@@ -136,7 +136,7 @@ def create_supervised_mention(row, i, entity=None, mention_supertype=None, menti
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
         for neighbor_idx in dep_dag.neighbors(i):
           neighbor = row.words[neighbor_idx]
-          match = util.rgx_mult_search(opts[name],  opts['%s-rgx' % name], neighbor, flags=re.I)
+          match = util.rgx_mult_search(neighbor, opts[name],  opts['%s-rgx' % name], flags=re.I)
           if match:
             return m._replace(is_correct=val, mention_supertype='NEIGHBOR_MATCH_%s_%s' % (name, val), mention_subtype='Neighbor: ' + neighbor + ', match: ' + match)
 
