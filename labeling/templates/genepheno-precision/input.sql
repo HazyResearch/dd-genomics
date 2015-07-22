@@ -15,7 +15,9 @@ COPY (
     , f.features as features
     , f.weights as weights
   FROM
-    genepheno_causation_is_correct_inference r 
+    (SELECT *, 'association' from genepheno_association_is_correct_inference
+     OUTER JOIN
+     SELECT *, 'causation' from genepheno_causation_is_correct_inference) r
     , sentences_input si
     --, preceding_sentences psi
     --, following_sentences fsi
@@ -30,7 +32,7 @@ COPY (
           genepheno_features f
 	  , dd_inference_result_weights_mapping wm
 	WHERE 
-          wm.description = ('genepheno_causation_inference-' || f.feature)
+          wm.description = ('genepheno_association_inference-' || f.feature)
 	GROUP BY 
           relation_id
       ) f
