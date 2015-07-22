@@ -22,5 +22,16 @@ with open(input_csv) as f:
       new_row = row + ['hpo_name']
     else:
       hpo_id = row[4]
-      new_row = row + [hpo_id_to_name[hpo_id]]
+      row[7] = row[7].replace('-LRB- ', '(')
+      row[7] = row[7].replace(' -RRB-', ')')
+      row[7] = row[7].replace('-LSB- ', '[')
+      row[7] = row[7].replace(' -RSB-', ']')
+      row[7] = row[7].replace('-LRB-', '(')
+      row[7] = row[7].replace('-RRB-', ')')
+      row[7] = row[7].replace('-LSB-', '[')
+      row[7] = row[7].replace('-RSB-', ']')
+      if hpo_id in hpo_id_to_name:
+        new_row = row + [hpo_id_to_name[hpo_id]]
+      else:
+        new_row = row + ['Unknown_HPO_Id']
     writer.writerow(new_row)
