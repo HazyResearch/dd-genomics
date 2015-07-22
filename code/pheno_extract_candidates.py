@@ -27,7 +27,8 @@ Mention = namedtuple('Mention', [
             'sent_id',
             'wordidxs',
             'mention_id',
-            'mention_type',
+            'mention_supertype',
+            'mention_subtype',
             'entity',
             'words',
             'is_correct'])
@@ -142,39 +143,40 @@ def extract_candidate_mentions(row):
 
 ### DISTANT SUPERVISION ###
 VALS = config.PHENO['vals']
-def create_supervised_mention(row, idxs, entity=None, mention_type=None):
+def create_supervised_mention(row, idxs, entity=None, mention_supertype=None, mention_subtype=None):
   """Given a Row object consisting of a sentence, create & supervise a Mention output object"""
   words = [row.words[i] for i in idxs]
-  mid = '%s_%s_%s_%s_%s_%s' % (row.doc_id, row.sent_id, idxs[0], idxs[-1], mention_type, entity)
-  m = Mention(None, row.doc_id, row.sent_id, idxs, mid, mention_type, entity, words, None)
+  mid = '%s_%s_%s_%s_%s_%s' % (row.doc_id, row.sent_id, idxs[0], idxs[-1], mention_supertype, entity)
+  m = Mention(None, row.doc_id, row.sent_id, idxs, mid, mention_supertype, mention_subtype, entity, words, None)
 
   if SR.get('post-match'):
     opts = SR['post-match']
     phrase_post = " ".join(row.words[idxs[-1]:])
     for name,val in VALS:
-      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0 and \
-        re.search(util.rgx_comp(opts[name], opts['%s-rgx' % name]), phrase_post, flags=re.I):
-        return m._replace(is_correct=val, mention_type='POST_MATCH')
+      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
+        match = util.rgx_mult_search(opts[name], opts['%s-rgx' % name], phrase_post, flags=re.I)
+        if match:
+          return m._replace(is_correct=val, mention_supertype='POST_MATCH_%s_%s' % (name, val), mention_subtype=match)
 
   if SR.get('mesh-supervise'):
     pubmed_id = dutil.get_pubmed_id_for_doc(row.doc_id, doi_to_pmid=DOI_TO_PMID)
     if pubmed_id and pubmed_id in PMID_TO_HPO:
       if entity in PMID_TO_HPO[pubmed_id]:
-        return m._replace(is_correct=True, mention_type='%s_MESH_SUPERV' % mention_type)
+        return m._replace(is_correct=True, mention_supertype='%s_MESH_SUPERV' % mention_supertype, mention_subtype=str(pubmid_id) + ' ::: ' + str(entity))
   
       # If this is more specific than MeSH term, also consider true.
       elif SR.get('mesh-specific-true') and entity in hpo_dag.node_set:
         for parent in PMID_TO_HPO[pubmed_id]:
           if hpo_dag.has_child(parent, entity):
-            return m._replace(is_correct=True, mention_type='%s_MESH_CHILD_SUPERV' % mention_type)
+            return m._replace(is_correct=True, mention_supertype='%s_MESH_CHILD_SUPERV' % mention_supertype, mention_subtype=str(parent) + ' -> ' + str(entity))
 
   phrase = " ".join(words).lower()
-  if mention_type == 'EXACT':
+  if mention_supertype == 'EXACT':
     if SR.get('exact-english-word') and \
       len(words) == 1 and phrase in ENGLISH_WORDS and random.random() < SR['exact-english-word']['p']:
-      return m._replace(is_correct=True, mention_type='EXACT_AND_ENGLISH_WORD')
+      return m._replace(is_correct=True, mention_supertype='EXACT_AND_ENGLISH_WORD', mention_subtype=phrase)
     else:
-      return m._replace(is_correct=True)
+      return m._replace(is_correct=True, mention_supertype='NON_EXACT_AND_ENGLISH_WORD', mention_subtype=phrase)
 
   # Else default to existing values / NULL
   return m
@@ -208,7 +210,7 @@ def generate_rand_negatives(s, candidates):
     mid = '%s_%s_%s_%s_%s' % (s.doc_id, s.sent_id, wordidxs[0], wordidxs[-1], mtype)
     negs.append(
       Mention(dd_id=None, doc_id=s.doc_id, sent_id=s.sent_id, wordidxs=wordidxs,
-        mention_id=mid, mention_type=mtype, entity=None, words=[s.words[i] for i in wordidxs],
+        mention_id=mid, mention_supertype=mtype, mention_subtype=None, entity=None, words=[s.words[i] for i in wordidxs],
         is_correct=False))
     for i in wordidxs:
       covered.add(i)
