@@ -33,6 +33,12 @@
         <attribute name="Class-Path" value="${jar.classpath}" />
       </manifest>
     </jar>
+    <jar destfile="${jar.dir}/${ant.project.name}-titles-abstracts.jar" basedir="${classes.dir}">
+      <manifest>
+        <attribute name="Main-Class" value="parser.MainTitlesAbstracts" />
+        <attribute name="Class-Path" value="${jar.classpath}" />
+      </manifest>
+    </jar>
   </target>
   
   <target name="main" depends="clean,jar" />

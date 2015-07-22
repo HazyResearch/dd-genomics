@@ -2,9 +2,16 @@
 
 source ../env_local.sh
 
-if [ "$#" -ne 3 ]; then
-  echo "Usage: $0 [INPUT: XML DIR OR FILE] [OUT: DB TABLE] [new|add]"
+if [ "$#" -lt 3 ]; then
+  echo "Usage: $0 (INPUT: XML DIR OR FILE) (OUT: DB TABLE) (new|add) [abstracts: give this option to parse titles and abstracts only]"
   exit
+fi
+
+parser="parser.jar"
+
+if [ "$4" -eq "abstracts" ]
+then
+  parser="parser-titles-abstracts.jar"
 fi
 
 if [ "${BAZAAR_DIR-}" == "" ]; then
@@ -15,7 +22,7 @@ echo "Using bazaar installation at ${BAZAAR_DIR}"
 
 echo "Parsing XML docs"
 XML_OUT_NAME=xml_parsed.json
-java -ea -jar parser.jar $1 > ${XML_OUT_NAME}
+java -ea -jar $parser $1 > ${XML_OUT_NAME}
 
 echo "Running NLP preprocessing"
 $BAZAAR_DIR/parser/run_parallel.sh -in="${XML_OUT_NAME}" --parallelism=${PARALLELISM} -i json -k "item_id" -v "content"
