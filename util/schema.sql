@@ -15,8 +15,7 @@ CREATE TABLE gene_mentions (
 	-- mention id
 	mention_id text,
 	-- mention type
-	supertype text,
-        subtype text,
+	type text,
 	-- entity
 	entity text,
 	-- words
@@ -50,8 +49,7 @@ CREATE TABLE pheno_mentions (
 	-- mention id
 	mention_id text,
 	-- mention type
-	supertype text,
-        subtype text,
+	type text,
 	-- entity
 	entity text,
 	-- words
@@ -125,8 +123,7 @@ CREATE TABLE genepheno_association (
         pheno_wordidxs int[],
 	-- is it an associative relationship?
 	is_correct boolean,
-        supertype text,
-        subtype text
+        type text,
 ) DISTRIBUTED BY (doc_id);
  
 -- Gene / Phenotype association mentions
@@ -154,8 +151,7 @@ CREATE TABLE genepheno_causation (
         pheno_wordidxs int[],
 	-- is it a causative relationship?
 	is_correct boolean,
-        supertype text,
-        subtype text
+        type text,
 ) DISTRIBUTED BY (doc_id);
 
 -- G/P relation mentions features
