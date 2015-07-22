@@ -214,10 +214,10 @@ GENE_PHENO = {
 
       # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
       'phrases-in-sent' : {
-        'pos' : ['caused by mutations'],
-        'neg' : ['risk', 'variance', 'patients', 'therapeutic utility', 'methylated genes', 'transcription factor', 'viral', 'virus', 'pathogen', 'families'],
+        'pos' : [],
+        'neg' : [],
         'pos-rgx' : [],
-        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\d+\s+(adult|patient|studie|subject)s']
+        'neg-rgx' : []
       },
 
       # Supervise as T/F based on phrases (exact or regex) only between the G and P mentions
@@ -228,23 +228,23 @@ GENE_PHENO = {
       'primary-verb-modifiers' : {
         'max-dist' : 1,
         'pos' : [],
-        'neg' : ['might'],
+        'neg' : [],
         'pos-dep-tag' : [],
-        'neg-dep-tag' : ['neg']
+        'neg-dep-tag' : []
       },
 
       # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
       'dep-lemma-connectors' : {
-        'pos' : ['cause', 'associate', 'correlate', 'implicate'],
+        'pos' : [],
         'neg' : []
       },
 
       # Supervise GP pairs as T/F based on dependency-path neighbor lemmas of G and P
       'dep-lemma-neighbors' : {
         'max-dist' : 1,
-        'pos-g' : ['cause', 'mutate', 'mutation', 'variant', 'allele'],
-        'pos-p' : ['gene', 'mutation', 'mutate'],
-        'neg-g' : ['express', 'expression', 'coexpression', 'coexpress', 'co-expression', 'co-express', 'overexpress', 'overexpression', 'over-expression', 'over-express', 'somatic', 'infection', 'interacts', 'regulate', 'up-regulate', 'upregulate', 'down-regulate', 'downregulate'],
+        'pos-g' : [],
+        'pos-p' : [],
+        'neg-g' : [],
         'neg-p' : []
       },
 
