@@ -1,5 +1,7 @@
 #! /bin/bash
 
+source ../env_local.sh
+
 if [ "$#" -ne 3 ]; then
   echo "Usage: $0 [INPUT: XML DIR OR FILE] [OUT: DB TABLE] [new|add]"
   exit
