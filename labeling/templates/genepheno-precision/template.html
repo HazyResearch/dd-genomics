@@ -2,9 +2,9 @@
 
 <template for="each-item">
   <strong>
-  <a href="https://www.google.com/search?q={{item.gene_name}}">{{item.gene_name}}</a> -- 
-  <a href="https://www.google.com/search?q={{item.pheno_name}}">{{item.pheno_name}}</a> 
-  (<a href="https://www.google.com/search?q={{item.hpo_name}}">{{item.hpo_name}}</a>) 
+  <a href="https://www.google.com/search?q={{item.gene_name}}" target="_blank">{{item.gene_name}}</a> -- 
+  <a href="https://www.google.com/search?q={{item.pheno_name}}" target="_blank">{{item.pheno_name}}</a> 
+  (<a href="https://www.google.com/search?q={{item.hpo_name}}" target="_blank">{{item.hpo_name}}</a>) 
   </strong> (association expectation:
   <strong>{{item.assoc_expectation}}</strong>, causation expectation:
   <strong>{{item.cause_expectation}}</strong>, gene_expectation:
