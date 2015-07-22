@@ -1,8 +1,13 @@
 <mindtagger mode="precision">
 
 <template for="each-item">
-  <strong>{{item.gene_name}} -- {{item.pheno_name}} ({{item.hpo_name}}) </strong> (expectation:
-  <strong>{{item.expectation}}</strong>, gene_expectation:
+  <strong>
+  <a href="https://www.google.com/search?q={{item.gene_name}}">{{item.gene_name}}</a> -- 
+  <a href="https://www.google.com/search?q={{item.pheno_name}}">{{item.pheno_name}}</a> 
+  (<a href="https://www.google.com/search?q={{item.hpo_name}}">{{item.hpo_name}}</a>) 
+  </strong> (association expectation:
+  <strong>{{item.assoc_expectation}}</strong>, causation expectation:
+  <strong>{{item.cause_expectation}}</strong>, gene_expectation:
   <strong>{{item.gene_expectation}}</strong>, hpoterm_expectation:
   <strong>{{item.pheno_expectation}}</strong>) in:
   <blockquote>
@@ -14,6 +19,8 @@
     <!-- <span class="text-muted">{{item.sentences_after | concatArray:'postgres'}}</span> -->
   </blockquote>
 
+  <b>Association features:</b>
+  
   <!-- Enumerate features with weights (leveraging AngularJS a bit more)-->
   <div class="row">
     <div class="col-sm-offset-1 col-sm-10">
@@ -23,8 +30,8 @@
           <th>Feature</th>
         </tr></thead>
 	<tbody>
-          <tr ng-repeat="feature in (item.features | parsedArray:'postgres') | limitTo:10 track by $index">
-            <td class="text-right">{{(item.weights | parsedArray:'postgres')[$index] | number:4}}</td>
+          <tr ng-repeat="feature in (item.assoc_features | parsedArray:'postgres') | limitTo:5 track by $index">
+            <td class="text-right">{{(item.assoc_weights | parsedArray:'postgres')[$index] | number:4}}</td>
             <th>{{feature}}</th>
           </tr>
 	</tbody>
@@ -32,7 +39,28 @@
     </div>
   </div>
 
-  <b>TYPE: <i>{{item.relation_type}}</i></b><br/>
+  <b>Causation features:</b>
+
+  <!-- Enumerate features with weights (leveraging AngularJS a bit more)-->
+  <div class="row">
+    <div class="col-sm-offset-1 col-sm-10">
+      <table class="table table-striped table-condensed table-hover">
+        <thead><tr>
+          <th class="col-sm-1">Weight</th>
+          <th>Feature</th>
+        </tr></thead>
+	<tbody>
+          <tr ng-repeat="feature in (item.cause_features | parsedArray:'postgres') | limitTo:5 track by $index">
+            <td class="text-right">{{(item.cause_weights | parsedArray:'postgres')[$index] | number:4}}</td>
+            <th>{{feature}}</th>
+          </tr>
+	</tbody>
+      </table>
+    </div>
+  </div>
+
+  <b>Association type: <i>{{item.assoc_type}}</i></b><br/>
+  <b>Causation type: <i>{{item.cause_type}}</i></b><br/>
 
   <div mindtagger-item-details></div>
 </template>

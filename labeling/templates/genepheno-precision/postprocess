@@ -21,6 +21,6 @@ with open(input_csv) as f:
     if i == 0:
       new_row = row + ['hpo_name']
     else:
-      hpo_id = row[3]
+      hpo_id = row[4]
       new_row = row + [hpo_id_to_name[hpo_id]]
     writer.writerow(new_row)
