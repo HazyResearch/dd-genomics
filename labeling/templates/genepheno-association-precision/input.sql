@@ -15,7 +15,7 @@ COPY (
     , f.features as features
     , f.weights as weights
   FROM
-    genepheno_relations_is_correct_inference r 
+    genepheno_association_is_correct_inference r 
     , sentences_input si
     --, preceding_sentences psi
     --, following_sentences fsi
