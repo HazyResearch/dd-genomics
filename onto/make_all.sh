@@ -240,3 +240,9 @@ join -1 1 -2 1 \
     awk '{print $2, $1}' |
     sort | uniq) |
   awk '{print $3"\t"$2}' | sort > data/canon_phenotype_to_gene.map
+
+cd data
+sort -k2,2 hpo_to_pmid_via_mesh.tsv > hpo_to_pmid_via_mesh_sortk2.tsv
+sort -k2,2 plos_doi_to_pmid.tsv > plos_doi_to_pmid_sortk2.tsv
+join -1 2 -2 2 hpo_to_pmid_via_mesh_sortk2.tsv plos_doi_to_pmid_sortk2.tsv | awk '{print $2"\t"$1}' > hpo_to_pmid_via_mesh_with_doi.tsv
+cd ..

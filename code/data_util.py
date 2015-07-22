@@ -74,7 +74,7 @@ def read_hpo_synonyms():
 def load_pmid_to_hpo():
   """Load map from Pubmed ID to HPO term (via MeSH)"""
   pmid_to_hpo = defaultdict(set)
-  with open(onto_path('data/hpo_to_pmid_via_mesh.tsv')) as f:
+  with open(onto_path('data/hpo_to_pmid_via_mesh_with_doi.tsv')) as f:
     for line in f:
       hpo_id, pmid = line.strip().split('\t')
       pmid_to_hpo[pmid].add(hpo_id)
