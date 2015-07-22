@@ -30,7 +30,7 @@ COPY (
           genepheno_features f
 	  , dd_inference_result_weights_mapping wm
 	WHERE 
-          wm.description = ('genepheno_inference-' || f.feature)
+          wm.description = ('genepheno_association_inference-' || f.feature)
 	GROUP BY 
           relation_id
       ) f
