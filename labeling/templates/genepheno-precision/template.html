@@ -19,12 +19,15 @@
     <!-- <span class="text-muted">{{item.sentences_after | concatArray:'postgres'}}</span> -->
   </blockquote>
 
+  <b>Show features: </b>
+  <input type="checkbox" ng-model="collapse" />
+
   <b>Association features:</b>
   
   <!-- Enumerate features with weights (leveraging AngularJS a bit more)-->
   <div class="row">
     <div class="col-sm-offset-1 col-sm-10">
-      <table class="table table-striped table-condensed table-hover">
+      <table class="table table-striped table-condensed table-hover" ng-show="collapse">
         <thead><tr>
           <th class="col-sm-1">Weight</th>
           <th>Feature</th>
@@ -44,7 +47,7 @@
   <!-- Enumerate features with weights (leveraging AngularJS a bit more)-->
   <div class="row">
     <div class="col-sm-offset-1 col-sm-10">
-      <table class="table table-striped table-condensed table-hover">
+      <table class="table table-striped table-condensed table-hover" ng-show="collapse">
         <thead><tr>
           <th class="col-sm-1">Weight</th>
           <th>Feature</th>
