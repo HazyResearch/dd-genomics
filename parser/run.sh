@@ -29,7 +29,7 @@ XML_OUT_NAME=xml_parsed.json
 java -ea -jar $parser $1 > ${XML_OUT_NAME}
 
 echo "Running NLP preprocessing"
-$BAZAAR_DIR/parser/run_parallel.sh -in="${XML_OUT_NAME}" --parallelism=${PARALLELISM} -i json -k "item_id" -v "content"
+$BAZAAR_DIR/parser/run_parallel.sh -in="${XML_OUT_NAME}" --parallelism=40 -i json -k "item_id" -v "content"
 
 if [ $3 == "create" ]; then
   echo "Creating new table in db"

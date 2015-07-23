@@ -8,11 +8,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 public class Main {
+
+  // XXX Might cause memory trouble in the future on large datasets
+  public static HashSet<String> allTitles = new HashSet<String>();
+  public static HashSet<String> allPubIds = new HashSet<String>();
 
   public static void main(String[] args) {
     if (args.length != 1) {
@@ -27,7 +32,7 @@ public class Main {
     try {
       for (File file : files) {
         InputStream xmlInput = new FileInputStream(file);
-        XMLDocParser docParser = new XMLDocParser(xmlInput, config);
+        XMLDocParser docParser = new XMLDocParser(xmlInput, config, allTitles, allPubIds);
 
         // TODO: make this actually streaming?  I.e. call a docParser.getNext() method
         for (OutputDoc outDoc : docParser.parse()) {
