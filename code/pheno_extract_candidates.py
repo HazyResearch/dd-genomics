@@ -162,7 +162,7 @@ def create_supervised_mention(row, idxs, entity=None, mention_supertype=None, me
     pubmed_id = dutil.get_pubmed_id_for_doc(row.doc_id, doi_to_pmid=DOI_TO_PMID)
     if pubmed_id and pubmed_id in PMID_TO_HPO:
       if entity in PMID_TO_HPO[pubmed_id]:
-        return m._replace(is_correct=True, mention_supertype='%s_MESH_SUPERV' % mention_supertype, mention_subtype=str(pubmid_id) + ' ::: ' + str(entity))
+        return m._replace(is_correct=True, mention_supertype='%s_MESH_SUPERV' % mention_supertype, mention_subtype=str(pubmed_id) + ' ::: ' + str(entity))
   
       # If this is more specific than MeSH term, also consider true.
       elif SR.get('mesh-specific-true') and entity in hpo_dag.node_set:
