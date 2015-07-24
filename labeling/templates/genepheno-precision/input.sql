@@ -1,8 +1,10 @@
 copy (
 select 
   a.relation_id
-  , a.type as assoc_type
-  , c.type as cause_type
+  , a.supertype as assoc_supertype
+  , a.subtype as assoc_subtype
+  , c.supertype as cause_supertype
+  , c.subtype as cause_subtype
   , a.gene_entity as gene_name
   , a.pheno_entity as pheno_name
   , a.gene_wordidxs as gene_wordidxs
