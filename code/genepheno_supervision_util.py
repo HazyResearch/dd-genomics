@@ -114,7 +114,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
     # (Consider that Boolean variables can and will take the value ``None'' in this language.)
     if not (gene_is_correct != False and pheno_is_correct != False):
       if random.random() < opts['diff']*superv_diff or random.random() < opts['rand']:
-        return r._replace(is_correct=False, relation_supertype='G_ANDOR_P_FALSE')
+        return r._replace(is_correct=False, relation_supertype='G_ANDOR_P_FALSE', relation_subtype='gene_is_correct: %s, pheno_is_correct: %s' % (gene_is_correct, pheno_is_correct))
       else:
         # count_g_or_p_false_none += 1
         return None
@@ -122,7 +122,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
   if SR.get('adjacent-false'):
     if re.search(r'[a-z]{3,}', between_phrase, flags=re.I) is None:
       if random.random() < 0.5*superv_diff or random.random() < 0.01:
-        return r._replace(is_correct=False, relation_supertype='G_P_ADJACENT')
+        return r._replace(is_correct=False, relation_supertype='G_P_ADJACENT', relation_subtype=between_phrase)
       else:
         # count_adjacent_false_none += 1
         return None
