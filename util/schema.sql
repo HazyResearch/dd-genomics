@@ -123,7 +123,7 @@ CREATE TABLE genepheno_association (
         pheno_wordidxs int[],
 	-- is it an associative relationship?
 	is_correct boolean,
-        type text,
+        type text
 ) DISTRIBUTED BY (doc_id);
  
 -- Gene / Phenotype association mentions
@@ -151,7 +151,7 @@ CREATE TABLE genepheno_causation (
         pheno_wordidxs int[],
 	-- is it a causative relationship?
 	is_correct boolean,
-        type text,
+        type text
 ) DISTRIBUTED BY (doc_id);
 
 -- G/P relation mentions features
