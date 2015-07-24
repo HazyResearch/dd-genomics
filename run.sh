@@ -26,5 +26,11 @@ else
   export GDD_PIPELINE="$1"
 fi
 
+export PATH="/dfs/scratch1/netj/wrapped/greenplum:$PATH"
+# Launch gpfdist if not launched.
+gpfdist -d $GPPATH -p $GPPORT &
+gpfdist_pid=$!
+trap "kill $gpfdist_pid" EXIT
+
 cd $DEEPDIVE_HOME
 sbt "run -c $APP_HOME/${APP_CONF:-application.conf}"
