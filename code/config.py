@@ -34,7 +34,7 @@ GENE = {
     },
 
     'neighbor-match': {
-      'pos' : ['gene', 'protein'],
+      'pos' : [],
       'neg' : [],
       'pos-rgx': [],
       'neg-rgx': []
