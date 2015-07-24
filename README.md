@@ -5,9 +5,10 @@ See Milestones/Issues.
 
 ### GDD Setup notes
 
-1. [7/3/15]: The current testing / dev dataset is in the genomics_ajratner db (login as `psql -U ajratner -h raiders2 -p 6432 genomics_ajratner` -> then copy to own db) sentences table- this is 30k docs of PLoS XML-preprocessed evenly balanced between PLoS ONE & PLoS other.
-2. [7/3/15]: The full PLoS + PMC XML data is currently being (slowly) copied to `/dfs/scratch0/ajratner/pmc_raw`.  A subset (PLoS) is already in `/dfs/scratch0/ajratner/dd_raw_docs`).
-3. [5/28/15]: The sampler used is currently in the `sample_evidence` branch of the sampler [repo][sampler-se].  To use an existing compiled binary for linux, just move `util/sampler-dw-linux` to `$DEEPDIVE_HOME/util/sampler-dw-linux`.  To recompile the binary, clone the sampler repo, follow instructions, then move the compiled binary to the same location.
+1. [7/23/15]: Current datasets to use:
+	* **Development**: PLoS 30K balanced set: see e.g. the `sentences` table in `genomics_ajratner` db
+	* **Full- Processed:** PloS All: see `sentences_new` table in `genomics_ajratner` db
+	* **Full- Unprocessed:** Raw XML docs for PLoS, PMC (and others soon): `/dfs/scratch0/ajratner/pmc_raw/`
 
 ### Running GDD: Basics
 
@@ -19,20 +20,13 @@ See Milestones/Issues.
 	* _relevant library paths_
 	* _[GREENPLUM ONLY] port for gpfdist_
 
-2. Create the database to be used if necessary
+2. Create the database to be used if necessary (`createdb -U $DBUSER -h $DBHOST -p $DBPORT $DBNAME`)
 
-3. [IF NO INPUT DATA LOADED] **If no existing input data (e.g. `sentences` and/or `sentences_input` tables) is loaded:** Create input schema by running `./util/create_input_schema.sh` (**NOTE: this will drop any input data already loaded!**).  Then load data: if from tsv file you can use (usually loading `sentences_input` -> `TABLE_NAME=sentences_input`):
+3. [IF NO INPUT DATA LOADED] Create input schema by running: `./util/create_input_schema.sh` (**NOTE: this will drop any input data already loaded into `sentences` or `sentences_input` tables!**).  Then load data: if from tsv file you can use (usually loading `sentences_input` -> `TABLE_NAME=sentences_input`):
 
 		./util/copy_table_from_file.sh [DB_NAME] [TABLE_NAME] [TSV_FILE_PATH]
 
-  NOTE: some ready-to-use data files are available on `raiders2` at `/lfs/raiders2/0/robinjia/data/genomics_sentences_input_data/`.
-`genomics_10k_sentences.tsv` has 10k sentences (good for quick testing and debugging) and `genomics_50k_docs.tsv` has 50k documents 
-(gene extraction takes about 2 hours on `raiders2`).
-There is also `plos_all_docs.tsv`, a separate, cleaner dataset based on HTML dumps from PLoS.
-If you want to run certain mindtagger tasks (namely pheno-recall),
-you will also need to copy 
-`/lfs/raiders2/0/robinjia/data/genomics_sentences_input_data/hpo_to_plos_doc_id.tsv`
-to the `hpo_to_doc_via_mesh` table.
+  NOTE: To dump a table from psql to `.tsv` format for transfer in such a way, use: `COPY (SELECT * FROM [table_name]) TO '/tmp/[table_name].tsv' WITH DELIMITER '\t'`.
 
 4. To refresh / create the schema, run `./util/create_schema.sh`- *note that this will drop any output data from previous runs*.
 
