@@ -32,7 +32,8 @@ Mention = collections.namedtuple('Mention', [
             'sent_id',
             'wordidxs',
             'mention_id',
-            'mention_type',
+            'mention_supertype',
+            'mention_subtype',
             'entity',
             'words',
             'is_correct'])
@@ -88,29 +89,31 @@ def extract_candidate_mentions(row):
 
 ### DISTANT SUPERVISION ###
 VALS = config.GENE['vals']
-def create_supervised_mention(row, i, entity=None, mention_type=None):
+def create_supervised_mention(row, i, entity=None, mention_supertype=None, mention_subtype=None):
   """Given a Row object consisting of a sentence, create & supervise a Mention output object"""
   word = row.words[i]
   word_lower = word.lower()
-  mid = '%s_%s_%s_%s_%s' % (row.doc_id, row.sent_id, i, entity, mention_type)
-  m = Mention(None, row.doc_id, row.sent_id, [i], mid, mention_type, entity, [word], None)
+  mid = '%s_%s_%s_%s_%s' % (row.doc_id, row.sent_id, i, entity, mention_supertype)
+  m = Mention(None, row.doc_id, row.sent_id, [i], mid, mention_supertype, mention_subtype, entity, [word], None)
   dep_dag = deps.DepPathDAG(row.dep_parents, row.dep_paths, row.words)
 
   if SR.get('post-match'):
     opts = SR['post-match']
     phrase_post = " ".join(row.words[i+1:])
     for name,val in VALS:
-      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0 and \
-        re.search(util.rgx_comp(opts[name], opts['%s-rgx' % name]), phrase_post, flags=re.I):
-        return m._replace(is_correct=val, mention_type='POST_MATCH_%s_%s' % (name, val))
+      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
+        match = util.rgx_mult_search(phrase_post, opts[name], opts['%s-rgx' % name], flags=re.I)
+        if match:
+          return m._replace(is_correct=val, mention_supertype='POST_MATCH_%s_%s' % (name, val), mention_subtype=match)
 
   if SR.get('pre-neighbor-match') and i > 0:
     opts = SR['pre-neighbor-match']
     pre_neighbor = row.words[i-1]
     for name,val in VALS:
-      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0 and \
-        re.search(util.rgx_comp(opts[name], opts['%s-rgx' % name]), pre_neighbor, flags=re.I):
-        return m._replace(is_correct=val, mention_type='PRE_NEIGHBOR_MATCH_%s_%s' % (name, val))
+      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
+        match = util.rgx_mult_search(pre_neighbor, opts[name], opts['%s-rgx' % name], flags=re.I)
+        if match:
+          return m._replace(is_correct=val, mention_supertype='PRE_NEIGHBOR_MATCH_%s_%s' % (name, val), mention_subtype=match)
 
   ## DS RULE: matches from papers that NCBI annotates as being about the mentioned gene are likely true.
   if SR['pubmed-paper-genes-true']:
@@ -119,13 +122,13 @@ def create_supervised_mention(row, i, entity=None, mention_type=None):
     if pmid and entity:
       mention_ensembl_id = entity.split(":")[0]
       if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
-        return m._replace(is_correct=True, mention_type='%s_NCBI_ANNOTATION_TRUE' % mention_type)
+        return m._replace(is_correct=True, mention_supertype='%s_NCBI_ANNOTATION_TRUE' % mention_supertype, mention_subtype=mention_ensembl_id)
 
   ## DS RULE: Genes on the gene list with complicated names are probably good for exact matches.
   if SR['complicated-gene-names-true']:
-    if mention.mention_type in ('CANONICAL_SYMBOL','NONCANONICAL_SYMBOL'):
+    if mention.mention_supertype in ('CANONICAL_SYMBOL','NONCANONICAL_SYMBOL'):
       if re.match(r'[a-zA-Z]{3}[a-zA-Z]*\d+\w*', word):
-        return True
+        return m._replace(is_correct=True, mention_supertype='COMPLICATED_GENE_NAME')
 
   if SR.get('neighbor-match'):
     opts = SR['neighbor-match']
@@ -133,8 +136,9 @@ def create_supervised_mention(row, i, entity=None, mention_type=None):
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
         for neighbor_idx in dep_dag.neighbors(i):
           neighbor = row.words[neighbor_idx]
-          if re.search(util.rgx_comp(opts[name], opts['%s-rgx' % name]), neighbor, flags=re.I):
-            return m._replace(is_correct=val, mention_type='NEIGHBOR_MATCH_%s_%s' % (name, val))
+          match = util.rgx_mult_search(neighbor, opts[name],  opts['%s-rgx' % name], flags=re.I)
+          if match:
+            return m._replace(is_correct=val, mention_supertype='NEIGHBOR_MATCH_%s_%s' % (name, val), mention_subtype='Neighbor: ' + neighbor + ', match: ' + match)
 
   return m
 
@@ -154,16 +158,16 @@ def get_negative_mentions(row, mentions, d, per_row_max=2):
     
     # Make a template mention object- will have mention_id opt with entity (ensemble_id) appended
     mid = '%s_%s_%s' % (row.doc_id, row.sent_id, i)
-    m = Mention(dd_id=None, doc_id=row.doc_id, sent_id=row.sent_id, wordidxs=[i], mention_id=mid, mention_type=None, entity=None, words=[word], is_correct=None)
+    m = Mention(dd_id=None, doc_id=row.doc_id, sent_id=row.sent_id, wordidxs=[i], mention_id=mid, mention_supertype="RANDOM_NEGATIVE",mention_subtype=None, entity=None, words=[word], is_correct=None)
 
     # Non-match all uppercase negative supervision
     if word==word.upper() and len(word)>2 and word.isalnum() and not unicode(word).isnumeric():
       if random.random() < 0.01*d:
-        negs.append(m._replace(mention_type='ALL_UPPER_NOT_GENE_SYMBOL', is_correct=False))
+        negs.append(m._replace(mention_supertype='ALL_UPPER_NOT_GENE_SYMBOL', is_correct=False))
 
     # Random negative supervision
     elif random.random() < 0.005*d:
-      negs.append(m._replace(mention_type='RAND_WORD_NOT_GENE_SYMBOL', is_correct=False))
+      negs.append(m._replace(mention_supertype='RAND_WORD_NOT_GENE_SYMBOL', is_correct=False))
   return negs
 
 

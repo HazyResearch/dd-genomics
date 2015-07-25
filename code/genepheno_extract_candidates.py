@@ -21,12 +21,10 @@ parser = util.RowParser([
           ('dep_parents', 'int[]'),
           ('gene_mention_ids', 'text[]'),
           ('gene_entities', 'text[]'),
-          ('gene_mention_types', 'text[]'),
           ('gene_wordidxs', 'int[][]'),
           ('gene_is_corrects', 'boolean[]'),
           ('pheno_mention_ids', 'text[]'),
           ('pheno_entities', 'text[]'),
-          ('pheno_mention_types', 'text[]'),
           ('pheno_wordidxs', 'int[][]'),
           ('pheno_is_corrects', 'boolean[]')])
 
@@ -123,7 +121,6 @@ def create_relation(row, i, j, dep_dag=None):
   """
   gene_mention_id = row.gene_mention_ids[i]
   gene_entity = row.gene_entities[i]
-  gene_mention_type = row.gene_mention_types[i]
   gene_wordidxs = row.gene_wordidxs[i]
   gene_is_correct = row.gene_is_corrects[i]
   pheno_mention_id = row.pheno_mention_ids[j]
