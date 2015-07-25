@@ -3,13 +3,16 @@
 # TODO: Specify these variables according to your system configuration!
 # the user running the application
 export DDUSER=${DD_APPUSER-$(whoami)}
+
 # the database user (default: the same as above) & connection vars
 export DBUSER=${DD_DBUSER-${PGUSER-${DDUSER}}}
 export DBHOST=${DD_DBHOST-${PGHOST}}
 export DBPORT=${DD_DBPORT-${PGPORT-5432}}
 export DBNAME=${DD_DBNAME-}
+
 # the port that gpfdist will run on (should be uique for each user on system!)
 export GPPORT=
+
 # the type of postgres being used: "pg" for postgres | "gp" for greenplum
 export DBTYPE=
 
@@ -43,11 +46,13 @@ export PGPORT=$DBPORT
 export PGPASSWORD=${PGPASSWORD:-}
 
 # ***** GREENPLUM VARS *****
+export PATH="/dfs/scratch1/netj/wrapped/greenplum:$PATH"
 export GPPATH=/lfs/local/0/$DDUSER/data/gp_data
 export GPHOME=/lfs/local/0/senwu/software/greenplum/greenplum-db
 export OPENSSL_CONF=$GPHOME/etc/openssl.cnf
 
 # Using ddlib, analysis util lib
-export PYTHONPATH=$PYTHONPATH:$DEEPDIVE_HOME/ddlib:$DEEPDIVE_HOME/ddlib/ddlib:$REAL_DIRNAME/analysis/util
+export PYTHONPATH=$PYTHONPATH:$DEEPDIVE_HOME/ddlib:$DEEPDIVE_HOME/ddlib/ddlib
+export PYTHONPATH=$PYTHONPATH:$REAL_DIRNAME/analysis/util
 export LD_LIBRARY_PATH=$DEEPDIVE_HOME/lib/dw_linux/lib:$DEEPDIVE_HOME/lib/dw_linux/lib64:$LD_LIBRARY_PATH
 export PATH=$PATH:$DEEPDIVE_HOME/ddlib:$DEEPDIVE_HOME/sbt
