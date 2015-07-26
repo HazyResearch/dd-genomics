@@ -2,22 +2,29 @@ var express = require('express');
 var router = express.Router();
 var path = require('path');
 var pg = require('pg');
-var connectionString = process.env.DATABASE_URL || 'postgres://ajratner@localhost:6432/genomics_ajratner';
+var connectionString = 'postgres://ajratner@localhost:6432/genomics_production';
 
 /* GET G-P relations by gene id (ensembl) */
-router.get('/api/gp/:gene_id', function(req, res) {
+router.get('/api/gp/', function(req, res) {
   var results = [];
-  var geneId = req.params.gene_id;
-  console.log("GET request for geneId=" + geneId);
+  var geneId = req.query.geneId;
+  var expC = parseFloat(req.query.expC);
+  expC = (expC > 0) ? Math.min(1.0, expC) : 0.0;
+  var expA = parseFloat(req.query.expA);
+  expA = (expA > 0) ? Math.min(1.0, expA) : 0.0;
+  var maxResults = parseInt(req.query.maxResults);
+  maxResults = (maxResults > 0) ? maxResults : 10;
+  var page = parseInt(req.query.page);
+  page = (page > 0) ? page : 0;
+  console.log("GET request for geneId='" + geneId + "%' where E[C] >= " + expC + " AND E[A] >= " + expA + " (page:" + page + " maxResults:" + maxResults + ")");
 
   // Get a Postgres client from the connection pool
   pg.connect(connectionString, function(err, client, done) {
 
     // NOTE: support either e.g. "ENSG00000101255" or "ENSG00000101255:TRIB3" formats
-    var limit = 5;
-
-    // TODO: figure out how to handle association / causation
-    var query = client.query("SELECT gp.relation_id, gp.doc_id, gp.gene_entity, gp.gene_wordidxs, gp.pheno_entity, gp.pheno_wordidxs, gp.expectation, s.words FROM genepheno_relations_is_correct_inference gp, sentences s WHERE gp.doc_id = s.doc_id AND gp.sent_id = s.sent_id AND gp.gene_entity LIKE ($1) ORDER BY expectation DESC LIMIT ($2);", [geneId+"%", limit]);
+    // NOTE: We pre-compute the aggregation at entity level but only for E > 0.5
+    var sql = 'SELECT gene_entity, pheno_entity, relation_ids, doc_ids, sent_ids, gene_wordidxs, pheno_wordidxs, words, a_expectations, c_expectations FROM genepheno_entity_level WHERE gene_entity LIKE ($1) AND ((($2) > 0.0 AND max_a_expectation >= ($2)) OR (($3) > 0.0 AND max_c_expectation >= ($3))) LIMIT ($4) OFFSET ($5);'
+    var query = client.query(sql, [geneId+'%', expA, expC, maxResults, maxResults*page]);
 
     // Stream results back one row at a time
     query.on('row', function(row) {
