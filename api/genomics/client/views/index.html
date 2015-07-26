@@ -6,18 +6,79 @@
   </head>
 
   <body ng-controller="mainController">
-    Search:
+  <div class="container">
+    <div class="page-header">
+      <h1>DeepDive Genomics API: Demo Page</h1>
+    </div>
+    <div class="jumbotron">
+      <h3>GET API @ /api/gp</h3>
+      <p>Current count of unique G-P entity relations: {{ gpCount }}</p>
+    </div>
+    <div class="panel">
+      See the query parameters below.  Search is at the <i>entity level</i> and returns sets of mentions (pre-computed, and filtered at E[C] OR E[A] \gt 0.5).  Unless otherwise specified, placeholder values are the default values.
+    </div>
     <form>
       <div class="form-group">
-        <input type="text" class="form-control" placeholder="ENSG00000101255" ng-model="formData.text">
+        <label for="geneId">geneId <i>(ENSEMBL ID of format e.g. "ENSG00000026508" or "ENSG00000026508:CD44")</i></label>
+        <input id="geneId" type="text" class="form-control" placeholder="" ng-model="formData.geneId">
+      </div>
+      <div>
+        If both E[C] and E[A] parameters are supplied below, they will be OR'ed (results which satisfy one of the criteria will be returned).  If both are zero (default) no results will be returned.
+      </div>
+      <br />
+      <div class="form-group">
+        <label for="minMaxExpC">minMaxExpC <i>(Lower bound on the max. E[Causation] value across a G-P pair's mentions)</i></label>
+        <input id="minMaxExpC" type="text" class="form-control" placeholder="0.0" ng-model="formData.minMaxExpC">
+      </div>
+      <div class="form-group">
+        <label for="minMaxExpA">minMaxExpA <i>(Lower bound on the max. E[Association] value across a G-P pair's mentions)</i></label>
+        <input id="minMaxExpA" type="text" class="form-control" placeholder="0.0" ng-model="formData.minMaxExpA">
+      </div>
+      <div class="form-group">
+        <label for="maxResults">maxResults</label>
+        <input id="maxResults" type="text" class="form-control" placeholder="10" ng-model="formData.maxResults">
+      </div>
+      <div class="form-group">
+        <label for="page">page</label>
+        <input id="page" type="text" class="form-control" placeholder="0" ng-model="formData.page">
       </div>
       <button type="submit" class="btn btn-primary" ng-click="searchByGene()">Search</button>
     </form>
 
-    <div>
-      <ul ng-repeat="gp in gpResults">
-        <li>{{ gp.relation_id }}</li>
-      </ul>
+    <div class="panel panel-defaul">
+      <div class="panel-heading">{{ gpResults.length}} results found:</div>
+      <div class="panel-body">
+        <table class="table">
+          <tr>
+            <th>ENSEMBL Id</th>
+            <th>HPO Id</th>
+            <th>Mentions</th>
+          </tr>
+          <tr ng-repeat="gp in gpResults">
+            <td class="col-md-2">{{ gp.gene_entity }}</td>
+            <td class="col-md-2">{{ gp.pheno_entity }}</td>
+            <td class="col-md-8">
+              <table class="table table-bordered col-md-8">
+                <tr>
+                  <th>E[A]</th>
+                  <th>E[C]</th>
+                  <th>Gene word indexes</th>
+                  <th>Pheno word indexes</th>
+                  <th>Words</th>
+                </tr>
+                <tr ng-repeat="rid in gp.relation_ids track by $index">
+                  <td>{{ gp.a_expectations[$index] }}</td>
+                  <td>{{ gp.c_expectations[$index] }}</td>
+                  <td>{{ gp.gene_wordidxs[$index] }}</td>
+                  <td>{{ gp.pheno_wordidxs[$index] }}</td>
+                  <td>{{ gp.words[$index] }}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
     </div>
 
     <!-- scripts -->
