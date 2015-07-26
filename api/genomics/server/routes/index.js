@@ -4,13 +4,31 @@ var path = require('path');
 var pg = require('pg');
 var connectionString = 'postgres://ajratner@localhost:6432/genomics_production';
 
+/* GET current G-P entity-level count */
+router.get('/api/count/', function(req, res) {
+  pg.connect(connectionString, function(err, client, done) {
+    var query = client.query("SELECT COUNT(*) FROM genepheno_entity_level;");
+    var results = [];
+    query.on('row', function(row) { results.push(row); });
+    query.on('end', function() {
+      client.end();
+      return res.json(results);
+    });
+
+    // Handle Errors
+    if(err) {
+      console.log(err);
+    }
+  });
+});
+
 /* GET G-P relations by gene id (ensembl) */
 router.get('/api/gp/', function(req, res) {
   var results = [];
   var geneId = req.query.geneId;
-  var expC = parseFloat(req.query.expC);
+  var expC = parseFloat(req.query.minMaxExpC);
   expC = (expC > 0) ? Math.min(1.0, expC) : 0.0;
-  var expA = parseFloat(req.query.expA);
+  var expA = parseFloat(req.query.minMaxExpA);
   expA = (expA > 0) ? Math.min(1.0, expA) : 0.0;
   var maxResults = parseInt(req.query.maxResults);
   maxResults = (maxResults > 0) ? maxResults : 10;
@@ -28,6 +46,12 @@ router.get('/api/gp/', function(req, res) {
 
     // Stream results back one row at a time
     query.on('row', function(row) {
+
+      // Reformat (workaround to psql not handling arrays of arrays)
+      var d = '|^|';
+      row.gene_wordidxs = row.gene_wordidxs.map(function(s) { return s.split(d).map(Number); });
+      row.pheno_wordidxs = row.pheno_wordidxs.map(function(s) { return s.split(d).map(Number); });
+      row.words = row.words.map(function(s) { return s.split(d); });
       results.push(row);
     });
 
