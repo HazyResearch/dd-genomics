@@ -8,96 +8,6 @@ if [ ! -e "$RAW" ]; then
 	wget http://compbio.charite.de/hudson/job/hpo/lastStableBuild/artifact/hp/hp.obo -O "$RAW"
 fi
 python parse_hpo.py "$RAW" data/hpo_phenotypes.tsv
-python gen_hpo_dag.py > data/hpo_dag.tsv
-
-# Download and parse HPO disease annotations (DECIPHER, OMIM, ORPHANET mapped to HPO)
-# http://www.human-phenotype-ontology.org/contao/index.php/annotation-guide.html
-# output format: <disease DB, disease ID, disease name, synonyms, HPO IDs>
-# http://stackoverflow.com/questions/23719065/tsv-how-to-concatenate-field-2s-if-field-1-is-duplicate
-RAW="raw/hpo_phenotype_annotation.tsv"
-if [ ! -e "$RAW" ]; then
-	wget http://compbio.charite.de/hudson/job/hpo.annotations/lastStableBuild/artifact/misc/phenotype_annotation.tab -O "$RAW"
-fi
-awk -F'\t' 'p==$1$2$3$12 {printf "|%s", $5;next}{if(p){print ""};p=$1$2$3$12;printf "%s\t%s\t%s\t%s\t%s", $1,$2,$3,$12,$5}END{print ""}' "$RAW" > data/hpo_disease_phenotypes.tsv
-awk -F'\t' '{printf "%s:%s\t%s\n", $1, $2, $3}' data/hpo_disease_phenotypes.tsv | grep 'DECIPHER:' > data/diseases_deci.tsv
-
-# Download OMIM for disease names
-if [ ! -e "raw/omim.txt" ]; then
-	wget ftp://ftp.omim.org/OMIM/omim.txt.Z -O raw/omim.txt.Z
-	uncompress raw/omim.txt.Z
-fi
-python parse_omim.py raw/omim.txt data/diseases_omim.tsv
-
-# clinvar diseases
-CLINVAR_DISEASES="data/diseases_clinvar.tsv"
-RAW="raw/clinvar_diseases.tsv"
-if [ ! -e "$RAW" ]; then
-	wget ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/disease_names -O "$RAW"
-fi
-awk -F'\t' '{printf "%s\t%s\n", $3, $1}' "$RAW" | tail -n +2 | sort | uniq | awk -F'\t' 'p==$1 && p {printf "|%s", $2;next} {if(!$1) $1="L"NR} {if(started){print ""};p=$1;started=1;printf "CLINVAR:%s\t%s", $1,$2}END{print ""}' > data/diseases_clinvar.tsv
-
-# DO diseases
-DO_DISEASES="data/diseases_do.tsv"
-RAW="raw/HumanDO.obo"
-if [ ! -e "$RAW" ]; then
-	wget http://sourceforge.net/p/diseaseontology/code/HEAD/tree/trunk/HumanDO.obo?format=raw -O raw/HumanDO.obo
-fi
-python parse_do.py "$RAW" data/diseases_do.tsv
-
-# ORDO
-# ORDO has diseases, genes, country names, etc. We take only nodes below children of "phenome".
-RAW="raw/ORDO.csv"
-if [ ! -e "$RAW" ]; then
-	wget "http://data.bioontology.org/ontologies/ORDO/download?apikey=8b5b7825-538d-40e0-9e9e-5ab9274a9aeb&download_format=csv" -O raw/ORDO.csv.gz
-	gunzip raw/ORDO.csv.gz
-fi
-grep '^http://www.orpha.net/ORDO/' raw/ORDO.csv | \
-egrep 'http://www.orpha.net/ORDO/Orphanet_(377790|377796|377792|377788|377795|377794|377797|377789|377791|377793)[^\d]' | \
-sed 's#http://www.orpha.net/ORDO/Orphanet_#ORPHANET:#g' | \
-python csv2tsv.py | \
-awk -F'\t' '{if($3) {$3=$2"|"$3} else {$3=$2}; printf "%s\t%s\n", $1, $3}' > data/diseases_ordo.tsv
-
-# Get disease to gene mapping
-RAW="raw/diseases_to_genes.txt"
-if [ ! -e "$RAW" ]; then
-	wget http://compbio.charite.de/hudson/job/hpo.annotations.monthly/lastStableBuild/artifact/annotation/diseases_to_genes.txt -O "$RAW"
-fi
-tail -n +2 "$RAW" | awk -F'\t' '{if ($3!="") printf "%s\t%s\n", $1, $3}' | sort > data/hpo_disease_genes.tsv
-
-# get pheno to gene mappings
-RAW="raw/ALL_SOURCES_ALL_FREQUENCIES_phenotype_to_genes.txt"
-if [ ! -e "$RAW" ]; then
-	wget http://compbio.charite.de/hudson/job/hpo.annotations.monthly/lastStableBuild/artifact/annotation/ALL_SOURCES_ALL_FREQUENCIES_phenotype_to_genes.txt -O "$RAW"
-fi
-tail -n +2 "$RAW" | cut -f1,4 | sort > data/hpo_phenotype_genes.tsv
-
-# Get hgnc to uniprot gene id mappings
-RAW="raw/hgnc_to_uniprot_raw.tsv"
-if [ ! -e "$RAW" ]; then
-  wget 'http://www.genenames.org/cgi-bin/download?col=gd_app_sym&col=md_prot_id&status=Approved&status_opt=2&where=&order_by=gd_app_sym_sort&format=text&limit=&hgnc_dbtag=on&submit=submit' -O "$RAW"
-fi
-tail -n +2 "$RAW" | sort > data/hgnc_to_uniprot.tsv
-
-# Get Reactome data
-## Uniprot ID, Reactome ID, pathway name
-RAW="raw/reactome_uniprot_raw.tsv"
-if [ ! -e "$RAW" ]; then
-  wget http://www.reactome.org/download/current/UniProt2Reactome.txt -O "$RAW"
-fi
-awk -F '\t' '$6 == "Homo sapiens"' "$RAW" | cut -f1,2,4 > data/reactome_uniprot.tsv
-## Reactome pathway hierarchy
-RAW="raw/reactome_hierarchy_raw.tsv"
-if [ ! -e "$RAW" ]; then
-  wget http://www.reactome.org/download/current/ReactomePathwaysRelation.txt -O "$RAW"
-fi
-cp "$RAW" data/reactome_hierarchy.tsv
-python gen_reactome_db.py > data/reactome_db.tsv
-
-# Get gene list
-cp dicts/merged_genes_dict.tsv data/genes.tsv
-
-# Run disease dictionary merge script
-python merge_diseases.py data
 
 # get gene to pmid mappings
 RAW="raw/gene2pubmed.gz"
@@ -182,9 +92,6 @@ rm dicts/symbols_syns.txt
 # Copy the final table to the data folder for use by deepdive
 cp dicts/ensembl_map.tsv data/ensembl_genes.tsv
 
-# Get mesh terms that map to phenotypes in HPO
-cut -d $'\t' -f 7 data/hpo_phenotypes.tsv  | sort -u | tail -n +2 > data/meshList.txt
-
 # Get mesh to pubmed ID map
 if [ ! -f data/meshToPmid.tsv ]; then
   if [ -f /lfs/raiders2/0/robinjia/data/meshToPmid.tsv ]; then
@@ -210,21 +117,6 @@ fi
 OUT="data/plos_doi_to_pmid.tsv"
 if [ ! -e "$OUT" ]; then
   tail -n +2 raw/PMC-ids.csv | grep -i plos | cut -d ',' -f8,10 | tr ',' '\t' | grep -v $'\t''$' > "$OUT"
-fi
-
-# Deploy the "phrase to ENSEMBL" map
-bzip2 -cd manual/phrase_to_ensembl.tsv.bz2 > data/phrase_to_ensembl.tsv
-
-# Get EntrezID to ENSEMBL ID mapping
-
-if [ ! -f dicts/entrez2ensembl.txt ]; then
-	echo " No entrez to ensembl map found! Downloading."
-	# Downloads a biomart file with columns: ENTREZ_ID | ENSEMBL_ID
-	wget -O dicts/entrez_raw.txt 'http://www.biomart.org/biomart/martservice?query=%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%0A%3C!DOCTYPE%20Query%3E%0A%3CQuery%20%20virtualSchemaName%20%3D%20%22default%22%20formatter%20%3D%20%22TSV%22%20header%20%3D%20%220%22%20uniqueRows%20%3D%20%220%22%20count%20%3D%20%22%22%20datasetConfigVersion%20%3D%20%220.6%22%20%3E%0A%09%09%09%0A%09%3CDataset%20name%20%3D%20%22hsapiens_gene_ensembl%22%20interface%20%3D%20%22default%22%20%3E%0A%09%09%3CAttribute%20name%20%3D%20%22entrezgene%22%20%2F%3E%0A%09%09%3CAttribute%20name%20%3D%20%22ensembl_gene_id%22%20%2F%3E%0A%09%3C%2FDataset%3E%0A%3C%2FQuery%3E'
-	# Remove all ENSEMBL IDs which do not also have an associated ENTREZ ID
-	cat dicts/entrez_raw.txt | awk '{if(NF>=2){print $0}}' > dicts/entrez2ensembl.txt
-	echo "Converting entrez_raw.txt to entrez2ensembl.txt."
-	rm dicts/entrez_raw.txt
 fi
 
 # use Harendra's wizard phenotype to gene list; canonicalize it (i.e. for each
