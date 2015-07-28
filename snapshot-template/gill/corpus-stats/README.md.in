@@ -1,0 +1,94 @@
+<$
+report-log "Creating a few corpus stats"
+num_documents=$(run-sql "
+SELECT
+  count(DISTINCT a.doi)
+  FROM
+    (SELECT b.id[0:5] AS doi 
+     FROM (SELECT string_to_array(doc_id, '.') id FROM sentences_input) b) a
+")
+num_journals=$(run-sql "
+SELECT
+  count(DISTINCT a.jname)
+  FROM
+    (SELECT b.id[4] AS jname, b.id[3] AS type
+     FROM (SELECT string_to_array(doc_id, '.') id FROM sentences_input) b) a
+  WHERE
+    a.type = 'journal'
+")
+num_non_journals=$(run-sql "
+SELECT
+  count(DISTINCT a.jname)
+  FROM
+    (SELECT b.id[4] AS jname, b.id[3] AS type
+     FROM (SELECT string_to_array(doc_id, '.') id FROM sentences_input) b) a
+  WHERE
+    a.type != 'journal'
+")
+num_sentences_in_journals=$(run-sql "
+SELECT count(*)
+FROM
+  (SELECT
+    DISTINCT id, sent_id
+    FROM
+      (SELECT string_to_array(doc_id, '.') id, sent_id FROM sentences_input) b
+    WHERE
+      b.id[3] = 'journal') a
+")
+num_sentences_non_journals=$(run-sql "
+SELECT count(*)
+FROM
+  (SELECT
+    DISTINCT id, sent_id
+    FROM
+      (SELECT string_to_array(doc_id, '.') id, sent_id FROM sentences_input) b
+    WHERE
+      b.id[3] != 'journal') a
+")
+num_gene_mentions=$(run-sql "
+SELECT count(*)
+FROM
+  (SELECT DISTINCT * FROM gene_mentions) a
+")
+num_supervised_true_gene_mentions=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions WHERE is_correct = 't') a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions) b) bc
+")
+num_supervised_false_gene_mentions=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions WHERE is_correct = 'f') a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions) b) bc
+")
+num_supervised_gene_mentions=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions WHERE is_correct IS NOT NULL) a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions) b) bc
+")
+
+# store the numbers
+report-values \
+    num_documents=$num_documents \
+    num_journals=$num_journals \
+    num_non_journals=$num_non_journals \
+    num_sentences_in_journals=$num_sentences_in_journals \
+    # num_sentences_non_journals=
+    # num_gene_mentions=
+    # num_supervised_true_gene_mentions=
+    # num_supervised_false_gene_mentions=
+    # num_supervised_gene_mentions=
+    #
+$>
+
+* **<$ printf "%'d" $num_documents $>** documents
+* **<$ printf "%'d" $num_journals $>** journals
+* **<$ printf "%'d" $num_non_journals $>** non-journals
+* **<$ printf "%'d" $num_sentences_in_journals $>** sentences in journals
+* **<$ printf "%'d" $num_sentences_non_journals $>** sentences in non-journals
+* **<$ printf "%'d" $num_gene_mentions $>** (non-distinct) gene mentions
+* **<$ printf "%'d %%" $num_supervised_true_gene_mentions $>** supervised true gene mentions
+* **<$ printf "%'d %%" $num_supervised_false_gene_mentions $>** supervised false gene mentions
+* **<$ printf "%'d %%" $num_supervised_gene_mentions $>** supervised gene mentions

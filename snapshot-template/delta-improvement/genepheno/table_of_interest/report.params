@@ -1,1 +1,0 @@
-required 'subsetFile':'string' 'SQL file in APP_HOME/code/deltaSubsets/genepheno that creates genepheno_old_inferences_of_interest and genepheno_new_inferences_of_interest'
