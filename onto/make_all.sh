@@ -20,10 +20,10 @@ if [ ! -e "$RAW" ]; then
 fi
 # grab all the pmids that have less than 5 gene annotations since other genes have too many mappings for us to reasonably assess (gene collection papers, gwas, etc.)
 gzip -dc raw/gene2pubmed.gz | awk '{if($1==9606) print $2"\t"$3}' |
- sort -u  | cut -f2 | sort | uniq -c | awk '{if($1<=5) print $2}' | sort -u -k1,1 |
- join -t$'\t' -j 1 /dev/stdin <(gzip -dc raw/gene2pubmed.gz | awk '{if($1==9606) print $3"\t"$2}' | sort -u -k1,1 ) |
+ sort -u  | cut -f2 | sort | uniq -c | awk '{if($1<=5) print $2}' | sort -k1,1 | uniq |
+ join -t$'\t' -j 1 /dev/stdin <(gzip -dc raw/gene2pubmed.gz | awk '{if($1==9606) print $3"\t"$2}' | sort -k1,1 | uniq) |
  sort -k2,2 |
- join -t$'\t' -1 2 -2 1 /dev/stdin <(gzip -dc raw/gene2ensembl.gz | awk '{if($1==9606) print $2"\t"$3}' | sort -u -k1,1) |
+ join -t$'\t' -1 2 -2 1 /dev/stdin <(gzip -dc raw/gene2ensembl.gz | awk '{if($1==9606) print $2"\t"$3}' | sort -k1,1 | uniq) |
  cut -f2- | sort -u -o data/pmid_to_ensembl.tsv
 
 
