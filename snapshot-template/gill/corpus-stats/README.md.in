@@ -75,11 +75,11 @@ report-values \
     num_journals=$num_journals \
     num_non_journals=$num_non_journals \
     num_sentences_in_journals=$num_sentences_in_journals \
-    # num_sentences_non_journals=
-    # num_gene_mentions=
-    # num_supervised_true_gene_mentions=
-    # num_supervised_false_gene_mentions=
-    # num_supervised_gene_mentions=
+    num_sentences_non_journals=$num_sentences_non_journals \
+    num_gene_mentions=$num_gene_mentions \
+    num_supervised_true_gene_mentions=$num_supervised_true_gene_mentions \
+    num_supervised_false_gene_mentions=$num_supervised_false_gene_mentions \
+    num_supervised_gene_mentions=$num_supervised_gene_mentions \
     #
 $>
 
@@ -88,7 +88,4 @@ $>
 * **<$ printf "%'d" $num_non_journals $>** non-journals
 * **<$ printf "%'d" $num_sentences_in_journals $>** sentences in journals
 * **<$ printf "%'d" $num_sentences_non_journals $>** sentences in non-journals
-* **<$ printf "%'d" $num_gene_mentions $>** (non-distinct) gene mentions
-* **<$ printf "%'d %%" $num_supervised_true_gene_mentions $>** supervised true gene mentions
-* **<$ printf "%'d %%" $num_supervised_false_gene_mentions $>** supervised false gene mentions
-* **<$ printf "%'d %%" $num_supervised_gene_mentions $>** supervised gene mentions
+* <$ printf "**%'d** (non-distinct) gene mentions (%.4f supervised true, %.4f supervised false, %.4f supervised total)" $num_gene_mentions $num_supervised_true_gene_mentions $num_supervised_false_gene_mentions $num_supervised_gene_mentions$>
