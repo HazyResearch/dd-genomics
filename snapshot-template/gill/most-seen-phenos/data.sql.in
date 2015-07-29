@@ -1,0 +1,8 @@
+SELECT 
+  entity, count(entity)
+FROM pheno_mentions
+WHERE
+  is_correct != 'f' OR is_correct IS NULL
+GROUP BY entity
+ORDER BY count DESC
+LIMIT 1000
