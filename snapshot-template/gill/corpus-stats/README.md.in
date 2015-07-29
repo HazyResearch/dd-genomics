@@ -308,18 +308,18 @@ num_phenos_in_association_pairs_candidates=$(run-sql "
 select count(distinct pheno_entity) from genepheno_association where is_correct = 't' or is_correct is null
 ")
 num_genes_in_causation_pairs_candidates=$(run-sql "
-select count(distinct gene_entity) from genepheno_causation where is_correct ='t' or is_correct is null
+select count(distinct gene_entity) from genepheno_causation where is_correct = 't' or is_correct is null
 ")
 num_phenos_in_causation_pairs_candidates=$(run-sql "
-select count(distinct pheno_entity) from genepheno_causation where is_correct ='t' or is_correct is null
+select count(distinct pheno_entity) from genepheno_causation where is_correct = 't' or is_correct is null
 ")
 num_genepheno_association_candidates=$(run-sql "
 select count(*) from
-(select distinct gene_entity, pheno_entity from genepheno_association where is_correct is null or is_correct 't') a
+(select distinct gene_entity, pheno_entity from genepheno_association where is_correct is null or is_correct = 't') a
 ")
 num_genepheno_causation_candidates=$(run-sql "
 select count(*) from
-(select distinct gene_entity, pheno_entity from genepheno_causation where is_correct is null or is_correct 't') a
+(select distinct gene_entity, pheno_entity from genepheno_causation where is_correct is null or is_correct = 't') a
 ")
 
 num_genes_inferred=$(run-sql "
@@ -430,27 +430,27 @@ $>
 
 Attention here: genes entities are not yet canonicalized!
 
-* **$num_genes_candidates** unique gene candidates (true/null)
-* **$num_phenos_candidates** unique pheno candidates (true/null)
-* **$num_genes_in_pairs_candidates_before_supervision** unique genes in genepheno pairs before any supervision
-* **$num_phenos_in_pairs_candidates_before_supervision** unique phenos in genepheno pairs before any supervision
-* **$num_genes_in_association_pairs_candidates** unique genes in genepheno association candidates (true/null)
-* **$num_phenos_in_association_pairs_candidates** unique phenos in genepheno association candidates (true/null)
-* **$num_genes_in_causation_pairs_candidates** unique genes in genepheno causation candidates (true/null)
-* **$num_phenos_in_causation_pairs_candidates** unique phenos in genepheno causation candidates (true/null)
-* **$num_genepheno_association_candidates** unique genepheno association candidates (true/null)
-* **$num_genepheno_causation_candidates** unique genepheno causation candidates (true/null)
+* **<$ printf "%'d" $num_genes_candidates $>** unique gene candidates (true/null)
+* **<$ printf "%'d" $num_phenos_candidates $>** unique pheno candidates (true/null)
+* **<$ printf "%'d" $num_genes_in_pairs_candidates_before_supervision $>** unique genes in genepheno pairs before any supervision
+* **<$ printf "%'d" $num_phenos_in_pairs_candidates_before_supervision $>** unique phenos in genepheno pairs before any supervision
+* **<$ printf "%'d" $num_genes_in_association_pairs_candidates $>** unique genes in genepheno association candidates (true/null)
+* **<$ printf "%'d" $num_phenos_in_association_pairs_candidates $>** unique phenos in genepheno association candidates (true/null)
+* **<$ printf "%'d" $num_genes_in_causation_pairs_candidates $>** unique genes in genepheno causation candidates (true/null)
+* **<$ printf "%'d" $num_phenos_in_causation_pairs_candidates $>** unique phenos in genepheno causation candidates (true/null)
+* **<$ printf "%'d" $num_genepheno_association_candidates $>** unique genepheno association candidates (true/null)
+* **<$ printf "%'d" $num_genepheno_causation_candidates $>** unique genepheno causation candidates (true/null)
 
 #### Number of distinct genes/phenos/genephenos after inference
 
-* **$num_genes_inferred=$num_genes_inferred* unique genes (E &gt; 0.9)
-* **$num_phenos_inferred=$num_phenos_inferred* unique phenos (E &gt; 0.9)
-* **$num_genes_in_association_pairs_inferred=$num_genes_in_association_pairs_inferred* unique genes in association pairs (E &gt; 0.9)
-* **$num_phenos_in_association_pairs_inferred=$num_phenos_in_association_pairs_inferred* unique phenos in association pairs (E &gt; 0.9)
-* **$num_genes_in_causation_pairs_inferred=$num_genes_in_causation_pairs_inferred* unique genes in causation pairs (E &gt; 0.9)
-* **$num_phenos_in_causation_pairs_inferred=$num_phenos_in_causation_pairs_inferred* unique phenos in causation pairs (E &gt; 0.9)
-* **$num_genepheno_association_inferred=$num_genepheno_association_inferred* unique association genephenos (E &gt; 0.9)
-* **$num_genepheno_causation_inferred=$num_genepheno_causation_inferred* unique causation genephenos (E &gt; 0.9)
+* **<$ printf "%'d" $num_genes_inferred $>** unique genes (E &gt; 0.9)
+* **<$ printf "%'d" $num_phenos_inferred $>** unique phenos (E &gt; 0.9)
+* **<$ printf "%'d" $num_genes_in_association_pairs_inferred $>** unique genes in association pairs (E &gt; 0.9)
+* **<$ printf "%'d" $num_phenos_in_association_pairs_inferred $>** unique phenos in association pairs (E &gt; 0.9)
+* **<$ printf "%'d" $num_genes_in_causation_pairs_inferred $>** unique genes in causation pairs (E &gt; 0.9)
+* **<$ printf "%'d" $num_phenos_in_causation_pairs_inferred $>** unique phenos in causation pairs (E &gt; 0.9)
+* **<$ printf "%'d" $num_genepheno_association_inferred $>** unique association genephenos (E &gt; 0.9)
+* **<$ printf "%'d" $num_genepheno_causation_inferred $>** unique causation genephenos (E &gt; 0.9)
 
 ### Number of documents for candidate extractions
 
