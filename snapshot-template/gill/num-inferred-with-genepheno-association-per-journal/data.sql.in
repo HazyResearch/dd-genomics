@@ -1,0 +1,11 @@
+SELECT
+  count(DISTINCT a.docid), a.jname
+  FROM
+    (SELECT b.id[0:5] AS docid, b.id[3] AS type, b.id[4] as jname 
+     FROM (SELECT string_to_array(doc_id, '.') id FROM genepheno_association_is_correct_inference WHERE expectation > 0.9) b) a
+  WHERE
+    a.type = 'journal'
+  GROUP BY
+    a.jname
+  ORDER BY
+    count DESC
