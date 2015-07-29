@@ -56,6 +56,12 @@ FROM
   (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions WHERE is_correct = 't') a) ac,
   (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions) b) bc
 ")
+num_inferred_true_gene_mentions=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions_is_correct_inference WHERE expectation > 0.9) a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions) b) bc
+")
 num_supervised_false_gene_mentions=$(run-sql "
 SELECT ac.c::float / bc.c::float * 100
 FROM
@@ -68,6 +74,221 @@ FROM
   (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions WHERE is_correct IS NOT NULL) a) ac,
   (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions) b) bc
 ")
+num_pheno_mentions=$(run-sql "
+SELECT count(*)
+FROM
+  (SELECT DISTINCT * FROM pheno_mentions) a
+")
+num_supervised_true_pheno_mentions=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM pheno_mentions WHERE is_correct = 't') a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM pheno_mentions) b) bc
+")
+num_inferred_true_pheno_mentions=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM pheno_mentions_is_correct_inference WHERE expectation > 0.9) a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM pheno_mentions) b) bc
+")
+num_supervised_false_pheno_mentions=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM pheno_mentions WHERE is_correct = 'f') a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM pheno_mentions) b) bc
+")
+num_supervised_pheno_mentions=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM pheno_mentions WHERE is_correct IS NOT NULL) a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM pheno_mentions) b) bc
+")
+num_genepheno_association=$(run-sql "
+SELECT count(*)
+FROM
+  (SELECT DISTINCT * FROM genepheno_association) a
+")
+num_supervised_true_genepheno_association=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_association WHERE is_correct = 't') a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_association) b) bc
+")
+num_inferred_true_genepheno_association=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_association_is_correct_inference WHERE expectation > 0.9) a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_association) b) bc
+")
+num_supervised_false_genepheno_association=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_association WHERE is_correct = 'f') a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_association) b) bc
+")
+num_supervised_genepheno_association=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_association WHERE is_correct IS NOT NULL) a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_association) b) bc
+")
+num_genepheno_causation=$(run-sql "
+SELECT count(*)
+FROM
+  (SELECT DISTINCT * FROM genepheno_causation) a
+")
+num_supervised_true_genepheno_causation=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_causation WHERE is_correct = 't') a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_causation) b) bc
+")
+num_inferred_true_genepheno_causation=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_causation_is_correct_inference WHERE expectation > 0.9) a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_causation) b) bc
+")
+num_supervised_false_genepheno_causation=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_causation WHERE is_correct = 'f') a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_causation) b) bc
+")
+num_supervised_genepheno_causation=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_causation WHERE is_correct IS NOT NULL) a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_causation) b) bc
+")
+num_candidates_docs_with_genes=$(run-sql "
+SELECT
+  count(DISTINCT a.docid)
+  FROM
+    (SELECT b.id[0:5] AS docid, b.id[3] AS type
+     FROM (SELECT string_to_array(doc_id, '.') id FROM gene_mentions WHERE is_correct != 'f' OR is_correct IS NULL) b) a
+")
+num_candidates_docs_with_genes_non_journals=$(run-sql "
+SELECT
+  count(DISTINCT a.docid)
+  FROM
+    (SELECT b.id[0:5] AS docid, b.id[3] AS type
+     FROM (SELECT string_to_array(doc_id, '.') id FROM gene_mentions WHERE is_correct != 'f' OR is_correct IS NULL) b) a
+  WHERE
+    a.type != 'journal'
+")
+num_candidates_docs_with_phenos=$(run-sql "
+SELECT
+  count(DISTINCT a.docid)
+  FROM
+    (SELECT b.id[0:5] AS docid, b.id[3] AS type
+     FROM (SELECT string_to_array(doc_id, '.') id FROM pheno_mentions WHERE is_correct != 'f' OR is_correct IS NULL) b) a
+")
+num_candidates_docs_with_phenos_non_journals=$(run-sql "
+SELECT
+  count(DISTINCT a.docid)
+  FROM
+    (SELECT b.id[0:5] AS docid, b.id[3] AS type
+     FROM (SELECT string_to_array(doc_id, '.') id FROM pheno_mentions WHERE is_correct != 'f' OR is_correct IS NULL) b) a
+  WHERE
+    a.type != 'journal'
+")
+num_candidates_docs_with_genepheno_association=$(run-sql "
+SELECT
+  count(DISTINCT a.docid)
+  FROM
+    (SELECT b.id[0:5] AS docid, b.id[3] AS type
+     FROM (SELECT string_to_array(doc_id, '.') id FROM genepheno_association WHERE is_correct != 'f' OR is_correct IS NULL) b) a
+")
+num_candidates_docs_with_genepheno_association_non_journal=$(run-sql "
+SELECT
+  count(DISTINCT a.docid)
+  FROM
+    (SELECT b.id[0:5] AS docid, b.id[3] AS type
+     FROM (SELECT string_to_array(doc_id, '.') id FROM genepheno_association WHERE is_correct != 'f' OR is_correct IS NULL) b) a
+  WHERE
+    a.type != 'journal'
+")
+num_candidates_docs_with_genepheno_causation=$(run-sql "
+SELECT
+  count(DISTINCT a.docid)
+  FROM
+    (SELECT b.id[0:5] AS docid, b.id[3] AS type
+     FROM (SELECT string_to_array(doc_id, '.') id FROM genepheno_causation WHERE is_correct != 'f' OR is_correct IS NULL) b) a
+")
+num_candidates_docs_with_genepheno_causation_non_journal=$(run-sql "
+SELECT
+  count(DISTINCT a.docid)
+  FROM
+    (SELECT b.id[0:5] AS docid, b.id[3] AS type
+     FROM (SELECT string_to_array(doc_id, '.') id FROM genepheno_causation WHERE is_correct != 'f' OR is_correct IS NULL) b) a
+  WHERE
+    a.type != 'journal'
+")
+num_inferred_docs_with_genes=$(run-sql "
+SELECT
+  count(DISTINCT a.docid)
+  FROM
+    (SELECT b.id[0:5] AS docid, b.id[3] AS type
+     FROM (SELECT string_to_array(doc_id, '.') id FROM gene_mentions_is_correct_inference WHERE expectation > 0.9) b) a
+")
+num_inferred_docs_with_genes_non_journals=$(run-sql "
+SELECT
+  count(DISTINCT a.docid)
+  FROM
+    (SELECT b.id[0:5] AS docid, b.id[3] AS type
+     FROM (SELECT string_to_array(doc_id, '.') id FROM gene_mentions_is_correct_inference WHERE expectation > 0.9) b) a
+  WHERE
+    a.type != 'journal'
+")
+num_inferred_docs_with_phenos=$(run-sql "
+SELECT
+  count(DISTINCT a.docid)
+  FROM
+    (SELECT b.id[0:5] AS docid, b.id[3] AS type
+     FROM (SELECT string_to_array(doc_id, '.') id FROM pheno_mentions_is_correct_inference WHERE expectation > 0.9) b) a
+")
+num_inferred_docs_with_phenos_non_journals=$(run-sql "
+SELECT
+  count(DISTINCT a.docid)
+  FROM
+    (SELECT b.id[0:5] AS docid, b.id[3] AS type
+     FROM (SELECT string_to_array(doc_id, '.') id FROM pheno_mentions_is_correct_inference WHERE expectation > 0.9) b) a
+  WHERE
+    a.type != 'journal'
+")
+num_inferred_docs_with_genepheno_association=$(run-sql "
+SELECT
+  count(DISTINCT a.docid)
+  FROM
+    (SELECT b.id[0:5] AS docid, b.id[3] AS type
+     FROM (SELECT string_to_array(doc_id, '.') id FROM genepheno_association_is_correct_inference WHERE expectation > 0.9) b) a
+")
+num_inferred_docs_with_genepheno_association_non_journal=$(run-sql "
+SELECT
+  count(DISTINCT a.docid)
+  FROM
+    (SELECT b.id[0:5] AS docid, b.id[3] AS type
+     FROM (SELECT string_to_array(doc_id, '.') id FROM genepheno_association_is_correct_inference WHERE expectation > 0.9) b) a
+  WHERE
+    a.type != 'journal'
+")
+num_inferred_docs_with_genepheno_causation=$(run-sql "
+SELECT
+  count(DISTINCT a.docid)
+  FROM
+    (SELECT b.id[0:5] AS docid, b.id[3] AS type
+     FROM (SELECT string_to_array(doc_id, '.') id FROM genepheno_causation_is_correct_inference WHERE expectation > 0.9) b) a
+")
+num_inferred_docs_with_genepheno_causation_non_journal=$(run-sql "
+SELECT
+  count(DISTINCT a.docid)
+  FROM
+    (SELECT b.id[0:5] AS docid, b.id[3] AS type
+     FROM (SELECT string_to_array(doc_id, '.') id FROM genepheno_causation_is_correct_inference WHERE expectation > 0.9) b) a
+  WHERE
+    a.type != 'journal'
+")
 
 # store the numbers
 report-values \
@@ -78,14 +299,76 @@ report-values \
     num_sentences_non_journals=$num_sentences_non_journals \
     num_gene_mentions=$num_gene_mentions \
     num_supervised_true_gene_mentions=$num_supervised_true_gene_mentions \
+    num_inferred_true_gene_mentions=$num_inferred_true_gene_mentions \
     num_supervised_false_gene_mentions=$num_supervised_false_gene_mentions \
     num_supervised_gene_mentions=$num_supervised_gene_mentions \
+    num_pheno_mentions=$num_pheno_mentions \
+    num_supervised_true_pheno_mentions=$num_supervised_true_pheno_mentions \
+    num_inferred_true_pheno_mentions=$num_inferred_true_gene_mentions \
+    num_supervised_false_pheno_mentions=$num_supervised_false_pheno_mentions \
+    num_supervised_pheno_mentions=$num_supervised_pheno_mentions \
+    num_genepheno_association=$num_genepheno_association \
+    num_supervised_true_genepheno_association=$num_supervised_true_genepheno_association \
+    num_inferred_true_genepheno_association=$num_inferred_true_genepheno_association \
+    num_supervised_false_genepheno_association=$num_supervised_false_genepheno_association \
+    num_supervised_genepheno_association=$num_supervised_genepheno_association \
+    num_genepheno_causation=$num_genepheno_causation \
+    num_supervised_true_genepheno_causation=$num_supervised_true_genepheno_causation \
+    num_inferred_true_genepheno_causation=$num_inferred_true_genepheno_causation \
+    num_supervised_false_genepheno_causation=$num_supervised_false_genepheno_causation \
+    num_supervised_genepheno_causation=$num_supervised_genepheno_causation \
+    num_candidates_docs_with_genes=$num_candidates_docs_with_genes \
+    num_candidates_docs_with_genes_non_journals=$num_candidates_docs_with_genes_non_journals \
+    num_candidates_docs_with_phenos=$num_candidates_docs_with_phenos \
+    num_candidates_docs_with_phenos_non_journals=$num_candidates_docs_with_phenos_non_journals \
+    num_candidates_docs_with_genepheno_association=$num_candidates_docs_with_genepheno_association \
+    num_candidates_docs_with_genepheno_association_non_journal=$num_candidates_docs_with_genepheno_association_non_journal \
+    num_candidates_docs_with_genepheno_causation=$num_candidates_docs_with_genepheno_causation \
+    num_candidates_docs_with_genepheno_causation_non_journal=$num_candidates_docs_with_genepheno_causation_non_journal \
+    num_inferred_docs_with_genes=$num_inferred_docs_with_genes \
+    num_inferred_docs_with_genes_non_journals=$num_inferred_docs_with_genes_non_journals \
+    num_inferred_docs_with_phenos=$num_inferred_docs_with_phenos \
+    num_inferred_docs_with_phenos_non_journals=$num_inferred_docs_with_phenos_non_journals \
+    num_inferred_docs_with_genepheno_association=$num_inferred_docs_with_genepheno_association \
+    num_inferred_docs_with_genepheno_association_non_journal=$num_inferred_docs_with_genepheno_association_non_journal \
+    num_inferred_docs_with_genepheno_causation=$num_inferred_docs_with_genepheno_causation \
+    num_inferred_docs_with_genepheno_causation_non_journal=$num_inferred_docs_with_genepheno_causation_non_journal \
     #
 $>
+
+## Number of documents and sentences
 
 * **<$ printf "%'d" $num_documents $>** documents
 * **<$ printf "%'d" $num_journals $>** journals
 * **<$ printf "%'d" $num_non_journals $>** non-journals
 * **<$ printf "%'d" $num_sentences_in_journals $>** sentences in journals
 * **<$ printf "%'d" $num_sentences_non_journals $>** sentences in non-journals
-* <$ printf "**%'d** (non-distinct) gene mentions (%.4f supervised true, %.4f supervised false, %.4f supervised total)" $num_gene_mentions $num_supervised_true_gene_mentions $num_supervised_false_gene_mentions $num_supervised_gene_mentions$>
+
+## Number of documents for candidate extractions
+
+* **<$ printf "%'d" $num_candidates_docs_with_genes $>** documents with (true/null) candidate gene mentions
+  * **<$ printf "%'d" $num_candidates_docs_with_genes_non_journals $>** documents with (true/null) gene mentions in non-journals
+* **<$ printf "%'d" $num_candidates_docs_with_phenos $>** documents with (true/null) pheno mentions
+  * **<$ printf "%'d" $num_candidates_docs_with_phenos_non_journals $>** documents with (true/null) pheno mentions in non-journals
+* **<$ printf "%'d" $num_candidates_docs_with_genepheno_association $>** documents with (true/null) candidate genepheno association mentions
+  * **<$ printf "%'d" $num_candidates_docs_with_genepheno_association_non_journal $>** documents with (true/null) candidate genepheno association mentions in non-journals
+* **<$ printf "%'d" $num_candidates_docs_with_genepheno_causation $>** documents with (true/null) candidate genepheno causation mentions
+  * **<$ printf "%'d" $num_candidates_docs_with_genepheno_causation_non_journal $>** documents with (true/null) candidate genepheno causation mentions in non-journals
+
+## Number of documents after inference
+
+* **<$ printf "%'d" $num_inferred_docs_with_genes $>** documents with (E &gt; 0.9) inferred gene mentions
+  * **<$ printf "%'d" $num_inferred_docs_with_genes_non_journals $>** documents with (E &gt; 0.9) gene mentions in non-journals
+* **<$ printf "%'d" $num_inferred_docs_with_phenos $>** documents with (E &gt; 0.9) pheno mentions
+  * **<$ printf "%'d" $num_inferred_docs_with_phenos_non_journals $>** documents with (E &gt; 0.9) pheno mentions in non-journals
+* **<$ printf "%'d" $num_inferred_docs_with_genepheno_association $>** documents with (E &gt; 0.9) inferred genepheno association mentions
+  * **<$ printf "%'d" $num_inferred_docs_with_genepheno_association_non_journal $>** documents with (E &gt; 0.9) inferred genepheno association mentions in non-journals
+* **<$ printf "%'d" $num_inferred_docs_with_genepheno_causation $>** documents with (E &gt; 0.9) inferred genepheno causation mentions
+  * **<$ printf "%'d" $num_inferred_docs_with_genepheno_causation_non_journal $>** documents with (E &gt; 0.9) genepheno causation mentions in non-journals
+
+## Supervision and Inference Percentages (Gene, Pheno, Gene-Pheno)
+
+* <$ printf "**%'d** (non-distinct) gene mentions \n  * **%.2f%%** inferred true \n  * **%.2f%%** supervised true \n  * **%.2f%%** supervised false \n  * **%.2f%%** supervised total)" $num_gene_mentions $num_inferred_true_gene_mentions $num_supervised_true_gene_mentions $num_supervised_false_gene_mentions $num_supervised_gene_mentions$>
+* <$ printf "**%'d** (non-distinct) pheno mentions \n  * **%.2f%%** inferred true \n  * **%.2f%%** supervised true \n  * **%.2f%%** supervised false \n  * **%.2f%%** supervised total)" $num_pheno_mentions $num_inferred_true_pheno_mentions  $num_supervised_true_pheno_mentions $num_supervised_false_pheno_mentions $num_supervised_pheno_mentions$>
+* <$ printf "**%'d** (non-distinct) genepheno **association** mentions \n  * **%.2f%%** inferred true \n  * **%.2f%%** supervised true \n  * **%.2f%%** supervised false \n  * **%.2f%%** supervised total)" $num_genepheno_association $num_inferred_true_genepheno_association $num_supervised_true_genepheno_association $num_supervised_false_genepheno_association $num_supervised_genepheno_association$>
+* <$ printf "**%'d** (non-distinct) genepheno **causation** mentions \n  * **%.2f%%** inferred true \n  * **%.2f%%** supervised true \n  * **%.2f%%** supervised false \n  * **%.2f%%** supervised total)" $num_genepheno_causation $num_inferred_true_genepheno_causation $num_supervised_true_genepheno_causation $num_supervised_false_genepheno_causation $num_supervised_genepheno_causation$>
