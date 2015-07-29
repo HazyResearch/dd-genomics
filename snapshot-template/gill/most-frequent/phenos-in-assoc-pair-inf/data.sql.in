@@ -1,8 +1,8 @@
 SELECT 
   pheno_entity, count(pheno_entity) 
-FROM genepheno_association_is_correct_inferece
+FROM genepheno_association_is_correct_inference
 WHERE 
   expectation > 0.9
-GROUP BY entity
+GROUP BY pheno_entity
 ORDER BY count DESC
 LIMIT 1000
