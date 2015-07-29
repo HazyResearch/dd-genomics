@@ -1,0 +1,8 @@
+SELECT 
+  gene_entity, count(gene_entity) 
+FROM genepheno_causation_is_correct_inferece
+WHERE 
+  expectation > 0.9
+GROUP BY entity
+ORDER BY count DESC
+LIMIT 1000

@@ -1,0 +1,8 @@
+SELECT 
+  pheno_entity, count(pheno_entity) 
+FROM genepheno_association
+WHERE 
+  is_correct != 'f' OR is_correct IS NULL 
+GROUP BY entity
+ORDER BY count DESC
+LIMIT 1000
