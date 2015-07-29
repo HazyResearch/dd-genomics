@@ -117,6 +117,22 @@ Once you've created your task(s), start the Mindtagger GUI by running:
 
 and then open a browser to [localhost][localhost] to view all the created tasks & label data!
 
+### Running the Dashboard Snapshot
+
+To run a dashboard snapshot, do 
+
+    (source ./env_local.sh; ./util/mindbender snapshot gill) 2>&1 | grep -v 'declare'
+
+Then start the dashboard, if it's not already running, with
+
+    (source env_local.sh
+    export GDD_PIPELINE=
+    PORT=XXXX util/mindbender dashboard
+    )
+
+### PubMed Data
+
+PubMed data is stored at `/dfs/scratch0/jbirgmei/pubmed_baseline/ftp.nlm.nih.gov/nlmdata/.medleasebaseline/gz`
 
 [sampler-se]: https://github.com/HazyResearch/sampler/tree/sample_evidence
 [deepdiverepo]: https://github.com/hazyresearch/deepdive
