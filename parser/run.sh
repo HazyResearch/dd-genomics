@@ -3,7 +3,7 @@
 source ../env_local.sh
 
 if [ "$#" -lt 3 ]; then
-  echo "Usage: $0 (INPUT: XML DIR OR FILE) (OUT: DB TABLE) (new|add) [abstracts: give this option to parse titles and abstracts only]"
+  echo "Usage: $0 (INPUT: XML DIR OR FILE) (OUT: DB TABLE) (new|add) [abstracts|pubmed] [abstracts: give this option to parse titles and abstracts only]"
   exit
 fi
 
@@ -13,8 +13,12 @@ if [ ! -z ${4+x} ]
 then
 if [ "$4" == "abstracts" ]
 then
-  echo "Using Titles and Abstracts Parser"
+  echo "Using PLoS titles and abstracts parser"
   parser="parser-titles-abstracts.jar"
+elif [ "$4" == "pubmed" ]
+then
+  echo "Using PubMed parser"
+  parser="parser-pubmed.jar"
 fi
 fi
 

@@ -13,7 +13,7 @@ import java.util.HashSet;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-public class MainTitlesAbstracts {
+public class MainPubmed {
 
   // XXX Might cause memory trouble in the future on large datasets
   public static HashSet<String> allTitles = new HashSet<String>();
@@ -36,7 +36,6 @@ public class MainTitlesAbstracts {
 
         // TODO: make this actually streaming?  I.e. call a docParser.getNext() method
         for (OutputDoc outDoc : docParser.parse()) {
-
           // JSON
           JSONObject obj = new JSONObject();
           obj.put("item_id", outDoc.docName);

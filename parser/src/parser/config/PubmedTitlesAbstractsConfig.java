@@ -5,7 +5,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamConstants;
 
-public class PlosTitlesAbstractsConfig extends XMLDocConfig {
+public class PubmedTitlesAbstractsConfig extends XMLDocConfig {
   
   public boolean isDocIdSection(XMLStreamReader parser) {
     if (!parser.getLocalName().equals(docIdSection)) { return false; }

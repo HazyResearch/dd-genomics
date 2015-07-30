@@ -39,6 +39,12 @@
         <attribute name="Class-Path" value="${jar.classpath}" />
       </manifest>
     </jar>
+    <jar destfile="${jar.dir}/${ant.project.name}-pubmed.jar" basedir="${classes.dir}">
+      <manifest>
+        <attribute name="Main-Class" value="parser.MainPubmed" />
+        <attribute name="Class-Path" value="${jar.classpath}" />
+      </manifest>
+    </jar>
   </target>
   
   <target name="main" depends="clean,jar" />
