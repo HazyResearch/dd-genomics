@@ -27,7 +27,7 @@ public class MainPubmed {
 
     ArrayList<File> files = getAllFiles(args[0]);
 
-    XMLDocConfig config = new PubMedTitlesAbstractsConfig();
+    XMLDocConfig config = new PubmedTitlesAbstractsConfig();
 
     try {
       for (File file : files) {

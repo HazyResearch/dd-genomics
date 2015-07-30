@@ -9,14 +9,16 @@ public class PubmedTitlesAbstractsConfig extends XMLDocConfig {
   
   public boolean isDocIdSection(XMLStreamReader parser) {
     if (!parser.getLocalName().equals(docIdSection)) { return false; }
-    for (int i=0; i < parser.getAttributeCount(); i++) {
-      if (parser.getAttributeValue(i).equals("doi")) { return true; }
-    }
-    return false;
+    // for (int i=0; i < parser.getAttributeCount(); i++) {
+    //  if (parser.getAttributeValue(i).equals("")) { return true; }
+    // }
+    // return false;
+    return true;
   }
 
   public String formatDocId(String docIdText) {
-    return docIdText.replace("/", ".");
+    // return docIdText.replace("/", ".");
+    return docIdText;
   }
 
   public String cleanup(String doc) {
@@ -29,7 +31,7 @@ public class PubmedTitlesAbstractsConfig extends XMLDocConfig {
     return out;
   }
 
-  public PlosTitlesAbstractsConfig() {
+  public PubmedTitlesAbstractsConfig() {
     sections.put("ArticleTitle", "Title");
     sections.put("AbstractText", "Abstract");
 
@@ -53,6 +55,11 @@ public class PubmedTitlesAbstractsConfig extends XMLDocConfig {
     markdown.put("br", " ");
     markdown.put("hr", " ");
 
-    docIdSection = "article-id";
+    docIdSection = "PMID";
   }
+
+  // currently unused here
+  public boolean isStartBlock(String localName) { return "MedlineCitation".equals(localName); }
+  public boolean isEndBlock(String localName) { return "MedlineCitation".equals(localName); }
+
 }

@@ -34,6 +34,8 @@ public class PlosConfig extends XMLDocConfig {
     sections.put("abstract", "Abstract");
     sections.put("body", "Body");
     sections.put("ref-list", "References");
+    sections.put("ref", "Reference");
+    sections.put("pub-id", "PubId");
 
     String[] skipSections = {"title", "xref", "table-wrap", "table", "object-id", "label", "caption", "ext-link"};
     addSkipSections(skipSections); 
@@ -57,4 +59,9 @@ public class PlosConfig extends XMLDocConfig {
 
     docIdSection = "article-id";
   }
+
+  // currently unused here
+  public boolean isStartBlock(String localName) { return false; }
+  public boolean isEndBlock(String localName) { return false; }
+
 }

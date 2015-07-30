@@ -60,4 +60,10 @@ public abstract class XMLDocConfig {
    * Cleanup operations
    */
   public abstract String cleanup(String doc);
+
+  /**
+   * Splitting into blocks for PubMed MedlineCitations
+   */
+  public abstract boolean isStartBlock(String localName);
+  public abstract boolean isEndBlock(String localName);
 }

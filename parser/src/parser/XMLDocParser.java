@@ -83,24 +83,26 @@ public class XMLDocParser {
     try {
       loop: for (int e = parser.next(); e != XMLStreamConstants.END_DOCUMENT; e = parser.next()) {
         switch (e) {
-          case XMLStreamConstants.END_ELEMENT:
-            if (parser.getLocalName().equals("ref")) {
+          case XMLStreamConstants.END_ELEMENT: {
+            String localName = parser.getLocalName();
+            if ("Reference".equals(config.getSectionName(localName))) {
               break loop; 
             } 
             break;
-          case XMLStreamConstants.START_ELEMENT:
+          }
+          case XMLStreamConstants.START_ELEMENT: {
             String localName = parser.getLocalName();
             if ("Title".equals(config.getSectionName(localName))) {
               title = getFlatElementText(parser.getLocalName());
             }
-            // XXX we should also check for attribute pub-id-type=pmid
-            else if ("pub-id".equals(localName)) {
-              String pubId = getFlatElementText("pub-id");
+            else if ("PubId".equals(config.getSectionName(localName))) {
+              String pubId = getFlatElementText(localName);
               if (allPubIds.contains(pubId))
                 return null;
               allPubIds.add(pubId);
             }
             break;
+          }
         }
       }
       return title;
@@ -138,10 +140,12 @@ public class XMLDocParser {
         if (event == XMLStreamConstants.START_ELEMENT) {
           String localName = parser.getLocalName();
           // Try to get the doc id
-          if (docId == null && config.isDocIdSection(parser)) {
+          if (config.isDocIdSection(parser)) {
             docId = config.formatDocId(getFlatElementText(localName));
-          // get sections that are in scope
-          } else if (localName.equals("ref")) {
+          } else if (config.isStartBlock(localName)) {
+            assert docId == null : docId + ", " + localName;
+          // "Reference" sections not simply in 'scope' because they need special treatment
+          } else if ("Reference".equals(config.getSectionName(localName))) {
             String refTitle = parseRef();
             if (refTitle == null)
               continue;
@@ -151,6 +155,7 @@ public class XMLDocParser {
             allTitles.add(refTitle);
             OutputDoc outDoc = createOutDoc(docId, refTitle, "Title");
             outDocs.add(outDoc);
+          // get sections that are in scope
           } else if (config.isInScope(localName)) {
             assert docId != null;
             // avoid duplicate titles (due to pulling titles from references section)
@@ -162,6 +167,11 @@ public class XMLDocParser {
             }
             OutputDoc outDoc = createOutDoc(docId, content, config.getSectionName(localName));
             outDocs.add(outDoc);
+          }
+        } else if (event == XMLStreamConstants.END_ELEMENT) {
+          String localName = parser.getLocalName();
+          if (config.isEndBlock(localName)) {
+            docId = null;
           }
         } else if (event == XMLStreamConstants.END_DOCUMENT) {
           parser.close();

@@ -32,6 +32,8 @@ public class PlosTitlesAbstractsConfig extends XMLDocConfig {
   public PlosTitlesAbstractsConfig() {
     sections.put("article-title", "Title");
     sections.put("abstract", "Abstract");
+    sections.put("ref", "Reference");
+    sections.put("pub-id", "PubId");
 
     String[] skipSections = {"title", "xref", "table-wrap", "table", "object-id", "label", "caption", "ext-link"};
     addSkipSections(skipSections); 
@@ -55,4 +57,9 @@ public class PlosTitlesAbstractsConfig extends XMLDocConfig {
 
     docIdSection = "article-id";
   }
+
+  // currently unused here
+  public boolean isStartBlock(String localName) { return false; }
+  public boolean isEndBlock(String localName) { return false; }
+
 }
