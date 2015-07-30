@@ -132,7 +132,7 @@ Then start the dashboard, if it's not already running, with
 
 ### PubMed Data
 
-PubMed data is stored at `/dfs/scratch0/jbirgmei/pubmed_baseline/ftp.nlm.nih.gov/nlmdata/.medleasebaseline/gz`
+PubMed data is stored at `/dfs/scratch0/jbirgmei/pubmed_baseline/ungz`.
 
 [sampler-se]: https://github.com/HazyResearch/sampler/tree/sample_evidence
 [deepdiverepo]: https://github.com/hazyresearch/deepdive
