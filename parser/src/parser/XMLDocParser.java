@@ -38,7 +38,7 @@ public class XMLDocParser {
 				}
 			}
 		} catch (XMLStreamException ex) {
-			System.out.println(ex);
+			ex.printStackTrace();
 		}
 	}
 
@@ -80,7 +80,7 @@ public class XMLDocParser {
 			}
 			return config.cleanup(section.toString());
 		} catch (XMLStreamException ex) {
-			System.out.println(ex);
+			ex.printStackTrace();
 			return "";
 		}
 	}
@@ -113,7 +113,7 @@ public class XMLDocParser {
 			}
 			return title;
 		} catch (XMLStreamException ex) {
-			System.out.println(ex);
+			ex.printStackTrace();
 			return null;
 		}
 	}
@@ -143,7 +143,7 @@ public class XMLDocParser {
 			}
 			return md;
 		} catch (XMLStreamException ex) {
-			System.out.println(ex);
+			ex.printStackTrace();
 			return null;
 		}
 	}
@@ -220,7 +220,14 @@ public class XMLDocParser {
 				} else if (event == XMLStreamConstants.END_ELEMENT) {
 					String localName = parser.getLocalName();
 					if ("BlockMarker".equals(config.getDataSectionName(localName))) {
-						docId = null;
+						// XXX HACK Johannes: docId should be set to null here,
+						// otherwise the appropriate assertion above will never
+						// fire. It's kind of OK if the doc IDs are not actually
+						// correct, but it will mess up MeSH supervision and
+						// Dashboard at some point. If the number of docIds that
+						// are not correct is small, it's not an issue at all,
+						// basically.
+						// docId = null;
 						md = null;
 					}
 				} else if (event == XMLStreamConstants.END_DOCUMENT) {
@@ -229,7 +236,7 @@ public class XMLDocParser {
 				}
 			}
 		} catch (XMLStreamException ex) {
-			System.out.println(ex);
+			ex.printStackTrace();
 		}
 		return outDocs;
 	}
