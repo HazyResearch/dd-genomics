@@ -1,7 +1,10 @@
 package parser;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -241,8 +244,10 @@ public class XMLDocParser {
 		this.allPubIds = allPubIds;
 		if (mdFile != null) {
 			try {
-				mdWriter = new PrintWriter(mdFile);
+				mdWriter = new PrintWriter(new BufferedWriter(new FileWriter(mdFile, true)));
 			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}

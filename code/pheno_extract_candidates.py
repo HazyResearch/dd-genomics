@@ -226,8 +226,9 @@ if __name__ == '__main__':
   ENGLISH_WORDS = frozenset([w.strip() for w in open(onto_path('data/english_words.tsv'), 'rb')])
   hpo_dag = dutil.read_hpo_dag()
   hpo_phenos = set(dutil.get_hpo_phenos(hpo_dag))
-  DOI_TO_PMID = dutil.read_doi_to_pmid()
-  PMID_TO_HPO = dutil.load_pmid_to_hpo()
+  if SR.get('mesh-supervise'):
+    DOI_TO_PMID = dutil.read_doi_to_pmid()
+    PMID_TO_HPO = dutil.load_pmid_to_hpo()
   PHENOS, PHENO_SETS = load_pheno_terms()
 
   # Read TSV data in as Row objects
