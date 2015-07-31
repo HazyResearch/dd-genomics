@@ -2,18 +2,19 @@ package parser.config;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.ArrayList;
+
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamException;
 
 public abstract class XMLDocConfig {
 
   /**
    * The flat sections to pull out of the doc and output as individual files
    */
-  protected HashMap<String, String> sections = new HashMap<String, String>();
-  public boolean isInScope(String section) { return sections.containsKey(section); }
-  public String getSectionName(String section) { return sections.get(section); }
+  protected HashMap<String, String> readSections = new HashMap<String, String>();
+  protected HashMap<String, String> dataSections = new HashMap<String, String>();
+  public boolean readable(String section) { return readSections.containsKey(section); }
+  public String getDataSectionName(String section) { return dataSections.get(section); }
+  public String getReadSectionName(String section) { return readSections.get(section); }
 
   /**
    * Elements to completely skip over (for now at least)
@@ -61,9 +62,4 @@ public abstract class XMLDocConfig {
    */
   public abstract String cleanup(String doc);
 
-  /**
-   * Splitting into blocks for PubMed MedlineCitations
-   */
-  public abstract boolean isStartBlock(String localName);
-  public abstract boolean isEndBlock(String localName);
 }

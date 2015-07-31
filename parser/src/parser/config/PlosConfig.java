@@ -1,67 +1,73 @@
 package parser.config;
 
-import java.util.HashMap;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamConstants;
 
 public class PlosConfig extends XMLDocConfig {
-  
-  public boolean isDocIdSection(XMLStreamReader parser) {
-    if (!parser.getLocalName().equals(docIdSection)) { return false; }
-    for (int i=0; i < parser.getAttributeCount(); i++) {
-      if (parser.getAttributeValue(i).equals("doi")) { return true; }
-    }
-    return false;
-  }
 
-  public String formatDocId(String docIdText) {
-    return docIdText.replace("/", ".");
-  }
+	public boolean isDocIdSection(XMLStreamReader parser) {
+		if (!parser.getLocalName().equals(docIdSection)) {
+			return false;
+		}
+		for (int i = 0; i < parser.getAttributeCount(); i++) {
+			if (parser.getAttributeValue(i).equals("doi")) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-  public String cleanup(String doc) {
-    String out = doc.replaceAll("\\s{2,}", " ");
-    
-    // Deal with stuff left after removal of <xref> tags
-    out = out.replaceAll("\\s+(\\s|\\(|\\)|,|-|–)*\\.", ".");
+	public String formatDocId(String docIdText) {
+		return docIdText.replace("/", ".");
+	}
 
-    out = out.replaceAll("\\s+,", ",");
-    return out;
-  }
+	public String cleanup(String doc) {
+		String out = doc.replaceAll("\\s{2,}", " ");
 
-  public PlosConfig() {
-    sections.put("article-title", "Title");
-    sections.put("abstract", "Abstract");
-    sections.put("body", "Body");
-    sections.put("ref-list", "References");
-    sections.put("ref", "Reference");
-    sections.put("pub-id", "PubId");
+		// Deal with stuff left after removal of <xref> tags
+		out = out.replaceAll("\\s+(\\s|\\(|\\)|,|-|–)*\\.", ".");
 
-    String[] skipSections = {"title", "xref", "table-wrap", "table", "object-id", "label", "caption", "ext-link"};
-    addSkipSections(skipSections); 
+		out = out.replaceAll("\\s+,", ",");
+		return out;
+	}
 
-    String[] splitSections = {"p", "div", "li", "ref"};
-    addSplitSections(splitSections); 
+	public PlosConfig() {
+		readSections.put("article-title", "Title");
+		readSections.put("abstract", "Abstract");
+		readSections.put("body", "Body");
+		dataSections.put("ref-list", "References");
+		dataSections.put("ref", "Reference");
+		dataSections.put("pub-id", "PubId");
 
-    String[] splitTags = {"surname"};
-    addSplitTags(splitTags); 
+		String[] skipSections = { "title", "xref", "table-wrap", "table", "object-id", "label", "caption", "ext-link" };
+		addSkipSections(skipSections);
 
-    markdown.put("bold", "**");
-    markdown.put("b", "**");
-    markdown.put("strong", "**");
-    markdown.put("italic", "_");
-    markdown.put("i", "_");
-    markdown.put("em", "_");
-    markdown.put("underline", "_");
-    markdown.put("u", "_");
-    markdown.put("br", " ");
-    markdown.put("hr", " ");
+		String[] splitSections = { "p", "div", "li", "ref" };
+		addSplitSections(splitSections);
 
-    docIdSection = "article-id";
-  }
+		String[] splitTags = { "surname" };
+		addSplitTags(splitTags);
 
-  // currently unused here
-  public boolean isStartBlock(String localName) { return false; }
-  public boolean isEndBlock(String localName) { return false; }
+		markdown.put("bold", "**");
+		markdown.put("b", "**");
+		markdown.put("strong", "**");
+		markdown.put("italic", "_");
+		markdown.put("i", "_");
+		markdown.put("em", "_");
+		markdown.put("underline", "_");
+		markdown.put("u", "_");
+		markdown.put("br", " ");
+		markdown.put("hr", " ");
+
+		docIdSection = "article-id";
+	}
+
+	// currently unused here
+	public boolean isStartBlock(String localName) {
+		return false;
+	}
+
+	public boolean isEndBlock(String localName) {
+		return false;
+	}
 
 }

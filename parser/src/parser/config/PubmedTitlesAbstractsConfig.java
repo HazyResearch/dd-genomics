@@ -1,65 +1,63 @@
 package parser.config;
 
-import java.util.HashMap;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamConstants;
 
 public class PubmedTitlesAbstractsConfig extends XMLDocConfig {
-  
-  public boolean isDocIdSection(XMLStreamReader parser) {
-    if (!parser.getLocalName().equals(docIdSection)) { return false; }
-    // for (int i=0; i < parser.getAttributeCount(); i++) {
-    //  if (parser.getAttributeValue(i).equals("")) { return true; }
-    // }
-    // return false;
-    return true;
-  }
 
-  public String formatDocId(String docIdText) {
-    // return docIdText.replace("/", ".");
-    return docIdText;
-  }
+	public boolean isDocIdSection(XMLStreamReader parser) {
+		if (!parser.getLocalName().equals(docIdSection)) {
+			return false;
+		}
+		return true;
+	}
 
-  public String cleanup(String doc) {
-    String out = doc.replaceAll("\\s{2,}", " ");
-    
-    // Deal with stuff left after removal of <xref> tags
-    out = out.replaceAll("\\s+(\\s|\\(|\\)|,|-|–)*\\.", ".");
+	public String formatDocId(String docIdText) {
+		// return docIdText.replace("/", ".");
+		return docIdText;
+	}
 
-    out = out.replaceAll("\\s+,", ",");
-    return out;
-  }
+	public String cleanup(String doc) {
+		String out = doc.replaceAll("\\s{2,}", " ");
 
-  public PubmedTitlesAbstractsConfig() {
-    sections.put("ArticleTitle", "Title");
-    sections.put("AbstractText", "Abstract");
+		// Deal with stuff left after removal of <xref> tags
+		out = out.replaceAll("\\s+(\\s|\\(|\\)|,|-|–)*\\.", ".");
 
-    String[] skipSections = {};
-    addSkipSections(skipSections); 
+		out = out.replaceAll("\\s+,", ",");
+		return out;
+	}
 
-    String[] splitSections = {};
-    addSplitSections(splitSections); 
+	public PubmedTitlesAbstractsConfig() {
+		readSections.put("ArticleTitle", "Title");
+		readSections.put("AbstractText", "Abstract");
+		dataSections.put("Journal", "Metadata"); // that's right --- the
+													// metadata section is
+													// called "Journal" in
+													// pubmed files
+		dataSections.put("ISOAbbreviation", "Journal");
+		dataSections.put("Year", "JournalYear");
+		dataSections.put("MedlineCitation", "BlockMarker");
 
-    String[] splitTags = {};
-    addSplitTags(splitTags); 
+		String[] skipSections = {};
+		addSkipSections(skipSections);
 
-    markdown.put("bold", "**");
-    markdown.put("b", "**");
-    markdown.put("strong", "**");
-    markdown.put("italic", "_");
-    markdown.put("i", "_");
-    markdown.put("em", "_");
-    markdown.put("underline", "_");
-    markdown.put("u", "_");
-    markdown.put("br", " ");
-    markdown.put("hr", " ");
+		String[] splitSections = {};
+		addSplitSections(splitSections);
 
-    docIdSection = "PMID";
-  }
+		String[] splitTags = {};
+		addSplitTags(splitTags);
 
-  // currently unused here
-  public boolean isStartBlock(String localName) { return "MedlineCitation".equals(localName); }
-  public boolean isEndBlock(String localName) { return "MedlineCitation".equals(localName); }
+		markdown.put("bold", "**");
+		markdown.put("b", "**");
+		markdown.put("strong", "**");
+		markdown.put("italic", "_");
+		markdown.put("i", "_");
+		markdown.put("em", "_");
+		markdown.put("underline", "_");
+		markdown.put("u", "_");
+		markdown.put("br", " ");
+		markdown.put("hr", " ");
+
+		docIdSection = "PMID";
+	}
 
 }

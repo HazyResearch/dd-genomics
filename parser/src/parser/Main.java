@@ -1,17 +1,16 @@
 package parser;
 
-import parser.config.*;
-
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+
+import parser.config.PlosConfig;
+import parser.config.XMLDocConfig;
+import parser.objects.OutputDoc;
 
 public class Main {
 
@@ -19,7 +18,8 @@ public class Main {
   public static HashSet<String> allTitles = new HashSet<String>();
   public static HashSet<String> allPubIds = new HashSet<String>();
 
-  public static void main(String[] args) {
+  @SuppressWarnings("unchecked")
+public static void main(String[] args) {
     if (args.length != 1) {
       System.out.println("Usage: java -ea -jar parser.jar [FILE OR DIR]");
       System.exit(0);
@@ -32,7 +32,7 @@ public class Main {
     try {
       for (File file : files) {
         InputStream xmlInput = new FileInputStream(file);
-        XMLDocParser docParser = new XMLDocParser(xmlInput, config, allTitles, allPubIds);
+        XMLDocParser docParser = new XMLDocParser(xmlInput, config, allTitles, allPubIds, null);
 
         // TODO: make this actually streaming?  I.e. call a docParser.getNext() method
         for (OutputDoc outDoc : docParser.parse()) {

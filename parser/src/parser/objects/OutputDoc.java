@@ -1,4 +1,4 @@
-package parser;
+package parser.objects;
 
 /**
  * The generic output object.  For example this would correspond to one line in the TSV
