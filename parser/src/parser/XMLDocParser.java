@@ -192,6 +192,8 @@ public class XMLDocParser {
 						}
 						allTitles.add(refTitle);
 						OutputDoc outDoc = createOutDoc(docId, refTitle, "Title");
+						md.id = outDoc.docName;
+						md.write(mdWriter);
 						outDocs.add(outDoc);
 					} else if ("Metadata".equals(config.getDataSectionName(localName))) {
 						md = parseMetadata();
@@ -208,15 +210,14 @@ public class XMLDocParser {
 							allTitles.add(content);
 						}
 						OutputDoc outDoc = createOutDoc(docId, content, config.getReadSectionName(localName));
+						md.id = outDoc.docName;
+						md.write(mdWriter);
 						outDocs.add(outDoc);
 					}
 				} else if (event == XMLStreamConstants.END_ELEMENT) {
 					String localName = parser.getLocalName();
 					if ("BlockMarker".equals(config.getDataSectionName(localName))) {
 						docId = null;
-						if (md != null && mdWriter != null) {
-							mdWriter.println(md);
-						}
 						md = null;
 					}
 				} else if (event == XMLStreamConstants.END_DOCUMENT) {
