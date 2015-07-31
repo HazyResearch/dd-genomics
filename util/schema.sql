@@ -171,3 +171,9 @@ CREATE TABLE genepheno_features (
 
 DROP TABLE IF EXISTS test_nlp;
 CREATE TABLE test_nlp (id bigint);
+
+DROP TABLE IF EXISTS plos_doi_to_pmid;
+CREATE TABLE plos_doi_to_pmid (
+  doi text,
+  pmid text
+) DISTRIBUTED BY (doi);
