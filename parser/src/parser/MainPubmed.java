@@ -1,8 +1,6 @@
 package parser;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -20,20 +18,20 @@ public class MainPubmed {
 
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
-		if (args.length != 2) {
-			System.out.println("Usage: java -ea -jar parser-titles-abstracts.jar input-file-or-dir metadata-file");
+		if (args.length != 3) {
+			System.out.println("Usage: java -ea -jar parser-pubmed.jar input-file-or-dir metadata-file omitted-file");
 			System.exit(0);
 		}
 
 		ArrayList<File> files = getAllFiles(args[0]);
 		File metadataFile = new File(args[1]);
+		File omittedFile = new File(args[2]);
 
 		XMLDocConfig config = new PubmedTitlesAbstractsConfig();
 
 		try {
 			for (File file : files) {
-				InputStream xmlInput = new FileInputStream(file);
-				XMLDocParser docParser = new XMLDocParser(xmlInput, config, allTitles, allPubIds, metadataFile);
+				XMLDocParser docParser = new XMLDocParser(file, config, allTitles, allPubIds, metadataFile, omittedFile);
 
 				// TODO: make this actually streaming? I.e. call a
 				// docParser.getNext() method

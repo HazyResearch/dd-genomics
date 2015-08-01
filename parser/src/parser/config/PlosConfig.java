@@ -9,7 +9,7 @@ public class PlosConfig extends XMLDocConfig {
 			return false;
 		}
 		for (int i = 0; i < parser.getAttributeCount(); i++) {
-			if (parser.getAttributeValue(i).equals("doi")) {
+			if (parser.getAttributeValue(i).equals("pmid")) {
 				return true;
 			}
 		}
@@ -37,6 +37,10 @@ public class PlosConfig extends XMLDocConfig {
 		dataSections.put("ref-list", "References");
 		dataSections.put("ref", "Reference");
 		dataSections.put("pub-id", "PubId");
+		dataSections.put("pub-date", "Metadata");
+		dataSections.put("journal-meta", "Metadata");
+		dataSections.put("year", "JournalYear");
+		dataSections.put("journal-title", "Journal");
 
 		String[] skipSections = { "title", "xref", "table-wrap", "table", "object-id", "label", "caption", "ext-link" };
 		addSkipSections(skipSections);

@@ -2,6 +2,7 @@ package parser;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -29,6 +30,7 @@ public class XMLDocParser {
 	private HashSet<String> allPubIds;
 	private HashMap<String, Integer> seenNames = new HashMap<String, Integer>();
 	private PrintWriter mdWriter;
+	private PrintWriter omittedWriter;
 
 	private void skipSection(String localName) {
 		try {
@@ -118,8 +120,7 @@ public class XMLDocParser {
 		}
 	}
 
-	private Metadata parseMetadata() {
-		Metadata md = new Metadata();
+	private void parseMetadata(Metadata md) {
 		try {
 			loop: for (int e = parser.next(); e != XMLStreamConstants.END_DOCUMENT; e = parser.next()) {
 				switch (e) {
@@ -134,6 +135,8 @@ public class XMLDocParser {
 					String localName = parser.getLocalName();
 					if ("Journal".equals(config.getDataSectionName(localName))) {
 						md.journalName = getFlatElementText(localName);
+						// System.err.println("Have Journal name: " +
+						// md.journalName);
 					} else if ("JournalYear".equals(config.getDataSectionName(localName))) {
 						md.journalYear = getFlatElementText(localName);
 					}
@@ -141,10 +144,8 @@ public class XMLDocParser {
 				}
 				}
 			}
-			return md;
 		} catch (XMLStreamException ex) {
 			ex.printStackTrace();
-			return null;
 		}
 	}
 
@@ -168,6 +169,7 @@ public class XMLDocParser {
 	 * individual output files.
 	 */
 	public ArrayList<OutputDoc> parse() {
+		// XXX HACK Johannes
 		String docId = null;
 		Metadata md = null;
 		ArrayList<OutputDoc> outDocs = new ArrayList<OutputDoc>();
@@ -180,10 +182,11 @@ public class XMLDocParser {
 					// Try to get the doc id
 					if (config.isDocIdSection(parser)) {
 						docId = config.formatDocId(getFlatElementText(localName));
-						md = new Metadata();
+						if (md == null)
+							md = new Metadata();
 					} else if ("BlockMarker".equals(config.getDataSectionName(localName))) {
-						assert docId == null : docId + ", " + localName;
-						assert md == null;
+						// assert docId == null : docId + ", " + localName;
+						// assert md == null;
 					} else if ("Reference".equals(config.getDataSectionName(localName))) {
 						// "Reference" sections not simply in 'scope' because
 						// they need special treatment
@@ -194,40 +197,42 @@ public class XMLDocParser {
 							continue;
 						}
 						allTitles.add(refTitle);
-						OutputDoc outDoc = createOutDoc(docId, refTitle, "Title");
-						md.id = outDoc.docName;
-						md.write(mdWriter);
-						outDocs.add(outDoc);
+						if (docId == null) {
+							omittedWriter.println(refTitle);
+						} else {
+							OutputDoc outDoc = createOutDoc(docId, refTitle, "Title");
+							md.id = outDoc.docName;
+							md.write(mdWriter);
+							outDocs.add(outDoc);
+						}
 					} else if ("Metadata".equals(config.getDataSectionName(localName))) {
-						md = parseMetadata();
+						if (md == null)
+							md = new Metadata();
+						parseMetadata(md);
 						md.pmid = docId;
 					} else if (config.readable(localName)) {
 						// get sections that are in scope
-						assert docId != null;
 						// avoid duplicate titles (due to pulling titles from
 						// references section)
 						String content = getFlatElementText(localName);
-						if (config.getReadSectionName(localName).equals("Title")) {
-							if (allTitles.contains(content))
-								continue;
-							allTitles.add(content);
+						if (docId == null) {
+							omittedWriter.println(content);
+						} else {
+							if (config.getReadSectionName(localName).equals("Title")) {
+								if (allTitles.contains(content))
+									continue;
+								allTitles.add(content);
+							}
+							OutputDoc outDoc = createOutDoc(docId, content, config.getReadSectionName(localName));
+							md.id = outDoc.docName;
+							md.write(mdWriter);
+							outDocs.add(outDoc);
 						}
-						OutputDoc outDoc = createOutDoc(docId, content, config.getReadSectionName(localName));
-						md.id = outDoc.docName;
-						md.write(mdWriter);
-						outDocs.add(outDoc);
 					}
 				} else if (event == XMLStreamConstants.END_ELEMENT) {
 					String localName = parser.getLocalName();
 					if ("BlockMarker".equals(config.getDataSectionName(localName))) {
-						// XXX HACK Johannes: docId should be set to null here,
-						// otherwise the appropriate assertion above will never
-						// fire. It's kind of OK if the doc IDs are not actually
-						// correct, but it will mess up MeSH supervision and
-						// Dashboard at some point. If the number of docIds that
-						// are not correct is small, it's not an issue at all,
-						// basically.
-						// docId = null;
+						docId = null;
 						md = null;
 					}
 				} else if (event == XMLStreamConstants.END_DOCUMENT) {
@@ -242,9 +247,9 @@ public class XMLDocParser {
 	}
 
 	// Default constructor from InputStream
-	public XMLDocParser(InputStream xmlStream, XMLDocConfig config, HashSet<String> allTitles,
-			HashSet<String> allPubIds, File mdFile) {
-		this.xmlStream = xmlStream;
+	public XMLDocParser(File inputFile, XMLDocConfig config, HashSet<String> allTitles, HashSet<String> allPubIds,
+			File mdFile, File omittedFile) throws FileNotFoundException {
+		this.xmlStream = new FileInputStream(inputFile);
 		this.factory = XMLInputFactory.newInstance();
 		this.config = config;
 		this.allTitles = allTitles;
@@ -258,12 +263,24 @@ public class XMLDocParser {
 				e.printStackTrace();
 			}
 		}
+		if (omittedFile != null) {
+			try {
+				omittedWriter = new PrintWriter(new BufferedWriter(new FileWriter(omittedFile, true)));
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	@Override
 	public void finalize() {
 		if (mdWriter != null) {
 			mdWriter.close();
+		}
+		if (omittedWriter != null) {
+			omittedWriter.close();
 		}
 	}
 
