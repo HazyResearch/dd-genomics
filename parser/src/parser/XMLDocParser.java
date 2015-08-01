@@ -184,6 +184,7 @@ public class XMLDocParser {
                         docId = config.formatDocId(getFlatElementText(localName));
                         if (md == null)
                             md = new Metadata();
+                        md.pmid = docId;
                     } else if ("BlockMarker".equals(config.getDataSectionName(localName))) {
                         // assert docId == null : docId + ", " + localName;
                         // assert md == null;

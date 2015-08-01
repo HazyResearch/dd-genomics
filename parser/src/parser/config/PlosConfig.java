@@ -41,6 +41,7 @@ public class PlosConfig extends XMLDocConfig {
         dataSections.put("journal-meta", "Metadata");
         dataSections.put("year", "JournalYear");
         dataSections.put("journal-title", "Journal");
+        dataSections.put("article", "BlockMarker");
 
         String[] skipSections = { "title", "xref", "table-wrap", "table", "object-id", "label", "caption", "ext-link" };
         addSkipSections(skipSections);
