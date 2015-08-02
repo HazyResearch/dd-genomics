@@ -87,38 +87,53 @@ public class XMLDocParser {
         }
     }
 
-    private String parseRef() {
-        String title = null;
-        try {
-            loop: for (int e = parser.next(); e != XMLStreamConstants.END_DOCUMENT; e = parser.next()) {
-                switch (e) {
-                case XMLStreamConstants.END_ELEMENT: {
-                    String localName = parser.getLocalName();
-                    if ("Reference".equals(config.getDataSectionName(localName))) {
-                        break loop;
-                    }
-                    break;
-                }
-                case XMLStreamConstants.START_ELEMENT: {
-                    String localName = parser.getLocalName();
-                    if ("Title".equals(config.getReadSectionName(localName))) {
-                        title = getFlatElementText(localName);
-                    } else if ("PubId".equals(config.getDataSectionName(localName))) {
-                        String pubId = getFlatElementText(localName);
-                        if (allPubIds.contains(pubId))
-                            return null;
-                        allPubIds.add(pubId);
-                    }
-                    break;
-                }
-                }
+  private Section parseRef(String docId) {
+    String title = null;
+    String pubId = null;
+    String pubYr = null;
+    String pubJournal = null;
+    try {
+      loop: for (int e = parser.next(); e != XMLStreamConstants.END_DOCUMENT; e = parser.next()) {
+        switch (e) {
+          case XMLStreamConstants.END_ELEMENT: {
+            String localName = parser.getLocalName();
+            if ("Reference".equals(config.getDataSectionName(localName))) { break loop; }
+            break;
+          }
+          case XMLStreamConstants.START_ELEMENT: {
+            String localName = parser.getLocalName();
+            if ("Title".equals(config.getReadSectionName(localName))) {
+              title = getFlatElementText(localName);
+              if (allTitles.contains(title)) { return null; }
+              allTitles.add(title);
+            } else if ("PubId".equals(config.getDataSectionName(localName))) {
+              pubId = getFlatElementText(localName);
+              if (allPubIds.contains(pubId)) { return null; }
+              allPubIds.add(pubId);
+            } else if ("year".equals(localName)) { 
+              pubYr = getFlatElementText(localName);
+            } else if ("source".equals(localName)) { 
+              pubJournal = getFlatElementText(localName);
             }
-            return title;
-        } catch (XMLStreamException ex) {
-            ex.printStackTrace();
-            return null;
+            break;
+          }
         }
+      }
+      if (docId == null) {
+        omWriter.println(title);
+        return null;
+      }
+      Metadata refMd = new Metadata();
+      refMd.pmid = pubId;
+      refMd.journalName = pubJournal;
+      refMd.journalYear = pubYr;
+      refMd.write(mdWriter);
+      return createSection(pubId, docId, "Ref", title);
+    } catch (XMLStreamException ex) {
+      ex.printStackTrace();
+      return null;
     }
+  }
 
     private void parseMetadata(Metadata md) {
         try {
@@ -149,10 +164,10 @@ public class XMLDocParser {
         }
     }
 
-    private Section createSection(String docId, String sectionName, String text) {
-        assert docId != null;
+    private Section createSection(String docId, String sectionNameDocId, String sectionName, String text) {
+        assert sectionNameDocId != null;
         int num;
-        String sectionId = docId + "." + sectionName;
+        String sectionId = sectionNameDocId + "." + sectionName;
         if (seenNames.containsKey(sectionId)) {
             num = seenNames.get(sectionId) + 1;
         } else {
@@ -162,6 +177,10 @@ public class XMLDocParser {
         sectionId = sectionId + "." + num;
         Section s = new Section(docId, sectionId, text);
         return s;
+    }
+
+    private Section createSection(String docId, String sectionName, String text) {
+      return createSection(docId, docId, sectionName, text);
     }
 
     /**
@@ -191,16 +210,8 @@ public class XMLDocParser {
                   } else if ("Reference".equals(config.getDataSectionName(localName))) {
                     // "Reference" sections not simply in 'scope' because
                     // they need special treatment
-                    String refTitle = parseRef();
-                    if (refTitle == null) { continue; }
-                    if (allTitles.contains(refTitle)) { continue; }
-                    allTitles.add(refTitle);
-                    if (docId == null) {
-                      omWriter.println(refTitle);
-                    } else {
-                      Section s = createSection(docId, "Title", refTitle);
-                      sections.add(s);
-                    }
+                    Section s = parseRef(docId);
+                    if (s != null) { sections.add(s); }
 
                   } else if ("Metadata".equals(config.getDataSectionName(localName))) {
                     parseMetadata(md);
