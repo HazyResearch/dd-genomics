@@ -18,31 +18,31 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import parser.config.XMLDocConfig;
-import parser.metadata.Metadata;
-import parser.objects.OutputDoc;
+import parser.objects.Metadata;
+import parser.objects.Section;
 
 public class XMLDocParser {
-    private InputStream xmlStream;
-    private XMLInputFactory factory;
-    private XMLStreamReader parser;
-    private XMLDocConfig config;
-    private HashSet<String> allTitles;
-    private HashSet<String> allPubIds;
-    private HashMap<String, Integer> seenNames = new HashMap<String, Integer>();
-    private PrintWriter mdWriter;
-    private PrintWriter omittedWriter;
+  private InputStream xmlStream;
+  private XMLInputFactory factory;
+  private XMLStreamReader parser;
+  private XMLDocConfig config;
+  private HashSet<String> allTitles;
+  private HashSet<String> allPubIds;
+  private HashMap<String, Integer> seenNames = new HashMap<String, Integer>();
+  private PrintWriter mdWriter;
+  private PrintWriter omWriter;
 
-    private void skipSection(String localName) {
-        try {
-            for (int e = parser.next(); e != XMLStreamConstants.END_DOCUMENT; e = parser.next()) {
-                if (e == XMLStreamConstants.END_ELEMENT && parser.getLocalName().equals(localName)) {
-                    break;
-                }
-            }
-        } catch (XMLStreamException ex) {
-            ex.printStackTrace();
+  private void skipSection(String localName) {
+    try {
+      for (int e = parser.next(); e != XMLStreamConstants.END_DOCUMENT; e = parser.next()) {
+        if (e == XMLStreamConstants.END_ELEMENT && parser.getLocalName().equals(localName)) {
+          break;
         }
+      }
+    } catch (XMLStreamException ex) {
+      ex.printStackTrace();
     }
+  }
 
     private String getFlatElementText(String elementName) {
         StringBuilder section = new StringBuilder();
@@ -87,38 +87,53 @@ public class XMLDocParser {
         }
     }
 
-    private String parseRef() {
-        String title = null;
-        try {
-            loop: for (int e = parser.next(); e != XMLStreamConstants.END_DOCUMENT; e = parser.next()) {
-                switch (e) {
-                case XMLStreamConstants.END_ELEMENT: {
-                    String localName = parser.getLocalName();
-                    if ("Reference".equals(config.getDataSectionName(localName))) {
-                        break loop;
-                    }
-                    break;
-                }
-                case XMLStreamConstants.START_ELEMENT: {
-                    String localName = parser.getLocalName();
-                    if ("Title".equals(config.getReadSectionName(localName))) {
-                        title = getFlatElementText(localName);
-                    } else if ("PubId".equals(config.getDataSectionName(localName))) {
-                        String pubId = getFlatElementText(localName);
-                        if (allPubIds.contains(pubId))
-                            return null;
-                        allPubIds.add(pubId);
-                    }
-                    break;
-                }
-                }
+  private Section parseRef(String docId) {
+    String title = null;
+    String pubId = null;
+    String pubYr = null;
+    String pubJournal = null;
+    try {
+      loop: for (int e = parser.next(); e != XMLStreamConstants.END_DOCUMENT; e = parser.next()) {
+        switch (e) {
+          case XMLStreamConstants.END_ELEMENT: {
+            String localName = parser.getLocalName();
+            if ("Reference".equals(config.getDataSectionName(localName))) { break loop; }
+            break;
+          }
+          case XMLStreamConstants.START_ELEMENT: {
+            String localName = parser.getLocalName();
+            if ("Title".equals(config.getReadSectionName(localName))) {
+              title = getFlatElementText(localName);
+              if (allTitles.contains(title)) { return null; }
+              allTitles.add(title);
+            } else if ("PubId".equals(config.getDataSectionName(localName))) {
+              pubId = getFlatElementText(localName);
+              if (allPubIds.contains(pubId)) { return null; }
+              allPubIds.add(pubId);
+            } else if ("year".equals(localName)) { 
+              pubYr = getFlatElementText(localName);
+            } else if ("source".equals(localName)) { 
+              pubJournal = getFlatElementText(localName);
             }
-            return title;
-        } catch (XMLStreamException ex) {
-            ex.printStackTrace();
-            return null;
+            break;
+          }
         }
+      }
+      if (docId == null) {
+        omWriter.println(title);
+        return null;
+      }
+      Metadata refMd = new Metadata();
+      refMd.pmid = pubId;
+      refMd.journalName = pubJournal;
+      refMd.journalYear = pubYr;
+      refMd.write(mdWriter);
+      return createSection(pubId, docId, "Ref", title);
+    } catch (XMLStreamException ex) {
+      ex.printStackTrace();
+      return null;
     }
+  }
 
     private void parseMetadata(Metadata md) {
         try {
@@ -149,139 +164,104 @@ public class XMLDocParser {
         }
     }
 
-    private OutputDoc createOutDoc(String docId, String content, String sectionName) {
-        assert docId != null;
+    private Section createSection(String docId, String sectionNameDocId, String sectionName, String text) {
+        assert sectionNameDocId != null;
         int num;
-        String docName = docId + "." + sectionName;
-        if (seenNames.containsKey(docName)) {
-            num = seenNames.get(docName) + 1;
+        String sectionId = sectionNameDocId + "." + sectionName;
+        if (seenNames.containsKey(sectionId)) {
+            num = seenNames.get(sectionId) + 1;
         } else {
             num = 0;
         }
-        seenNames.put(docName, num);
-        docName = docName + "." + num;
-        OutputDoc outDoc = new OutputDoc(docName, content);
-        return outDoc;
+        seenNames.put(sectionId, num);
+        sectionId = sectionId + "." + num;
+        Section s = new Section(docId, sectionId, text);
+        return s;
+    }
+
+    private Section createSection(String docId, String sectionName, String text) {
+      return createSection(docId, docId, sectionName, text);
     }
 
     /**
      * Go through the XML document, pulling out certain flat sections as
      * individual output files.
      */
-    public ArrayList<OutputDoc> parse() {
+    public ArrayList<Section> parse() {
         // XXX HACK Johannes
         String docId = null;
-        Metadata md = null;
-        ArrayList<OutputDoc> outDocs = new ArrayList<OutputDoc>();
+        Metadata md = new Metadata();
+        ArrayList<Section> sections = new ArrayList<Section>();
         try {
             parser = factory.createXMLStreamReader(this.xmlStream);
             while (true) {
                 int event = parser.next();
                 if (event == XMLStreamConstants.START_ELEMENT) {
-                    String localName = parser.getLocalName();
-                    // Try to get the doc id
-                    if (config.isDocIdSection(parser)) {
-                        docId = config.formatDocId(getFlatElementText(localName));
-                        if (md == null)
-                            md = new Metadata();
-                    } else if ("BlockMarker".equals(config.getDataSectionName(localName))) {
-                        // assert docId == null : docId + ", " + localName;
-                        // assert md == null;
-                    } else if ("Reference".equals(config.getDataSectionName(localName))) {
-                        // "Reference" sections not simply in 'scope' because
-                        // they need special treatment
-                        String refTitle = parseRef();
-                        if (refTitle == null)
-                            continue;
-                        if (allTitles.contains(refTitle)) {
-                            continue;
-                        }
-                        allTitles.add(refTitle);
-                        if (docId == null) {
-                            omittedWriter.println(refTitle);
-                        } else {
-                            OutputDoc outDoc = createOutDoc(docId, refTitle, "Title");
-                            md.id = outDoc.docName;
-                            md.write(mdWriter);
-                            outDocs.add(outDoc);
-                        }
-                    } else if ("Metadata".equals(config.getDataSectionName(localName))) {
-                        if (md == null)
-                            md = new Metadata();
-                        parseMetadata(md);
-                        md.pmid = docId;
-                    } else if (config.readable(localName)) {
-                        // get sections that are in scope
-                        // avoid duplicate titles (due to pulling titles from
-                        // references section)
-                        String content = getFlatElementText(localName);
-                        if (docId == null) {
-                            omittedWriter.println(content);
-                        } else {
-                            if (config.getReadSectionName(localName).equals("Title")) {
-                                if (allTitles.contains(content))
-                                    continue;
-                                allTitles.add(content);
-                            }
-                            OutputDoc outDoc = createOutDoc(docId, content, config.getReadSectionName(localName));
-                            md.id = outDoc.docName;
-                            md.write(mdWriter);
-                            outDocs.add(outDoc);
-                        }
+                  String localName = parser.getLocalName();
+
+                  // Try to get the doc id
+                  if (config.isDocIdSection(parser)) {
+                    docId = config.formatDocId(getFlatElementText(localName));
+
+                  } else if ("BlockMarker".equals(config.getDataSectionName(localName))) {
+                    // assert docId == null : docId + ", " + localName;
+                    // assert md == null;
+
+                  } else if ("Reference".equals(config.getDataSectionName(localName))) {
+                    // "Reference" sections not simply in 'scope' because
+                    // they need special treatment
+                    Section s = parseRef(docId);
+                    if (s != null) { sections.add(s); }
+
+                  } else if ("Metadata".equals(config.getDataSectionName(localName))) {
+                    parseMetadata(md);
+                    md.pmid = docId;
+
+                  } else if (config.readable(localName)) {
+                    // get sections that are in scope
+                    // avoid duplicate titles (due to pulling titles from
+                    // references section)
+                    String content = getFlatElementText(localName);
+                    if (docId == null) {
+                      omWriter.println(content);
+                    } else {
+                      if (config.getReadSectionName(localName).equals("Title")) {
+                        if (allTitles.contains(content)) { continue; }
+                        allTitles.add(content);
+                      }
+                      String sectionName = config.getReadSectionName(localName);
+                      Section s = createSection(docId, sectionName, content);
+                      sections.add(s);
                     }
+                  }
+
                 } else if (event == XMLStreamConstants.END_ELEMENT) {
-                    String localName = parser.getLocalName();
-                    if ("BlockMarker".equals(config.getDataSectionName(localName))) {
-                        docId = null;
-                        md = null;
-                    }
+                  String localName = parser.getLocalName();
+                  if ("BlockMarker".equals(config.getDataSectionName(localName))) {
+                    docId = null;
+                    md = null;
+                  }
+
                 } else if (event == XMLStreamConstants.END_DOCUMENT) {
-                    parser.close();
-                    break;
+                  parser.close();
+                  md.write(mdWriter);
+                  break;
                 }
             }
         } catch (XMLStreamException ex) {
             ex.printStackTrace();
         }
-        return outDocs;
+        return sections;
     }
 
-    // Default constructor from InputStream
-    public XMLDocParser(File inputFile, XMLDocConfig config, HashSet<String> allTitles, HashSet<String> allPubIds,
-            File mdFile, File omittedFile) throws FileNotFoundException {
-        this.xmlStream = new FileInputStream(inputFile);
-        this.factory = XMLInputFactory.newInstance();
-        this.config = config;
-        this.allTitles = allTitles;
-        this.allPubIds = allPubIds;
-        if (mdFile != null) {
-            try {
-                mdWriter = new PrintWriter(new BufferedWriter(new FileWriter(mdFile, true)));
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        if (omittedFile != null) {
-            try {
-                omittedWriter = new PrintWriter(new BufferedWriter(new FileWriter(omittedFile, true)));
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @Override
-    public void finalize() {
-        if (mdWriter != null) {
-            mdWriter.close();
-        }
-        if (omittedWriter != null) {
-            omittedWriter.close();
-        }
-    }
-
+  // Default constructor from InputStream
+  public XMLDocParser(File inputFile, XMLDocConfig config, HashSet<String> allTitles, HashSet<String> allPubIds, PrintWriter mdWriter, PrintWriter omWriter) throws FileNotFoundException {
+    this.xmlStream = new FileInputStream(inputFile);
+    this.factory = XMLInputFactory.newInstance();
+    this.config = config;
+    this.allTitles = allTitles;
+    this.allPubIds = allPubIds;
+    this.mdWriter = mdWriter;
+    this.omWriter = omWriter;
+  }
 }
