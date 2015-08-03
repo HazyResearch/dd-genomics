@@ -1,11 +1,9 @@
 SELECT
-  a.jname, count(distinct doi)
+  source, count(distinct doc_id)
   FROM
-    (SELECT b.id[4] AS jname, b.id[3] AS type, b.id[0:5] AS doi
-     FROM (SELECT string_to_array(doc_id, '.') id FROM sentences_input) b) a
-  WHERE
-    a.type = 'journal'
+    sentences_input si
+    JOIN document_metadata dm ON (si.doc_id = dm.doc_id)
   GROUP BY
-    a.jname
+    source
   ORDER BY
     count DESC
