@@ -8,6 +8,8 @@ CREATE TABLE gene_mentions (
 	id bigint,
 	-- document id
 	doc_id text,
+        -- section id
+        section_id text,
 	-- sentence id
 	sent_id int,
 	-- indexes of the words composing the mention
@@ -23,18 +25,20 @@ CREATE TABLE gene_mentions (
 	words text[],
 	-- is this a correct mention?
 	is_correct boolean
-) DISTRIBUTED BY (doc_id);
+) DISTRIBUTED BY (doc_id, section_id);
 
 -- Gene mentions features
 DROP TABLE IF EXISTS gene_features CASCADE;
 CREATE TABLE gene_features (
 	-- document id
 	doc_id text,
+        -- section id,
+        section_id text,
 	-- mention id
 	mention_id text,
 	-- feature
 	feature text
-) DISTRIBUTED BY (doc_id);
+) DISTRIBUTED BY (doc_id, section_id);
 
 -- phenotype mentions
 DROP TABLE IF EXISTS pheno_mentions CASCADE;
@@ -43,6 +47,8 @@ CREATE TABLE pheno_mentions (
 	id bigint,
 	-- document id
 	doc_id text,
+        -- section id
+        section_id text,
 	-- sentence id
 	sent_id int,
 	-- indexes of the words composing the mention
@@ -58,18 +64,20 @@ CREATE TABLE pheno_mentions (
 	words text[],
 	-- is this a correct mention?
 	is_correct boolean
-) DISTRIBUTED BY (doc_id);
+) DISTRIBUTED BY (doc_id, section_id);
 
 -- Phenotype mentions features
 DROP TABLE IF EXISTS pheno_features CASCADE;
 CREATE TABLE pheno_features (
 	-- document id
 	doc_id text,
+        -- section id
+        section_id text,
 	-- mention id
 	mention_id text,
 	-- feature
 	feature text
-) DISTRIBUTED BY (doc_id);
+) DISTRIBUTED BY (doc_id, section_id);
 
 -- Gene / Phenotype mentions
 DROP TABLE IF EXISTS genepheno_relations CASCADE;
@@ -80,6 +88,8 @@ CREATE TABLE genepheno_relations (
 	relation_id text,
 	-- document id
 	doc_id text,
+        -- section id
+        section_id text,
         -- sentence id
 	sent_id int,
 	-- gene mention id
@@ -98,7 +108,7 @@ CREATE TABLE genepheno_relations (
         pheno_wordidxs int[],
         -- correct pheno mention?
         pheno_is_correct boolean
-) DISTRIBUTED BY (doc_id);
+) DISTRIBUTED BY (doc_id, section_id);
 
 -- Gene / Phenotype association mentions
 DROP TABLE IF EXISTS genepheno_association CASCADE;
@@ -109,6 +119,8 @@ CREATE TABLE genepheno_association (
 	relation_id text,
 	-- document id
 	doc_id text,
+        -- section id
+        section_id text,
         -- sentence id
 	sent_id int,
 	-- gene mention id
@@ -127,7 +139,7 @@ CREATE TABLE genepheno_association (
 	is_correct boolean,
         supertype text,
         subtype text
-) DISTRIBUTED BY (doc_id);
+) DISTRIBUTED BY (doc_id, section_id);
  
 -- Gene / Phenotype association mentions
 DROP TABLE IF EXISTS genepheno_causation CASCADE;
@@ -138,6 +150,8 @@ CREATE TABLE genepheno_causation (
 	relation_id text,
 	-- document id
 	doc_id text,
+        -- section id
+        section_id text,
         -- sentence id
 	sent_id int,
 	-- gene mention id
@@ -156,18 +170,20 @@ CREATE TABLE genepheno_causation (
 	is_correct boolean,
         supertype text,
         subtype text
-) DISTRIBUTED BY (doc_id);
+) DISTRIBUTED BY (doc_id, section_id);
 
 -- G/P relation mentions features
 DROP TABLE IF EXISTS genepheno_features CASCADE;
 CREATE TABLE genepheno_features (
 	-- document id
 	doc_id text,
+        -- section id
+        section_id text,
 	-- relation id
 	relation_id text,
 	-- feature
 	feature text
-) DISTRIBUTED BY (doc_id);
+) DISTRIBUTED BY (doc_id, section_id);
 
 DROP TABLE IF EXISTS test_nlp;
 CREATE TABLE test_nlp (id bigint);

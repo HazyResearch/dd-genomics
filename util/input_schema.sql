@@ -5,7 +5,9 @@
 DROP TABLE IF EXISTS sentences CASCADE;
 CREATE TABLE sentences (
   doc_id text,
+  section_id text,
   sent_id int,
+  ref_doc_id text,
   words text[],
   lemmas text[],
   poses text[],
@@ -18,7 +20,9 @@ CREATE TABLE sentences (
 DROP TABLE IF EXISTS sentences_input CASCADE;
 CREATE TABLE sentences_input (
   doc_id text,
+  section_id text,
   sent_id int,
+  ref_doc_id text,
   words text,
   lemmas text,
   poses text,
