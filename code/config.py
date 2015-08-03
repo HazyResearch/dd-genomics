@@ -3,6 +3,14 @@
 # extraction hyperparameters / configurations
 BOOL_VALS = [('neg', False), ('pos', True)]
 
+PHENO_ACRONYMS = {
+  'vals' : BOOL_VALS,
+  
+  ## Features
+  'F' : {
+    #'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
+  }
+}
 
 ### GENE
 GENE = {
