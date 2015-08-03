@@ -65,8 +65,9 @@ public class Main {
         XMLDocParser docParser = new XMLDocParser(file, config, allTitles, allPubIds, mdWriter, omWriter);
         for (Section s : docParser.parse()) {
           JSONObject obj = new JSONObject();
-          obj.put("doc_id", s.docId);
-          obj.put("section_id", s.sectionId);
+          obj.put("doc-id", s.docId);
+          obj.put("section-id", s.sectionId);
+          obj.put("ref-doc-id", s.refDocId);
           obj.put("content", s.sectionText);
           System.out.println(obj.toJSONString());
         }
