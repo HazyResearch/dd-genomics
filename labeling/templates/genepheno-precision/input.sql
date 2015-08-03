@@ -25,6 +25,7 @@ from
     on 
       a.relation_id = c.relation_id
       and a.doc_id = c.doc_id
+      and a.section_id = c.section_id
       and a.sent_id = c.sent_id
       and a.gene_entity = c.gene_entity
       and a.pheno_entity = c.pheno_entity
@@ -34,16 +35,19 @@ from
     gene_mentions_is_correct_inference gm
       on 
         a.doc_id = gm.doc_id
+        a.section_id = gm.section_id
         and a.sent_id = gm.sent_id
   join
     pheno_mentions_is_correct_inference pm
       on 
         a.doc_id = pm.doc_id
+        a.section_id = pm.section_id
         and a.sent_id = pm.sent_id
   join
     sentences_input si
       on
         si.doc_id = a.doc_id
+        si.section_id = a.section_id
         and si.sent_id = a.sent_id
   join
     (SELECT

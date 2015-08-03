@@ -13,6 +13,7 @@ import config
 # This defines the Row object that we read in to the extractor
 parser = util.RowParser([
           ('doc_id', 'text'),
+          ('section_id', 'text'),
           ('sent_id', 'int'),
           ('words', 'text[]'),
           ('lemmas', 'text[]'),
@@ -34,6 +35,7 @@ Relation = collections.namedtuple('Relation', [
             'dd_id',
             'relation_id',
             'doc_id',
+            'section_id',
             'sent_id',
             'gene_mention_id',
             'gene_entity',
@@ -129,7 +131,7 @@ def create_relation(row, i, j, dep_dag=None):
   pheno_is_correct = row.pheno_is_corrects[j]
 
   relation_id = '%s_%s' % (gene_mention_id, pheno_mention_id)
-  r = Relation(None, relation_id, row.doc_id, row.sent_id, gene_mention_id, gene_entity, \
+  r = Relation(None, relation_id, row.doc_id, row.section_id, row.sent_id, gene_mention_id, gene_entity, \
                gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, \
                pheno_wordidxs, pheno_is_correct)
 

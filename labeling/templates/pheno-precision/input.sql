@@ -1,5 +1,6 @@
 COPY (
   SELECT si.doc_id
+    , si.section_id
     , si.sent_id
     , pm.mention_id
     , pm.type
@@ -23,6 +24,7 @@ COPY (
         GROUP BY mention_id
       ) f
   WHERE si.doc_id = pm.doc_id
+    AND si.section_id = pm.section_id
     AND si.sent_id = pm.sent_id
     AND pm.mention_id = pmi.mention_id
     AND pm.mention_id = f.mention_id

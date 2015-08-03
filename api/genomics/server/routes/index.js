@@ -41,7 +41,7 @@ router.get('/api/gp/', function(req, res) {
 
     // NOTE: support either e.g. "ENSG00000101255" or "ENSG00000101255:TRIB3" formats
     // NOTE: We pre-compute the aggregation at entity level but only for E > 0.5
-    var sql = 'SELECT gene_entity, pheno_entity, relation_ids, doc_ids, sent_ids, gene_wordidxs, pheno_wordidxs, words, a_expectations, c_expectations FROM genepheno_entity_level WHERE gene_entity LIKE ($1) AND ((($2) > 0.0 AND max_a_expectation >= ($2)) OR (($3) > 0.0 AND max_c_expectation >= ($3))) LIMIT ($4) OFFSET ($5);'
+    var sql = 'SELECT gene_entity, pheno_entity, relation_ids, doc_ids, section_ids, sent_ids, gene_wordidxs, pheno_wordidxs, words, a_expectations, c_expectations FROM genepheno_entity_level WHERE gene_entity LIKE ($1) AND ((($2) > 0.0 AND max_a_expectation >= ($2)) OR (($3) > 0.0 AND max_c_expectation >= ($3))) LIMIT ($4) OFFSET ($5);'
     var query = client.query(sql, [geneId+'%', expA, expC, maxResults, maxResults*page]);
 
     // Stream results back one row at a time

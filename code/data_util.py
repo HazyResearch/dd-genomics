@@ -74,6 +74,7 @@ def read_hpo_synonyms():
 def load_pmid_to_hpo():
   """Load map from Pubmed ID to HPO term (via MeSH)"""
   pmid_to_hpo = defaultdict(set)
+  # XXX HACK Johannes. TODO. Get rid of this file, load the full table into the database
   with open(onto_path('data/hpo_to_pmid_via_mesh_with_doi.tsv')) as f:
     for line in f:
       hpo_id, pmid = line.strip().split('\t')
@@ -81,24 +82,9 @@ def load_pmid_to_hpo():
   return pmid_to_hpo
 
 
-def get_pubmed_id_for_doc(doc_id, doi_to_pmid=None):
-  """
-  Converts document ID to pubmed ID, or None if not in right format.
-  doi_to_pmid is optional dict from DOI to PMID, for PLoS documents.
-  """
-  if '.'.join(doc_id.split('.')[1:]) == "html.txt.nlp.task":
-    return doc_id.split('.')[0]
-  
-  # PLoS doc IDs should look like '10.1371.journal.pone.0015617.Abstract.2'
-  # Convert to DOI like '10.1371/journal.pone.0015617'
-  # Then convert DOI to PMID.
-  if doi_to_pmid:
-    plos_toks = doc_id.split('.')
-    if plos_toks[2] == 'journal' and plos_toks[3].startswith("p"):
-      doi_id = '.'.join(plos_toks[:2]) + '/' + '.'.join(plos_toks[2:5])
-      if doi_id in doi_to_pmid:
-        return doi_to_pmid[doi_id]
-  return None
+def get_pubmed_id_for_doc(doc_id):
+  """Because our doc_id is currently just the PMID, and we intend to KEEP it this way, return the doc_id here"""
+  return doc_id
 
 
 def read_doi_to_pmid():

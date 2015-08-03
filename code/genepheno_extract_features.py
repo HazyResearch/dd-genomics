@@ -8,6 +8,7 @@ import ddlib
 parser = util.RowParser([
           ('relation_id', 'text'),
           ('doc_id', 'text'),
+          ('section_id', 'text'),
           ('sent_id', 'int'),
           ('gene_mention_id', 'text'),
           ('gene_wordidxs', 'int[]'),
@@ -21,13 +22,13 @@ parser = util.RowParser([
           ('dep_parents', 'int[]')])
 
 
-Feature = namedtuple('Feature', ['doc_id', 'relation_id', 'name'])
+Feature = namedtuple('Feature', ['doc_id', 'section_id', 'relation_id', 'name'])
 
           
 def get_features_for_candidate(row):
   """Extract features for candidate mention- both generic ones from ddlib & custom features"""
   features = []
-  f = Feature(doc_id=row.doc_id, relation_id=row.relation_id, name=None)
+  f = Feature(doc_id=row.doc_id, section_id=row.section_id, relation_id=row.relation_id, name=None)
   dds = util.create_ddlib_sentence(row)
 
   # (1) GENERIC FEATURES from ddlib

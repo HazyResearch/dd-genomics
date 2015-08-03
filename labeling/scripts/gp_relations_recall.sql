@@ -15,11 +15,11 @@ FROM
 	gene_mentions t5,
 	hpoterm_mentions t6
 WHERE
-	t0.doc_id = t1.doc_id AND t0.sent_id_1 = t1.sent_id
+	t0.doc_id = t1.doc_id AND t0.section_id = t1.section_id AND t0.sent_id_1 = t1.sent_id
 AND 
-	t0.doc_id = t2.doc_id AND t0.sent_id_1 = t2.sent_id
+	t0.doc_id = t2.doc_id AND t0.section_id = t2.section_id AND t0.sent_id_1 = t2.sent_id
 AND 
-	t0.doc_id = t3.doc_id AND t0.sent_id_1 = t3.sent_id
+	t0.doc_id = t3.doc_id AND t0.section_id = t3.section_id AND t0.sent_id_1 = t3.sent_id
 AND 
 	t0.mention_id_1 = t5.mention_id AND t0.mention_id_2 = t6.mention_id
 AND
