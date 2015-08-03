@@ -170,3 +170,44 @@ CREATE TABLE plos_doi_to_pmid (
   doi text,
   pmid text
 ) DISTRIBUTED BY (doi);
+
+-- Gene mentions
+DROP TABLE IF EXISTS pheno_acronyms CASCADE;
+CREATE TABLE gene_mentions (
+	-- id for random variable
+	id bigint,
+	-- document id
+	doc_id text,
+        -- section id
+        section_id text,
+	-- sentence id
+	sent_id int,
+	-- indexes of the words composing the acronym
+	short_wordidxs int[],
+	-- indexes of the words composing the extended form
+	long_wordidxs int[],
+	-- mention id
+	mention_id text,
+	-- mention type
+	supertype text,
+        subtype text,
+	-- entity
+	entity text,
+	-- words
+	words text[],
+	-- is this a correct pheno acronym definition?
+	is_correct boolean
+) DISTRIBUTED BY (doc_id, section_id);
+
+-- Gene mentions features
+DROP TABLE IF EXISTS pheno_acronyms_features CASCADE;
+CREATE TABLE pheno_acronyms_features (
+	-- document id
+	doc_id text,
+        -- section id,
+        section_id text,
+	-- mention id
+	mention_id text,
+	-- feature
+	feature text
+) DISTRIBUTED BY (doc_id, section_id);
