@@ -137,23 +137,23 @@ class Candidate(unicode):
 
 def getcandidates(sentence):
   '''Yields Candidates'''
-  if '(' in sentence:
+  if '-LRB-' in sentence:
     # Check some things first
-    if sentence.count('(') != sentence.count(')'):
+    if sentence.count('-LRB-') != sentence.count('-RRB-'):
       raise ValueError('Unbalanced parentheses: %s' % sentence)
 
-    if sentence.find('(') > sentence.find(')'):
+    if sentence.find('-LRB-') > sentence.find('-RRB-'):
       raise ValueError('First parentheses is right: %s' % sentence)
 
     closeindex = -1
     while 1:
       # Look for open parenthesis
-      openindex = sentence.find('(', closeindex + 1)
+      openindex = sentence.find('-LRB-', closeindex + 1)
 
       if openindex == -1:
         break
 
-      # Look for closing parantheses
+      # Look for closing parentheses
       closeindex = openindex + 1
       open = 1
       skip = False
@@ -165,9 +165,9 @@ def getcandidates(sentence):
           # Skip the opening bracket
           skip = True
           break
-        if char == '(':
+        if char == '-LRB-':
           open += 1
-        elif char == ')':
+        elif char == '-RRB-':
           open -= 1
         closeindex += 1
 
@@ -178,12 +178,7 @@ def getcandidates(sentence):
       # Output if conditions are met
       start = openindex + 1
       stop = closeindex - 1
-      str = sentence[start:stop]
-
-      # Take into account whitepsace that should be removed
-      start = start + len(str) - len(str.lstrip())
-      stop = stop - len(str) + len(str.rstrip())
-      str = sentence[start:stop]
+      str = ' '.join(sentence[start:stop])
 
       if conditions(str):
         yield Candidate(start, stop, str)
@@ -219,10 +214,10 @@ def conditions(str):
 def getdefinition(candidate, sentence):
   '''Takes a candidate and a sentence and returns the definition candidate.
 
-  The definintion candidate is the set of tokens (in front of the candidate)
+  The definition candidate is the set of tokens (in front of the candidate)
   that starts with a token starting with the first character of the candidate'''
   # Take the tokens in front of the candidate
-  tokens = sentence[:candidate.start - 2].lower().split()
+  tokens = sentence[:candidate.start - 1].lower()
 
   # the char that we are looking for
   key = candidate[0].lower()
@@ -541,7 +536,6 @@ def getabbreviations(sentence):
     try:
       definition = getdefinition(candidate, sentence)
     except ValueError, e:
-      # print >>sys.stderr, i, sentence
       if verbose:
         print >> sys.stderr, 'Omitting abbreviation candidate', candidate.encode(
           encoding)
@@ -553,7 +547,6 @@ def getabbreviations(sentence):
           definition, candidate)
       except IndexError:
         if verbose:
-                # print >>sys.stderr, i, sentence
           print >> sys.stderr, 'Omitting abbreviation candidate', definition.encode(
             encoding), '||', candidate.encode(encoding), '\n'
       except ValueError, e:
