@@ -34,9 +34,12 @@ COPY (
       ) f
   WHERE
     r.doc_id = si.doc_id
+    AND r.section_id = si.section_id
     AND r.sent_id = si.sent_id
     AND r.doc_id = gm.doc_id 
+    AND r.section_id = gm.section_id 
     AND r.doc_id = pm.doc_id
+    AND r.section_id = pm.section_id
     AND r.sent_id = gm.sent_id
     AND r.sent_id = pm.sent_id
     AND r.gene_mention_id = gm.mention_id

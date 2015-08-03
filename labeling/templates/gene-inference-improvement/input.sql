@@ -8,6 +8,7 @@ COPY (
     , r.expectation
     , r.wordidxs
     , r.doc_id
+    , r.section_id
     , r.diff
   FROM
     gene_inference_delta_improvement r

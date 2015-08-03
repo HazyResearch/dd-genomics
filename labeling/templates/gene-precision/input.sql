@@ -1,5 +1,5 @@
 COPY (
-  SELECT DISTINCT ON (r,si.doc_id)
+  SELECT DISTINCT ON (r,si.doc_id,si.section_id)
     si.sent_id
     , gm.mention_id
     , gm.type
@@ -11,6 +11,7 @@ COPY (
     , weights
     , random() as r
     , si.doc_id
+    , si.section_id
   FROM gene_mentions_is_correct_inference gmi
     , sentences_input si
     , gene_mentions gm
@@ -25,6 +26,7 @@ COPY (
         GROUP BY mention_id
       ) f
   WHERE si.doc_id = gm.doc_id
+    AND si.section_id = gm.section_id
     AND si.sent_id = gm.sent_id
     AND gm.mention_id = gmi.mention_id
     and gm.mention_id = f.mention_id
