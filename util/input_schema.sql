@@ -37,3 +37,10 @@ CREATE TABLE hpo_to_doc_via_mesh (
   hpo_id text,
   doc_id text
 ) DISTRIBUTED BY (hpo_id, doc_id);
+
+DROP TABLE IF EXISTS document_metadata CASCADE;
+CREATE TABLE document_metadata (
+  doc_id text,
+  source text,
+  year text
+)
