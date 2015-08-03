@@ -42,5 +42,5 @@ DROP TABLE IF EXISTS document_metadata CASCADE;
 CREATE TABLE document_metadata (
   doc_id text,
   source text,
-  year text
+  year int
 )
