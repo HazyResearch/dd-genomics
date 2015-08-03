@@ -9,6 +9,7 @@ import config
 # This defines the Row object that we read in to the extractor
 parser = util.RowParser([
           ('doc_id', 'text'),
+          ('section_id', 'text'),
           ('sent_id', 'int'),
           ('words', 'text[]'),
           ('lemmas', 'text[]'),
@@ -28,7 +29,7 @@ def get_features_for_candidate(row):
 
   # (1) GENERIC FEATURES from ddlib
   span = ddlib.Span(begin_word_id=row.mention_wordidxs[0], length=len(row.mention_wordidxs))
-  features += [(row.doc_id, row.mention_id, feat) \
+  features += [(row.doc_id, row.section_id, row.mention_id, feat) \
                     for feat in ddlib.get_generic_features_mention(dds, span)]
 
   # (2) Add the closest verb by raw distance
@@ -39,7 +40,7 @@ def get_features_for_candidate(row):
                      [(min([abs(i-j) for j in row.mention_wordidxs]), i) for i in verb_idxs])
       if len(dists) > 0:
         verb = row.lemmas[min(dists)[1]]
-        features.append((row.doc_id, row.mention_id, 'NEAREST_VERB_[%s]' % (verb,)))
+        features.append((row.doc_id, row.section_id, row.mention_id, 'NEAREST_VERB_[%s]' % (verb,)))
   return features
 
 # Load in manually defined keywords

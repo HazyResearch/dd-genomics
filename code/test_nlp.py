@@ -7,6 +7,7 @@ import sys
 # This defines the Row object that we read in to the extractor
 parser = util.RowParser([
           ('doc_id', 'text'),
+          ('section_id', 'text'),
           ('sent_id', 'text'),
           ('dep_parents', 'int[]'),
           ('dep_paths', 'text[]'),

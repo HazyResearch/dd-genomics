@@ -16,6 +16,7 @@ CACHE = dict()  # Cache results of disk I/O
 # This defines the Row object that we read in to the extractor
 parser = util.RowParser([
           ('doc_id', 'text'),
+          ('section_id', 'text'),
           ('sent_id', 'int'),
           ('words', 'text[]'),
           ('dep_paths', 'text[]'),
@@ -29,6 +30,7 @@ parser = util.RowParser([
 Mention = collections.namedtuple('Mention', [
             'dd_id',
             'doc_id',
+            'section_id',
             'sent_id',
             'wordidxs',
             'mention_id',
@@ -93,8 +95,8 @@ def create_supervised_mention(row, i, entity=None, mention_supertype=None, menti
   """Given a Row object consisting of a sentence, create & supervise a Mention output object"""
   word = row.words[i]
   word_lower = word.lower()
-  mid = '%s_%s_%s_%s_%s' % (row.doc_id, row.sent_id, i, entity, mention_supertype)
-  m = Mention(None, row.doc_id, row.sent_id, [i], mid, mention_supertype, mention_subtype, entity, [word], None)
+  mid = '%s_%s_%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, i, entity, mention_supertype)
+  m = Mention(None, row.doc_id, row.section_id, row.sent_id, [i], mid, mention_supertype, mention_subtype, entity, [word], None)
   dep_dag = deps.DepPathDAG(row.dep_parents, row.dep_paths, row.words)
 
   if SR.get('post-match'):
@@ -118,7 +120,7 @@ def create_supervised_mention(row, i, entity=None, mention_supertype=None, menti
   ## DS RULE: matches from papers that NCBI annotates as being about the mentioned gene are likely true.
   if SR['pubmed-paper-genes-true']:
     pubmed_to_genes = CACHE['pubmed_to_genes']
-    pmid = dutil.get_pubmed_id_for_doc(row.doc_id, doi_to_pmid=CACHE['doi_to_pmid'])
+    pmid = dutil.get_pubmed_id_for_doc(row.doc_id)
     if pmid and entity:
       mention_ensembl_id = entity.split(":")[0]
       if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
@@ -157,8 +159,8 @@ def get_negative_mentions(row, mentions, d, per_row_max=2):
       continue
     
     # Make a template mention object- will have mention_id opt with entity (ensemble_id) appended
-    mid = '%s_%s_%s' % (row.doc_id, row.sent_id, i)
-    m = Mention(dd_id=None, doc_id=row.doc_id, sent_id=row.sent_id, wordidxs=[i], mention_id=mid, mention_supertype="RANDOM_NEGATIVE",mention_subtype=None, entity=None, words=[word], is_correct=None)
+    mid = '%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, i)
+    m = Mention(dd_id=None, doc_id=row.doc_id, section_id=row.section_id, sent_id=row.sent_id, wordidxs=[i], mention_id=mid, mention_supertype="RANDOM_NEGATIVE",mention_subtype=None, entity=None, words=[word], is_correct=None)
 
     # Non-match all uppercase negative supervision
     if word==word.upper() and len(word)>2 and word.isalnum() and not unicode(word).isnumeric():
@@ -175,7 +177,8 @@ if __name__ == '__main__':
   # load static data
   CACHE['phrase_to_genes'],CACHE['lower_phrase_to_genes'] = read_phrase_to_genes()
   CACHE['pubmed_to_genes'] = read_pubmed_to_genes()
-  CACHE['doi_to_pmid'] = dutil.read_doi_to_pmid()
+  # unnecessary currently b/c our doc id is the pmid, thankfully
+  # CACHE['doi_to_pmid'] = dutil.read_doi_to_pmid()
   
   # generate the mentions, while trying to keep the supervision approx. balanced
   # print out right away so we don't bloat memory...

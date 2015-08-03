@@ -13,6 +13,7 @@ import config
 # This defines the Row object that we read in to the extractor
 parser = util.RowParser([
           ('doc_id', 'text'),
+          ('section_id', 'text'),
           ('sent_id', 'int'),
           ('words', 'text[]'),
           ('lemmas', 'text[]'),
@@ -24,6 +25,7 @@ parser = util.RowParser([
 Mention = namedtuple('Mention', [
             'dd_id',
             'doc_id',
+            'section_id',
             'sent_id',
             'wordidxs',
             'mention_id',
@@ -146,8 +148,8 @@ VALS = config.PHENO['vals']
 def create_supervised_mention(row, idxs, entity=None, mention_supertype=None, mention_subtype=None):
   """Given a Row object consisting of a sentence, create & supervise a Mention output object"""
   words = [row.words[i] for i in idxs]
-  mid = '%s_%s_%s_%s_%s_%s' % (row.doc_id, row.sent_id, idxs[0], idxs[-1], mention_supertype, entity)
-  m = Mention(None, row.doc_id, row.sent_id, idxs, mid, mention_supertype, mention_subtype, entity, words, None)
+  mid = '%s_%s_%s_%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, idxs[0], idxs[-1], mention_supertype, entity)
+  m = Mention(None, row.doc_id, row.section_id, row.sent_id, idxs, mid, mention_supertype, mention_subtype, entity, words, None)
 
   if SR.get('post-match'):
     opts = SR['post-match']
@@ -159,7 +161,7 @@ def create_supervised_mention(row, idxs, entity=None, mention_supertype=None, me
           return m._replace(is_correct=val, mention_supertype='POST_MATCH_%s_%s' % (name, val), mention_subtype=match)
 
   if SR.get('mesh-supervise'):
-    pubmed_id = dutil.get_pubmed_id_for_doc(row.doc_id, doi_to_pmid=DOI_TO_PMID)
+    pubmed_id = dutil.get_pubmed_id_for_doc(row.doc_id)
     if pubmed_id and pubmed_id in PMID_TO_HPO:
       if entity in PMID_TO_HPO[pubmed_id]:
         return m._replace(is_correct=True, mention_supertype='%s_MESH_SUPERV' % mention_supertype, mention_subtype=str(pubmed_id) + ' ::: ' + str(entity))
@@ -207,9 +209,9 @@ def generate_rand_negatives(s, candidates):
         break
     wordidxs = [x[j] for j in ridxs]
     mtype = 'RAND_NEG'
-    mid = '%s_%s_%s_%s_%s' % (s.doc_id, s.sent_id, wordidxs[0], wordidxs[-1], mtype)
+    mid = '%s_%s_%s_%s_%s_%s' % (s.doc_id, s.section_id, s.sent_id, wordidxs[0], wordidxs[-1], mtype)
     negs.append(
-      Mention(dd_id=None, doc_id=s.doc_id, sent_id=s.sent_id, wordidxs=wordidxs,
+      Mention(dd_id=None, doc_id=s.doc_id, section_id=s.section_id, sent_id=s.sent_id, wordidxs=wordidxs,
         mention_id=mid, mention_supertype=mtype, mention_subtype=None, entity=None, words=[s.words[i] for i in wordidxs],
         is_correct=False))
     for i in wordidxs:
@@ -227,7 +229,8 @@ if __name__ == '__main__':
   hpo_dag = dutil.read_hpo_dag()
   hpo_phenos = set(dutil.get_hpo_phenos(hpo_dag))
   if SR.get('mesh-supervise'):
-    DOI_TO_PMID = dutil.read_doi_to_pmid()
+    # unnecessary and hope it will never be used again --- our doc id is the pmid currently
+    # DOI_TO_PMID = dutil.read_doi_to_pmid()
     PMID_TO_HPO = dutil.load_pmid_to_hpo()
   PHENOS, PHENO_SETS = load_pheno_terms()
 

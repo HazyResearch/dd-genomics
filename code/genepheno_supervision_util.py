@@ -13,6 +13,7 @@ import config
 parser = util.RowParser([
             ('relation_id', 'text'),
             ('doc_id', 'text'),
+            ('section_id', 'text'),
             ('sent_id', 'int'),
             ('gene_mention_id', 'text'),
             ('gene_entity', 'text'),
@@ -33,6 +34,7 @@ Relation = collections.namedtuple('Relation', [
             'dd_id',
             'relation_id',
             'doc_id',
+            'section_id',
             'sent_id',
             'gene_mention_id',
             'gene_entity',
@@ -90,7 +92,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
   dep_dag = deps.DepPathDAG(row.dep_parents, row.dep_paths, row.words, max_path_len=HF['max-dep-path-dist'])
 
   relation_id = '%s_%s' % (gene_mention_id, pheno_mention_id)
-  r = Relation(None, relation_id, row.doc_id, row.sent_id, gene_mention_id, gene_entity, \
+  r = Relation(None, relation_id, row.doc_id, row.section_id, row.sent_id, gene_mention_id, gene_entity, \
                gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, None, None, None)
   path_len_sets = dep_dag.path_len_sets(gene_wordidxs, pheno_wordidxs)
   if not path_len_sets:

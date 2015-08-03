@@ -10,6 +10,7 @@ import config
 # This defines the Row object that we read in to the extractor
 parser = util.RowParser([
           ('doc_id', 'text'),
+          ('section_id', 'text'),
           ('sent_id', 'int'),
           ('words', 'text[]'),
           ('lemmas', 'text[]'),
@@ -21,7 +22,7 @@ parser = util.RowParser([
           ('mention_type', 'text'),
           ('mention_wordidxs', 'int[]')])
 
-Feature = namedtuple('Feature', ['doc_id', 'mention_id', 'name'])
+Feature = namedtuple('Feature', ['doc_id', 'section_id', 'mention_id', 'name'])
 
 ENSEMBL_TYPES = ['NONCANONICAL', 'CANONICAL', 'REFSEQ']
 
@@ -29,7 +30,7 @@ ENSEMBL_TYPES = ['NONCANONICAL', 'CANONICAL', 'REFSEQ']
 def get_features_for_row(row):
   OPTS = config.GENE['F']
   features = []
-  f = Feature(doc_id=row.doc_id, mention_id=row.mention_id, name=None)
+  f = Feature(doc_id=row.doc_id, section_id=row.section_id, mention_id=row.mention_id, name=None)
 
   # (1) Get generic ddlib features
   sentence = util.create_ddlib_sentence(row)
