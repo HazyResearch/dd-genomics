@@ -76,7 +76,6 @@ public class Main {
       err.printStackTrace();
       System.exit(0);
     }
-
     mdWriter.close();
     omWriter.close();
   }

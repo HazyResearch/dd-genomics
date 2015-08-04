@@ -164,6 +164,7 @@ public class XMLDocParser {
 
   private Section createSection(String docId, String sectionId, String text, String refDocId) {
     assert docId != null;
+    if (text == null) { return null; }
     int num;
 
     // The 'primary key' is always the docId + sectionId
@@ -188,7 +189,7 @@ public class XMLDocParser {
    */
   public ArrayList<Section> parse() {
     String docId = null;
-    Metadata md = new Metadata();
+    Metadata md = null;
     ArrayList<Section> sections = new ArrayList<Section>();
     try {
       parser = factory.createXMLStreamReader(this.xmlStream);
@@ -196,6 +197,10 @@ public class XMLDocParser {
         int event = parser.next();
         if (event == XMLStreamConstants.START_ELEMENT) {
           String localName = parser.getLocalName();
+
+          if ("BlockMarker".equals(config.getDataSectionName(localName))) {
+            md = new Metadata();
+          }
 
           // Try to get the doc id
           if (config.isDocIdSection(parser)) {
@@ -223,7 +228,7 @@ public class XMLDocParser {
               }
               String sectionName = config.getReadSectionName(localName);
               Section s = createSection(docId, sectionName, content);
-              sections.add(s);
+              if (s != null) { sections.add(s); }
             }
           }
 
@@ -231,12 +236,13 @@ public class XMLDocParser {
           String localName = parser.getLocalName();
           if ("BlockMarker".equals(config.getDataSectionName(localName))) {
             docId = null;
+            md.write(mdWriter);
             md = null;
           }
 
         } else if (event == XMLStreamConstants.END_DOCUMENT) {
           parser.close();
-          md.write(mdWriter);
+          if (md != null) { md.write(mdWriter); }
           break;
         }
       }
