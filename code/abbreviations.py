@@ -84,13 +84,14 @@ import getopt
 
 def getcandidates(sentence):
   '''Yields Candidates'''
+  rv = []
   if '-LRB-' in sentence:
     # Check some things first
     if sentence.count('-LRB-') != sentence.count('-RRB-'):
-      raise ValueError('Unbalanced parentheses: %s' % sentence)
+      raise ValueError('[NO_SUP] Unbalanced parentheses: %s' % sentence)
 
     if sentence.index('-LRB-') > sentence.index('-RRB-'):
-      raise ValueError('First parentheses is right: %s' % sentence)
+      raise ValueError('[NO_SUP] First parentheses is right: %s' % sentence)
 
     closeindex = -1
     openindex = len(sentence)
@@ -129,7 +130,8 @@ def getcandidates(sentence):
       str = sentence[start:stop]
 
       if conditions(str):
-        yield (start, stop, str)
+        rv.append((start, stop, str))
+  return rv
 
 
 def conditions(str):
@@ -145,9 +147,9 @@ def conditions(str):
   it is a good candidate.
 
   '''
-  
+
   str = ' '.join(str)
-  
+
   if not __REPRODUCE__ and re.match('([A-Za-z]\. ?){2,}', str.lstrip()):
     return True
   if len(str) < 2 or len(str) > 10:
@@ -194,7 +196,7 @@ def getdefinition((startAbbrev, stopAbbrev, abbrev), sentence):
 
   else:
     raise ValueError(
-      'There are fewer keys in the tokens in front of candidate than there are in the candidate')
+      '[SUP] There are fewer keys in the tokens in front of candidate than there are in the candidate')
 
 
 def definitionselection(definition, abbrev):
@@ -205,7 +207,7 @@ def definitionselection(definition, abbrev):
   A simple algorithm for identifying abbreviation definitions in biomedical texts, Schwartz & Hearst'''
 
   if abbrev in definition[2]:
-    raise ValueError('Abbreviation is full word of definition')
+    raise ValueError('[SUP] Abbreviation is full word of definition')
 
   print definition[2]
   definitionStr = ' '.join(definition[2])
@@ -214,7 +216,7 @@ def definitionselection(definition, abbrev):
   abbrev = abbrev[2][0]
 
   if len(definitionStr) < len(abbrev):
-    raise ValueError('Abbreviation is longer than definition')
+    raise ValueError('[SUP] Abbreviation is longer than definition')
 
   sindex = -1
   lindex = -1
@@ -224,10 +226,10 @@ def definitionselection(definition, abbrev):
 
   while 1:
     if definitionStr[lindex] == ' ':
-      startDefinition -=1
+      startDefinition -= 1
       lindex -= 1
       continue
-    
+
     try:
       longchar = definitionStr[lindex].lower()
     except IndexError:
@@ -250,7 +252,7 @@ def definitionselection(definition, abbrev):
 
         if lindex == -1 * (len(definitionStr) + 1):
           raise ValueError(
-            'definition of "%s" not found in "%s"' % (abbrev, definitionStr))
+            '[SUP] definition of "%s" not found in "%s"' % (abbrev, definitionStr))
 
     else:
       if shortchar == longchar:
@@ -265,25 +267,38 @@ def definitionselection(definition, abbrev):
   length = len(abbrev)
 
   if tokens > min([length + 5, length * 2]):
-    raise ValueError('did not meet min(|A|+5, |A|*2) constraint (%d, %d)' % (tokens, length))
+    raise ValueError('[SUP] did not meet min(|A|+5, |A|*2) constraint (%d, %d)' % (tokens, length))
 
   # Do not return definitions that contain unbalanced parentheses
   if not __REPRODUCE__:
     if definition.count('(') != definition.count(')'):
       raise ValueError(
-        'Unbalanced parentheses not allowed in a definition')
+        '[NO_SUP] Unbalanced parentheses not allowed in a definition')
 
   return definition
 
 def getabbreviations(sentence):
   rv = []
-  for abbrev in getcandidates(sentence):
+  try:
+    abbrevs = getcandidates(sentence)
+  except ValueError, e:
+    print >> sys.stderr, 'Omitting sentence', '\n' 
+    print >> sys.stderr, 'Reason:', e.args[0], '\n'
+    return rv
+
+  for abbrev in abbrevs:
+    print "Abbreviation: %s" % str(abbrev)
     try:
       definition = getdefinition(abbrev, sentence)
       print "Definition2: " + str(definition)
     except ValueError, e:
       print >> sys.stderr, 'Omitting abbreviation candidate', abbrev
       print >> sys.stderr, 'Reason:', e.args[0], '\n'
+      if e.args[0].starts_with('[SUP]'):
+        startFakeDefinition = abbrev[1] - 1 - len(abbrev[2][0])
+        stopFakeDefinition = abbrev[1] - 1
+        rv.append(False, abbrev, (startFakeDefinition, stopFakeDefinition, 
+                                 sentence[startFakeDefinition:stopFakeDefinition]))
     else:
       try:
         definition = definitionselection(definition, abbrev)
@@ -291,6 +306,11 @@ def getabbreviations(sentence):
         # print >>sys.stderr, i, sentence
         print >> sys.stderr, 'Omitting abbreviation candidate', definition, '||', definition
         print >> sys.stderr, 'Reason:', e.args[0], '\n'
+        if e.args[0].starts_with('[SUP]'):
+          startFakeDefinition = abbrev[1] - 1 - len(abbrev[2][0])
+          stopFakeDefinition = abbrev[1] - 1
+          rv.append(False, abbrev, (startFakeDefinition, stopFakeDefinition, 
+                                 sentence[startFakeDefinition:stopFakeDefinition]))
       else:
-        rv.append((abbrev, definition))
+        rv.append((True, abbrev, definition))
   return rv
