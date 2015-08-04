@@ -5,7 +5,7 @@ See Milestones/Issues.
 
 ### DATA:
 [7/23/15]: Current datasets to use:
-* **PMC:**
+* **PMC (includes PLoS):**
 	* Raw XML documents: `/dfs/scratch0/ajratner/pmc_raw/`
 	* Parsed into sections: `/dfs/scratch0/ajratner/parsed/[LATEST_DATE]/xml/pmc.json`
 	* Processed through coreNLP: *Pending...*
