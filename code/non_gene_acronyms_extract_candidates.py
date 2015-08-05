@@ -10,6 +10,7 @@ import string
 import config
 import dep_util as deps
 from gene_extract_candidates import create_supervised_mention
+import abbreviations
 
 CACHE = dict()  # Cache results of disk I/O
 
@@ -38,8 +39,8 @@ Mention = collections.namedtuple('Mention', [
             'mention_id',
             'mention_supertype',
             'mention_subtype',
-            'entity',
-            'words',
+            'abbrev_word',
+            'definition_words',
             'is_correct'])
 
 ### CANDIDATE EXTRACTION ###
@@ -51,74 +52,51 @@ def extract_candidate_mentions(row, pos_count, neg_count):
   phrase_to_genes = CACHE['phrase_to_genes']
   lower_phrase_to_genes = CACHE['lower_phrase_to_genes']
   mentions = []
-  for i, word in enumerate(row.words):
-    if word == '-LRB-':
-      ...
-      m = create_supervised_mention(row, i, eid, mapping_type)
+  for (isCorrect, abbrev, definition) in abbreviations.getabbreviations(row.words):
+    m = create_supervised_mention(row, isCorrect, abbrev, definition)
+    mentions.append(m)
   return mentions
-  return mentions
-
  
 ### DISTANT SUPERVISION ###
 VALS = config.PHENO_ACRONYMS['vals']
-def create_supervised_mention(row, i, entity=None, mention_supertype=None, mention_subtype=None):
-  """Given a Row object consisting of a sentence, create & supervise a Mention output object"""
-  word = row.words[i]
-  word_lower = word.lower()
-  mid = '%s_%s_%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, i, entity, mention_supertype)
-  m = Mention(None, row.doc_id, row.section_id, row.sent_id, [i], mid, mention_supertype, mention_subtype, entity, [word], None)
-  dep_dag = deps.DepPathDAG(row.dep_parents, row.dep_paths, row.words)
-
-  if SR.get('post-match'):
-    opts = SR['post-match']
-    phrase_post = " ".join(row.words[i+1:])
-    for name,val in VALS:
-      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
-        match = util.rgx_mult_search(phrase_post, opts[name], opts['%s-rgx' % name], flags=re.I)
-        if match:
-          return m._replace(is_correct=val, mention_supertype='POST_MATCH_%s_%s' % (name, val), mention_subtype=match)
-
-  if SR.get('pre-neighbor-match') and i > 0:
-    opts = SR['pre-neighbor-match']
-    pre_neighbor = row.words[i-1]
-    for name,val in VALS:
-      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
-        match = util.rgx_mult_search(pre_neighbor, opts[name], opts['%s-rgx' % name], flags=re.I)
-        if match:
-          return m._replace(is_correct=val, mention_supertype='PRE_NEIGHBOR_MATCH_%s_%s' % (name, val), mention_subtype=match)
-
-  ## DS RULE: matches from papers that NCBI annotates as being about the mentioned gene are likely true.
-  if SR['pubmed-paper-genes-true']:
-    pubmed_to_genes = CACHE['pubmed_to_genes']
-    pmid = dutil.get_pubmed_id_for_doc(row.doc_id)
-    if pmid and entity:
-      mention_ensembl_id = entity.split(":")[0]
-      if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
-        return m._replace(is_correct=True, mention_supertype='%s_NCBI_ANNOTATION_TRUE' % mention_supertype, mention_subtype=mention_ensembl_id)
-
-  ## DS RULE: Genes on the gene list with complicated names are probably good for exact matches.
-  if SR['complicated-gene-names-true']:
-    if mention.mention_supertype in ('CANONICAL_SYMBOL','NONCANONICAL_SYMBOL'):
-      if re.match(r'[a-zA-Z]{3}[a-zA-Z]*\d+\w*', word):
-        return m._replace(is_correct=True, mention_supertype='COMPLICATED_GENE_NAME')
-
-  if SR.get('neighbor-match'):
-    opts = SR['neighbor-match']
-    for name,val in VALS:
-      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
-        for neighbor_idx in dep_dag.neighbors(i):
-          neighbor = row.words[neighbor_idx]
-          match = util.rgx_mult_search(neighbor, opts[name],  opts['%s-rgx' % name], flags=re.I)
-          if match:
-            return m._replace(is_correct=val, mention_supertype='NEIGHBOR_MATCH_%s_%s' % (name, val), mention_subtype='Neighbor: ' + neighbor + ', match: ' + match)
-
+def create_supervised_mention(row, isCorrect, (startAbbrev, stopAbbrev, abbrev), (startDefinition, stopDefinition, definition)):
+  assert stopAbbrev == startAbbrev + 1
+  mid = '%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, startAbbrev)
+  [
+            'dd_id',
+            'doc_id',
+            'section_id',
+            'sent_id',
+            'short_wordidxs',
+            'long_wordidxs',
+            'mention_id',
+            'mention_supertype',
+            'mention_subtype',
+            'abbrev_word',
+            'definition_words',
+            'is_correct']
+  m = Mention(None, row.doc_id, row.section_id, 
+              row.sent_id, xrange(startAbbrev, stopAbbrev+1), 
+              xrange(startDefinition, stopDefinition + 1), 
+              mid, None, None, abbrev, definition, isCorrect);
   return m
 
+def read_gene_to_full_name():
+  rv = {}
+  with open(onto_path('data/gene_names.tsv')) as f:
+    for line in f:
+      parts = line.split('\t')
+      assert len(parts) == 2, parts
+      geneAbbrev = parts[0]
+      geneFullName = parts[1]
+      assert geneAbbrev not in rv, geneAbbrev
+      rv[geneAbbrev] = geneFullName
+  return rv
 
 if __name__ == '__main__':
   # load static data
+  onto_path = lambda p : '%s/onto/%s' % (os.environ['GDD_HOME'], p)
   CACHE['gene_to_full_name'] = read_gene_to_full_name()
-  CACHE['pheno_full_names'] = read_pheno_full_names()
   
   # generate the mentions, while trying to keep the supervision approx. balanced
   # print out right away so we don't bloat memory...
