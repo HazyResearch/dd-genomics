@@ -1,16 +1,14 @@
 #!/usr/bin/env python
 import collections
-import extractor_util as util
-import data_util as dutil
-import random
-import re
 import os
 import sys
-import string
-import config
-import dep_util as deps
-from gene_extract_candidates import create_supervised_mention
+
 import abbreviations
+import config
+import extractor_util as util
+from gene_extract_candidates import create_supervised_mention
+import levenshtein
+
 
 CACHE = dict()  # Cache results of disk I/O
 
@@ -44,24 +42,24 @@ Mention = collections.namedtuple('Mention', [
             'is_correct'])
 
 ### CANDIDATE EXTRACTION ###
-HF = config.GENE['HF']
-SR = config.GENE['SR']
-
+# HF = config.NON_GENE_ACRONYMS['HF']
+SR = config.NON_GENE_ACRONYMS['SR']
 
 def extract_candidate_mentions(row, pos_count, neg_count):
-  phrase_to_genes = CACHE['phrase_to_genes']
-  lower_phrase_to_genes = CACHE['lower_phrase_to_genes']
   mentions = []
-  for (isCorrect, abbrev, definition) in abbreviations.getabbreviations(row.words):
-    m = create_supervised_mention(row, isCorrect, abbrev, definition)
+  for (isCorrect, abbrev, definition, detector_message) in abbreviations.getabbreviations(row.words):
+    m = create_supervised_mention(row, isCorrect, abbrev, definition, detector_message)
     mentions.append(m)
   return mentions
- 
+
 ### DISTANT SUPERVISION ###
-VALS = config.PHENO_ACRONYMS['vals']
-def create_supervised_mention(row, isCorrect, (startAbbrev, stopAbbrev, abbrev), (startDefinition, stopDefinition, definition)):
-  assert stopAbbrev == startAbbrev + 1
-  mid = '%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, startAbbrev)
+VALS = config.NON_GENE_ACRONYMS['vals']
+def create_supervised_mention(row, is_correct, 
+                              (start_abbrev, stop_abbrev, abbrev), 
+                              (start_definition, stop_definition, 
+                               definition), detector_message):
+  assert stop_abbrev == start_abbrev + 1
+  mid = '%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, start_abbrev)
   [
             'dd_id',
             'doc_id',
@@ -75,10 +73,24 @@ def create_supervised_mention(row, isCorrect, (startAbbrev, stopAbbrev, abbrev),
             'abbrev_word',
             'definition_words',
             'is_correct']
-  m = Mention(None, row.doc_id, row.section_id, 
-              row.sent_id, xrange(startAbbrev, stopAbbrev+1), 
-              xrange(startDefinition, stopDefinition + 1), 
-              mid, None, None, abbrev, definition, isCorrect);
+  gene_to_full_name = CACHE['gene_to_full_name']
+  if is_correct:
+    supertype = 'ACRONYM_TRUE'
+    subtype = None
+  else:
+    supertype = 'ACRONYM_FALSE_DETECTOR'
+    subtype = detector_message
+  if is_correct and abbrev in gene_to_full_name:
+    full_gene_name = gene_to_full_name[abbrev];
+    if float(levenshtein.levenshtein(full_gene_name, ' '.join(definition))) \
+          / len(' '.join(definition)) <= SR['levenshtein_cutoff']:
+      isCorrect = False
+      supertype = 'ACRONYM_FALSE_GENE_NAME'
+      subtype = full_gene_name
+  m = Mention(None, row.doc_id, row.section_id,
+              row.sent_id, xrange(start_abbrev, stop_abbrev + 1),
+              xrange(start_definition, stop_definition + 1),
+              mid, supertype, subtype, abbrev, definition, isCorrect);
   return m
 
 def read_gene_to_full_name():
@@ -97,7 +109,7 @@ if __name__ == '__main__':
   # load static data
   onto_path = lambda p : '%s/onto/%s' % (os.environ['GDD_HOME'], p)
   CACHE['gene_to_full_name'] = read_gene_to_full_name()
-  
+
   # generate the mentions, while trying to keep the supervision approx. balanced
   # print out right away so we don't bloat memory...
   pos_count = 0

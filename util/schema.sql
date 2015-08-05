@@ -172,8 +172,8 @@ CREATE TABLE plos_doi_to_pmid (
 ) DISTRIBUTED BY (doi);
 
 -- Gene mentions
-DROP TABLE IF EXISTS pheno_acronyms CASCADE;
-CREATE TABLE gene_mentions (
+DROP TABLE IF EXISTS non_gene_acronyms CASCADE;
+CREATE TABLE non_gene_acronyms (
 	-- id for random variable
 	id bigint,
 	-- document id
@@ -200,8 +200,8 @@ CREATE TABLE gene_mentions (
 ) DISTRIBUTED BY (doc_id, section_id);
 
 -- Gene mentions features
-DROP TABLE IF EXISTS pheno_acronyms_features CASCADE;
-CREATE TABLE pheno_acronyms_features (
+DROP TABLE IF EXISTS non_gene_acronyms_features CASCADE;
+CREATE TABLE non_gene_acronyms_features (
 	-- document id
 	doc_id text,
         -- section id,

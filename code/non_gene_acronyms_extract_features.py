@@ -29,7 +29,7 @@ ENSEMBL_TYPES = ['NONCANONICAL', 'CANONICAL', 'REFSEQ']
 
 
 def get_features_for_row(row):
-  OPTS = config.PHENO_ACRONYMS['F']
+  OPTS = config.NON_GENE_ACRONYMS['F']
   features = []
   f = Feature(doc_id=row.doc_id, section_id=row.section_id, mention_id=row.mention_id, name=None)
 
