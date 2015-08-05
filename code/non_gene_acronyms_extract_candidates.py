@@ -47,8 +47,8 @@ SR = config.NON_GENE_ACRONYMS['SR']
 
 def extract_candidate_mentions(row, pos_count, neg_count):
   mentions = []
-  for (isCorrect, abbrev, definition, detector_message) in abbreviations.getabbreviations(row.words):
-    m = create_supervised_mention(row, isCorrect, abbrev, definition, detector_message)
+  for (is_correct, abbrev, definition, detector_message) in abbreviations.getabbreviations(row.words):
+    m = create_supervised_mention(row, is_correct, abbrev, definition, detector_message)
     mentions.append(m)
   return mentions
 
@@ -82,15 +82,16 @@ def create_supervised_mention(row, is_correct,
     subtype = detector_message
   if is_correct and abbrev in gene_to_full_name:
     full_gene_name = gene_to_full_name[abbrev];
-    if float(levenshtein.levenshtein(full_gene_name, ' '.join(definition))) \
+    ld = levenshtein.levenshtein(full_gene_name.lower(), ' '.join(definition).lower())
+    if float(ld) \
           / len(' '.join(definition)) <= SR['levenshtein_cutoff']:
-      isCorrect = False
+      is_correct = False
       supertype = 'ACRONYM_FALSE_GENE_NAME'
-      subtype = full_gene_name
+      subtype = full_gene_name + '; LD=' + str(ld)
   m = Mention(None, row.doc_id, row.section_id,
-              row.sent_id, xrange(start_abbrev, stop_abbrev + 1),
-              xrange(start_definition, stop_definition + 1),
-              mid, supertype, subtype, abbrev, definition, isCorrect);
+              row.sent_id, [i for i in xrange(start_abbrev, stop_abbrev + 1)],
+              [i for i in xrange(start_definition, stop_definition + 1)],
+              mid, supertype, subtype, abbrev, definition, is_correct);
   return m
 
 def read_gene_to_full_name():
@@ -99,8 +100,8 @@ def read_gene_to_full_name():
     for line in f:
       parts = line.split('\t')
       assert len(parts) == 2, parts
-      geneAbbrev = parts[0]
-      geneFullName = parts[1]
+      geneAbbrev = parts[0].strip()
+      geneFullName = parts[1].strip()
       assert geneAbbrev not in rv, geneAbbrev
       rv[geneAbbrev] = geneFullName
   return rv
