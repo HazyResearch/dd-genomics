@@ -3,12 +3,18 @@
 #### TO-DO LIST
 See Milestones/Issues.
 
-### GDD Setup notes
-
-1. [7/23/15]: Current datasets to use:
-	* **Development**: PLoS 30K balanced set: see e.g. the `sentences` table in `genomics_ajratner` db
-	* **Full- Processed:** PloS All: see `sentences_new` table in `genomics_ajratner` db
-	* **Full- Unprocessed:** Raw XML docs for PLoS, PMC (and others soon): `/dfs/scratch0/ajratner/pmc_raw/`
+### DATA:
+[8/4/15]: Current datasets to use:
+* **PMC (includes PLoS):**
+	* Raw XML documents: `/dfs/scratch0/ajratner/pmc_raw/`
+	* Parsed into sections: `/dfs/scratch0/ajratner/parsed/pmc/xml/`
+	* Processed through coreNLP: *Pending...*
+	* In database: *Pending...*
+* **PubMed Titles + Abstracts:**
+	* Raw XML documents: `/dfs/scratch0/jbirgmei/pubmed_baseline/ungz/`
+	* Parsed into sections: `/dfs/scratch0/ajratner/parsed/pubmed_abs/xml/`
+	* Processed through coreNLP: *Pending...*
+	* In database: *Pending...*
 
 ### Running GDD: Basics
 
@@ -129,10 +135,6 @@ Then start the dashboard, if it's not already running, with
     export GDD_PIPELINE=
     PORT=XXXX util/mindbender dashboard
     )
-
-### PubMed Data
-
-PubMed data is stored at `/dfs/scratch0/jbirgmei/pubmed_baseline/ungz`.
 
 [sampler-se]: https://github.com/HazyResearch/sampler/tree/sample_evidence
 [deepdiverepo]: https://github.com/hazyresearch/deepdive
