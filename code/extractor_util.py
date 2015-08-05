@@ -38,8 +38,11 @@ def skip_row(row):
     return True
 
   # Require that there is a verb in the sentence
-  if not any(pos.startswith("VB") for pos in row.poses):
-    return True
+  try:
+    if not any(pos.startswith("VB") for pos in row.poses):
+      return True
+  except AttributeError:
+    pass
 
   # Filter out by certain specific identifying tokens
   exclude_strings = ['http://', 'https://']

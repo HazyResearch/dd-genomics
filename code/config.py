@@ -3,6 +3,12 @@
 # extraction hyperparameters / configurations
 BOOL_VALS = [('neg', False), ('pos', True)]
 
+### GENEVAR
+GENEVAR = {
+  'vals' : BOOL_VALS,
+  'HF' : {}
+}
+
 ### GENE
 GENE = {
   'vals' : BOOL_VALS,
