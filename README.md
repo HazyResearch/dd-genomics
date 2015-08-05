@@ -7,12 +7,12 @@ See Milestones/Issues.
 [8/4/15]: Current datasets to use:
 * **PMC (includes PLoS):**
 	* Raw XML documents: `/dfs/scratch0/ajratner/pmc_raw/`
-	* Parsed into sections: `/dfs/scratch0/ajratner/parsed/pmc/xml/pmc.json`
+	* Parsed into sections: `/dfs/scratch0/ajratner/parsed/pmc/xml/`
 	* Processed through coreNLP: *Pending...*
 	* In database: *Pending...*
 * **PubMed Abstracts:**
-	* Raw XML documents: `/dfs/scratch0/jbirgmei/pubmed_baseline/ungz`
-	* Parsed into sections: `/dfs/scratch0/ajratner/parsed/pubmed_abs/xml/pubmed_abs.json`
+	* Raw XML documents: `/dfs/scratch0/jbirgmei/pubmed_baseline/ungz/`
+	* Parsed into sections: `/dfs/scratch0/ajratner/parsed/pubmed_abs/xml/`
 	* Processed through coreNLP: *Pending...*
 	* In database: *Pending...*
 
