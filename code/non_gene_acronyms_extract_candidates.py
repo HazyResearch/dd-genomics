@@ -49,6 +49,7 @@ def extract_candidate_mentions(row, pos_count, neg_count):
   mentions = []
   for (is_correct, abbrev, definition, detector_message) in abbreviations.getabbreviations(row.words):
     m = create_supervised_mention(row, is_correct, abbrev, definition, detector_message)
+    ':type m: Mention'
     mentions.append(m)
   return mentions
 
@@ -77,9 +78,12 @@ def create_supervised_mention(row, is_correct,
   if is_correct:
     supertype = 'ACRONYM_TRUE'
     subtype = None
-  else:
+  elif is_correct is False:
     supertype = 'ACRONYM_FALSE_DETECTOR'
     subtype = detector_message
+  else:
+    supertype = 'DETECTOR_OMITTED_SENTENCE'
+    subtype = None
   if is_correct and abbrev in gene_to_full_name:
     full_gene_name = gene_to_full_name[abbrev];
     ld = levenshtein.levenshtein(full_gene_name.lower(), ' '.join(definition).lower())
