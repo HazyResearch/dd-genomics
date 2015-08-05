@@ -10,7 +10,7 @@ See Milestones/Issues.
 	* Parsed into sections: `/dfs/scratch0/ajratner/parsed/pmc/xml/`
 	* Processed through coreNLP: *Pending...*
 	* In database: *Pending...*
-* **PubMed Abstracts:**
+* **PubMed Titles + Abstracts:**
 	* Raw XML documents: `/dfs/scratch0/jbirgmei/pubmed_baseline/ungz/`
 	* Parsed into sections: `/dfs/scratch0/ajratner/parsed/pubmed_abs/xml/`
 	* Processed through coreNLP: *Pending...*
