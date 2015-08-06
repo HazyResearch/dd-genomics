@@ -3,11 +3,6 @@
 # extraction hyperparameters / configurations
 BOOL_VALS = [('neg', False), ('pos', True)]
 
-### GENEVAR
-GENEVAR = {
-  'vals' : BOOL_VALS,
-  'HF' : {}
-}
 
 ### GENE
 GENE = {
@@ -58,6 +53,13 @@ GENE = {
   'F' : {
     #'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
   }
+}
+
+
+### GENEVAR
+GENEVAR = {
+  'vals' : BOOL_VALS,
+  'HF' : {}
 }
 
 
@@ -265,17 +267,29 @@ GENE_PHENO = {
 }
 
 
-# Hyperparameters / switches for features
-FEATURES = {
-  'gene'      : {
+### GENEVAR-PHENO
+GENEVAR_PHENO = {
+  ## Hard Filters (for candidate extraction)
+  'HF' : {
+    # Upper-bound the max min-dependency-path length between G and P
+    'max-dep-path-dist' : 7,
+
+    # Only consider the closest GP pairs for duplicate GP pairs
+    'take-best-only-dups' : False,
+
+    # Only consider the closest GP pairs by dep-path distance such that all G,P are covered
+    'take-best-only' : False
   },
-  'pheno'     : {},
-  'genepheno' : {}
-}
 
+  ## Supervision Rules
+  'SR' : {
+    # Subsample GP pairs where G and/or P is neg. example as neg. GP supervision
+    'gv-or-p-false' : {'diff' : 0.5, 'rand' : 0.01},
 
-DELTA_IMPROVEMENT = {
-  'genepheno_inference'    : 'inferred.sql',
-  'genepheno_supervision'  : 'all.sql',
-  'gene_inference'         : 'all.sql'
+    # Supervise with ClinVar
+    'clinvar-sup' : True
+  },
+
+  ## Features
+  'F' : {}
 }

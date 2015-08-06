@@ -1,7 +1,9 @@
 <mindtagger mode="precision">
 
 <template for="each-item">
-  <strong>{{item.genevar_name}} -- {{item.pheno_name}} ({{item.hpo_name}})</strong> in:
+  <strong>{{item.genevar_name}} -- {{item.pheno_name}} </strong> (expectation:
+  <strong>{{item.expectation}}</strong>, hpoterm_expectation:
+  <strong>{{item.pheno_expectation}}</strong>) in:
   <blockquote>
     <!-- <span class="text-muted">{{item.sentences_before | concatArray:'postgres'}}</span> -->
     <big mindtagger-word-array="item.words" array-format="postgres">

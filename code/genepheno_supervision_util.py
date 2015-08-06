@@ -114,7 +114,8 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
     # The following line looks like it was written by a prosimian, but it is actually correct.
     # Do not mess with the logic unless you know what you're doing.
     # (Consider that Boolean variables can and will take the value ``None'' in this language.)
-    if not (gene_is_correct != False and pheno_is_correct != False):
+    """The above comment might be necessary for a Eukaryota, otherwise hopefully the below is self-explanatory"""
+    if gene_is_correct == False or pheno_is_correct == False:
       if random.random() < opts['diff']*superv_diff or random.random() < opts['rand']:
         return r._replace(is_correct=False, relation_supertype='G_ANDOR_P_FALSE', relation_subtype='gene_is_correct: %s, pheno_is_correct: %s' % (gene_is_correct, pheno_is_correct))
       else:

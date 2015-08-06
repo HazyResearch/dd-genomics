@@ -70,6 +70,14 @@ def read_hpo_synonyms():
           syn_dict[syn] = node
   return syn_dict
 
+def load_hgvs_to_hpo():
+  hgvs_to_hpo = defaultdict(set)
+  with open(onto_path('data/hgvs_to_hpo.tsv'), 'rb') as f:
+    for line in f:
+      hgvs_ids, hpo_ids = line.strip().split('\t')
+      for hgvs_id in hgvs_ids.split('|'):
+        hgvs_to_hpo[hgvs_id].update(hpo_ids.split('|'))
+  return hgvs_to_hpo
 
 def load_pmid_to_hpo():
   """Load map from Pubmed ID to HPO term (via MeSH)"""
