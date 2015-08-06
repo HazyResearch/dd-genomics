@@ -92,6 +92,25 @@ def extract_candidate_mentions(row, gv_rgx):
         entity=word,
         words=[word],
         is_correct=True))
+
+    # Sometimes some of the regex patterns get split up
+    elif re.match(r'[cgrm]\.|IVS.*', word):
+      for j in range(i+1, min(i+7, len(row.words))):
+        words = row.words[i:j]
+        if re.match(gv_rgx, ''.join(words), flags=re.I):
+          mentions.append(Mention(
+            dd_id=None, 
+            doc_id=row.doc_id, 
+            section_id=row.section_id,
+            sent_id=row.sent_id,
+            wordidxs=range(i,j),
+            mention_id='%s_%s_%s_%s_%s_GV' % (row.doc_id, row.section_id, row.sent_id, i, j),
+            mention_supertype='GV_RGX_MATCH',
+            mention_subtype=None,
+            entity=''.join(words),
+            words=words,
+            is_correct=True))
+          break
   return mentions
 
 
@@ -105,11 +124,11 @@ if __name__ == '__main__':
       continue
 
     # Find candidate mentions & supervise
-    try:
-      mentions = extract_candidate_mentions(row, GV_RGX)
-    except IndexError:
-      util.print_error("Error with row: %s" % (row,))
-      continue
+    #try:
+    mentions = extract_candidate_mentions(row, GV_RGX)
+    #except IndexError:
+    #  util.print_error("Error with row: %s" % (row,))
+    #  continue
 
     # print output
     for mention in mentions:
