@@ -105,7 +105,7 @@ def getdefinition((startAbbrev, stopAbbrev, abbrev), sentence, stopLastAbbrev):
       '[SUP] Not enough keys')
 
 def definitionselection((startDefinition, stopDefinition, definition), (startAbbrev, stopAbbrev, abbrev)):
-  if abbrev in definition:
+  if abbrev.lower() in [word.lower() for word in definition]:
     raise ValueError('[SUP] Abbrv = full word of def')
 
   definitionStr = ' '.join(definition)

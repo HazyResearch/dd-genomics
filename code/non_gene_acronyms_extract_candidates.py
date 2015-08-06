@@ -90,8 +90,12 @@ def create_supervised_mention(row, is_correct,
     if float(ld) \
           / len(' '.join(definition)) <= SR['levenshtein_cutoff']:
       is_correct = False
-      supertype = 'ACRONYM_FALSE_GENE_NAME'
+      supertype = 'ACRONYM_FALSE_ABBREV_GENE_NAME'
       subtype = full_gene_name + '; LD=' + str(ld)
+  if is_correct and len(definition) == 1 and definition[0] in gene_to_full_name:
+    is_correct = False
+    supertype = 'ACRONYM_FALSE_DEFINITION_GENE_NAME'
+    subtype = definition[0]
   m = Mention(None, row.doc_id, row.section_id,
               row.sent_id, [i for i in xrange(start_abbrev, stop_abbrev + 1)],
               [i for i in xrange(start_definition, stop_definition + 1)],
