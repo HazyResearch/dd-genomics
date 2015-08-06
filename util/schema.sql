@@ -132,6 +132,24 @@ CREATE TABLE genepheno_features (
 	feature text
 ) DISTRIBUTED BY (doc_id, section_id);
 
+-- Gene / Phenotype mentions
+DROP TABLE IF EXISTS genevarpheno_relations CASCADE;
+CREATE TABLE genevarpheno_relations (
+	id bigint,
+	relation_id text,
+	doc_id text,
+        section_id text,
+	sent_id int,
+	genevar_mention_id text,
+        genevar_entity text,
+        genevar_wordidxs int[],
+        genevar_is_correct boolean,
+	pheno_mention_id text,
+        pheno_entity text,
+        pheno_wordidxs int[],
+        pheno_is_correct boolean
+) DISTRIBUTED BY (doc_id, section_id);
+
 DROP TABLE IF EXISTS test_nlp;
 CREATE TABLE test_nlp (id bigint);
 
