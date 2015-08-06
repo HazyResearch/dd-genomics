@@ -138,3 +138,23 @@ sort -k2,2 hpo_to_pmid_via_mesh.tsv > hpo_to_pmid_via_mesh_sortk2.tsv
 sort -k2,2 plos_doi_to_pmid.tsv > plos_doi_to_pmid_sortk2.tsv
 join -1 2 -2 2 hpo_to_pmid_via_mesh_sortk2.tsv plos_doi_to_pmid_sortk2.tsv | awk '{print $2"\t"$1}' > hpo_to_pmid_via_mesh_with_doi.tsv
 cd ..
+
+# Download and parse HPO disease annotations (DECIPHER, OMIM, ORPHANET mapped to HPO)
+# http://www.human-phenotype-ontology.org/contao/index.php/annotation-guide.html
+# output format: <disease DB, disease ID, disease name, synonyms, HPO IDs>
+# http://stackoverflow.com/questions/23719065/tsv-how-to-concatenate-field-2s-if-field-1-is-duplicate
+RAW="raw/hpo_phenotype_annotation.tsv"
+if [ ! -e "$RAW" ]; then
+  wget http://compbio.charite.de/hudson/job/hpo.annotations/lastStableBuild/artifact/misc/phenotype_annotation.tab -O "$RAW"
+fi
+awk -F'\t' 'p==$1$2$3$12 {printf "|%s", $5;next}{if(p){print ""};p=$1$2$3$12;printf "%s\t%s\t%s\t%s\t%s", $1,$2,$3,$12,$5}END{print ""}' "$RAW" > data/hpo_disease_phenotypes.tsv
+awk -F'\t' '{printf "%s:%s\t%s\n", $1, $2, $3}' data/hpo_disease_phenotypes.tsv | grep 'DECIPHER:' > data/diseases_deci.tsv
+
+# Download ClinVar
+RAW="raw/clinvar.tsv"
+if [ ! -e "$RAW" ];
+  wget ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/variant_summary.txt.gz -O - | gzip -dc > $RAW
+fi
+
+# Run script to extract Gene-Variant : HPO mapping, joining on OMIM
+python join_clinvar_omim_hpo.py > data/hgvs_to_hpo.tsv
