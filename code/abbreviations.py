@@ -117,6 +117,8 @@ def definitionselection((startDefinition, stopDefinition, definition), (startAbb
   lWordIndex = -1
   lCharacterIndex = -1
 
+  stopDefinition = -1
+
   # find all except the first char of the abbreviation
   while 1:
     shortChar = abbrev[sIndex].lower()
@@ -124,7 +126,7 @@ def definitionselection((startDefinition, stopDefinition, definition), (startAbb
     
     if shortChar == longChar:
       if stopDefinition == -1:
-        stopDefinition = len(definition) + lWordIndex
+        stopDefinition = len(definition) + lWordIndex + 1
       sIndex -= 1
     if (lCharacterIndex == -1 * len(definition[lWordIndex])):
       lCharacterIndex = -1

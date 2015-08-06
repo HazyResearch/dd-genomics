@@ -13,7 +13,10 @@ NON_GENE_ACRONYMS = {
                      
   'HF' : {},
                      
-  'SR' : { 'levenshtein_cutoff' : 0.2 }
+  'SR' : { 
+    'levenshtein_cutoff' : 0.2,
+    'short_words': { 'the', 'and', 'or', 'at', 'in', 'see', 'as', 'an', 'data', 'for', 'not', 'our', 'ie', 'to', 'eg', 'one', 'age', 'on', 'center', 'right', 'left', 'from', 'based', 'total', 'via' }
+  }
 }
 
 ### GENE

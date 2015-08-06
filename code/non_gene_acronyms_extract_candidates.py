@@ -76,10 +76,10 @@ def create_supervised_mention(row, is_correct,
             'is_correct']
   gene_to_full_name = CACHE['gene_to_full_name']
   if is_correct:
-    supertype = 'ACRONYM_TRUE'
+    supertype = 'TRUE_DETECTOR'
     subtype = None
   elif is_correct is False:
-    supertype = 'ACRONYM_FALSE_DETECTOR'
+    supertype = 'FALSE_DETECTOR'
     subtype = detector_message
   else:
     supertype = 'DETECTOR_OMITTED_SENTENCE'
@@ -90,12 +90,16 @@ def create_supervised_mention(row, is_correct,
     if float(ld) \
           / len(' '.join(definition)) <= SR['levenshtein_cutoff']:
       is_correct = False
-      supertype = 'ACRONYM_FALSE_ABBREV_GENE_NAME'
+      supertype = 'FALSE_ABBREV_GENE_NAME'
       subtype = full_gene_name + '; LD=' + str(ld)
   if is_correct and len(definition) == 1 and definition[0] in gene_to_full_name:
     is_correct = False
-    supertype = 'ACRONYM_FALSE_DEFINITION_GENE_NAME'
-    subtype = definition[0]
+    supertype = 'FALSE_DEFINITION_GENE_NAME'
+    subtype = None
+  if is_correct and abbrev in SR['short_words']:
+    is_correct = False
+    supertype = 'FALSE_SHORT_WORD'
+    subtype = None
   m = Mention(None, row.doc_id, row.section_id,
               row.sent_id, [i for i in xrange(start_abbrev, stop_abbrev + 1)],
               [i for i in xrange(start_definition, stop_definition + 1)],
