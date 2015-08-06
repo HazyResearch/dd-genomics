@@ -8,7 +8,8 @@ See Milestones/Issues.
 * **PMC (includes PLoS):**
 	* Raw XML documents: `/dfs/scratch0/ajratner/pmc_raw/`
 	* Parsed into sections: `/dfs/scratch0/ajratner/parsed/pmc/xml/`
-	* Processed through coreNLP: *Pending...*
+	* Processed through coreNLP: `/dfs/scratch0/ajratner/parsed/pmc/corenlp/`
+		* *Note: this file may not be complete; parser aborted towards end.  Resolution in progress*
 	* In database: *Pending...*
 * **PubMed Titles + Abstracts:**
 	* Raw XML documents: `/dfs/scratch0/jbirgmei/pubmed_baseline/ungz/`
