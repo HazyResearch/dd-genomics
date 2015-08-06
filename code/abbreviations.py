@@ -12,29 +12,15 @@ Biocomputing, 2003, pp 451-462.
 '''
 __author__ = 'Vincent Van Asch, Johannes Birgmeier'
 
-
 import re
-import sys
-
 
 def getcandidates(sentence):
   rv = []
   if '-LRB-' in sentence:
-    # Check some things first
-    if sentence.count('-LRB-') != sentence.count('-RRB-'):
-      raise ValueError('[NO_SUP] Unbalanced parentheses: %s' % sentence)
-
-    try:
-      lrbIndex = sentence.index('-LRB-')
-    except ValueError:
-      lrbIndex = -1
-    try:
-      rrbIndex = sentence.index('-RRB-')
-    except ValueError:
-      rrbIndex = -1
-    if lrbIndex > rrbIndex:
-      raise ValueError('[NO_SUP] First parentheses is right: %s' % sentence)
-      
+    # XXX HACK (?) Johannes
+    # The original version checks some sentence properties here first:
+    # balanced parentheses and that the first paren is a left one
+    # We don't care that much since we only admit one-word abbrevs
     closeindex = -1
     while 1:
       # Look for parenOpen parenthesis
@@ -42,34 +28,12 @@ def getcandidates(sentence):
         openindex = closeindex + 1 + sentence[closeindex + 1:].index('-LRB-')
       except ValueError:
         break;
-
-      # Look for closing parentheses
-      closeindex = openindex + 1
-      parenOpen = 1
-      skip = False
-      while parenOpen:
-        try:
-          char = sentence[closeindex]
-        except IndexError:
-          # We found an opening bracket but no associated closing bracket
-          # Skip the opening bracket
-          skip = True
-          break
-        if char == '-LRB-':
-          parenOpen += 1
-        elif char == '-RRB-':
-          parenOpen -= 1
-        closeindex += 1
-
-      if skip:
-        closeindex = openindex + 1
-        continue
+      closeindex = openindex + 2
       
       # XXX HACK (?) Johannes
       # The original version picks up acronyms that include parentheses and multiple words.
       # Since there are no such gene abbreviations, such words won't be confused for being 
       # genes anyways, so I just stop after the first word in the parenthesis
-
       start = openindex + 1
       stop = start + 1
       abbrev = sentence[start]
@@ -77,7 +41,6 @@ def getcandidates(sentence):
       if conditions(abbrev):
         rv.append((start, stop, abbrev))
   return rv
-
 
 def conditions(string):
   if re.match('([A-Za-z]\. ?){2,}', string.lstrip()):
@@ -92,7 +55,6 @@ def conditions(string):
     return False
 
   return True
-
 
 def getdefinition((startAbbrev, stopAbbrev, abbrev), sentence, stopLastAbbrev):
   ':type candidate: (int, int, list[str])'
@@ -141,7 +103,6 @@ def getdefinition((startAbbrev, stopAbbrev, abbrev), sentence, stopLastAbbrev):
   else:
     raise ValueError(
       '[SUP] Not enough keys')
-
 
 def definitionselection((startDefinition, stopDefinition, definition), (startAbbrev, stopAbbrev, abbrev)):
   if abbrev in definition:
@@ -197,7 +158,7 @@ def definitionselection((startDefinition, stopDefinition, definition), (startAbb
   # Do not return definitions that contain unbalanced parentheses
   if definition.count('-LRB-') != definition.count('-RRB-'):
     raise ValueError(
-      '[NO_SUP] Unbalanced parentheses not allowed in a definition')
+      '[SUP] Unbalanced paren in def')
 
   return (startDefinition, stopDefinition, definition)
 

@@ -171,6 +171,12 @@ CREATE TABLE plos_doi_to_pmid (
   pmid text
 ) DISTRIBUTED BY (doi);
 
+DROP TABLE IF EXISTS ens_gene_to_gene_symbol;
+CREATE TABLE ens_gene_to_gene_symbol (
+  ensembl_symbol text,
+  gene_name text
+) DISTRIBUTED BY (ensembl_symbol);
+
 -- Gene mentions
 DROP TABLE IF EXISTS non_gene_acronyms CASCADE;
 CREATE TABLE non_gene_acronyms (

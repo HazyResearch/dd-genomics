@@ -25,8 +25,6 @@ parser = util.RowParser([
 
 Feature = namedtuple('Feature', ['doc_id', 'section_id', 'mention_id', 'name'])
 
-ENSEMBL_TYPES = ['NONCANONICAL', 'CANONICAL', 'REFSEQ']
-
 
 def get_features_for_row(row):
   OPTS = config.NON_GENE_ACRONYMS['F']

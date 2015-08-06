@@ -106,6 +106,9 @@ def read_gene_to_full_name():
       assert len(parts) == 2, parts
       geneAbbrev = parts[0].strip()
       geneFullName = parts[1].strip()
+      ':type geneFullName: str'
+      geneFullName = geneFullName.replace('(', '-LRB-')
+      geneFullName = geneFullName.replace(')', '-RRB-')
       assert geneAbbrev not in rv, geneAbbrev
       rv[geneAbbrev] = geneFullName
   return rv
