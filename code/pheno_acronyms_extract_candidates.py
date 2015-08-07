@@ -104,25 +104,10 @@ def create_supervised_mention(row, is_correct,
               mid, supertype, subtype, abbrev, definition, is_correct);
   return m
 
-def read_gene_to_full_name():
-  rv = {}
-  with open(onto_path('data/gene_names.tsv')) as f:
-    for line in f:
-      parts = line.split('\t')
-      assert len(parts) == 2, parts
-      geneAbbrev = parts[0].strip()
-      geneFullName = parts[1].strip()
-      ':type geneFullName: str'
-      geneFullName = geneFullName.replace('(', '-LRB-')
-      geneFullName = geneFullName.replace(')', '-RRB-')
-      assert geneAbbrev not in rv, geneAbbrev
-      rv[geneAbbrev] = geneFullName
-  return rv
-
 if __name__ == '__main__':
   # load static data
   onto_path = lambda p : '%s/onto/%s' % (os.environ['GDD_HOME'], p)
-  CACHE['gene_to_full_name'] = read_gene_to_full_name()
+  CACHE['phenos'] = assert False, 'TODO'
 
   # generate the mentions, while trying to keep the supervision approx. balanced
   # print out right away so we don't bloat memory...
