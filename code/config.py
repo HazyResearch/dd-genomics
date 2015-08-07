@@ -15,7 +15,23 @@ NON_GENE_ACRONYMS = {
                      
   'SR' : { 
     'levenshtein_cutoff' : 0.2,
-    'short_words': { 'the', 'and', 'or', 'at', 'in', 'see', 'as', 'an', 'data', 'for', 'not', 'our', 'ie', 'to', 'eg', 'one', 'age', 'on', 'center', 'right', 'left', 'from', 'based', 'total', 'via' }
+    'short_words': { 'the', 'and', 'or', 'at', 'in', 'see', 'as', 'an', 'data', 'for', 'not', 'our', 'ie', 'to', 'eg', 'one', 'age', 'on', 'center', 'right', 'left', 'from', 'based', 'total', 'via', 'but', 'resp', 'no' } 
+  }
+}
+
+PHENO_ACRONYMS = {
+  'vals' : BOOL_VALS,
+  
+  ## Features
+  'F' : {
+    #'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
+  },
+                     
+  'HF' : {},
+                     
+  'SR' : { 
+    'difflib.pheno_cutoff' : 0.8,
+    'short_words': { 'the', 'and', 'or', 'at', 'in', 'see', 'as', 'an', 'data', 'for', 'not', 'our', 'ie', 'to', 'eg', 'one', 'age', 'on', 'center', 'right', 'left', 'from', 'based', 'total', 'via', 'but', 'resp', 'no' } 
   }
 }
 
