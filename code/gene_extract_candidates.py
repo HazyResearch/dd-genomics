@@ -126,7 +126,7 @@ def create_supervised_mention(row, i, entity=None, mention_supertype=None, menti
       if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
         return m._replace(is_correct=True, mention_supertype='%s_NCBI_ANNOTATION_TRUE' % mention_supertype, mention_subtype=mention_ensembl_id)
 
-  if SR['all-canonical-true']:
+  if SR['all-symbols-true']:
     if m.mention_supertype in ('CANONICAL_SYMBOL','NONCANONICAL_SYMBOL'):
       return m._replace(is_correct=True, mention_supertype='CANONICAL_TRUE')
 
