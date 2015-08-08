@@ -3,6 +3,21 @@
 # extraction hyperparameters / configurations
 BOOL_VALS = [('neg', False), ('pos', True)]
 
+GENE_ACRONYMS = {
+  'vals' : BOOL_VALS,
+  
+  ## Features
+  'F' : {
+    #'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
+  },
+                     
+  'HF' : {},
+                     
+  'SR' : { 
+    'levenshtein_cutoff' : 0.2
+  }
+}
+
 NON_GENE_ACRONYMS = {
   'vals' : BOOL_VALS,
   
