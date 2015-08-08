@@ -5,16 +5,17 @@ See Milestones/Issues.
 
 ### DATA:
 [8/8/15]: Current datasets to use:
-* **PMC (includes PLoS):**
-	* Raw XML documents: `/dfs/scratch0/ajratner/pmc_raw/`
-	* Parsed into sections: `/dfs/scratch0/ajratner/parsed/pmc/xml/{pmc.json, pmc.md.tsv}`
-	* Processed through coreNLP: `/dfs/scratch0/ajratner/parsed/pmc/corenlp/pmc.tsv`
-	* In database: `genomics_production.sentences`
-* **PubMed Titles + Abstracts:**
-	* Raw XML documents: `/dfs/scratch0/jbirgmei/pubmed_baseline/ungz/`
-	* Parsed into sections: `/dfs/scratch0/ajratner/parsed/pubmed_abs/xml/{pubmed_abs.json, pubmed_abs.md.tsv}`
-	* Processed through coreNLP: `/dfs/scratch0/ajratner/parsed/pubmed_abs/corenlp/pubmed_abs.tsv`
-	* In database: `genomics_production.sentences`
+* **Production set:**
+	* *With `ROOT=/dfs/scratch0/ajratner`*
+	* **PMC (includes PLoS):**
+		* Raw XML documents: `$ROOT/pmc_raw/`
+		* Parsed into sections: `$ROOT/parsed/pmc/xml/{pmc.json, pmc.md.tsv}`
+		* Processed through coreNLP: `$ROOT/parsed/pmc/corenlp/pmc.tsv`
+	* **PubMed Titles + Abstracts:**
+		* Raw XML documents: `/dfs/scratch0/jbirgmei/pubmed_baseline/ungz/`
+		* Parsed into sections: `$ROOT/parsed/pubmed_abs/xml/{pubmed_abs.json, pubmed_abs.md.tsv}`
+		* Processed through coreNLP: `$ROOT/parsed/pubmed_abs/corenlp/pubmed_abs.tsv`
+	* **In database: `raiders2:genomics_production.{sentences, doc_metadata}`**
 
 ### Running GDD: Basics
 
