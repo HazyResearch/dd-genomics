@@ -87,7 +87,9 @@ def create_supervised_mention(row, is_correct,
   if is_correct and abbrev in gene_to_full_name:
     full_gene_name = gene_to_full_name[abbrev];
     ld = levenshtein.levenshtein(full_gene_name.lower(), ' '.join(definition).lower())
-    if float(ld) \
+    fgl = len(full_gene_name)
+    dl = len(' '.join(definition))
+    if dl >= fgl*0.75 and dl <= fgl*1.25 and float(ld) \
           / len(' '.join(definition)) <= SR['levenshtein_cutoff']:
       is_correct = False
       supertype = 'FALSE_ABBREV_GENE_NAME'

@@ -159,7 +159,8 @@ awk -F'\t' '{printf "%s:%s\t%s\n", $1, $2, $3}' data/hpo_disease_phenotypes.tsv 
 
 # Download ClinVar
 RAW="raw/clinvar.tsv"
-if [ ! -e "$RAW" ];
+if [ ! -e "$RAW" ]
+then
   wget ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/variant_summary.txt.gz -O - | gzip -dc > $RAW
 fi
 
