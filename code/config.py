@@ -89,7 +89,9 @@ GENE = {
 
     'pubmed-paper-genes-true' : True,
 
-    'complicated-gene-names-true': False,
+    'complicated-gene-names-true': True,
+
+    'all-canonical-true': True,
 
     'rand-negs': True
 

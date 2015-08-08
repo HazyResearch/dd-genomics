@@ -126,9 +126,13 @@ def create_supervised_mention(row, i, entity=None, mention_supertype=None, menti
       if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
         return m._replace(is_correct=True, mention_supertype='%s_NCBI_ANNOTATION_TRUE' % mention_supertype, mention_subtype=mention_ensembl_id)
 
+  if SR['all-canonical-true']:
+    if m.mention_supertype in ('CANONICAL_SYMBOL','NONCANONICAL_SYMBOL'):
+      return m._replace(is_correct=True, mention_supertype='CANONICAL_TRUE')
+
   ## DS RULE: Genes on the gene list with complicated names are probably good for exact matches.
   if SR['complicated-gene-names-true']:
-    if mention.mention_supertype in ('CANONICAL_SYMBOL','NONCANONICAL_SYMBOL'):
+    if m.mention_supertype in ('CANONICAL_SYMBOL','NONCANONICAL_SYMBOL'):
       if re.match(r'[a-zA-Z]{3}[a-zA-Z]*\d+\w*', word):
         return m._replace(is_correct=True, mention_supertype='COMPLICATED_GENE_NAME')
 
