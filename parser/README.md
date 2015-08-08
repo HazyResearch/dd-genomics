@@ -55,9 +55,11 @@ See the READMEs in [bazaar/parser](https://github.com/HazyResearch/bazaar/parser
 
 #### Step 3: Load into DB
 
-In this directory, run:
+Load the sentences:
 ```bash
-./load_db.sh ${OUT_NAME} ${TABLE_NAME} ${OP} ${MD_TABLE_NAME} ${OP}
+./load_sentences.sh ${OUT_NAME}.tsv ${SENTENCES_TABLE_NAME} ${OP}
 ```
-where `OP` is `new` or `add`.  This will create / append to a sentences table and a metadata table.
-
+where `OP` is `new` or `add` to create or append to the table respectively.  Next, load the metadata:
+```bash
+./load_md.sh ${OUT_NAME}.md.tsv ${MD_TABLE_NAME} ${OP}
+```
