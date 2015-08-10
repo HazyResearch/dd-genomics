@@ -18,8 +18,8 @@ CREATE TABLE gene_mentions (
 ) DISTRIBUTED BY (doc_id, section_id);
 
 -- Gene mentions
-DROP TABLE IF EXISTS genevar_mentions CASCADE;
-CREATE TABLE genevar_mentions (
+DROP TABLE IF EXISTS variant_mentions CASCADE;
+CREATE TABLE variant_mentions (
 	id bigint,
 	doc_id text,
         section_id text,
@@ -132,18 +132,18 @@ CREATE TABLE genepheno_features (
 	feature text
 ) DISTRIBUTED BY (doc_id, section_id);
 
--- GeneVar / Phenotype mentions
-DROP TABLE IF EXISTS genevarpheno_relations CASCADE;
-CREATE TABLE genevarpheno_relations (
+-- Variant / Phenotype mentions
+DROP TABLE IF EXISTS variantpheno_relations CASCADE;
+CREATE TABLE variantpheno_relations (
 	id bigint,
 	relation_id text,
 	doc_id text,
         section_id text,
 	sent_id int,
-	genevar_mention_id text,
-        genevar_entity text,
-        genevar_wordidxs int[],
-        genevar_is_correct boolean,
+	variant_mention_id text,
+        variant_entity text,
+        variant_wordidxs int[],
+        variant_is_correct boolean,
 	pheno_mention_id text,
         pheno_entity text,
         pheno_wordidxs int[],
@@ -154,8 +154,38 @@ CREATE TABLE genevarpheno_relations (
 ) DISTRIBUTED BY (doc_id, section_id);
 
 -- GV/P relation mentions features
-DROP TABLE IF EXISTS genevarpheno_features CASCADE;
-CREATE TABLE genevarpheno_features (
+DROP TABLE IF EXISTS variantpheno_features CASCADE;
+CREATE TABLE variantpheno_features (
+	doc_id text,
+        section_id text,
+	relation_id text,
+	feature text
+) DISTRIBUTED BY (doc_id, section_id);
+
+-- Gene / Variant mentions
+DROP TABLE IF EXISTS genevariant_relations CASCADE;
+CREATE TABLE genevariant_relations (
+	id bigint,
+	relation_id text,
+	doc_id text,
+        section_id text,
+	sent_id int,
+	variant_mention_id text,
+        variant_entity text,
+        variant_wordidxs int[],
+        variant_is_correct boolean,
+	gene_mention_id text,
+        gene_entity text,
+        gene_wordidxs int[],
+        gene_is_correct boolean,
+	is_correct boolean,
+        supertype text,
+        subtype text
+) DISTRIBUTED BY (doc_id, section_id);
+
+-- GV/P relation mentions features
+DROP TABLE IF EXISTS genevariant_features CASCADE;
+CREATE TABLE genevariant_features (
 	doc_id text,
         section_id text,
 	relation_id text,
