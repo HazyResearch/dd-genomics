@@ -168,8 +168,10 @@ CREATE TABLE genevariant_relations (
 	id bigint,
 	relation_id text,
 	doc_id text,
-        section_id text,
-	sent_id int,
+        section1_id text,
+	sent1_id int,
+        section2_id text,
+	sent2_id int,
 	variant_mention_id text,
         variant_entity text,
         variant_wordidxs int[],
@@ -187,7 +189,6 @@ CREATE TABLE genevariant_relations (
 DROP TABLE IF EXISTS genevariant_features CASCADE;
 CREATE TABLE genevariant_features (
 	doc_id text,
-        section_id text,
 	relation_id text,
 	feature text
 ) DISTRIBUTED BY (doc_id, section_id);

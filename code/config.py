@@ -56,12 +56,17 @@ GENE = {
 }
 
 
-### GENEVAR
-GENEVAR = {
+### VARIANT
+VARIANT = {
   'vals' : BOOL_VALS,
   'HF' : {}
 }
 
+### GENE-VARIANT
+GENE_VARIANT = {
+  'vals' : BOOL_VALS,
+  'HF' : {}
+}
 
 ### PHENO
 PHENO = {
