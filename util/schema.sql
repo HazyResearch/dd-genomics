@@ -183,18 +183,17 @@ CREATE TABLE genevariant_relations (
 	is_correct boolean,
         supertype text,
         subtype text
-) DISTRIBUTED BY (doc_id, section_id);
+) DISTRIBUTED BY (doc_id, section1_id, section2_id);
 
--- GV/P relation mentions features
 DROP TABLE IF EXISTS genevariant_features CASCADE;
 CREATE TABLE genevariant_features (
 	doc_id text,
 	relation_id text,
 	feature text
-) DISTRIBUTED BY (doc_id, section_id);
+) DISTRIBUTED BY (doc_id, relation_id);
 
 DROP TABLE IF EXISTS test_nlp;
-CREATE TABLE test_nlp (id bigint);
+CREATE TABLE test_nlp (id bigint) distributed by (id);
 
 DROP TABLE IF EXISTS plos_doi_to_pmid;
 CREATE TABLE plos_doi_to_pmid (
