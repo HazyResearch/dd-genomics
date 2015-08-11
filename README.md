@@ -4,44 +4,40 @@
 See Milestones/Issues.
 
 ### DATA:
-[8/4/15]: Current datasets to use:
-* **PMC (includes PLoS):**
-	* Raw XML documents: `/dfs/scratch0/ajratner/pmc_raw/`
-	* Parsed into sections: `/dfs/scratch0/ajratner/parsed/pmc/xml/`
-	* Processed through coreNLP: `/dfs/scratch0/ajratner/parsed/pmc/corenlp/`
-		* *Note: this file may not be complete; parser aborted towards end.  Resolution in progress*
-	* In database: *Pending...*
-* **PubMed Titles + Abstracts:**
-	* Raw XML documents: `/dfs/scratch0/jbirgmei/pubmed_baseline/ungz/`
-	* Parsed into sections: `/dfs/scratch0/ajratner/parsed/pubmed_abs/xml/`
-	* Processed through coreNLP: *Pending...*
-	* In database: *Pending...*
+[8/8/15]: Current datasets to use:
+* **Production set:**
+	* *With `ROOT=/dfs/scratch0/ajratner`*
+	* **PMC (includes PLoS):**
+		* Raw XML documents: `$ROOT/pmc_raw/`
+		* Parsed into sections: `$ROOT/parsed/pmc/xml/{pmc.json, pmc.md.tsv}`
+		* Processed through coreNLP: `$ROOT/parsed/pmc/corenlp/pmc.tsv`
+	* **PubMed Titles + Abstracts:**
+		* Raw XML documents: `/dfs/scratch0/jbirgmei/pubmed_baseline/ungz/`
+		* Parsed into sections: `$ROOT/parsed/pubmed_abs/xml/{pubmed_abs.json, pubmed_abs.md.tsv}`
+		* Processed through coreNLP: `$ROOT/parsed/pubmed_abs/corenlp/pubmed_abs.tsv`
+	* **In database: `raiders2:genomics_production.{sentences, doc_metadata}`**
 
 ### Running GDD: Basics
 
-*NOTE [Mac OSX]: If running on Mac OSX, some of the scripts used below (those using the linux `readlink` command) may fail; recommended fix for now is to hardcode paths locally...*
+1. For data pre-processing instructions, see [parser](parser)
 
-1. Copy template file `env.sh` to `env_local.sh` and modify this file (it's ignored by git, and prefered by the run script).  Make sure to set:
+2. Copy template file `env.sh` to `env_local.sh` and modify this file (it's ignored by git, and prefered by the run script).  Make sure to set:
 	* database variables: user, host, port, db-name, db-type (postgres vs. greenplum)
 	* _memory and parallelism options_
 	* _relevant library paths_
 	* _[GREENPLUM ONLY] port for gpfdist_
 
-2. Create the database to be used if necessary (`createdb -U $DBUSER -h $DBHOST -p $DBPORT $DBNAME`)
+3. Create the database to be used if necessary (`createdb -U $DBUSER -h $DBHOST -p $DBPORT $DBNAME`)
 
-3. [IF NO INPUT DATA LOADED] Create input schema by running: `./util/create_input_schema.sh` (**NOTE: this will drop any input data already loaded into `sentences` or `sentences_input` tables!**).  Then load data: if from tsv file you can use (usually loading `sentences_input` -> `TABLE_NAME=sentences_input`):
+4. [IF NO INPUT DATA LOADED] Create input schema by running: `./util/create_input_schema.sh` (**NOTE: this will drop any input data already loaded into `sentences` or `sentences_input` tables!**).  Then load data: if from tsv file you can use (usually loading `sentences_input` -> `TABLE_NAME=sentences_input`):
 
 		./util/copy_table_from_file.sh [DB_NAME] [TABLE_NAME] [TSV_FILE_PATH]
 
   NOTE: To dump a table from psql to `.tsv` format for transfer in such a way, use: `COPY (SELECT * FROM [table_name]) TO '/tmp/[table_name].tsv' WITH DELIMITER '\t'`.
 
-4. To refresh / create the schema, run `./util/create_schema.sh`- *note that this will drop any output data from previous runs*.
+5. To refresh / create the schema, run `./util/create_schema.sh`- *note that this will drop any output data from previous runs*.
 
-5. Make sure that the custom user functions have been loaded into Postgres for this user; to do so run `./util/add_user_functions.sh`.
-
-6. [GREENPLUM ONLY] Make sure that GreenPlum's parallel file distribution server, `gpfdist`, is running with the correct settings (e.g. run `ps aux | grep gpfdist`; make sure that an intance is running with the correct $GPPATH and $GPPORT).  If not, then start a new one running on a free port:
-
-		gpfdist -d ${GPPATH} -p ${GPPORT} -m 268435456 &
+6. Make sure that the custom user functions have been loaded into Postgres for this user; to do so run `./util/add_user_functions.sh`.
 
 7. Fetch and process ontology files: `cd onto; ./make_all.sh`
 
