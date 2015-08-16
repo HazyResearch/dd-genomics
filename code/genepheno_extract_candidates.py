@@ -50,6 +50,14 @@ Relation = collections.namedtuple('Relation', [
 
 def extract_candidate_relations(row):
   """
+  row_id = '%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id)
+  util.print_error('%s: GE: %s' % (row_id, row.gene_entities))
+  util.print_error('%s: GMIDS: %s' % (row_id, row.gene_mention_ids))
+  util.print_error('%s: PE: %s' % (row_id, row.pheno_entities))
+  util.print_error('%s: PMIDS: %s' % (row_id, row.pheno_mention_ids))
+  """
+
+  """
   Given a row object having a sentence and some associated N gene and M phenotype mention
   candidates, pick a subset of the N*M possible gene-phenotype relations to return as
   candidate relations
