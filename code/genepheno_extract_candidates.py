@@ -69,81 +69,47 @@ def extract_candidate_relations(row):
   # Create a dependencies DAG for the sentence
   dep_dag = deps.DepPathDAG(row.dep_parents, row.dep_paths, row.words, max_path_len=HF['max-dep-path-dist'])
 
-  # Create the list of possible G,P pairs with their dependency path distances
+  # Go through the G-P pairs in the sentence, which are passed in serialized format
+  # E.g. the ith pair is row.gene_mention_ids[i], row.pheno_mention_ids[i]
   pairs = []
-  # countCandidates = 0
-  # count1 = 0
-  # count2 = 0
-  # count3 = 0
-  for i,gid in enumerate(row.gene_mention_ids):
-    for j,pid in enumerate(row.pheno_mention_ids):
+  for i in range(len(row.gene_mention_ids)):
+    rid = '%s_%s' % (row.gene_mention_ids[i], row.pheno_mention_ids[i]),
+    r = Relation(None, rid, row.doc_id, row.section_id, row.sent_id, \
+          row.gene_mention_ids[i], row.gene_entities[i], \
+          row.gene_wordidxs[i], row.gene_is_corrects[i], \
+          row.pheno_mention_ids[i], row.pheno_entities[i], \
+          row.pheno_wordidxs[i], row.pheno_is_corrects[i])
 
-      # Do not consider overlapping mention pairs
-      if len(set(row.gene_wordidxs[i]).intersection(row.pheno_wordidxs[j])) > 0:
-        # count1 += 1
-        continue
+    # Do not consider overlapping mention pairs
+    if len(set(r.gene_wordidxs).intersection(r.pheno_wordidxs)) > 0:
+      continue
 
-      # Get the min path length between any of the g / p phrase words
-      l = dep_dag.path_len_sets(row.gene_wordidxs[i], row.pheno_wordidxs[j])
-      pairs.append([l, i, j])
+    # Get the min path length between any of the g / p phrase words
+    d = dep_dag.path_len_sets(r.gene_wordidxs, r.pheno_wordidxs)
+    pairs.append((d, r))
 
   # Select which of the pairs will be considered
   pairs.sort()
   seen_g = {}
   seen_p = {}
   seen_pairs = {}
-  for p in pairs:
-    d, i, j = p
-
-    # If the same entity occurs several times in a sentence, only take best one
+  for d, r in pairs:
     if HF.get('take-best-only-dups'):
-      e = '%s_%s' % (row.gene_entities[i], row.pheno_entities[j])
+      e = '%s_%s' % (r.gene_entity, r.pheno_entity)
       if e in seen_pairs and d > seen_pairs[e]:
-        # count2 += 1
         continue
       else:
         seen_pairs[e] = d
     
-    # HACK[Alex]: may or may not be hack, needs to be tested- for now be quite restrictive
-    # Only take the set of best pairs which still provides coverage of all entities
     if HF.get('take-best-only'):
-      if (i in seen_g and seen_g[i] < d) or (j in seen_p and seen_p[j] < d):
-        # count3 += 1
+      if (r.gene_mention_id in seen_g and seen_g[r.gene_mention_id] < d) \
+        or (r.pheno_mention_id in seen_p and seen_p[r.pheno_mention_id] < d):
         continue
 
-    seen_g[i] = d
-    seen_p[j] = d
-    r = create_relation(row, i, j, dep_dag)
-    # countCandidates += 1
+    seen_g[r.gene_mention_id] = d
+    seen_p[r.pheno_mention_id] = d
     relations.append(r)
-  # sys.stderr.write("candidate count: " + str(countCandidates) + '\n')
-  # sys.stderr.write('count1: %s\n' % count1)
-  # sys.stderr.write('count2: %s\n' % count2)
-  # sys.stderr.write('count3: %s\n' % count3)
   return relations
-
-
-def create_relation(row, i, j, dep_dag=None):
-  """
-  Given a Row object with a sentence and several gene and pheno objects, create
-  a Relation output object for the ith gene and jth pheno objects
-  Note: outputs a list for convenience
-  """
-  gene_mention_id = row.gene_mention_ids[i]
-  gene_entity = row.gene_entities[i]
-  gene_wordidxs = row.gene_wordidxs[i]
-  gene_is_correct = row.gene_is_corrects[i]
-  pheno_mention_id = row.pheno_mention_ids[j]
-  pheno_entity = row.pheno_entities[j]
-  pheno_wordidxs = row.pheno_wordidxs[j]
-  pheno_is_correct = row.pheno_is_corrects[j]
-
-  relation_id = '%s_%s' % (gene_mention_id, pheno_mention_id)
-  r = Relation(None, relation_id, row.doc_id, row.section_id, row.sent_id, gene_mention_id, gene_entity, \
-               gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, \
-               pheno_wordidxs, pheno_is_correct)
-
-  return r
 
 if __name__ == '__main__':
   for line in sys.stdin:
