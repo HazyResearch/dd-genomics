@@ -65,7 +65,7 @@ where `OP` is `new` or `add` to create or append to the table respectively.  Nex
 ```
 Note that in some cases duplicat `(doc_id, section_id, sent_id)` entries may exist between sets.  For example, there is overlap between our PMC and PubMed-Abstracts-Titles sets.  We load each as a new separate table, and then merge, prefering PMC:
 ```SQL
-INSERT INTO sentences (
-  SELECT * FROM sentences_pubmed_abs WHERE doc_id NOT IN (
-    SELECT DISTINCT(doc_id) FROM sentences));
+INSERT INTO sentences s0 (
+  SELECT * FROM sentences_pubmed_abs s1 WHERE s1.doc_id NOT IN (
+    SELECT DISTINCT(s2.doc_id) FROM sentences s2));
 ```
