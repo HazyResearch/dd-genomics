@@ -105,12 +105,17 @@ GENE = {
 }
 
 
-### GENEVAR
-GENEVAR = {
+### VARIANT
+VARIANT = {
   'vals' : BOOL_VALS,
   'HF' : {}
 }
 
+### GENE-VARIANT
+GENE_VARIANT = {
+  'vals' : BOOL_VALS,
+  'HF' : {}
+}
 
 ### PHENO
 PHENO = {
@@ -316,8 +321,8 @@ GENE_PHENO = {
 }
 
 
-### GENEVAR-PHENO
-GENEVAR_PHENO = {
+### GENE-VARIANT-PHENO
+GENE_VARIANT_PHENO = {
   ## Hard Filters (for candidate extraction)
   'HF' : {
     # Upper-bound the max min-dependency-path length between G and P
