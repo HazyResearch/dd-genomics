@@ -9,6 +9,13 @@ if [ ! -e "$RAW" ]; then
 fi
 python parse_hpo.py "$RAW" data/hpo_phenotypes.tsv
 
+RAW="raw/protein-coding_gene.txt"
+if [ ! -e "$RAW" ]
+then
+  wget 'ftp://ftp.ebi.ac.uk/pub/databases/genenames/new/tsv/locus_groups/protein-coding_gene.txt' -O "$RAW"
+fi
+cat raw/protein-coding_gene.txt | tail -n+2 | awk -F'\t' '{OFS="\t"; print $2, $3}' > data/gene_names.tsv
+
 # get gene to pmid mappings
 RAW="raw/gene2pubmed.gz"
 if [ ! -e "$RAW" ]; then
