@@ -63,9 +63,16 @@ where `OP` is `new` or `add` to create or append to the table respectively.  Nex
 ```bash
 ./load_md.sh ${OUT_NAME}.md.tsv ${MD_TABLE_NAME} ${OP}
 ```
-Note that in some cases duplicat `(doc_id, section_id, sent_id)` entries may exist between sets.  For example, there is overlap between our PMC and PubMed-Abstracts-Titles sets.  We load each as a new separate table, and then merge, prefering PMC:
+Note that in some cases duplicate `(doc_id, section_id, sent_id)` entries may exist between sets, which will mess up the extractor operation.  For example, there is overlap between our PMC and PubMed-Abstracts-Titles sets.  We load each as a new separate table, and then merge, prefering PMC:
 ```SQL
 INSERT INTO sentences s0 (
   SELECT * FROM sentences_pubmed_abs s1 WHERE s1.doc_id NOT IN (
     SELECT DISTINCT(s2.doc_id) FROM sentences s2));
+```
+
+**Note also** that in some cases duplicate entries may still exist... one quick-and-dirty solution for now is just to throw away these entries (which for example in PMC comprise ~ 0.01% of the sentences):
+```SQL
+DELETE FROM sentences_input WHERE (doc_id, section_id, sent_id) IN (
+  SELECT doc_id, section_id, sent_id FROM sentences_input 
+    GROUP BY doc_id, section_id, sent_id  HAVING count(*) >= 2);
 ```
