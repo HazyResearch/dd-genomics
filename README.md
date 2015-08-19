@@ -4,9 +4,8 @@
 See Milestones/Issues.
 
 ### DATA:
-[8/8/15]: Current datasets to use:
+[8/8/15]: Current datasets to use (with *With `ROOT=/dfs/scratch0/ajratner`*):
 * **Production set:**
-	* *With `ROOT=/dfs/scratch0/ajratner`*
 	* **PMC (includes PLoS):**
 		* Raw XML documents: `$ROOT/pmc_raw/`
 		* Parsed into sections: `$ROOT/parsed/pmc/xml/{pmc.json, pmc.md.tsv}`
@@ -19,31 +18,27 @@ See Milestones/Issues.
 
 ### Running GDD: Basics
 
-1. For data pre-processing instructions, see [parser](parser)
-
-2. Copy template file `env.sh` to `env_local.sh` and modify this file (it's ignored by git, and prefered by the run script).  Make sure to set:
+1. Copy template file `env.sh` to `env_local.sh` and modify this file (it's ignored by git, and prefered by the run script).  Make sure to set:
 	* database variables: user, host, port, db-name, db-type (postgres vs. greenplum)
 	* _memory and parallelism options_
 	* _relevant library paths_
 	* _[GREENPLUM ONLY] port for gpfdist_
 
-3. Create the database to be used if necessary (`createdb -U $DBUSER -h $DBHOST -p $DBPORT $DBNAME`)
+2. Create the database to be used if necessary (`createdb -U $DBUSER -h $DBHOST -p $DBPORT $DBNAME`)
 
-4. [IF NO INPUT DATA LOADED] Create input schema by running: `./util/create_input_schema.sh` (**NOTE: this will drop any input data already loaded into `sentences` or `sentences_input` tables!**).  Then load data: if from tsv file you can use (usually loading `sentences_input` -> `TABLE_NAME=sentences_input`):
+3. Create the *input* data schema by running: `./util/create_input_schema.sh` (**NOTE that this will drop any input data already loaded into e.g. `sentences` or `sentences_input` tables**)
 
-		./util/copy_table_from_file.sh [DB_NAME] [TABLE_NAME] [TSV_FILE_PATH]
+4. To refresh / create the *extractor* schema, run `./util/create_schema.sh` (**NOTE that this will drop any output data from previous runs**).
 
-  NOTE: To dump a table from psql to `.tsv` format for transfer in such a way, use: `COPY (SELECT * FROM [table_name]) TO '/tmp/[table_name].tsv' WITH DELIMITER '\t'`.
-
-5. To refresh / create the schema, run `./util/create_schema.sh`- *note that this will drop any output data from previous runs*.
+5. **Pre-process & load the data:** See the [Parser README](parser)
 
 6. Make sure that the custom user functions have been loaded into Postgres for this user; to do so run `./util/add_user_functions.sh`.
 
 7. Fetch and process ontology files: `cd onto; ./make_all.sh`
 
-8. install nltk: `sudo pip install nltk`. Download the corpora wordnet: in Python: `import nltk; nltk.download()` and download the corpora wordnet.
+8. Install nltk: `sudo pip install nltk`. Download the corpora wordnet: in Python: `import nltk; nltk.download()` and download the corpora wordnet.
 
-9. Run the appropriate pipeline: `./run.sh [PIPELINE_NAME]`
+9. Run the appropriate pipeline: `./run.sh [PIPELINE_NAME]`.  To run end to end, run pipeline `all` or `all_no_joint`.  See `application.conf` for more pipeline options.
 
 ### Notes on Simple Debugging Routines
 
