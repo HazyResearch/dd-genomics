@@ -42,8 +42,8 @@ Mention = collections.namedtuple('Mention', [
             'is_correct'])
 
 ### CANDIDATE EXTRACTION ###
-# HF = config.NON_GENE_ACRONYMS['HF']
-SR = config.NON_GENE_ACRONYMS['SR']
+# HF = config.GENE_ACRONYMS['HF']
+SR = config.GENE_ACRONYMS['SR']
 
 def extract_candidate_mentions(row, pos_count, neg_count):
   mentions = []
@@ -54,7 +54,7 @@ def extract_candidate_mentions(row, pos_count, neg_count):
   return mentions
 
 ### DISTANT SUPERVISION ###
-VALS = config.NON_GENE_ACRONYMS['vals']
+VALS = config.GENE_ACRONYMS['vals']
 def create_supervised_mention(row, is_correct, 
                               (start_abbrev, stop_abbrev, abbrev), 
                               (start_definition, stop_definition, 
@@ -75,32 +75,29 @@ def create_supervised_mention(row, is_correct,
             'definition_words',
             'is_correct']
   gene_to_full_name = CACHE['gene_to_full_name']
-  if is_correct:
-    supertype = 'TRUE_DETECTOR'
-    subtype = None
-  elif is_correct is False:
+  if is_correct is False:
     supertype = 'FALSE_DETECTOR'
     subtype = detector_message
+  elif is_correct is True:
+    is_correct = False
+    supertype = 'DETECTOR_TRUE_DEFAULT_FALSE'
+    subtype = None
   else:
     supertype = 'DETECTOR_OMITTED_SENTENCE'
     subtype = None
-  if is_correct and abbrev in gene_to_full_name:
+  if abbrev in gene_to_full_name:
     full_gene_name = gene_to_full_name[abbrev];
     ld = levenshtein.levenshtein(full_gene_name.lower(), ' '.join(definition).lower())
     fgl = len(full_gene_name)
     dl = len(' '.join(definition))
     if dl >= fgl*0.75 and dl <= fgl*1.25 and float(ld) \
           / len(' '.join(definition)) <= SR['levenshtein_cutoff']:
-      is_correct = False
-      supertype = 'FALSE_ABBREV_GENE_NAME'
+      is_correct = True
+      supertype = 'TRUE_ABBREV_GENE_NAME'
       subtype = full_gene_name + '; LD=' + str(ld)
-  if is_correct and len(definition) == 1 and definition[0] in gene_to_full_name:
-    is_correct = False
-    supertype = 'FALSE_DEFINITION_GENE_NAME'
-    subtype = None
-  if is_correct and abbrev in SR['short_words']:
-    is_correct = False
-    supertype = 'FALSE_SHORT_WORD'
+  elif len(definition) == 1 and definition[0] in gene_to_full_name:
+    is_correct = True
+    supertype = 'TRUE_DEFINITION_GENE_NAME'
     subtype = None
   m = Mention(None, row.doc_id, row.section_id,
               row.sent_id, [i for i in xrange(start_abbrev, stop_abbrev + 1)],
