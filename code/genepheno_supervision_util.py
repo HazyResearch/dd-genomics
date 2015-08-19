@@ -79,7 +79,6 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
   pheno_mention_id = row.pheno_mention_id
   pheno_entity = row.pheno_entity
   pheno_wordidxs = row.pheno_wordidxs
-  gene_is_correct = row.gene_is_correct
   pheno_is_correct = row.pheno_is_correct
 
   phrase = ' '.join(row.words)
