@@ -32,22 +32,22 @@ from
       and a.gene_wordidxs = c.gene_wordidxs
       and a.pheno_wordidxs = c.pheno_wordidxs
   join
-    gene_mentions_is_correct_inference gm
+    gene_mentions_filtered_is_correct_inference gm
       on 
         a.doc_id = gm.doc_id
-        a.section_id = gm.section_id
+        and a.section_id = gm.section_id
         and a.sent_id = gm.sent_id
   join
-    pheno_mentions_is_correct_inference pm
+    pheno_mentions_filtered_is_correct_inference pm
       on 
         a.doc_id = pm.doc_id
-        a.section_id = pm.section_id
+        and a.section_id = pm.section_id
         and a.sent_id = pm.sent_id
   join
     sentences_input si
       on
         si.doc_id = a.doc_id
-        si.section_id = a.section_id
+        and si.section_id = a.section_id
         and si.sent_id = a.sent_id
   join
     (SELECT
@@ -80,7 +80,7 @@ from
       on
         f_cause.relation_id = c.relation_id
 where
-  a.expectation > 0.9 OR c.expectation > 0.9
+  a.expectation > 0.5 OR c.expectation > 0.5
 order by random()
 limit 100)
 to stdout with csv header;
