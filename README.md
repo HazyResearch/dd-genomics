@@ -30,7 +30,7 @@ See Milestones/Issues.
 
 4. To refresh / create the *extractor* schema, run `./util/create_schema.sh` (**NOTE that this will drop any output data from previous runs**).
 
-5. **Pre-process & load the data:** See the [Parser README](parser)
+5. **Pre-process & load the data: See the [Parser README](parser) for detailed instructions**
 
 6. Make sure that the custom user functions have been loaded into Postgres for this user; to do so run `./util/add_user_functions.sh`.
 
@@ -38,7 +38,10 @@ See Milestones/Issues.
 
 8. Install nltk: `sudo pip install nltk`. Download the corpora wordnet: in Python: `import nltk; nltk.download()` and download the corpora wordnet.
 
-9. Run the appropriate pipeline: `./run.sh [PIPELINE_NAME]`.  To run end to end, run pipeline `all` or `all_no_joint`.  See `application.conf` for more pipeline options.
+9. Run the appropriate pipeline: `./run.sh [PIPELINE_NAME]`.  Current key pipelines to use:
+	1. **`preprocess`:** Serialize the sentences, etc. (any other operations only dependent on the input data i.e. the `sentences` table should go here)
+	2. **`full_pipeline_gp`:** Run the extractors for G, P, and G-P; this is the union of `extractors_gp` and `inference_gp`
+	3. **`postprocess`:** Aggregate the entity-level relations for the API, etc. (any other operations dependent on extraction & inference should go here)
 
 ### Notes on Simple Debugging Routines
 
