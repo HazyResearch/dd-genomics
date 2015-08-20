@@ -84,6 +84,8 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
   phrase = ' '.join(row.words)
   lemma_phrase = ' '.join(row.lemmas)
   b = sorted([gene_wordidxs[0], gene_wordidxs[-1], pheno_wordidxs[0], pheno_wordidxs[-1]])[1:-1]
+  assert b[0]+1 < len(row.words), str((b[0]+1, len(row.words), row.doc_id, row.section_id, row.sent_id, str(row.words)))
+  assert b[1] < len(row.words), str((b[1], len(row.words), row.doc_id, row.section_id, row.sent_id, str(row.words)))
   between_phrase = ' '.join(row.words[i] for i in range(b[0]+1,b[1]))
   between_phrase_lemmas = ' '.join(row.lemmas[i] for i in range(b[0]+1,b[1]))
 
