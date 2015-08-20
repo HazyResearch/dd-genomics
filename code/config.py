@@ -3,6 +3,52 @@
 # extraction hyperparameters / configurations
 BOOL_VALS = [('neg', False), ('pos', True)]
 
+GENE_ACRONYMS = {
+  'vals' : BOOL_VALS,
+  
+  ## Features
+  'F' : {
+    #'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
+  },
+                     
+  'HF' : {},
+                     
+  'SR' : { 
+    'levenshtein_cutoff' : 0.2
+  }
+}
+
+NON_GENE_ACRONYMS = {
+  'vals' : BOOL_VALS,
+  
+  ## Features
+  'F' : {
+    #'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
+  },
+                     
+  'HF' : {},
+                     
+  'SR' : { 
+    'levenshtein_cutoff' : 0.2,
+    'short_words': { 'the', 'and', 'or', 'at', 'in', 'see', 'as', 'an', 'data', 'for', 'not', 'our', 'ie', 'to', 'eg', 'one', 'age', 'on', 'center', 'right', 'left', 'from', 'based', 'total', 'via', 'but', 'resp', 'no' } 
+  }
+}
+
+PHENO_ACRONYMS = {
+  'vals' : BOOL_VALS,
+  
+  ## Features
+  'F' : {
+    #'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
+  },
+                     
+  'HF' : {},
+                     
+  'SR' : { 
+    'difflib.pheno_cutoff' : 0.8,
+    'short_words': { 'the', 'and', 'or', 'at', 'in', 'see', 'as', 'an', 'data', 'for', 'not', 'our', 'ie', 'to', 'eg', 'one', 'age', 'on', 'center', 'right', 'left', 'from', 'based', 'total', 'via', 'but', 'resp', 'no' } 
+  }
+}
 
 ### GENE
 GENE = {
@@ -43,7 +89,10 @@ GENE = {
 
     'pubmed-paper-genes-true' : True,
 
-    'complicated-gene-names-true': False,
+    'complicated-gene-names-true': True,
+
+    # all canonical and noncanonical
+    'all-symbols-true': True,
 
     'rand-negs': True
 
@@ -56,12 +105,17 @@ GENE = {
 }
 
 
-### GENEVAR
-GENEVAR = {
+### VARIANT
+VARIANT = {
   'vals' : BOOL_VALS,
   'HF' : {}
 }
 
+### GENE-VARIANT
+GENE_VARIANT = {
+  'vals' : BOOL_VALS,
+  'HF' : {}
+}
 
 ### PHENO
 PHENO = {
@@ -267,8 +321,8 @@ GENE_PHENO = {
 }
 
 
-### GENEVAR-PHENO
-GENEVAR_PHENO = {
+### GENE-VARIANT-PHENO
+GENE_VARIANT_PHENO = {
   ## Hard Filters (for candidate extraction)
   'HF' : {
     # Upper-bound the max min-dependency-path length between G and P

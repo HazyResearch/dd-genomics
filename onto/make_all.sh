@@ -9,6 +9,13 @@ if [ ! -e "$RAW" ]; then
 fi
 python parse_hpo.py "$RAW" data/hpo_phenotypes.tsv
 
+RAW="raw/protein-coding_gene.txt"
+if [ ! -e "$RAW" ]
+then
+  wget 'ftp://ftp.ebi.ac.uk/pub/databases/genenames/new/tsv/locus_groups/protein-coding_gene.txt' -O "$RAW"
+fi
+cat raw/protein-coding_gene.txt | tail -n+2 | awk -F'\t' '{OFS="\t"; print $2, $3}' > data/gene_names.tsv
+
 # get gene to pmid mappings
 RAW="raw/gene2pubmed.gz"
 if [ ! -e "$RAW" ]; then
@@ -152,7 +159,8 @@ awk -F'\t' '{printf "%s:%s\t%s\n", $1, $2, $3}' data/hpo_disease_phenotypes.tsv 
 
 # Download ClinVar
 RAW="raw/clinvar.tsv"
-if [ ! -e "$RAW" ];
+if [ ! -e "$RAW" ]
+then
   wget ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/variant_summary.txt.gz -O - | gzip -dc > $RAW
 fi
 

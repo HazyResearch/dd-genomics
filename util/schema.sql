@@ -18,8 +18,8 @@ CREATE TABLE gene_mentions (
 ) DISTRIBUTED BY (doc_id, section_id);
 
 -- Gene mentions
-DROP TABLE IF EXISTS genevar_mentions CASCADE;
-CREATE TABLE genevar_mentions (
+DROP TABLE IF EXISTS variant_mentions CASCADE;
+CREATE TABLE variant_mentions (
 	id bigint,
 	doc_id text,
         section_id text,
@@ -132,18 +132,18 @@ CREATE TABLE genepheno_features (
 	feature text
 ) DISTRIBUTED BY (doc_id, section_id);
 
--- GeneVar / Phenotype mentions
-DROP TABLE IF EXISTS genevarpheno_relations CASCADE;
-CREATE TABLE genevarpheno_relations (
+-- Variant / Phenotype mentions
+DROP TABLE IF EXISTS variantpheno_relations CASCADE;
+CREATE TABLE variantpheno_relations (
 	id bigint,
 	relation_id text,
 	doc_id text,
         section_id text,
 	sent_id int,
-	genevar_mention_id text,
-        genevar_entity text,
-        genevar_wordidxs int[],
-        genevar_is_correct boolean,
+	variant_mention_id text,
+        variant_entity text,
+        variant_wordidxs int[],
+        variant_is_correct boolean,
 	pheno_mention_id text,
         pheno_entity text,
         pheno_wordidxs int[],
@@ -154,19 +154,135 @@ CREATE TABLE genevarpheno_relations (
 ) DISTRIBUTED BY (doc_id, section_id);
 
 -- GV/P relation mentions features
-DROP TABLE IF EXISTS genevarpheno_features CASCADE;
-CREATE TABLE genevarpheno_features (
+DROP TABLE IF EXISTS variantpheno_features CASCADE;
+CREATE TABLE variantpheno_features (
 	doc_id text,
         section_id text,
 	relation_id text,
 	feature text
 ) DISTRIBUTED BY (doc_id, section_id);
 
+-- Gene / Variant mentions
+DROP TABLE IF EXISTS genevariant_relations CASCADE;
+CREATE TABLE genevariant_relations (
+	id bigint,
+	relation_id text,
+	doc_id text,
+        section1_id text,
+	sent1_id int,
+        section2_id text,
+	sent2_id int,
+	variant_mention_id text,
+        variant_entity text,
+        variant_wordidxs int[],
+        variant_is_correct boolean,
+	gene_mention_id text,
+        gene_entity text,
+        gene_wordidxs int[],
+        gene_is_correct boolean,
+	is_correct boolean,
+        supertype text,
+        subtype text
+) DISTRIBUTED BY (doc_id, section1_id, section2_id);
+
+DROP TABLE IF EXISTS genevariant_features CASCADE;
+CREATE TABLE genevariant_features (
+	doc_id text,
+	relation_id text,
+	feature text
+) DISTRIBUTED BY (doc_id, relation_id);
+
 DROP TABLE IF EXISTS test_nlp;
-CREATE TABLE test_nlp (id bigint);
+CREATE TABLE test_nlp (id bigint) distributed by (id);
 
 DROP TABLE IF EXISTS plos_doi_to_pmid;
 CREATE TABLE plos_doi_to_pmid (
   doi text,
   pmid text
 ) DISTRIBUTED BY (doi);
+
+DROP TABLE IF EXISTS ens_gene_to_gene_symbol;
+CREATE TABLE ens_gene_to_gene_symbol (
+  ensembl_symbol text,
+  gene_name text
+) DISTRIBUTED BY (ensembl_symbol);
+
+DROP TABLE IF EXISTS non_gene_acronyms CASCADE;
+CREATE TABLE non_gene_acronyms (
+	-- id for random variable
+	id bigint,
+	-- document id
+	doc_id text,
+        -- section id
+        section_id text,
+	-- sentence id
+	sent_id int,
+	-- indexes of the words composing the acronym
+	short_wordidxs int[],
+	-- indexes of the words composing the extended form
+	long_wordidxs int[],
+	-- mention id
+	mention_id text,
+	-- mention type
+	supertype text,
+        subtype text,
+	-- entity
+	entity text,
+	-- words
+	words text[],
+	-- is this a correct pheno acronym definition?
+	is_correct boolean
+) DISTRIBUTED BY (doc_id, section_id);
+
+-- Gene mentions features
+DROP TABLE IF EXISTS non_gene_acronyms_features CASCADE;
+CREATE TABLE non_gene_acronyms_features (
+	-- document id
+	doc_id text,
+        -- section id,
+        section_id text,
+	-- mention id
+	mention_id text,
+	-- feature
+	feature text
+) DISTRIBUTED BY (doc_id, section_id);
+
+DROP TABLE IF EXISTS gene_acronyms CASCADE;
+CREATE TABLE gene_acronyms (
+	-- id for random variable
+	id bigint,
+	-- document id
+	doc_id text,
+        -- section id
+        section_id text,
+	-- sentence id
+	sent_id int,
+	-- indexes of the words composing the acronym
+	short_wordidxs int[],
+	-- indexes of the words composing the extended form
+	long_wordidxs int[],
+	-- mention id
+	mention_id text,
+	-- mention type
+	supertype text,
+        subtype text,
+	-- entity
+	entity text,
+	-- words
+	words text[],
+	-- is this a correct pheno acronym definition?
+	is_correct boolean
+) DISTRIBUTED BY (doc_id, section_id);
+
+-- Gene mentions features
+DROP TABLE IF EXISTS gene_acronyms_features CASCADE;
+CREATE TABLE gene_acronyms_features (
+	-- document id
+	doc_id text,
+        -- section id,
+        section_id text,
+	-- mention id
+	mention_id text,
+	-- feature
+	feature text
+) DISTRIBUTED BY (doc_id, section_id);

@@ -57,7 +57,7 @@ def extract_candidate_relations(row):
   candidates, pick a subset of the N*M possible genevar-phenotype relations to return as
   candidate relations
   """
-  HF = config.GENEVAR_PHENO['HF']
+  HF = config.GENE_VARIANT_PHENO['HF']
 
   relations = []
 

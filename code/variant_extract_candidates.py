@@ -32,9 +32,9 @@ Mention = collections.namedtuple('Mention', [
             'is_correct'])
 
 ### CANDIDATE EXTRACTION ###
-HF = config.GENEVAR['HF']
+HF = config.VARIANT['HF']
 
-### GENE-VARIANT ###
+### VARIANT ###
 
 # regexes from tmVar paper
 # See Table 3 in http://bioinformatics.oxfordjournals.org/content/early/2013/04/04/bioinformatics.btt156.full.pdf
