@@ -101,11 +101,11 @@ cp dicts/ensembl_map.tsv data/ensembl_genes.tsv
 
 # Get mesh to pubmed ID map
 if [ ! -f data/meshToPmid.tsv ]; then
-  if [ -f /lfs/raiders2/0/robinjia/data/meshToPmid.tsv ]; then
-    cp /lfs/raiders2/0/robinjia/data/meshToPmid.tsv data/meshToPmid.tsv
+  if [ -f /lfs/raiders2/0/jbirgmei/dd-genomics/onto/data/meshToPmid.tsv ]; then
+    cp /lfs/raiders2/0/jbirgmei/dd-genomics/onto/data/meshToPmid.tsv data/meshToPmid.tsv
   else
     echo " Copying meshToPmid.tsv from local filesystem failed."
-    echo " If have access to raiders2, run scp username@raiders2:/lfs/raiders2/0/robinjia/data/meshToPmid.tsv data/meshToPmid.tsv"
+    echo " If have access to raiders2, run scp username@raiders2:/lfs/raiders2/0/jbirgmei/onto/data/meshToPmid.tsv data/meshToPmid.tsv"
     echo " Otherwise, use ./makeMeshToPmid.sh to re-generate file by querying PubMed."
     echo " Then, re-run this script."
     exit 1
