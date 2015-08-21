@@ -70,7 +70,7 @@ def tsv_string_to_list(s, func=lambda x : x, sep='|^|'):
     split = s.split(sep)
 
   # split and apply function
-  return [func(x.strip()) for x in split]
+  return [None if x.strip() == 'NULL' else func(x.strip()) for x in split]
 
 
 def tsv_string_to_listoflists(s, func=lambda x : x, sep1='|~|', sep2='|^|'):
