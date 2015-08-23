@@ -1,6 +1,11 @@
 # CONFIG
 # The master configuration file for candidate extraction, distant supervision and feature
 # extraction hyperparameters / configurations
+import sys
+
+if sys.version_info < (2,7):
+  assert False, "Need Python version 2.7 at least"
+
 BOOL_VALS = [('neg', False), ('pos', True)]
 
 GENE_ACRONYMS = {
