@@ -15,7 +15,7 @@ class DepPathDAG:
     self.edges = defaultdict(list)
     self.edge_labels = {}
     for i,dp in enumerate(dep_parents):
-      if dp > 0:
+      if dp >= 0:
         self.edges[i].append(dp-1)
         self.edges[dp-1].append(i)
         self.edge_labels[(i,dp-1)] = dep_paths[i]

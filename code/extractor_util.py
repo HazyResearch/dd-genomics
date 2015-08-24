@@ -5,6 +5,8 @@ import re
 import sys
 import ddlib
 
+FIX_DEP_PARENTS=True
+
 def rgx_comp(strings=[], rgxs=[]):
   r = r'|'.join(re.escape(w) for w in strings)
   if len(rgxs) > 0:
@@ -121,6 +123,10 @@ class RowParser:
       field_name, field_type = self.fields[i]
       if RP_PARSERS.has_key(field_type):
         val = RP_PARSERS[field_type](col.strip())
+        if FIX_DEP_PARENTS:
+          if field_name == 'dep_parents':
+            for i in xrange(0,len(val)):
+              val[i] -= 1
       else:
         raise Exception("Unsupported type %s for RowParser class- please add.")
       setattr(row, field_name, val)
@@ -174,12 +180,7 @@ def run_main_tsv(row_parser, row_fn):
   lines_out = []
   for line in sys.stdin:
     row = row_parser(line)
-    try:
-      lines_out += row_fn(row)
-    
-    # A malformed input line will often mess up the word indexing...
-    except IndexError:
-      print_error("Error with row: %s" % (row,))
+    lines_out += row_fn(row)
 
   for line in lines_out:
     print_tsv_output(line)

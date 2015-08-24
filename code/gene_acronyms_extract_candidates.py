@@ -137,11 +137,7 @@ if __name__ == '__main__':
       continue
 
     # Find candidate mentions & supervise
-    try:
-      mentions = extract_candidate_mentions(row, pos_count, neg_count)
-    except IndexError:
-      util.print_error("Error with row: %s" % (row,))
-      continue
+    mentions = extract_candidate_mentions(row, pos_count, neg_count)
 
     pos_count += len([m for m in mentions if m.is_correct])
     neg_count += len([m for m in mentions if m.is_correct is False])

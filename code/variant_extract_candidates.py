@@ -124,11 +124,7 @@ if __name__ == '__main__':
       continue
 
     # Find candidate mentions & supervise
-    #try:
     mentions = extract_candidate_mentions(row, GV_RGX)
-    #except IndexError:
-    #  util.print_error("Error with row: %s" % (row,))
-    #  continue
 
     # print output
     for mention in mentions:

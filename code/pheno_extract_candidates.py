@@ -218,7 +218,6 @@ def generate_rand_negatives(s, candidates):
       covered.add(i)
   return negs
 
-
 if __name__ == '__main__':
   onto_path = lambda p : '%s/onto/%s' % (os.environ['GDD_HOME'], p)
 
@@ -243,13 +242,9 @@ if __name__ == '__main__':
       continue
 
     # find candidate mentions & supervise
-    try:
-      mentions = extract_candidate_mentions(row)
-      if SR.get('rand-negs'):
-        mentions += generate_rand_negatives(row, mentions)
-    except IndexError:
-      util.print_error("Error with row: %s" % (row,))
-      continue
+    mentions = extract_candidate_mentions(row)
+    if SR.get('rand-negs'):
+      mentions += generate_rand_negatives(row, mentions)
 
     # print output
     for mention in mentions:
