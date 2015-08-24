@@ -1,9 +1,9 @@
 SELECT
-  source, count(distinct doc_id)
+  source_name, count(distinct doc_id)
   FROM
     sentences_input si
-    JOIN document_metadata dm ON (si.doc_id = dm.doc_id)
+    JOIN doc_metadata dm ON (si.doc_id = dm.doc_id)
   GROUP BY
-    source
+    source_name
   ORDER BY
     count DESC

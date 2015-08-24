@@ -1,5 +1,5 @@
 SELECT 
-  q1.source
+  q1.source_name
   , q1.count as num_docs
   , q4.count as gp_assoc_cands
   , to_char(q4.count::float / q1.count::float, '999999999D99') as gp_assoc_cands_per_doc
@@ -11,99 +11,99 @@ SELECT
   , to_char(q7.count::float / q1.count::float, '999999999D99') as gp_caus_infs_per_doc
   FROM
     (SELECT
-      source, count(distinct dm.doc_id)
+      source_name, count(distinct dm.doc_id)
       FROM
         sentences_input si
-        JOIN document_metadata dm ON (si.doc_id = dm.doc_id)
+        JOIN doc_metadata dm ON (si.doc_id = dm.doc_id)
       GROUP BY
-        source
+        source_name
       ORDER BY
         count DESC) q1
     JOIN
     (SELECT
-      source, count(distinct dm.doc_id)
+      source_name, count(distinct dm.doc_id)
       FROM
         gene_mentions gm WHERE is_correct != 'f' OR is_correct IS NULL
-        JOIN document_metadata dm ON (gm.doc_id = dm.doc_id)
+        JOIN doc_metadata dm ON (gm.doc_id = dm.doc_id)
       GROUP BY
-        source
+        source_name
       ORDER BY
         count DESC) q2
-    ON (q1.source = q2.source)
+    ON (q1.source_name = q2.source_name)
     JOIN
     (SELECT
-      source, count(distinct dm.doc_id)
+      source_name, count(distinct dm.doc_id)
       FROM
         gene_mentions_is_correct_inference gm WHERE expectation > 0.9
-        JOIN document_metadata dm ON (gm.doc_id = dm.doc_id)
+        JOIN doc_metadata dm ON (gm.doc_id = dm.doc_id)
       GROUP BY
-        source
+        source_name
       ORDER BY
         count DESC) q3
-    ON (q2.source = q3.source)
+    ON (q2.source_name = q3.source_name)
     JOIN
     (SELECT
-      source, count(distinct dm.doc_id)
+      source_name, count(distinct dm.doc_id)
       FROM
         genepheno_association ga WHERE is_correct != 'f' OR is_correct IS NULL
-        JOIN document_metadata dm ON (ga.doc_id = dm.doc_id)
+        JOIN doc_metadata dm ON (ga.doc_id = dm.doc_id)
       GROUP BY
-        source
+        source_name
       ORDER BY
         count DESC) q4
-    ON (q3.source = q4.source)
+    ON (q3.source_name = q4.source_name)
     JOIN
     (SELECT
-      source, count(distinct dm.doc_id)
+      source_name, count(distinct dm.doc_id)
       FROM
         genepheno_causation gc WHERE is_correct != 'f' OR is_correct IS NULL
-        JOIN document_metadata dm ON (gc.doc_id = dm.doc_id)
+        JOIN doc_metadata dm ON (gc.doc_id = dm.doc_id)
       GROUP BY
-        source
+        source_name
       ORDER BY
         count DESC) q5
-    ON (q4.source = q5.source)
+    ON (q4.source_name = q5.source_name)
     JOIN
     (SELECT
-      source, count(distinct dm.doc_id)
+      source_name, count(distinct dm.doc_id)
       FROM
         genepheno_association_is_correct_inference ga WHERE expectation > 0.9
-        JOIN document_metadata dm ON (ga.doc_id = dm.doc_id)
+        JOIN doc_metadata dm ON (ga.doc_id = dm.doc_id)
       GROUP BY
-        source
+        source_name
       ORDER BY
         count DESC) q6
-    ON (q5.source = q6.source)
+    ON (q5.source_name = q6.source_name)
     JOIN
     (SELECT
-      source, count(distinct dm.doc_id)
+      source_name, count(distinct dm.doc_id)
       FROM
         genepheno_causation_is_correct_inference gc WHERE expectation > 0.9
-        JOIN document_metadata dm ON (gc.doc_id = dm.doc_id)
+        JOIN doc_metadata dm ON (gc.doc_id = dm.doc_id)
       GROUP BY
-        source
+        source_name
       ORDER BY
         count DESC) q7
-    ON (q6.source = q7.source)
+    ON (q6.source_name = q7.source_name)
     JOIN
     (SELECT
-      source, count(distinct dm.doc_id)
+      source_name, count(distinct dm.doc_id)
       FROM
         pheno_mentions pm WHERE is_correct != 'f' OR is_correct IS NULL
-        JOIN document_metadata dm ON (pm.doc_id = dm.doc_id)
+        JOIN doc_metadata dm ON (pm.doc_id = dm.doc_id)
       GROUP BY
-        source
+        source_name
       ORDER BY
         count DESC) q8
-    ON (q7.source = q8.source)
+    ON (q7.source_name = q8.source_name)
     JOIN
     (SELECT
-      source, count(distinct dm.doc_id)
+      source_name, count(distinct dm.doc_id)
       FROM
         pheno_mentions_is_correct_inference pm WHERE expectation > 0.9
-        JOIN document_metadata dm ON (pm.doc_id = dm.doc_id)
+        JOIN doc_metadata dm ON (pm.doc_id = dm.doc_id)
       GROUP BY
-        source
+        source_name
       ORDER BY
         count DESC) q9
-    ON (q8.source = q9.source)
+    ON (q8.source_name = q9.source_name)

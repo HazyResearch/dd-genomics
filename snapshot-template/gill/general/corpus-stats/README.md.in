@@ -1,5 +1,5 @@
 <$
-report-log "Creating a few corpus stats"
+report-log "Creating a few corpus stats 1"
 num_documents=$(run-sql "
 SELECT
   count(DISTINCT a.pmid)
@@ -7,116 +7,144 @@ SELECT
     (SELECT doc_id as pmid
      FROM (SELECT doc_id FROM sentences_input) b) a
 ")
+report-log "Creating a few corpus stats 1"
 num_sources=$(run-sql "
-SELECT count(DISTINCT source)
+SELECT count(DISTINCT source_name)
 FROM
   sentences_input si
-  JOIN document_metadata ON (si.doc_id = document_metadata.doc_id)
+  JOIN doc_metadata ON (si.doc_id = doc_metadata.doc_id)
 ")
+report-log "Creating a few corpus stats 1"
 num_sentences=$(run-sql "
 SELECT count(*)
 FROM
-  sentences_input;
+  sentences_input
 ")
+report-log "Creating a few corpus stats 1"
 num_candidates_docs_with_genes=$(run-sql "
 SELECT
   count(DISTINCT doc_id)
   FROM gene_mentions
-  WHERE is_correct != 'f' OR is_correct IS NULL;
+  WHERE is_correct != 'f' OR is_correct IS NULL
 ")
+report-log "Creating a few corpus stats 1"
 num_candidates_docs_with_phenos=$(run-sql "
 SELECT
   count(DISTINCT doc_id)
   FROM pheno_mentions
-  WHERE is_correct != 'f' OR is_correct IS NULL;
+  WHERE is_correct != 'f' OR is_correct IS NULL
 ")
+report-log "Creating a few corpus stats 1"
 num_candidates_docs_with_genepheno_association=$(run-sql "
 SELECT
   count(DISTINCT doc_id)
   FROM genepheno_association
-  WHERE is_correct != 'f' OR is_correct IS NULL;
+  WHERE is_correct != 'f' OR is_correct IS NULL
 ")
+report-log "Creating a few corpus stats 1"
 num_candidates_docs_with_genepheno_causation=$(run-sql "
 SELECT
   count(DISTINCT doc_id)
   FROM genepheno_causation
-  WHERE is_correct != 'f' OR is_correct IS NULL;
+  WHERE is_correct != 'f' OR is_correct IS NULL
 ")
+report-log "Creating a few corpus stats 1"
 num_inferred_docs_with_genes=$(run-sql "
 SELECT
   count(DISTINCT doc_id)
-  FROM gene_mentions_is_correct_inference WHERE expectation > 0.9;
+  FROM gene_mentions_is_correct_inference WHERE expectation > 0.9
 ")
+report-log "Creating a few corpus stats 1"
 num_inferred_docs_with_phenos=$(run-sql "
 SELECT
   count(DISTINCT doc_id)
-  FROM pheno_mentions_is_correct_inference WHERE expectation > 0.9;
+  FROM pheno_mentions_is_correct_inference WHERE expectation > 0.9
 ")
+report-log "Creating a few corpus stats 1"
 num_inferred_docs_with_genepheno_association=$(run-sql "
 SELECT
   count(DISTINCT doc_id)
-  FROM genepheno_association_is_correct_inference WHERE expectation > 0.9;
+  FROM genepheno_association_is_correct_inference WHERE expectation > 0.9
 ")
+report-log "Creating a few corpus stats 1"
 num_inferred_docs_with_genepheno_causation=$(run-sql "
 SELECT
   count(DISTINCT doc_id)
-  FROM genepheno_causation_is_correct_inference WHERE expectation > 0.9;
+  FROM genepheno_causation_is_correct_inference WHERE expectation > 0.9
 ")
+report-log "Creating a few corpus stats 1"
 num_genes_candidates=$(run-sql "
 select count(distinct entity) from gene_mentions where is_correct = 't' or is_correct is null
 ")
+report-log "Creating a few corpus stats 1"
 num_phenos_candidates=$(run-sql "
 select count(distinct entity) from pheno_mentions where is_correct = 't' or is_correct is null
 ")
+report-log "Creating a few corpus stats 1"
 num_genes_in_pairs_candidates_before_supervision=$(run-sql "
 select count(distinct gene_entity) from genepheno_relations
 ")
+report-log "Creating a few corpus stats 1"
 num_phenos_in_pairs_candidates_before_supervision=$(run-sql "
 select count(distinct pheno_entity) from genepheno_relations
 ")
+report-log "Creating a few corpus stats 1"
 num_genes_in_association_pairs_candidates=$(run-sql "
 select count(distinct gene_entity) from genepheno_association where is_correct = 't' or is_correct is null
 ")
+report-log "Creating a few corpus stats 1"
 num_phenos_in_association_pairs_candidates=$(run-sql "
 select count(distinct pheno_entity) from genepheno_association where is_correct = 't' or is_correct is null
 ")
+report-log "Creating a few corpus stats 1"
 num_genes_in_causation_pairs_candidates=$(run-sql "
 select count(distinct gene_entity) from genepheno_causation where is_correct = 't' or is_correct is null
 ")
+report-log "Creating a few corpus stats 1"
 num_phenos_in_causation_pairs_candidates=$(run-sql "
 select count(distinct pheno_entity) from genepheno_causation where is_correct = 't' or is_correct is null
 ")
+report-log "Creating a few corpus stats 1"
 num_genepheno_association_candidates=$(run-sql "
 select count(*) from
 (select distinct gene_entity, pheno_entity from genepheno_association where is_correct is null or is_correct = 't') a
 ")
+report-log "Creating a few corpus stats 1"
 num_genepheno_causation_candidates=$(run-sql "
 select count(*) from
 (select distinct gene_entity, pheno_entity from genepheno_causation where is_correct is null or is_correct = 't') a
 ")
 
+report-log "Creating a few corpus stats 1"
 num_genes_inferred=$(run-sql "
 select count(distinct entity) from gene_mentions_is_correct_inference where expectation > 0.9
 ")
+report-log "Creating a few corpus stats 1"
 num_phenos_inferred=$(run-sql "
 select count(distinct entity) from pheno_mentions_is_correct_inference where expectation > 0.9
 ")
+report-log "Creating a few corpus stats 1"
 num_genes_in_association_pairs_inferred=$(run-sql "
 select count(distinct gene_entity) from genepheno_association_is_correct_inference where expectation > 0.9
 ")
+report-log "Creating a few corpus stats 1"
 num_phenos_in_association_pairs_inferred=$(run-sql "
 select count(distinct pheno_entity) from genepheno_association_is_correct_inference where expectation > 0.9
 ")
+report-log "Creating a few corpus stats 1"
 num_genes_in_causation_pairs_inferred=$(run-sql "
 select count(distinct gene_entity) from genepheno_causation_is_correct_inference where expectation > 0.9
 ")
+report-log "Creating a few corpus stats 1"
 num_phenos_in_causation_pairs_inferred=$(run-sql "
 select count(distinct pheno_entity) from genepheno_causation_is_correct_inference where expectation > 0.9
 ")
+report-log "Creating a few corpus stats 1"
 num_genepheno_association_inferred=$(run-sql "
 select count(*) from
 (select distinct gene_entity, pheno_entity from genepheno_association_is_correct_inference where expectation > 0.9) a
 ")
+report-log "Creating a few corpus stats 1"
 num_genepheno_causation_inferred=$(run-sql "
 select count(*) from
 (select distinct gene_entity, pheno_entity from genepheno_causation_is_correct_inference where expectation > 0.9) a
