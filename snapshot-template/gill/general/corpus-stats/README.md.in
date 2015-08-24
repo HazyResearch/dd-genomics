@@ -52,13 +52,13 @@ report-log "Creating a few corpus stats 1"
 num_inferred_docs_with_genes=$(run-sql "
 SELECT
   count(DISTINCT doc_id)
-  FROM gene_mentions_is_correct_inference WHERE expectation > 0.9
+  FROM gene_mentions_filtered_is_correct_inference WHERE expectation > 0.9
 ")
 report-log "Creating a few corpus stats 1"
 num_inferred_docs_with_phenos=$(run-sql "
 SELECT
   count(DISTINCT doc_id)
-  FROM pheno_mentions_is_correct_inference WHERE expectation > 0.9
+  FROM pheno_mentions_filtered_is_correct_inference WHERE expectation > 0.9
 ")
 report-log "Creating a few corpus stats 1"
 num_inferred_docs_with_genepheno_association=$(run-sql "
@@ -117,11 +117,11 @@ select count(*) from
 
 report-log "Creating a few corpus stats 1"
 num_genes_inferred=$(run-sql "
-select count(distinct entity) from gene_mentions_is_correct_inference where expectation > 0.9
+select count(distinct entity) from gene_mentions_filtered_is_correct_inference where expectation > 0.9
 ")
 report-log "Creating a few corpus stats 1"
 num_phenos_inferred=$(run-sql "
-select count(distinct entity) from pheno_mentions_is_correct_inference where expectation > 0.9
+select count(distinct entity) from pheno_mentions_filtered_is_correct_inference where expectation > 0.9
 ")
 report-log "Creating a few corpus stats 1"
 num_genes_in_association_pairs_inferred=$(run-sql "

@@ -1,5 +1,5 @@
 SELECT
-  source_name, count(distinct doc_id)
+  source_name, count(distinct si.doc_id)
   FROM
     sentences_input si
     JOIN doc_metadata dm ON (si.doc_id = dm.doc_id)

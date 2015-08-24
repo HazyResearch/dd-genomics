@@ -1,6 +1,6 @@
 SELECT 
   entity, count(entity) 
-FROM gene_mentions_is_correct_inference
+FROM gene_mentions_filtered_is_correct_inference
 WHERE 
   expectation > 0.9
 GROUP BY entity

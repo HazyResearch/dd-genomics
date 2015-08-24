@@ -16,7 +16,7 @@ report-log "Creating a few stats 1"
 num_inferred_true_gene_mentions=$(run-sql "
 SELECT ac.c::float / bc.c::float * 100
 FROM
-  (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions_is_correct_inference WHERE expectation > 0.9) a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions_filtered_is_correct_inference WHERE expectation > 0.9) a) ac,
   (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions) b) bc
 ")
 report-log "Creating a few stats 1"
@@ -50,7 +50,7 @@ report-log "Creating a few stats 1"
 num_inferred_true_pheno_mentions=$(run-sql "
 SELECT ac.c::float / bc.c::float * 100
 FROM
-  (SELECT count(*) c FROM (SELECT DISTINCT * FROM pheno_mentions_is_correct_inference WHERE expectation > 0.9) a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM pheno_mentions_filtered_is_correct_inference WHERE expectation > 0.9) a) ac,
   (SELECT count(*) c FROM (SELECT DISTINCT * FROM pheno_mentions) b) bc
 ")
 report-log "Creating a few stats 1"

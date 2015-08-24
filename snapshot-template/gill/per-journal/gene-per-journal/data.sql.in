@@ -19,8 +19,9 @@ SELECT
     (SELECT
       source_name, count(distinct dm.doc_id)
       FROM
-        gene_mentions gm WHERE is_correct != 'f' OR is_correct IS NULL
+        gene_mentions gm
         JOIN doc_metadata dm ON (gm.doc_id = dm.doc_id)
+      WHERE is_correct != 'f' OR is_correct IS NULL
       GROUP BY
         source_name
       ORDER BY
@@ -30,8 +31,9 @@ SELECT
     (SELECT
       source_name, count(distinct dm.doc_id)
       FROM
-        gene_mentions_is_correct_inference gm WHERE expectation > 0.9
+        gene_mentions_filtered_is_correct_inference gm 
         JOIN doc_metadata dm ON (gm.doc_id = dm.doc_id)
+      WHERE expectation > 0.9
       GROUP BY
         source_name
       ORDER BY
@@ -41,8 +43,9 @@ SELECT
     (SELECT
       source_name, count(distinct dm.doc_id)
       FROM
-        genepheno_association ga WHERE is_correct != 'f' OR is_correct IS NULL
+        genepheno_association ga 
         JOIN doc_metadata dm ON (ga.doc_id = dm.doc_id)
+      WHERE is_correct != 'f' OR is_correct IS NULL
       GROUP BY
         source_name
       ORDER BY
@@ -52,8 +55,9 @@ SELECT
     (SELECT
       source_name, count(distinct dm.doc_id)
       FROM
-        genepheno_causation gc WHERE is_correct != 'f' OR is_correct IS NULL
+        genepheno_causation gc 
         JOIN doc_metadata dm ON (gc.doc_id = dm.doc_id)
+      WHERE is_correct != 'f' OR is_correct IS NULL
       GROUP BY
         source_name
       ORDER BY
@@ -63,8 +67,9 @@ SELECT
     (SELECT
       source_name, count(distinct dm.doc_id)
       FROM
-        genepheno_association_is_correct_inference ga WHERE expectation > 0.9
+        genepheno_association_is_correct_inference ga 
         JOIN doc_metadata dm ON (ga.doc_id = dm.doc_id)
+      WHERE expectation > 0.9
       GROUP BY
         source_name
       ORDER BY
@@ -74,8 +79,9 @@ SELECT
     (SELECT
       source_name, count(distinct dm.doc_id)
       FROM
-        genepheno_causation_is_correct_inference gc WHERE expectation > 0.9
+        genepheno_causation_is_correct_inference gc 
         JOIN doc_metadata dm ON (gc.doc_id = dm.doc_id)
+      WHERE expectation > 0.9
       GROUP BY
         source_name
       ORDER BY
@@ -85,8 +91,9 @@ SELECT
     (SELECT
       source_name, count(distinct dm.doc_id)
       FROM
-        pheno_mentions pm WHERE is_correct != 'f' OR is_correct IS NULL
+        pheno_mentions pm 
         JOIN doc_metadata dm ON (pm.doc_id = dm.doc_id)
+      WHERE is_correct != 'f' OR is_correct IS NULL
       GROUP BY
         source_name
       ORDER BY
@@ -96,8 +103,9 @@ SELECT
     (SELECT
       source_name, count(distinct dm.doc_id)
       FROM
-        pheno_mentions_is_correct_inference pm WHERE expectation > 0.9
+        pheno_mentions_filtered_is_correct_inference pm 
         JOIN doc_metadata dm ON (pm.doc_id = dm.doc_id)
+      WHERE expectation > 0.9
       GROUP BY
         source_name
       ORDER BY
