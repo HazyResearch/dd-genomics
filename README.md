@@ -38,7 +38,7 @@ See Milestones/Issues.
 
 8. Install nltk: `sudo pip install nltk`. Download the corpora wordnet: in Python: `import nltk; nltk.download()` and download the corpora wordnet.
 
-9. Run the appropriate pipeline: `./run.sh [PIPELINE_NAME]`.  Current key pipelines to use:
+9. Run the appropriate pipeline: `./run.sh [PIPELINE_NAME]`.  **ATTENTION: NEEDS PYTHON 2.7 at least.** Current key pipelines to use:
 	1. **`preprocess`:** Serialize the sentences, etc. (any other operations only dependent on the input data i.e. the `sentences` table should go here)
 	2. **`full_pipeline_gp`:** Run the extractors for G, P, and G-P; this is the union of `extractors_gp` and `inference_gp`
 	3. **`postprocess`:** Aggregate the entity-level relations for the API, etc. (any other operations dependent on extraction & inference should go here)

@@ -138,7 +138,8 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
         match = util.rgx_mult_search(phrase + ' ' + lemma_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
-          return r._replace(is_correct=val, relation_supertype='PHRASE_%s' % name, relation_subtype=match)
+          # backslashes cause postgres errors in postgres 9
+          return r._replace(is_correct=val, relation_supertype='PHRASE_%s' % name, relation_subtype=match.replace('\\', '/'))
 
   if SR.get('phrases-in-between'):
     opts = SR['phrases-in-between']
@@ -146,7 +147,8 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
         match = util.rgx_mult_search(between_phrase + ' ' + between_phrase_lemmas, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
-          return r._replace(is_correct=val, relation_supertype='PHRASE_BETWEEN_%s' % name, relation_subtype=match)
+          # backslashes cause postgres errors in postgres 9
+          return r._replace(is_correct=val, relation_supertype='PHRASE_BETWEEN_%s' % name, relation_subtype=match.replace('\\', '/'))
 
   if SR.get('primary-verb-modifiers') and dep_dag:
     opts = SR['primary-verb-modifiers']
