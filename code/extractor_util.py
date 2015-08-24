@@ -49,6 +49,8 @@ def skip_row(row):
   exclude_patterns = ['\w+\.(com|org|edu|gov)']
   for ex in [re.escape(s) for s in exclude_strings] + exclude_patterns:
     for word in row.words:
+      assert isinstance(ex, basestring), str(ex)
+      assert isinstance(word, basestring), str(row.words) + '\n' + str(row.lemmas) + '\n' + str(word)
       if re.search(ex, word, re.I|re.S):
         return True
   return False
@@ -70,7 +72,7 @@ def tsv_string_to_list(s, func=lambda x : x, sep='|^|'):
     split = s.split(sep)
 
   # split and apply function
-  return [None if x.strip() == 'NULL' else func(x.strip()) for x in split]
+  return [func(x.strip()) for x in split]
 
 
 def tsv_string_to_listoflists(s, func=lambda x : x, sep1='|~|', sep2='|^|'):
