@@ -1,10 +1,10 @@
 SELECT 
   q1.source_name
-  , q1.count as num_docs
+  , coalesce(q1.count, 0) as num_docs
   , q2.count as gene_cands
-  , to_char(q2.count::float / q1.count::float, '999999999D99') as gene_cands_per_doc
-  , q3.count as gene_infs
-  , to_char(q3.count::float / q1.count::float, '999999999D99') as gene_infs_per_doc
+  , to_char(coalesce(q2.count, 0)::float / coalesce(q1.count, 1)::float, '999999999D99') as gene_cands_per_doc
+  , coalesce(q3.count, 0) as gene_infs
+  , to_char(coalesce(q3.count, 0)::float / coalesce(q1.count, 1)::float, '999999999D99') as gene_infs_per_doc
   FROM
     (SELECT
       source_name, count(distinct dm.doc_id)
@@ -15,7 +15,7 @@ SELECT
         source_name
       ORDER BY
         count DESC) q1
-    JOIN
+    RIGHT OUTER JOIN
     (SELECT
       source_name, count(distinct dm.doc_id)
       FROM
@@ -27,7 +27,7 @@ SELECT
       ORDER BY
         count DESC) q2
     ON (q1.source_name = q2.source_name)
-    JOIN
+    RIGHT OUTER JOIN
     (SELECT
       source_name, count(distinct dm.doc_id)
       FROM
@@ -39,77 +39,5 @@ SELECT
       ORDER BY
         count DESC) q3
     ON (q2.source_name = q3.source_name)
-    JOIN
-    (SELECT
-      source_name, count(distinct dm.doc_id)
-      FROM
-        genepheno_association ga 
-        JOIN doc_metadata dm ON (ga.doc_id = dm.doc_id)
-      WHERE is_correct != 'f' OR is_correct IS NULL
-      GROUP BY
-        source_name
-      ORDER BY
-        count DESC) q4
-    ON (q3.source_name = q4.source_name)
-    JOIN
-    (SELECT
-      source_name, count(distinct dm.doc_id)
-      FROM
-        genepheno_causation gc 
-        JOIN doc_metadata dm ON (gc.doc_id = dm.doc_id)
-      WHERE is_correct != 'f' OR is_correct IS NULL
-      GROUP BY
-        source_name
-      ORDER BY
-        count DESC) q5
-    ON (q4.source_name = q5.source_name)
-    JOIN
-    (SELECT
-      source_name, count(distinct dm.doc_id)
-      FROM
-        genepheno_association_is_correct_inference ga 
-        JOIN doc_metadata dm ON (ga.doc_id = dm.doc_id)
-      WHERE expectation > 0.9
-      GROUP BY
-        source_name
-      ORDER BY
-        count DESC) q6
-    ON (q5.source_name = q6.source_name)
-    JOIN
-    (SELECT
-      source_name, count(distinct dm.doc_id)
-      FROM
-        genepheno_causation_is_correct_inference gc 
-        JOIN doc_metadata dm ON (gc.doc_id = dm.doc_id)
-      WHERE expectation > 0.9
-      GROUP BY
-        source_name
-      ORDER BY
-        count DESC) q7
-    ON (q6.source_name = q7.source_name)
-    JOIN
-    (SELECT
-      source_name, count(distinct dm.doc_id)
-      FROM
-        pheno_mentions pm 
-        JOIN doc_metadata dm ON (pm.doc_id = dm.doc_id)
-      WHERE is_correct != 'f' OR is_correct IS NULL
-      GROUP BY
-        source_name
-      ORDER BY
-        count DESC) q8
-    ON (q7.source_name = q8.source_name)
-    JOIN
-    (SELECT
-      source_name, count(distinct dm.doc_id)
-      FROM
-        pheno_mentions_filtered_is_correct_inference pm 
-        JOIN doc_metadata dm ON (pm.doc_id = dm.doc_id)
-      WHERE expectation > 0.9
-      GROUP BY
-        source_name
-      ORDER BY
-        count DESC) q9
-    ON (q8.source_name = q9.source_name)
-ORDER BY num_docs
+ORDER BY num_docs DESC
 LIMIT 1000
