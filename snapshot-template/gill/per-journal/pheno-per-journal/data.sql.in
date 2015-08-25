@@ -111,3 +111,5 @@ SELECT
       ORDER BY
         count DESC) q9
     ON (q8.source_name = q9.source_name)
+ORDER BY num_docs
+LIMIT 1000
