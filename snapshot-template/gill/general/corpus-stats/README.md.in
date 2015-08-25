@@ -8,6 +8,15 @@ SELECT
      FROM (SELECT doc_id FROM sentences_input) b) a
 ")
 report-log "Creating a few corpus stats 1"
+num_documents_with_body=$(run-sql "
+SELECT
+  count(DISTINCT doc_id)
+FROM
+  sentences_input
+WHERE
+  section_id like 'Body%'
+")
+report-log "Creating a few corpus stats 1"
 num_sources=$(run-sql "
 SELECT count(DISTINCT source_name)
 FROM
@@ -153,6 +162,7 @@ select count(*) from
 # store the numbers
 report-values \
     num_documents=$num_documents \
+    num_documents_with_body=$num_documents_with_body \
 
     num_genes_candidates=$num_genes_candidates \
     num_phenos_candidates=$num_phenos_candidates \
@@ -175,7 +185,6 @@ report-values \
     num_genepheno_causation_inferred=$num_genepheno_causation_inferred \
 
     num_sources=$num_sources \
-    num_sentences_in_journals=$num_sentences_in_journals \
     num_candidates_docs_with_genes=$num_candidates_docs_with_genes \
     num_candidates_docs_with_phenos=$num_candidates_docs_with_phenos \
     num_candidates_docs_with_genepheno_association=$num_candidates_docs_with_genepheno_association \
@@ -190,8 +199,8 @@ $>
 ### Number of documents and sentences
 
 * **<$ printf "%'d" $num_documents $>** documents
+* **<$ printf "%'d" $num_documents_with_body $>** documents with body
 * **<$ printf "%'d" $num_sources $>** journals
-* **<$ printf "%'d" $num_sentences_in_journals $>** sentences in journals
 
 ### Number of genes and phenos
 
