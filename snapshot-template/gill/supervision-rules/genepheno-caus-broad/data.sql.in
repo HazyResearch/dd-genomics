@@ -1,0 +1,5 @@
+SELECT count(*) as count, supertype
+FROM genepheno_causation
+GROUP BY supertype
+ORDER BY count DESC
+LIMIT 1000
