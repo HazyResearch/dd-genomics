@@ -18,7 +18,9 @@ if [ ${OP} == "new" ]; then
   CREATE TABLE ${TABLE} (
     doc_id TEXT,
     source_name TEXT,
-    source_year INT
+    source_year INT,
+    source_text_year TEXT,
+    source_year_status TEXT
   )"
   if [ "${DBTYPE}" == "pg" ]; then
     SQL="${SQL_1};"
@@ -29,6 +31,6 @@ if [ ${OP} == "new" ]; then
 fi
 
 echo "Copying to $TABLE table in database $DBNAME"
-cat $INPUT | psql -U $DBUSER -h $DBHOST -p $DBPORT $DBNAME -X --set ON_ERROR_STOP=1 -c "COPY $TABLE FROM STDIN LOG ERRORS INTO md_err SEGMENT REJECT LIMIT 1000000 ROWS"
+cat $INPUT | ./md_cleanup.py | psql -U $DBUSER -h $DBHOST -p $DBPORT $DBNAME -X --set ON_ERROR_STOP=1 -c "COPY $TABLE FROM STDIN LOG ERRORS INTO md_err SEGMENT REJECT LIMIT 1000000 ROWS"
 
 echo "Done."
