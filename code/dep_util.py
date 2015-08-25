@@ -16,10 +16,10 @@ class DepPathDAG:
     self.edge_labels = {}
     for i,dp in enumerate(dep_parents):
       if dp >= 0:
-        self.edges[i].append(dp-1)
-        self.edges[dp-1].append(i)
-        self.edge_labels[(i,dp-1)] = dep_paths[i]
-        self.edge_labels[(dp-1,i)] = dep_paths[i]
+        self.edges[i].append(dp)
+        self.edges[dp].append(i)
+        self.edge_labels[(i,dp)] = dep_paths[i]
+        self.edge_labels[(dp,i)] = dep_paths[i]
 
   def _path_len(self, path):
     """Get the length of a list of nodes, skipping counting of certain dep path types"""
