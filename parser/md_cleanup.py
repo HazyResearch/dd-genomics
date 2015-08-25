@@ -49,6 +49,7 @@ if __name__ == "__main__":
         else:
           year_status = 'extracted'
     else:
-      assert False, comps
+      print line
+      continue
 
     print '%s\t%s\t%s\t%s\t%s' % (pmid, source_name, year, text_year, year_status)
