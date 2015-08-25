@@ -174,7 +174,7 @@ report-values \
     num_genepheno_association_inferred=$num_genepheno_association_inferred \
     num_genepheno_causation_inferred=$num_genepheno_causation_inferred \
 
-    num_journals=$num_journals \
+    num_sources=$num_sources \
     num_sentences_in_journals=$num_sentences_in_journals \
     num_candidates_docs_with_genes=$num_candidates_docs_with_genes \
     num_candidates_docs_with_phenos=$num_candidates_docs_with_phenos \
@@ -190,7 +190,7 @@ $>
 ### Number of documents and sentences
 
 * **<$ printf "%'d" $num_documents $>** documents
-* **<$ printf "%'d" $num_journals $>** journals
+* **<$ printf "%'d" $num_sources $>** journals
 * **<$ printf "%'d" $num_sentences_in_journals $>** sentences in journals
 
 ### Number of genes and phenos
