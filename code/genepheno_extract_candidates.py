@@ -73,7 +73,7 @@ def extract_candidate_relations(row):
   # E.g. the ith pair is row.gene_mention_ids[i], row.pheno_mention_ids[i]
   pairs = []
   for i in range(len(row.gene_mention_ids)):
-    rid = '%s_%s' % (row.gene_mention_ids[i], row.pheno_mention_ids[i]),
+    rid = '%s_%s' % (row.gene_mention_ids[i], row.pheno_mention_ids[i])
     r = Relation(None, rid, row.doc_id, row.section_id, row.sent_id, \
           row.gene_mention_ids[i], row.gene_entities[i], \
           row.gene_wordidxs[i], row.gene_is_corrects[i], \
