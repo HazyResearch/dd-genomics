@@ -27,7 +27,7 @@ def getcandidates(sentence):
       try:
         openindex = closeindex + 1 + sentence[closeindex + 1:].index('-LRB-')
       except ValueError:
-        break;
+        break
       closeindex = openindex + 2
       
       # XXX HACK (?) Johannes
@@ -36,6 +36,8 @@ def getcandidates(sentence):
       # genes anyways, so I just stop after the first word in the parenthesis
       start = openindex + 1
       stop = start + 1
+      if start >= len(sentence):
+        break
       abbrev = sentence[start]
 
       if conditions(abbrev):
