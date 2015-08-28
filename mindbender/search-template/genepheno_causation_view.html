@@ -1,0 +1,13 @@
+<div ng-if="extraction">
+<div>
+    <strong>Is this ({{extraction.gene_entity}}, {{extraction.pheno_entity}}) a gene pheno causation? : {{extraction.is_correct}}</strong>
+</div>
+
+<div ng-if="!searchResult.highlight['text']">
+    <strong class="text-muted">Review content:</strong>
+    <blockquote>
+        <div mindtagger-word-array="source.words"></div>
+        <small>{{extraction.relation_id}}</small>
+    </blockquote>
+</div>
+</div>
