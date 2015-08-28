@@ -107,7 +107,7 @@ public abstract class XMLDocConfig {
      */
     protected String docIdSection;
 
-    public abstract boolean isDocIdSection(XMLStreamReader parser);
+    public abstract boolean isDocIdSection(XMLStreamReader parser, int xmlStreamConstant);
 
     public abstract String formatDocId(String docIdText);
 

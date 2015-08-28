@@ -7,9 +7,9 @@ import parser.objects.XMLPattern;
 
 public class PlosConfig extends XMLDocConfig {
 
-  public boolean isDocIdSection(XMLStreamReader parser) {
+  public boolean isDocIdSection(XMLStreamReader parser, int xmlStreamConstant) {
     XMLPattern pattern = new XMLPattern(docIdSection, "pmid", null);
-    XMLElement element = new XMLElement(parser);
+    XMLElement element = new XMLElement(parser, xmlStreamConstant);
     return pattern.matches(element);
   }
 
@@ -28,17 +28,17 @@ public class PlosConfig extends XMLDocConfig {
   }
 
   public PlosConfig() {
-    readSections.put(new XMLPattern("article-title"), "Title");
-    readSections.put(new XMLPattern("abstract"), "Abstract");
-    readSections.put(new XMLPattern("body"), "Body");
-    dataSections.put(new XMLPattern("ref-list"), "References");
-    dataSections.put(new XMLPattern("ref"), "Reference");
-    dataSections.put(new XMLPattern("pub-id"), "PubId");
-    dataSections.put(new XMLPattern("pub-date"), "Metadata");
-    dataSections.put(new XMLPattern("journal-meta"), "Metadata");
-    dataSections.put(new XMLPattern("year"), "JournalYear");
-    dataSections.put(new XMLPattern("journal-title"), "Journal");
-    dataSections.put(new XMLPattern("article"), "BlockMarker");
+    readSections.put(new XMLPattern("article-title", false), "Title");
+    readSections.put(new XMLPattern("abstract", false), "Abstract");
+    readSections.put(new XMLPattern("body", false), "Body");
+    dataSections.put(new XMLPattern("ref-list", false), "References");
+    dataSections.put(new XMLPattern("ref", false), "Reference");
+    dataSections.put(new XMLPattern("pub-id", false), "PubId");
+    dataSections.put(new XMLPattern("pub-date", false), "Metadata");
+    dataSections.put(new XMLPattern("journal-meta", false), "Metadata");
+    dataSections.put(new XMLPattern("year", false), "JournalYear");
+    dataSections.put(new XMLPattern("journal-title", false), "Journal");
+    dataSections.put(new XMLPattern("article", false), "BlockMarker");
 
     // <issn pub-type="ppub">0028-0836</issn><issn
     // pub-type="epub">1476-4687</issn>

@@ -7,9 +7,9 @@ import parser.objects.XMLPattern;
 
 public class PubmedTitlesAbstractsConfig extends XMLDocConfig {
 
-  public boolean isDocIdSection(XMLStreamReader parser) {
-    XMLElement element = new XMLElement(parser);
-    XMLPattern pattern = new XMLPattern(docIdSection);
+  public boolean isDocIdSection(XMLStreamReader parser, int xmlStreamConstant) {
+    XMLElement element = new XMLElement(parser, xmlStreamConstant);
+    XMLPattern pattern = new XMLPattern(docIdSection, false);
     return pattern.matches(element);
   }
 
@@ -29,18 +29,18 @@ public class PubmedTitlesAbstractsConfig extends XMLDocConfig {
   }
 
   public PubmedTitlesAbstractsConfig() {
-    readSections.put(new XMLPattern("ArticleTitle"), "Title");
-    readSections.put(new XMLPattern("AbstractText"), "Abstract");
-    dataSections.put(new XMLPattern("Journal"), "Metadata"); // that's right ---
+    readSections.put(new XMLPattern("ArticleTitle", false), "Title");
+    readSections.put(new XMLPattern("AbstractText", false), "Abstract");
+    dataSections.put(new XMLPattern("Journal", false), "Metadata"); // that's right ---
                                                              // the
     // metadata section is
     // called "Journal" in
     // pubmed files
-    dataSections.put(new XMLPattern("ISOAbbreviation"), "Journal");
-    dataSections.put(new XMLPattern("Year"), "JournalYear");
-    dataSections.put(new XMLPattern("MedlineCitation"), "BlockMarker");
-    dataSections.put(new XMLPattern("ISSNLinking"), "ISSNGlobal");
-    dataSections.put(new XMLPattern("NlmUniqueID"), "NlmID");
+    dataSections.put(new XMLPattern("ISOAbbreviation", false), "Journal");
+    dataSections.put(new XMLPattern("Year", false), "JournalYear");
+    dataSections.put(new XMLPattern("MedlineCitation", false), "BlockMarker");
+    dataSections.put(new XMLPattern("ISSNLinking", false), "ISSNGlobal");
+    dataSections.put(new XMLPattern("NlmUniqueID", false), "NlmID");
     // <ISSN IssnType="Electronic">1553-2712</ISSN>
     // <ISSN IssnType="Print">0363-5023</ISSN>
     dataSections.put(new XMLPattern("ISSN", "IssnType", "Electronic"), "ISSNElectronic");
