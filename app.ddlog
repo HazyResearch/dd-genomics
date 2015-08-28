@@ -151,7 +151,9 @@ sentences_input(
   sentences(doc_id, section_id, ref_doc_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
 
 
-# For view only
+# For view only..
+# Currently, the mindbender has some troubles tracing sentence with multiple keys, so I create tables, e.g., *_view with view_key for view
+
 @source
 sentences_view(
   doc_id text,
