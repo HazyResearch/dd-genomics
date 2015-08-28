@@ -27,7 +27,7 @@ def getcandidates(sentence):
       try:
         openindex = closeindex + 1 + sentence[closeindex + 1:].index('-LRB-')
       except ValueError:
-        break;
+        break
       closeindex = openindex + 2
       
       # XXX HACK (?) Johannes
@@ -36,6 +36,8 @@ def getcandidates(sentence):
       # genes anyways, so I just stop after the first word in the parenthesis
       start = openindex + 1
       stop = start + 1
+      if start >= len(sentence):
+        break
       abbrev = sentence[start]
 
       if conditions(abbrev):
@@ -65,6 +67,9 @@ def getdefinition((startAbbrev, stopAbbrev, abbrev), sentence, stopLastAbbrev):
 
   # the char that we are looking for
   key = abbrev[0].lower()
+
+  if len(tokens) == 0:
+    raise ValueError('[SUP] Not enough keys')
 
   # Count the number of tokens that start with the same character as the
   # candidate
