@@ -2,8 +2,12 @@ package parser.config;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map.Entry;
 
 import javax.xml.stream.XMLStreamReader;
+
+import parser.objects.XMLElement;
+import parser.objects.XMLPattern;
 
 public abstract class XMLDocConfig {
 
@@ -13,16 +17,31 @@ public abstract class XMLDocConfig {
     protected HashMap<XMLPattern, String> readSections = new HashMap<XMLPattern, String>();
     protected HashMap<XMLPattern, String> dataSections = new HashMap<XMLPattern, String>();
 
-    public boolean readable(String section) {
-        return readSections.containsKey(section);
+    public boolean readable(XMLElement element) {
+      for (Entry<XMLPattern, String> entry : readSections.entrySet()) {
+        if (entry.getKey().matches(element)) {
+          return true;
+        }
+      }
+      return false;
     }
 
-    public String getDataSectionName(String section) {
-        return dataSections.get(section);
+    public String getDataSectionName(XMLElement element) {
+      for (Entry<XMLPattern, String> entry : dataSections.entrySet()) {
+        if (entry.getKey().matches(element)) {
+          return entry.getValue();
+        }
+      }
+      return null;
     }
 
-    public String getReadSectionName(String section) {
-        return readSections.get(section);
+    public String getReadSectionName(XMLElement element) {
+      for (Entry<XMLPattern, String> entry : readSections.entrySet()) {
+        if (entry.getKey().matches(element)) {
+          return entry.getValue();
+        }
+      }
+      return null;
     }
 
     /**
