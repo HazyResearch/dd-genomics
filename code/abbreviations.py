@@ -68,6 +68,9 @@ def getdefinition((startAbbrev, stopAbbrev, abbrev), sentence, stopLastAbbrev):
   # the char that we are looking for
   key = abbrev[0].lower()
 
+  if len(tokens) == 0:
+    raise ValueError('[SUP] Not enough keys')
+
   # Count the number of tokens that start with the same character as the
   # candidate
   firstchars = [t[0] for t in tokens]
