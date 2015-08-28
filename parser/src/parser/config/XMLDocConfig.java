@@ -10,8 +10,8 @@ public abstract class XMLDocConfig {
     /**
      * The flat sections to pull out of the doc and output as individual files
      */
-    protected HashMap<String, String> readSections = new HashMap<String, String>();
-    protected HashMap<String, String> dataSections = new HashMap<String, String>();
+    protected HashMap<XMLPattern, String> readSections = new HashMap<XMLPattern, String>();
+    protected HashMap<XMLPattern, String> dataSections = new HashMap<XMLPattern, String>();
 
     public boolean readable(String section) {
         return readSections.containsKey(section);

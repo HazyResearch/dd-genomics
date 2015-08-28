@@ -31,17 +31,23 @@ public class PlosConfig extends XMLDocConfig {
     }
 
     public PlosConfig() {
-        readSections.put("article-title", "Title");
-        readSections.put("abstract", "Abstract");
-        readSections.put("body", "Body");
-        dataSections.put("ref-list", "References");
-        dataSections.put("ref", "Reference");
-        dataSections.put("pub-id", "PubId");
-        dataSections.put("pub-date", "Metadata");
-        dataSections.put("journal-meta", "Metadata");
-        dataSections.put("year", "JournalYear");
-        dataSections.put("journal-title", "Journal");
-        dataSections.put("article", "BlockMarker");
+        readSections.put(new XMLPattern("article-title"), "Title");
+        readSections.put(new XMLPattern("abstract"), "Abstract");
+        readSections.put(new XMLPattern("body"), "Body");
+        dataSections.put(new XMLPattern("ref-list"), "References");
+        dataSections.put(new XMLPattern("ref"), "Reference");
+        dataSections.put(new XMLPattern("pub-id"), "PubId");
+        dataSections.put(new XMLPattern("pub-date"), "Metadata");
+        dataSections.put(new XMLPattern("journal-meta"), "Metadata");
+        dataSections.put(new XMLPattern("year"), "JournalYear");
+        dataSections.put(new XMLPattern("journal-title"), "Journal");
+        dataSections.put(new XMLPattern("article"), "BlockMarker");
+        
+        // <issn pub-type="ppub">0028-0836</issn><issn pub-type="epub">1476-4687</issn>
+        dataSections.put(new XMLPattern("issn", "pub-type", "ppub"), "ISSNPrint");
+        dataSections.put(new XMLPattern("issn", "pub-type", "epub"), "ISSNElectronic");
+        // <journal-id journal-id-type="nlm-journal-id">0410462</journal-id>
+        dataSections.put(new XMLPattern("journal-id", "journal-id-type", "nlm-journal-id"), "NlmID");
 
         String[] skipSections = { "title", "xref", "table-wrap", "table", "object-id", "label", "caption", "ext-link" };
         addSkipSections(skipSections);

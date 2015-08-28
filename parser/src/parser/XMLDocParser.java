@@ -110,6 +110,7 @@ public class XMLDocParser {
               pubId = getFlatElementText(localName);
               if (allPubIds.contains(pubId)) { return null; }
               allPubIds.add(pubId);
+              // TODO XXX HACK : This ref format only fits for PMC-OA. If we ever get PubMed citations, we have to change this!!
             } else if ("year".equals(localName)) { 
               pubYr = getFlatElementText(localName);
             } else if ("source".equals(localName)) { 
