@@ -20,7 +20,10 @@ if [ ${OP} == "new" ]; then
     source_name TEXT,
     source_year INT,
     source_text_year TEXT,
-    source_year_status TEXT
+    source_year_status TEXT,
+    issn_global TEXT,
+    issn_print TEXT,
+    issn_electronic TEXT
   )"
   if [ "${DBTYPE}" == "pg" ]; then
     SQL="${SQL_1};"

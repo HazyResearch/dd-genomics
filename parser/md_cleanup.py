@@ -16,22 +16,13 @@ if __name__ == "__main__":
     comps = line.strip().split('\t')
     if len(comps) == 0:
       continue
-    if len(comps) == 1:
-      pmid = comps[0]
-      source_name = 'null'
-      year = 2100
-      text_year = 'null'
-      year_status = 'null'
-    elif len(comps) == 2:
-      pmid = comps[0]
-      source_name = comps[1]
-      year = 2100
-      text_year = 'null'
-      year_status = 'null'
-    elif len(comps) == 3:
+    elif len(comps) == 6:
       text_year = comps[2].strip()
       pmid = comps[0]
       source_name = comps[1]
+      issn_global = comps[3]
+      issn_print = comps[4]
+      issn_electronic = comps[5]
 
       if pmid == 'null':
         continue
@@ -52,4 +43,4 @@ if __name__ == "__main__":
       print line
       continue
 
-    print '%s\t%s\t%s\t%s\t%s' % (pmid, source_name, year, text_year, year_status)
+    print '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s' % (pmid, source_name, year, text_year, year_status, issn_global, issn_print, issn_electronic)
