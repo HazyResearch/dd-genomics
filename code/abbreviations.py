@@ -73,7 +73,7 @@ def getdefinition((startAbbrev, stopAbbrev, abbrev), sentence, stopLastAbbrev):
 
   # Count the number of tokens that start with the same character as the
   # candidate
-  firstchars = [t[0] for t in tokens]
+  firstchars = [t[0] for t in tokens if len(t) > 0]
 
   definitionfreq = firstchars.count(key)
   candidatefreq = abbrev.lower().count(key)
