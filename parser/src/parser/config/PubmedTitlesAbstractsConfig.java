@@ -25,6 +25,9 @@ public class PubmedTitlesAbstractsConfig extends XMLDocConfig {
     out = out.replaceAll("\\s+(\\s|\\(|\\)|,|-|–)*\\.", ".");
 
     out = out.replaceAll("\\s+,", ",");
+    
+    out = out.replaceAll("\n", " ");
+    out = out.replaceAll("\t", " ");
     return out;
   }
 

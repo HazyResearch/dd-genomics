@@ -24,6 +24,8 @@ public class PlosConfig extends XMLDocConfig {
     out = out.replaceAll("\\s+(\\s|\\(|\\)|,|-|–)*\\.", ".");
 
     out = out.replaceAll("\\s+,", ",");
+    
+    out = out.replaceAll("\n", " ");
     return out;
   }
 
