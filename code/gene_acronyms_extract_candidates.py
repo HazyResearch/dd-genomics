@@ -61,19 +61,6 @@ def create_supervised_mention(row, is_correct,
                                definition), detector_message):
   assert stop_abbrev == start_abbrev + 1
   mid = '%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, start_abbrev)
-  [
-            'dd_id',
-            'doc_id',
-            'section_id',
-            'sent_id',
-            'short_wordidxs',
-            'long_wordidxs',
-            'mention_id',
-            'mention_supertype',
-            'mention_subtype',
-            'abbrev_word',
-            'definition_words',
-            'is_correct']
   gene_to_full_name = CACHE['gene_to_full_name']
   if is_correct is False:
     supertype = 'FALSE_DETECTOR'

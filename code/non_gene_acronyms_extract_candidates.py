@@ -61,19 +61,6 @@ def create_supervised_mention(row, is_correct,
                                definition), detector_message):
   assert stop_abbrev == start_abbrev + 1
   mid = '%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, start_abbrev)
-  [
-            'dd_id',
-            'doc_id',
-            'section_id',
-            'sent_id',
-            'short_wordidxs',
-            'long_wordidxs',
-            'mention_id',
-            'mention_supertype',
-            'mention_subtype',
-            'abbrev_word',
-            'definition_words',
-            'is_correct']
   gene_to_full_name = CACHE['gene_to_full_name']
   if is_correct:
     supertype = 'TRUE_DETECTOR'
@@ -85,7 +72,7 @@ def create_supervised_mention(row, is_correct,
     supertype = 'DETECTOR_OMITTED_SENTENCE'
     subtype = None
   if is_correct and abbrev in gene_to_full_name:
-    full_gene_name = gene_to_full_name[abbrev];
+    full_gene_name = gene_to_full_name[abbrev]
     ld = levenshtein.levenshtein(full_gene_name.lower(), ' '.join(definition).lower())
     fgl = len(full_gene_name)
     dl = len(' '.join(definition))

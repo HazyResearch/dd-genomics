@@ -127,6 +127,23 @@ def definitionselection((startDefinition, stopDefinition, definition), (startAbb
   # find all except the first char of the abbreviation
   while 1:
     shortChar = abbrev[sIndex].lower()
+
+    if len(definition) == 0:
+      raise ValueError('[SUP] definition candidate is empty')
+
+    assert -lWordIndex <= len(definition), (definition, lWordIndex, len(definition))
+    
+    if len(definition[lWordIndex]) == 0:
+      lCharacterIndex = -1
+      lWordIndex -= 1
+      if -lWordIndex >= (len(definition) + 1):
+        raise ValueError('[SUP] Abbrv not in def')
+      continue
+
+    assert lWordIndex < 0
+    assert -lWordIndex <= len(definition), (len(definition), lWordIndex)
+    assert lCharacterIndex < 0
+    assert -lCharacterIndex <= len(definition[lWordIndex]), (len(definition[lWordIndex]), lCharacterIndex)
     longChar = definition[lWordIndex][lCharacterIndex].lower()
     
     if shortChar == longChar:
@@ -139,20 +156,24 @@ def definitionselection((startDefinition, stopDefinition, definition), (startAbb
     else:
       lCharacterIndex -= 1
 
-    if lWordIndex == -1 * (len(definition) + 1):
+    if -lWordIndex >= (len(definition) + 1):
       raise ValueError('[SUP] Abbrv not in def')
-    if sIndex == -1 * len(abbrev):
+    if -sIndex == len(abbrev):
       break;
       
   # find the first char of the abbreviation as the first char of a word
   while 1:
+    if len(definition[lWordIndex]) == 0:
+      lWordIndex -= 1
+      if -lWordIndex >= (len(definition) + 1):
+        raise ValueError('[SUP] Abbrv not in def')
     assert sIndex == -1 * len(abbrev)
     shortChar = abbrev[sIndex].lower()
     longChar = definition[lWordIndex][0].lower()
     if shortChar == longChar:
       break;
     lWordIndex -= 1
-    if lWordIndex == -1 * (len(definition) + 1):
+    if -lWordIndex >= (len(definition) + 1):
       raise ValueError('[SUP] Abbrv not in def')
 
   definition = definition[len(definition) + lWordIndex:stopDefinition]
