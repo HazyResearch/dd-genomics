@@ -88,7 +88,15 @@ def create_supervised_mention(row, is_correct,
   if is_correct and abbrev in SR['short_words']:
     is_correct = False
     supertype = 'FALSE_SHORT_WORD'
-    subtype = None
+    btype = None
+  assert stop_abbrev > 0, (row.doc_id, row.section_id, row.sent_id)
+  assert start_abbrev > 0, (row.doc_id, row.section_id, row.sent_id)
+  assert stop_definition > 0, (row.doc_id, row.section_id, row.sent_id)
+  assert start_definition > 0, (row.doc_id, row.section_id, row.sent_id)
+  assert stop_abbrev + 1 - start_abbrev > 0, (row.doc_id, row.section_id, row.sent_id)
+  assert stop_definition + 1 - start_definition > 0, (row.doc_id, row.section_id, row.sent_id)
+  for i in [i for i in xrange(start_abbrev, stop_abbrev + 1)] + [i for i in xrange(start_definition, stop_definition + 1)]:
+    assert len(row.words[i]) > 0, (row.doc_id, row.section_id, row.sent_id, i)
   m = Mention(None, row.doc_id, row.section_id,
               row.sent_id, [i for i in xrange(start_abbrev, stop_abbrev + 1)],
               [i for i in xrange(start_definition, stop_definition + 1)],
