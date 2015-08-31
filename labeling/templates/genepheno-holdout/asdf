@@ -1,0 +1,25 @@
+    select a.ass_superv, a.cause_superv, a.association, a.causation, count(*)
+    from
+    (select distinct
+      ass.is_correct ass_superv
+      , cause.is_correct cause_superv
+      , (ass.expectation > 0.9) association
+      , (cause.expectation > 0.9) causation
+      , hs.doc_id, hs.section_id, hs.sent_id, hs.gene_wordidxs, hs.pheno_wordidxs
+    from
+      holdout_set hs 
+      left join genepheno_association_is_correct_inference ass 
+        on (hs.doc_id = ass.doc_id
+            and hs.sent_id = ass.sent_id
+            and hs.section_id = ass.section_id
+            and string_to_array(hs.gene_wordidxs, '|~|')::integer[] = ass.gene_wordidxs
+            and string_to_array(hs.pheno_wordidxs, '|~|')::integer[] = ass.pheno_wordidxs)
+      left join genepheno_causation_is_correct_inference cause
+        on (hs.doc_id = cause.doc_id
+            and hs.sent_id = cause.sent_id
+            and hs.section_id = cause.section_id
+            and string_to_array(hs.gene_wordidxs, '|~|')::integer[] = cause.gene_wordidxs
+            and string_to_array(hs.pheno_wordidxs, '|~|')::integer[] = cause.pheno_wordidxs)
+    ) a
+    group by a.ass_superv, a.cause_superv, a.association, a.causation
+    order by a.ass_superv, a.cause_superv, a.association, a.causation;
