@@ -294,4 +294,4 @@ CREATE TABLE genepheno_holdout_set (
         sent_id int,
         gene_wordidxs int[],
         pheno_wordidxs int[]
-)
+) distributed by (doc_id, section_id);
