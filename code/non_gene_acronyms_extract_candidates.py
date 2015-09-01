@@ -89,12 +89,12 @@ def create_supervised_mention(row, is_correct,
     is_correct = False
     supertype = 'FALSE_SHORT_WORD'
     btype = None
-  assert stop_abbrev > 0, (row.doc_id, row.section_id, row.sent_id)
-  assert start_abbrev > 0, (row.doc_id, row.section_id, row.sent_id)
-  assert stop_definition > 0, (row.doc_id, row.section_id, row.sent_id)
-  assert start_definition > 0, (row.doc_id, row.section_id, row.sent_id)
-  assert stop_abbrev + 1 - start_abbrev > 0, (row.doc_id, row.section_id, row.sent_id)
-  assert stop_definition + 1 - start_definition > 0, (row.doc_id, row.section_id, row.sent_id)
+  assert stop_abbrev >= 0, (stop_abbrev, row.doc_id, row.section_id, row.sent_id)
+  assert start_abbrev >= 0, (start_abbrev, row.doc_id, row.section_id, row.sent_id)
+  assert stop_definition >= 0, (stop_definition, row.doc_id, row.section_id, row.sent_id)
+  assert start_definition >= 0, (start_definition, row.doc_id, row.section_id, row.sent_id)
+  assert stop_abbrev + 1 - start_abbrev >= 0, (stop_abbrev, start_abbrev, row.doc_id, row.section_id, row.sent_id)
+  assert stop_definition + 1 - start_definition >= 0, (stop_definition, start_definition, row.doc_id, row.section_id, row.sent_id)
   for i in [i for i in xrange(start_abbrev, stop_abbrev + 1)] + [i for i in xrange(start_definition, stop_definition + 1)]:
     assert len(row.words[i]) > 0, (row.doc_id, row.section_id, row.sent_id, i)
   m = Mention(None, row.doc_id, row.section_id,
