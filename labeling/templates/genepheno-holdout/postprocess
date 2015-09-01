@@ -21,15 +21,11 @@ with open(input_csv) as f:
     if i == 0:
       new_row = row + ['hpo_name']
     else:
-      hpo_id = row[6]
-      row[9] = row[9].replace('-LRB- ', '(')
-      row[9] = row[9].replace(' -RRB-', ')')
-      row[9] = row[9].replace('-LSB- ', '[')
-      row[9] = row[9].replace(' -RSB-', ']')
-      row[9] = row[9].replace('-LRB-', '(')
-      row[9] = row[9].replace('-RRB-', ')')
-      row[9] = row[9].replace('-LSB-', '[')
-      row[9] = row[9].replace('-RSB-', ']')
+      hpo_id = row[4]
+      row[7] = row[7].replace('-LRB-', '(')
+      row[7] = row[7].replace('-RRB-', ')')
+      row[7] = row[7].replace('-LSB-', '[')
+      row[7] = row[7].replace('-RSB-', ']')
       if hpo_id in hpo_id_to_name:
         new_row = row + [hpo_id_to_name[hpo_id]]
       else:

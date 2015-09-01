@@ -3,13 +3,13 @@ select
   hs.doc_id
   , hs.section_id
   , hs.sent_id
-  , g.gene_entity as gene_name
-  , p.pheno_entity as pheno_name
-  , hs.gene_wordidxs as gene_wordidxs
-  , hs.pheno_wordidxs as pheno_wordidxs
+  , g.entity as gene_name
+  , p.entity as pheno_name
+  , g.wordidxs as gene_wordidxs
+  , p.wordidxs as pheno_wordidxs
   , string_to_array(si.words, '|^|') as words
 from
-  holdout_set hs
+  (select distinct * from genepheno_holdout_set) hs
   join gene_mentions g
     on (hs.doc_id = g.doc_id
         and hs.section_id = g.section_id
@@ -24,5 +24,7 @@ from
     on (hs.doc_id = si.doc_id
         and hs.section_id = si.section_id
         and hs.sent_id = si.sent_id)
+-- perhaps we should rather make the order deterministic here (???)
+order by random()
 )
 to stdout with csv header;

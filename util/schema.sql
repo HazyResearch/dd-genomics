@@ -286,3 +286,12 @@ CREATE TABLE gene_acronyms_features (
 	-- feature
 	feature text
 ) DISTRIBUTED BY (doc_id, section_id);
+
+DROP TABLE IF EXISTS genepheno_holdout_set;
+CREATE TABLE genepheno_holdout_set (
+        doc_id text,
+        section_id text,
+        sent_id int,
+        gene_wordidxs int[],
+        pheno_wordidxs int[]
+)
