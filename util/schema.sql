@@ -1,6 +1,15 @@
 -- This SQL script contains the instruction to create the tables. 
 -- WARNING: all the tables are dropped and recreated
 
+DROP TABLE IF EXISTS genes CASCADE;
+CREATE TABLE genes (
+  gene_id text primary key,
+  ensembl_id text,
+  canonical_name text,
+  gene_name text,
+  name_type text
+) DISTRIBUTED BY (gene_id);
+
 -- Gene mentions
 DROP TABLE IF EXISTS gene_mentions CASCADE;
 CREATE TABLE gene_mentions (
@@ -12,7 +21,7 @@ CREATE TABLE gene_mentions (
 	mention_id text,
 	supertype text,
         subtype text,
-	entity text,
+        gene_id text,
 	words text[],
 	is_correct boolean
 ) DISTRIBUTED BY (doc_id, section_id);
@@ -75,8 +84,8 @@ CREATE TABLE genepheno_relations (
 	doc_id text,
         section_id text,
 	sent_id int,
-	gene_mention_id text,
-        gene_entity text,
+        gene_mention_id text,
+        gene_id text,
         gene_wordidxs int[],
         gene_is_correct boolean,
 	pheno_mention_id text,
@@ -93,8 +102,8 @@ CREATE TABLE genepheno_association (
 	doc_id text,
         section_id text,
 	sent_id int,
-	gene_mention_id text,
-        gene_entity text,
+        gene_mention_id text,
+        gene_id text,
         gene_wordidxs int[],
 	pheno_mention_id text,
         pheno_entity text,
@@ -112,8 +121,8 @@ CREATE TABLE genepheno_causation (
 	doc_id text,
         section_id text,
 	sent_id int,
-	gene_mention_id text,
-        gene_entity text,
+        gene_mention_id text,
+        gene_id text,
         gene_wordidxs int[],
 	pheno_mention_id text,
         pheno_entity text,
@@ -176,8 +185,8 @@ CREATE TABLE genevariant_relations (
         variant_entity text,
         variant_wordidxs int[],
         variant_is_correct boolean,
-	gene_mention_id text,
-        gene_entity text,
+        gene_mention_id text,
+        gene_id,
         gene_wordidxs int[],
         gene_is_correct boolean,
 	is_correct boolean,
@@ -201,49 +210,29 @@ CREATE TABLE plos_doi_to_pmid (
   pmid text
 ) DISTRIBUTED BY (doi);
 
-DROP TABLE IF EXISTS ens_gene_to_gene_symbol;
-CREATE TABLE ens_gene_to_gene_symbol (
-  ensembl_symbol text,
-  gene_name text
-) DISTRIBUTED BY (ensembl_symbol);
-
 DROP TABLE IF EXISTS non_gene_acronyms CASCADE;
 CREATE TABLE non_gene_acronyms (
 	-- id for random variable
 	id bigint,
-	-- document id
 	doc_id text,
-        -- section id
         section_id text,
-	-- sentence id
 	sent_id int,
-	-- indexes of the words composing the acronym
 	short_wordidxs int[],
-	-- indexes of the words composing the extended form
 	long_wordidxs int[],
-	-- mention id
 	mention_id text,
-	-- mention type
 	supertype text,
         subtype text,
-	-- entity
 	entity text,
-	-- words
 	words text[],
-	-- is this a correct pheno acronym definition?
 	is_correct boolean
 ) DISTRIBUTED BY (doc_id, section_id);
 
 -- Gene mentions features
 DROP TABLE IF EXISTS non_gene_acronyms_features CASCADE;
 CREATE TABLE non_gene_acronyms_features (
-	-- document id
 	doc_id text,
-        -- section id,
         section_id text,
-	-- mention id
 	mention_id text,
-	-- feature
 	feature text
 ) DISTRIBUTED BY (doc_id, section_id);
 
@@ -251,26 +240,16 @@ DROP TABLE IF EXISTS gene_acronyms CASCADE;
 CREATE TABLE gene_acronyms (
 	-- id for random variable
 	id bigint,
-	-- document id
 	doc_id text,
-        -- section id
         section_id text,
-	-- sentence id
 	sent_id int,
-	-- indexes of the words composing the acronym
 	short_wordidxs int[],
-	-- indexes of the words composing the extended form
 	long_wordidxs int[],
-	-- mention id
 	mention_id text,
-	-- mention type
 	supertype text,
         subtype text,
-	-- entity
 	entity text,
-	-- words
 	words text[],
-	-- is this a correct pheno acronym definition?
 	is_correct boolean
 ) DISTRIBUTED BY (doc_id, section_id);
 
@@ -279,11 +258,8 @@ DROP TABLE IF EXISTS gene_acronyms_features CASCADE;
 CREATE TABLE gene_acronyms_features (
 	-- document id
 	doc_id text,
-        -- section id,
         section_id text,
-	-- mention id
 	mention_id text,
-	-- feature
 	feature text
 ) DISTRIBUTED BY (doc_id, section_id);
 

@@ -21,7 +21,7 @@ parser = util.RowParser([
           ('dep_paths', 'text[]'),
           ('dep_parents', 'int[]'),
           ('gene_mention_ids', 'text[]'),
-          ('gene_entities', 'text[]'),
+          ('gene_ids', 'text[]'),
           ('gene_wordidxs', 'int[][]'),
           ('gene_is_corrects', 'boolean[]'),
           ('pheno_mention_ids', 'text[]'),
@@ -38,7 +38,7 @@ Relation = collections.namedtuple('Relation', [
             'section_id',
             'sent_id',
             'gene_mention_id',
-            'gene_entity',
+            'gene_id',
             'gene_wordidxs',
             'gene_is_correct',
             'pheno_mention_id',
@@ -49,14 +49,6 @@ Relation = collections.namedtuple('Relation', [
 ### CANDIDATE EXTRACTION ###
 
 def extract_candidate_relations(row):
-  """
-  row_id = '%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id)
-  util.print_error('%s: GE: %s' % (row_id, row.gene_entities))
-  util.print_error('%s: GMIDS: %s' % (row_id, row.gene_mention_ids))
-  util.print_error('%s: PE: %s' % (row_id, row.pheno_entities))
-  util.print_error('%s: PMIDS: %s' % (row_id, row.pheno_mention_ids))
-  """
-
   """
   Given a row object having a sentence and some associated N gene and M phenotype mention
   candidates, pick a subset of the N*M possible gene-phenotype relations to return as
@@ -75,7 +67,7 @@ def extract_candidate_relations(row):
   for i in range(len(row.gene_mention_ids)):
     rid = '%s_%s' % (row.gene_mention_ids[i], row.pheno_mention_ids[i])
     r = Relation(None, rid, row.doc_id, row.section_id, row.sent_id, \
-          row.gene_mention_ids[i], row.gene_entities[i], \
+          row.gene_mention_ids[i], row.gene_ids[i], \
           row.gene_wordidxs[i], row.gene_is_corrects[i], \
           row.pheno_mention_ids[i], row.pheno_entities[i], \
           row.pheno_wordidxs[i], row.pheno_is_corrects[i])
@@ -95,7 +87,7 @@ def extract_candidate_relations(row):
   seen_pairs = {}
   for d, r in pairs:
     if HF.get('take-best-only-dups'):
-      e = '%s_%s' % (r.gene_entity, r.pheno_entity)
+      e = '%s_%s' % (r.gene_id, r.pheno_entity)
       if e in seen_pairs and d > seen_pairs[e]:
         continue
       else:
