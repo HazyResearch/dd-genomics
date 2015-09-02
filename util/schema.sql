@@ -3,7 +3,9 @@
 
 DROP TABLE IF EXISTS genes CASCADE;
 CREATE TABLE genes (
-  gene_id text primary key,
+  -- include primary key when dd fixes find command
+  -- gene_id text primary key,
+  gene_id text,
   ensembl_id text,
   canonical_name text,
   gene_name text,
@@ -186,7 +188,7 @@ CREATE TABLE genevariant_relations (
         variant_wordidxs int[],
         variant_is_correct boolean,
         gene_mention_id text,
-        gene_id,
+        gene_id text,
         gene_wordidxs int[],
         gene_is_correct boolean,
 	is_correct boolean,
