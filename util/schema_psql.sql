@@ -8,7 +8,7 @@ CREATE TABLE genes (
   canonical_name text,
   gene_name text,
   name_type text
-) DISTRIBUTED BY (gene_id);
+) ;
 
 -- Gene mentions
 DROP TABLE IF EXISTS gene_mentions CASCADE;
@@ -24,7 +24,7 @@ CREATE TABLE gene_mentions (
         gene_id text,
 	words text[],
 	is_correct boolean
-) DISTRIBUTED BY (doc_id, section_id);
+) ;
 
 -- Gene mentions
 DROP TABLE IF EXISTS variant_mentions CASCADE;
@@ -40,7 +40,7 @@ CREATE TABLE variant_mentions (
 	entity text,
 	words text[],
 	is_correct boolean
-) DISTRIBUTED BY (doc_id, section_id);
+) ;
 
 -- Gene mentions features
 DROP TABLE IF EXISTS gene_features CASCADE;
@@ -49,7 +49,7 @@ CREATE TABLE gene_features (
         section_id text,
 	mention_id text,
 	feature text
-) DISTRIBUTED BY (doc_id, section_id);
+) ;
 
 -- phenotype mentions
 DROP TABLE IF EXISTS pheno_mentions CASCADE;
@@ -65,7 +65,7 @@ CREATE TABLE pheno_mentions (
 	entity text,
 	words text[],
 	is_correct boolean
-) DISTRIBUTED BY (doc_id, section_id);
+) ;
 
 -- Phenotype mentions features
 DROP TABLE IF EXISTS pheno_features CASCADE;
@@ -74,7 +74,7 @@ CREATE TABLE pheno_features (
         section_id text,
 	mention_id text,
 	feature text
-) DISTRIBUTED BY (doc_id, section_id);
+) ;
 
 -- Gene / Phenotype mentions
 DROP TABLE IF EXISTS genepheno_relations CASCADE;
@@ -92,7 +92,7 @@ CREATE TABLE genepheno_relations (
         pheno_entity text,
         pheno_wordidxs int[],
         pheno_is_correct boolean
-) DISTRIBUTED BY (doc_id, section_id);
+) ;
 
 -- Gene / Phenotype association mentions
 DROP TABLE IF EXISTS genepheno_association CASCADE;
@@ -111,7 +111,7 @@ CREATE TABLE genepheno_association (
 	is_correct boolean,
         supertype text,
         subtype text
-) DISTRIBUTED BY (doc_id, section_id);
+) ;
  
 -- Gene / Phenotype association mentions
 DROP TABLE IF EXISTS genepheno_causation CASCADE;
@@ -130,7 +130,7 @@ CREATE TABLE genepheno_causation (
 	is_correct boolean,
         supertype text,
         subtype text
-) DISTRIBUTED BY (doc_id, section_id);
+) ;
 
 -- G/P relation mentions features
 DROP TABLE IF EXISTS genepheno_features CASCADE;
@@ -139,7 +139,7 @@ CREATE TABLE genepheno_features (
         section_id text,
 	relation_id text,
 	feature text
-) DISTRIBUTED BY (doc_id, section_id);
+) ;
 
 -- Variant / Phenotype mentions
 DROP TABLE IF EXISTS variantpheno_relations CASCADE;
@@ -160,7 +160,7 @@ CREATE TABLE variantpheno_relations (
 	is_correct boolean,
         supertype text,
         subtype text
-) DISTRIBUTED BY (doc_id, section_id);
+) ;
 
 -- GV/P relation mentions features
 DROP TABLE IF EXISTS variantpheno_features CASCADE;
@@ -169,7 +169,7 @@ CREATE TABLE variantpheno_features (
         section_id text,
 	relation_id text,
 	feature text
-) DISTRIBUTED BY (doc_id, section_id);
+) ;
 
 -- Gene / Variant mentions
 DROP TABLE IF EXISTS genevariant_relations CASCADE;
@@ -192,23 +192,23 @@ CREATE TABLE genevariant_relations (
 	is_correct boolean,
         supertype text,
         subtype text
-) DISTRIBUTED BY (doc_id, section1_id, section2_id);
+) ;
 
 DROP TABLE IF EXISTS genevariant_features CASCADE;
 CREATE TABLE genevariant_features (
 	doc_id text,
 	relation_id text,
 	feature text
-) DISTRIBUTED BY (doc_id, relation_id);
+) ;
 
 DROP TABLE IF EXISTS test_nlp;
-CREATE TABLE test_nlp (id bigint) DISTRIBUTED BY (id);
+CREATE TABLE test_nlp (id bigint) ;
 
 DROP TABLE IF EXISTS plos_doi_to_pmid;
 CREATE TABLE plos_doi_to_pmid (
   doi text,
   pmid text
-) DISTRIBUTED BY (doi);
+) ;
 
 DROP TABLE IF EXISTS non_gene_acronyms CASCADE;
 CREATE TABLE non_gene_acronyms (
@@ -225,7 +225,7 @@ CREATE TABLE non_gene_acronyms (
 	entity text,
 	words text[],
 	is_correct boolean
-) DISTRIBUTED BY (doc_id, section_id);
+) ;
 
 -- Gene mentions features
 DROP TABLE IF EXISTS non_gene_acronyms_features CASCADE;
@@ -234,7 +234,7 @@ CREATE TABLE non_gene_acronyms_features (
         section_id text,
 	mention_id text,
 	feature text
-) DISTRIBUTED BY (doc_id, section_id);
+) ;
 
 DROP TABLE IF EXISTS gene_acronyms CASCADE;
 CREATE TABLE gene_acronyms (
@@ -251,7 +251,7 @@ CREATE TABLE gene_acronyms (
 	entity text,
 	words text[],
 	is_correct boolean
-) DISTRIBUTED BY (doc_id, section_id);
+) ;
 
 -- Gene mentions features
 DROP TABLE IF EXISTS gene_acronyms_features CASCADE;
@@ -261,7 +261,7 @@ CREATE TABLE gene_acronyms_features (
         section_id text,
 	mention_id text,
 	feature text
-) DISTRIBUTED BY (doc_id, section_id);
+) ;
 
 DROP TABLE IF EXISTS genepheno_holdout_set;
 CREATE TABLE genepheno_holdout_set (
@@ -270,4 +270,4 @@ CREATE TABLE genepheno_holdout_set (
         sent_id int,
         gene_wordidxs int[],
         pheno_wordidxs int[]
-) DISTRIBUTED BY (doc_id, section_id);
+) ;

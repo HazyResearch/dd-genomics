@@ -83,4 +83,6 @@ xml_parsed.json
 
 db.url
 
+/run/
+
 /log*
