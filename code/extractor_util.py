@@ -100,8 +100,8 @@ def bool_parser(b):
 
 # NOTE: array_to_string doesn't work well for bools!  Just pass psql array out!
 RP_PARSERS = {
-  'text' : lambda x : str(x),
-  'text[]' : lambda x : tsv_string_to_list(x),
+  'text' : lambda x : str(x.replace('\n', ' ')),
+  'text[]' : lambda x : tsv_string_to_list(x.replace('\n', ' ')),
   'int' : lambda x : int(x.strip()),
   'int[]' : lambda x : tsv_string_to_list(x, func=lambda x: int(x.strip())),
   'int[][]' : lambda x : tsv_string_to_listoflists(x, func=lambda x: int(x.strip())),
@@ -126,7 +126,7 @@ class RowParser:
         val = RP_PARSERS[field_type](col)
         if FIX_DEP_PARENTS:
           if field_name == 'dep_parents':
-            for i in xrange(0,len(val)):
+            for i in xrange(0, len(val)):
               val[i] -= 1
       else:
         raise Exception("Unsupported type %s for RowParser class- please add.")
