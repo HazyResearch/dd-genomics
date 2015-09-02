@@ -74,7 +74,7 @@ def tsv_string_to_list(s, func=lambda x : x, sep='|^|'):
     split = s.split(sep)
 
   # split and apply function
-  return [func(x.strip()) for x in split]
+  return [func(x) for x in split]
 
 
 def tsv_string_to_listoflists(s, func=lambda x : x, sep1='|~|', sep2='|^|'):
@@ -88,6 +88,7 @@ class Row:
     return str(self)
 
 def bool_parser(b):
+  b = b.strip()
   if b == 't':
     return True
   elif b == 'f':
@@ -101,9 +102,9 @@ def bool_parser(b):
 RP_PARSERS = {
   'text' : lambda x : str(x),
   'text[]' : lambda x : tsv_string_to_list(x),
-  'int' : lambda x : int(x),
-  'int[]' : lambda x : tsv_string_to_list(x, func=int),
-  'int[][]' : lambda x : tsv_string_to_listoflists(x, func=int),
+  'int' : lambda x : int(x.strip()),
+  'int[]' : lambda x : tsv_string_to_list(x, func=lambda x: int(x.strip())),
+  'int[][]' : lambda x : tsv_string_to_listoflists(x, func=lambda x: int(x.strip())),
   'boolean' : lambda x : bool_parser(x),
   'boolean[]' : lambda x : tsv_string_to_list(x, func=bool_parser)
 }
@@ -122,7 +123,7 @@ class RowParser:
     for i,col in enumerate(cols):
       field_name, field_type = self.fields[i]
       if RP_PARSERS.has_key(field_type):
-        val = RP_PARSERS[field_type](col.strip())
+        val = RP_PARSERS[field_type](col)
         if FIX_DEP_PARENTS:
           if field_name == 'dep_parents':
             for i in xrange(0,len(val)):
