@@ -21,7 +21,7 @@ parser = util.RowParser([
           ('dep_paths', 'text[]'),
           ('dep_parents', 'int[]'),
           ('gene_mention_ids', 'text[]'),
-          ('gene_ids', 'text[]'),
+          ('gene_names', 'text[]'),
           ('gene_wordidxs', 'int[][]'),
           ('gene_is_corrects', 'boolean[]'),
           ('pheno_mention_ids', 'text[]'),
@@ -38,7 +38,7 @@ Relation = collections.namedtuple('Relation', [
             'section_id',
             'sent_id',
             'gene_mention_id',
-            'gene_id',
+            'gene_name',
             'gene_wordidxs',
             'gene_is_correct',
             'pheno_mention_id',
@@ -67,7 +67,7 @@ def extract_candidate_relations(row):
   for i in range(len(row.gene_mention_ids)):
     rid = '%s_%s' % (row.gene_mention_ids[i], row.pheno_mention_ids[i])
     r = Relation(None, rid, row.doc_id, row.section_id, row.sent_id, \
-          row.gene_mention_ids[i], row.gene_ids[i], \
+          row.gene_mention_ids[i], row.gene_names[i], \
           row.gene_wordidxs[i], row.gene_is_corrects[i], \
           row.pheno_mention_ids[i], row.pheno_entities[i], \
           row.pheno_wordidxs[i], row.pheno_is_corrects[i])
@@ -87,7 +87,7 @@ def extract_candidate_relations(row):
   seen_pairs = {}
   for d, r in pairs:
     if HF.get('take-best-only-dups'):
-      e = '%s_%s' % (r.gene_id, r.pheno_entity)
+      e = '%s_%s' % (r.gene_name, r.pheno_entity)
       if e in seen_pairs and d > seen_pairs[e]:
         continue
       else:

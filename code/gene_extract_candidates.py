@@ -36,7 +36,7 @@ Mention = collections.namedtuple('Mention', [
             'mention_id',
             'mention_supertype',
             'mention_subtype',
-            'entity',
+            'gene_name',
             'words',
             'is_correct'])
 
@@ -91,12 +91,12 @@ def extract_candidate_mentions(row):
 
 ### DISTANT SUPERVISION ###
 VALS = config.GENE['vals']
-def create_supervised_mention(row, i, entity=None, mention_supertype=None, mention_subtype=None):
+def create_supervised_mention(row, i, gene_name=None, mention_supertype=None, mention_subtype=None):
   """Given a Row object consisting of a sentence, create & supervise a Mention output object"""
   word = row.words[i]
   word_lower = word.lower()
-  mid = '%s_%s_%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, i, entity, mention_supertype)
-  m = Mention(None, row.doc_id, row.section_id, row.sent_id, [i], mid, mention_supertype, mention_subtype, entity, [word], None)
+  mid = '%s_%s_%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, i, gene_name, mention_supertype)
+  m = Mention(None, row.doc_id, row.section_id, row.sent_id, [i], mid, mention_supertype, mention_subtype, gene_name, [word], None)
   dep_dag = deps.DepPathDAG(row.dep_parents, row.dep_paths, row.words)
 
   if SR.get('post-match'):
@@ -121,18 +121,19 @@ def create_supervised_mention(row, i, entity=None, mention_supertype=None, menti
   if SR['pubmed-paper-genes-true']:
     pubmed_to_genes = CACHE['pubmed_to_genes']
     pmid = dutil.get_pubmed_id_for_doc(row.doc_id)
-    if pmid and entity:
+    if pmid and gene_name:
+      assert False, 'TODO map gene_name to ensembl ID'
       mention_ensembl_id = entity.split(":")[0]
       if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
         return m._replace(is_correct=True, mention_supertype='%s_NCBI_ANNOTATION_TRUE' % mention_supertype, mention_subtype=mention_ensembl_id)
 
   if SR['all-symbols-true']:
-    if m.mention_supertype in ('CANONICAL_SYMBOL','NONCANONICAL_SYMBOL', 'ENSEMBL_ID', 'REFSEQ'):
+    if m.mention_supertype in HF['ensembl-mapping-types']:
       return m._replace(is_correct=True, mention_supertype='CANONICAL_TRUE')
 
   ## DS RULE: Genes on the gene list with complicated names are probably good for exact matches.
   if SR['complicated-gene-names-true']:
-    if m.mention_supertype in ('CANONICAL_SYMBOL','NONCANONICAL_SYMBOL', 'ENSEMBL_ID', 'REFSEQ'):
+    if m.mention_supertype in HF['ensembl-mapping-types']:
       if re.match(r'[a-zA-Z]{3}[a-zA-Z]*\d+\w*', word):
         return m._replace(is_correct=True, mention_supertype='COMPLICATED_GENE_NAME')
 

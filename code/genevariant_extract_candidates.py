@@ -28,7 +28,7 @@ parser = util.RowParser([
           ('dep_paths2', 'text[]'),
           ('dep_parents2', 'int[]'),
           ('gene_mention_ids', 'text[]'),
-          ('gene_ids', 'text[]'),
+          ('gene_names', 'text[]'),
           ('gene_wordidxs', 'int[][]'),
           ('gene_is_corrects', 'boolean[]'),
           ('variant_mention_ids', 'text[]'),
@@ -47,7 +47,7 @@ Relation = collections.namedtuple('Relation', [
             'section2_id',
             'sent2_id',
             'gene_mention_id',
-            'gene_id',
+            'gene_name',
             'gene_wordidxs',
             'gene_is_correct',
             'variant_mention_id',
@@ -74,7 +74,7 @@ def extract_candidate_relations(row):
 
 def create_relation(row, i, j):
   gene_mention_id = row.gene_mention_ids[i]
-  gene_id = row.gene_ids[i]
+  gene_name = row.gene_names[i]
   gene_wordidxs = row.gene_wordidxs[i]
   gene_is_correct = row.gene_is_corrects[i]
   variant_mention_id = row.variant_mention_ids[j]
@@ -90,7 +90,7 @@ def create_relation(row, i, j):
   relation_id = '%s_%s' % (gene_mention_id, variant_mention_id)
   r = Relation(None, relation_id, row.doc_id, row.section1_id, \
                row.sent1_id, row.section2_id, row.sent2_id, \
-               gene_mention_id, gene_id, gene_wordidxs, \
+               gene_mention_id, gene_name, gene_wordidxs, \
                gene_is_correct, variant_mention_id, variant_entity, \
                variant_wordidxs, variant_is_correct, is_correct, supertype, subtype)
   return r

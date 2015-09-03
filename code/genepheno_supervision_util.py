@@ -16,7 +16,7 @@ parser = util.RowParser([
             ('section_id', 'text'),
             ('sent_id', 'int'),
             ('gene_mention_id', 'text'),
-            ('gene_id', 'text'),
+            ('gene_name', 'text'),
             ('gene_wordidxs', 'int[]'),
             ('gene_is_correct', 'boolean'),
             ('pheno_mention_id', 'text'),
@@ -37,7 +37,7 @@ Relation = collections.namedtuple('Relation', [
             'section_id',
             'sent_id',
             'gene_mention_id',
-            'gene_id',
+            'gene_name',
             'gene_wordidxs',
             'pheno_mention_id',
             'pheno_entity',
@@ -73,7 +73,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
   Also includes an input for d = pos - neg supervision count, for neg supervision
   """
   gene_mention_id = row.gene_mention_id
-  gene_id = row.gene_id
+  gene_name = row.gene_name
   gene_wordidxs = row.gene_wordidxs
   gene_is_correct = row.gene_is_correct
   pheno_mention_id = row.pheno_mention_id
@@ -93,7 +93,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
   dep_dag = deps.DepPathDAG(row.dep_parents, row.dep_paths, row.words, max_path_len=HF['max-dep-path-dist'])
 
   relation_id = '%s_%s' % (gene_mention_id, pheno_mention_id)
-  r = Relation(None, relation_id, row.doc_id, row.section_id, row.sent_id, gene_mention_id, gene_id, \
+  r = Relation(None, relation_id, row.doc_id, row.section_id, row.sent_id, gene_mention_id, gene_name, \
                gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, None, None, None)
   path_len_sets = dep_dag.path_len_sets(gene_wordidxs, pheno_wordidxs)
   if not path_len_sets:
@@ -182,7 +182,8 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
           return r._replace(is_correct=val, relation_supertype='DEP_LEMMA_NB_%s_%s' % (name,entity), relation_subtype=subtype)
 
   if SR.get('charite-all-pos'):
-    if (pheno_entity, gene_id) in charite_pairs:
+    assert False, 'TODO'
+    if (pheno_entity, gene_name) in charite_pairs:
       return r._replace(is_correct=True, relation_supertype='CHARITE_SUP') 
 
   # Return GP relation object
