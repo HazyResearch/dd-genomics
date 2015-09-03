@@ -110,6 +110,7 @@ def create_supervised_mention(row, i, gene_name=None, mention_supertype=None, me
       for (mention_ensembl_id, mapping_type) in CACHE['lower_phrase_to_genes'][gene_name.lower()]:
         if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
           return m._replace(is_correct=True, mention_supertype='%s_NCBI_ANNOTATION_TRUE' % mention_supertype, mention_subtype=mention_ensembl_id)
+          break
 
   if SR['all-symbols-true']:
     if m.mention_supertype in HF['ensembl-mapping-types']:
@@ -147,9 +148,9 @@ def get_negative_mentions(row, mentions, d, per_row_max=2):
     if i in existing_mention_idxs:
       continue
     
-    # Make a template mention object- will have mention_id opt with entity (ensemble_id) appended
+    # Make a template mention object- will have mention_id opt with gene_name appended
     mid = '%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, i)
-    m = Mention(dd_id=None, doc_id=row.doc_id, section_id=row.section_id, sent_id=row.sent_id, wordidxs=[i], mention_id=mid, mention_supertype="RANDOM_NEGATIVE",mention_subtype=None, entity=None, words=[word], is_correct=None)
+    m = Mention(dd_id=None, doc_id=row.doc_id, section_id=row.section_id, sent_id=row.sent_id, wordidxs=[i], mention_id=mid, mention_supertype="RANDOM_NEGATIVE",mention_subtype=None, gene_name=None, words=[word], is_correct=None)
 
     # Non-match all uppercase negative supervision
     if word==word.upper() and len(word)>2 and word.isalnum() and not unicode(word).isnumeric():
