@@ -1,8 +1,8 @@
 SELECT 
-  entity, count(entity) 
-FROM gene_mentions_filtered_is_correct_inference
+  g.canonical_name, count(g.canonical_name)
+FROM gene_mentions_filtered_is_correct_inference gm join genes g on (gm.gene_id = g.gene_id)
 WHERE 
-  expectation > 0.9
-GROUP BY entity
+  gm.expectation > 0.9
+GROUP BY g.canonical_name
 ORDER BY count DESC
 LIMIT 1000

@@ -1,8 +1,8 @@
 SELECT 
-  gene_entity, count(gene_entity) 
-FROM genepheno_causation
+  g.canonical_name, count(g.canonical_name)
+FROM genepheno_causation gc join genes g on (gc.gene_id = g.gene_id)
 WHERE 
-  is_correct != 'f' OR is_correct IS NULL 
-GROUP BY gene_entity
+  gc.is_correct != 'f' OR gc.is_correct IS NULL 
+GROUP BY g.gene_id
 ORDER BY count DESC
 LIMIT 1000

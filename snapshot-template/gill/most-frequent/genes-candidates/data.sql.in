@@ -1,8 +1,8 @@
 SELECT 
-  entity, count(entity) 
-FROM gene_mentions 
+  g.canonical_name, count(g.canonical_name) 
+FROM gene_mentions gm join genes g on (gm.gene_id = g.gene_id)
 WHERE 
-  is_correct != 'f' OR is_correct IS NULL 
-GROUP BY entity
+  gm.is_correct != 'f' OR gm.is_correct IS NULL 
+GROUP BY g.canonical_name
 ORDER BY count DESC
 LIMIT 1000

@@ -1,10 +1,10 @@
 SELECT 
-  a.gene_entity, pheno_entity, count(*) 
+  canonical_name, pheno_entity, count(*) 
 FROM 
-(SELECT gene_entity, pheno_entity FROM genepheno_association
+(SELECT g.canonical_name, ga.pheno_entity FROM genepheno_association ga join genes g on (ga.gene_id = g.gene_id)
 WHERE 
-  is_correct != 'f' OR is_correct IS NULL 
+  ga.is_correct != 'f' OR ga.is_correct IS NULL 
 ) a
-GROUP BY gene_entity, pheno_entity
+GROUP BY canonical_name, pheno_entity
 ORDER BY count DESC
 LIMIT 1000

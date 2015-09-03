@@ -3,7 +3,7 @@ select
   hs.doc_id
   , hs.section_id
   , hs.sent_id
-  , g.entity as gene_name
+  , g.gene_id as gene_id
   , p.entity as pheno_name
   , g.wordidxs as gene_wordidxs
   , p.wordidxs as pheno_wordidxs

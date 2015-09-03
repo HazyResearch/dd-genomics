@@ -5,7 +5,7 @@ select
   , a.subtype as assoc_subtype
   , c.supertype as cause_supertype
   , c.subtype as cause_subtype
-  , a.gene_entity as gene_name
+  , a.gene_id as gene_id
   , a.pheno_entity as pheno_name
   , a.gene_wordidxs as gene_wordidxs
   , a.pheno_wordidxs as pheno_wordidxs
@@ -27,7 +27,7 @@ from
       and a.doc_id = c.doc_id
       and a.section_id = c.section_id
       and a.sent_id = c.sent_id
-      and a.gene_entity = c.gene_entity
+      and a.gene_id = c.gene_id
       and a.pheno_entity = c.pheno_entity
       and a.gene_wordidxs = c.gene_wordidxs
       and a.pheno_wordidxs = c.pheno_wordidxs

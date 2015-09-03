@@ -5,7 +5,7 @@ COPY (
     , gm.mention_id
     , gm.type
     , string_to_array(si.words, '|^|') as words
-    , gm.entity
+    , gm.gene_id
     , expectation
     , gm.wordidxs
     , features
