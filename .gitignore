@@ -82,3 +82,5 @@ onto/dicts/hugo_export.txt
 xml_parsed.json
 
 db.url
+
+/log*
