@@ -49,7 +49,7 @@ PHENO_ACRONYMS = {
                      
   'HF' : {},
                      
-  'SR' : { 
+  'SR' : {
     'difflib.pheno_cutoff' : 0.8,
     'short_words': { 'the', 'and', 'or', 'at', 'in', 'see', 'as', 'an', 'data', 'for', 'not', 'our', 'ie', 'to', 'eg', 'one', 'age', 'on', 'center', 'right', 'left', 'from', 'based', 'total', 'via', 'but', 'resp', 'no' } 
   }

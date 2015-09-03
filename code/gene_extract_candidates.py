@@ -44,19 +44,6 @@ Mention = collections.namedtuple('Mention', [
 HF = config.GENE['HF']
 SR = config.GENE['SR']
 
-def read_phrase_to_genes():
-  """Read in phrase to gene mappings. The format is TSV: <EnsemblGeneId> <Phrase> <MappingType>"""
-  with open('%s/onto/data/ensembl_genes.tsv' % util.APP_HOME) as f:
-    phrase_to_genes = collections.defaultdict(set)
-    lower_phrase_to_genes = collections.defaultdict(set)
-    for line in f:
-      ensembl_id,phrase,mapping_type = line.rstrip('\n').split('\t')
-      if mapping_type in HF['ensembl-mapping-types']:
-        phrase_to_genes[phrase].add((ensembl_id,mapping_type))
-        lower_phrase_to_genes[phrase.lower()].add((ensembl_id,mapping_type))
-  return phrase_to_genes, lower_phrase_to_genes
-
-
 def read_pubmed_to_genes():
   """NCBI provides a list of articles (PMIDs) that discuss a particular gene (Entrez IDs).
   These provide a nice positive distant supervision set, as mentions of a gene name in
@@ -74,15 +61,13 @@ def read_pubmed_to_genes():
 
 
 def extract_candidate_mentions(row):
-  phrase_to_genes = CACHE['phrase_to_genes']
   lower_phrase_to_genes = CACHE['lower_phrase_to_genes']
   mentions = []
   for i, word in enumerate(row.words):
     # Treat lowercase mappings the same as exact case ones for now.
-    if (word in phrase_to_genes or word.lower() in lower_phrase_to_genes) and (len(word) >= HF['min-word-len']):
-      exact_case_matches = phrase_to_genes[word]
-      lowercase_matches = phrase_to_genes[word.lower()]
-      for eid, mapping_type in exact_case_matches.union(lowercase_matches):
+    if (word.lower() in lower_phrase_to_genes) and (len(word) >= HF['min-word-len']):
+      lowercase_matches = lower_phrase_to_genes[word.lower()]
+      for (eid, mapping_type) in lowercase_matches:
         m = create_supervised_mention(row, i, eid, mapping_type)
         if m:
           mentions.append(m)
@@ -123,9 +108,9 @@ def create_supervised_mention(row, i, gene_name=None, mention_supertype=None, me
     pmid = dutil.get_pubmed_id_for_doc(row.doc_id)
     if pmid and gene_name:
       assert False, 'TODO map gene_name to ensembl ID'
-      mention_ensembl_id = entity.split(":")[0]
-      if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
-        return m._replace(is_correct=True, mention_supertype='%s_NCBI_ANNOTATION_TRUE' % mention_supertype, mention_subtype=mention_ensembl_id)
+      for (mention_ensembl_id, mapping_type) in CACHE['lower_phrase_to_genes'][gene_name.lower()]
+        if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
+          return m._replace(is_correct=True, mention_supertype='%s_NCBI_ANNOTATION_TRUE' % mention_supertype, mention_subtype=mention_ensembl_id)
 
   if SR['all-symbols-true']:
     if m.mention_supertype in HF['ensembl-mapping-types']:
@@ -180,7 +165,7 @@ def get_negative_mentions(row, mentions, d, per_row_max=2):
 
 if __name__ == '__main__':
   # load static data
-  CACHE['phrase_to_genes'],CACHE['lower_phrase_to_genes'] = read_phrase_to_genes()
+  CACHE['lower_phrase_to_genes'] = dutil.gene_symbol_to_ensembl_id_map()
   CACHE['pubmed_to_genes'] = read_pubmed_to_genes()
   # unnecessary currently b/c our doc id is the pmid, thankfully
   # CACHE['doi_to_pmid'] = dutil.read_doi_to_pmid()

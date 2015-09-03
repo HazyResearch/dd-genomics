@@ -56,9 +56,9 @@ def read_supervision():
     for line in f:
       hpo_id, gene_symbol = line.strip().split('\t')
       hpo_ids = [hpo_id] + [parent for parent in HPO_DAG.edges[hpo_id]]
-      eids = EID_MAP[gene_symbol]
+      eids_mappings = EID_MAP[gene_symbol]
       for h in hpo_ids:
-        for e in eids:
+        for (e,m) in eids_mappings:
           supervision_pairs.add((h,e))
   return supervision_pairs
 
@@ -182,7 +182,6 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
           return r._replace(is_correct=val, relation_supertype='DEP_LEMMA_NB_%s_%s' % (name,entity), relation_subtype=subtype)
 
   if SR.get('charite-all-pos'):
-    assert False, 'TODO'
     if (pheno_entity, gene_name) in charite_pairs:
       return r._replace(is_correct=True, relation_supertype='CHARITE_SUP') 
 

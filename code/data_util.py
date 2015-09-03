@@ -112,7 +112,7 @@ def gene_symbol_to_ensembl_id_map():
     for line in f:
       eid, phrase, mapping_type = line.rstrip('\n').split('\t')
       eid_map[phrase].add(eid)
-      eid_map[phrase.lower()].add(eid)
+      eid_map[phrase.lower()].add((eid, mapping_type))
   return eid_map
 
 
