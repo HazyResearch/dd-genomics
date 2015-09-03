@@ -63,7 +63,8 @@ GENE = {
   'HF' : {
     # Restricting the ENSEMBL mapping types we consider
     # Types: CANONICAL_SYMBOL, NONCANONICAL_SYMBOL, REFSEQ
-    'ensembl-mapping-types' : ['CANONICAL_SYMBOL'],
+
+    'ensembl-mapping-types' : ['CANONICAL_SYMBOL', 'NONCANONICAL_SYMBOL', 'ENSEMBL_ID', 'REFSEQ'],
 
     'min-word-len': 3
   },
