@@ -29,6 +29,7 @@ public class XMLDocParser {
   private HashMap<String, Integer> seenNames = new HashMap<String, Integer>();
   private PrintWriter mdWriter;
   private PrintWriter omWriter;
+  private File inputFile;
 
   private void skipSection(String localName) {
     try {
@@ -273,6 +274,7 @@ public class XMLDocParser {
         }
       }
     } catch (XMLStreamException ex) {
+      System.err.println(inputFile.getAbsolutePath());
       ex.printStackTrace();
     }
     return sections;
@@ -281,6 +283,7 @@ public class XMLDocParser {
   // Default constructor from InputStream
   public XMLDocParser(File inputFile, XMLDocConfig config, HashSet<String> allTitles, HashSet<String> allPubIds,
       PrintWriter mdWriter, PrintWriter omWriter) throws FileNotFoundException {
+    this.inputFile = inputFile;
     this.xmlStream = new FileInputStream(inputFile);
     this.factory = XMLInputFactory.newInstance();
     this.config = config;
