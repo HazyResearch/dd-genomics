@@ -107,8 +107,7 @@ def create_supervised_mention(row, i, gene_name=None, mention_supertype=None, me
     pubmed_to_genes = CACHE['pubmed_to_genes']
     pmid = dutil.get_pubmed_id_for_doc(row.doc_id)
     if pmid and gene_name:
-      assert False, 'TODO map gene_name to ensembl ID'
-      for (mention_ensembl_id, mapping_type) in CACHE['lower_phrase_to_genes'][gene_name.lower()]
+      for (mention_ensembl_id, mapping_type) in CACHE['lower_phrase_to_genes'][gene_name.lower()]:
         if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
           return m._replace(is_correct=True, mention_supertype='%s_NCBI_ANNOTATION_TRUE' % mention_supertype, mention_subtype=mention_ensembl_id)
 
