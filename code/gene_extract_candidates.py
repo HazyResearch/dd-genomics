@@ -34,6 +34,7 @@ Mention = collections.namedtuple('Mention', [
             'sent_id',
             'wordidxs',
             'mention_id',
+            'mapping_type',
             'mention_supertype',
             'mention_subtype',
             'gene_name',
@@ -67,7 +68,7 @@ def extract_candidate_mentions(row):
     if (word.lower() in gene_name_to_genes) and (len(word) >= HF['min-word-len']):
       matches = gene_name_to_genes[word.lower()]
       for (eid, canonical_name, mapping_type) in matches:
-        m = create_supervised_mention(row, i, word.lower(), mapping_type)
+        m = create_supervised_mention(row, i, gene_name=word.lower(), mapping_type=mapping_type, mention_supertype=mapping_type)
         if m:
           mentions.append(m)
   return mentions
@@ -113,12 +114,12 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
 
   ## DS RULE: Genes on the gene list with complicated names are probably good for exact matches.
   if SR['complicated-gene-names-true']:
-    if m.mention_supertype in HF['ensembl-mapping-types']:
+    if m.mapping_type in HF['ensembl-mapping-types']:
       if re.match(r'[a-zA-Z]{3}[a-zA-Z]*\d+\w*', word):
         return m._replace(is_correct=True, mention_supertype='COMPLICATED_GENE_NAME')
 
   if SR['all-symbols-true']:
-    if m.mention_supertype in HF['ensembl-mapping-types']:
+    if m.mapping_type in HF['ensembl-mapping-types']:
       return m._replace(is_correct=True, mention_supertype='%s_ALL_TRUE' % m.mention_supertype)
 
   if SR.get('neighbor-match'):
@@ -149,7 +150,7 @@ def get_negative_mentions(row, mentions, d, per_row_max=2):
     
     # Make a template mention object- will have mention_id opt with gene_name appended
     mid = '%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, i)
-    m = Mention(dd_id=None, doc_id=row.doc_id, section_id=row.section_id, sent_id=row.sent_id, wordidxs=[i], mention_id=mid, mention_supertype="RANDOM_NEGATIVE",mention_subtype=None, gene_name=None, words=[word], is_correct=None)
+    m = Mention(dd_id=None, doc_id=row.doc_id, section_id=row.section_id, sent_id=row.sent_id, wordidxs=[i], mention_id=mid, mapping_type=None, mention_supertype="RANDOM_NEGATIVE",mention_subtype=None, gene_name=None, words=[word], is_correct=None)
 
     # Non-match all uppercase negative supervision
     if word==word.upper() and len(word)>2 and word.isalnum() and not unicode(word).isnumeric():
