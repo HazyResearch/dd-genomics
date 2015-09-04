@@ -106,20 +106,20 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
     pubmed_to_genes = CACHE['pubmed_to_genes']
     pmid = dutil.get_pubmed_id_for_doc(row.doc_id)
     if pmid and gene_name:
-      for (mention_ensembl_id, mapping_type) in CACHE['gene_name_to_genes'][gene_name.lower()]:
+      for (mention_ensembl_id, canonical_name, mapping_type) in CACHE['gene_name_to_genes'][gene_name.lower()]:
         if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
           return m._replace(is_correct=True, mention_supertype='%s_NCBI_ANNOTATION_TRUE' % mention_supertype, mention_subtype=mention_ensembl_id)
           break
-
-  if SR['all-symbols-true']:
-    if m.mention_supertype in HF['ensembl-mapping-types']:
-      return m._replace(is_correct=True, mention_supertype='CANONICAL_TRUE')
 
   ## DS RULE: Genes on the gene list with complicated names are probably good for exact matches.
   if SR['complicated-gene-names-true']:
     if m.mention_supertype in HF['ensembl-mapping-types']:
       if re.match(r'[a-zA-Z]{3}[a-zA-Z]*\d+\w*', word):
         return m._replace(is_correct=True, mention_supertype='COMPLICATED_GENE_NAME')
+
+  if SR['all-symbols-true']:
+    if m.mention_supertype in HF['ensembl-mapping-types']:
+      return m._replace(is_correct=True, mention_supertype='%s_ALL_TRUE' % m.mention_supertype)
 
   if SR.get('neighbor-match'):
     opts = SR['neighbor-match']

@@ -46,7 +46,6 @@ Relation = collections.namedtuple('Relation', [
             'relation_supertype',
             'relation_subtype'])
 
-EID_MAP = dutil.gene_symbol_to_ensembl_id_map()
 HPO_DAG = dutil.read_hpo_dag()
 
 def read_supervision():
@@ -54,12 +53,10 @@ def read_supervision():
   supervision_pairs = set()
   with open('%s/onto/data/canon_phenotype_to_gene.map' % util.APP_HOME) as f:
     for line in f:
-      hpo_id, gene_symbol = line.strip().split('\t')
+      hpo_id, gene_name = line.strip().split('\t')
       hpo_ids = [hpo_id] + [parent for parent in HPO_DAG.edges[hpo_id]]
-      eids_mappings = EID_MAP[gene_symbol]
       for h in hpo_ids:
-        for (e,m) in eids_mappings:
-          supervision_pairs.add((h,e))
+        supervision_pairs.add((h,gene_name))
   return supervision_pairs
 
 # count_g_or_p_false_none = 0 

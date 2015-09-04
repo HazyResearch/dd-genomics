@@ -132,8 +132,7 @@ fi
 ./canonicalize_gene_phenotype.py | sort | uniq > data/canon_phenotype_to_ensgene.map
 join -1 1 -2 1 \
   <(cat data/ensembl_genes.tsv | 
-    grep -P '\tCANONICAL' | 
-    awk -F'[:\t]' '{print $1, $2}' | 
+    awk -F'[:\t]' '{print $1, $3}' | 
     sort | uniq) \
   <(cat data/canon_phenotype_to_ensgene.map | 
     awk '{print $2, $1}' |
