@@ -65,10 +65,10 @@ def extract_candidate_mentions(row):
   gene_name_to_genes = CACHE['gene_name_to_genes']
   mentions = []
   for i, word in enumerate(row.words):
-    if (word.lower() in gene_name_to_genes) and (len(word) >= HF['min-word-len']):
-      matches = gene_name_to_genes[word.lower()]
+    if (word in gene_name_to_genes) and (len(word) >= HF['min-word-len']):
+      matches = gene_name_to_genes[word]
       for (eid, canonical_name, mapping_type) in matches:
-        m = create_supervised_mention(row, i, gene_name=word.lower(), mapping_type=mapping_type, mention_supertype=mapping_type)
+        m = create_supervised_mention(row, i, gene_name=word, mapping_type=mapping_type, mention_supertype=mapping_type)
         if m:
           mentions.append(m)
   return mentions
@@ -79,7 +79,6 @@ VALS = config.GENE['vals']
 def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention_supertype=None, mention_subtype=None):
   """Given a Row object consisting of a sentence, create & supervise a Mention output object"""
   word = row.words[i]
-  word_lower = word.lower()
   mid = '%s_%s_%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, i, gene_name, mention_supertype)
   m = Mention(None, row.doc_id, row.section_id, row.sent_id, [i], mid, mapping_type, mention_supertype, mention_subtype, gene_name, [word], None)
   dep_dag = deps.DepPathDAG(row.dep_parents, row.dep_paths, row.words)
@@ -107,7 +106,7 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
     pubmed_to_genes = CACHE['pubmed_to_genes']
     pmid = dutil.get_pubmed_id_for_doc(row.doc_id)
     if pmid and gene_name:
-      for (mention_ensembl_id, canonical_name, mapping_type) in CACHE['gene_name_to_genes'][gene_name.lower()]:
+      for (mention_ensembl_id, canonical_name, mapping_type) in CACHE['gene_name_to_genes'][gene_name]:
         if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
           return m._replace(is_correct=True, mention_supertype='%s_NCBI_ANNOTATION_TRUE' % mention_supertype, mention_subtype=mention_ensembl_id)
           break

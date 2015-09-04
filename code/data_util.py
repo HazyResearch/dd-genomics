@@ -114,14 +114,8 @@ def gene_symbol_to_ensembl_id_map():
       eid = eid_canonical.split(':')[0]
       canonical_name = eid_canonical.split(':')[1]
       eid_map[gene_name].add((eid, canonical_name, mapping_type))
-      eid_map[gene_name.lower()].add((eid, canonical_name, mapping_type))
+      # XXX HACK Johannes: Maybe we shouldn't decide on case sensitivity in this helper method (?)
+      if mapping_type == 'CANONICAL_SYMBOL':
+        eid_map[gene_name.lower()].add((eid, canonical_name, mapping_type))
   return eid_map
 
-
-def read_manual_list(name):
-  """Reads in simple list of words in TSV format"""
-  words = []
-  with open('%s/onto/manual/%s.tsv' % (util.APP_HOME, name)) as f:
-    for line in f:
-      words.append(line.strip().lower())
-  return frozenset(words)
