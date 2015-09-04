@@ -61,14 +61,13 @@ def read_pubmed_to_genes():
 
 
 def extract_candidate_mentions(row):
-  lower_phrase_to_genes = CACHE['lower_phrase_to_genes']
+  gene_name_to_genes = CACHE['gene_name_to_genes']
   mentions = []
   for i, word in enumerate(row.words):
-    # Treat lowercase mappings the same as exact case ones for now.
-    if (word.lower() in lower_phrase_to_genes) and (len(word) >= HF['min-word-len']):
-      lowercase_matches = lower_phrase_to_genes[word.lower()]
-      for (eid, mapping_type) in lowercase_matches:
-        m = create_supervised_mention(row, i, eid, mapping_type)
+    if (word.lower() in gene_name_to_genes) and (len(word) >= HF['min-word-len']):
+      matches = gene_name_to_genes[word.lower()]
+      for (eid, canonical_name, mapping_type) in matches:
+        m = create_supervised_mention(row, i, word.lower(), mapping_type)
         if m:
           mentions.append(m)
   return mentions
@@ -76,12 +75,12 @@ def extract_candidate_mentions(row):
 
 ### DISTANT SUPERVISION ###
 VALS = config.GENE['vals']
-def create_supervised_mention(row, i, gene_name=None, mention_supertype=None, mention_subtype=None):
+def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention_supertype=None, mention_subtype=None):
   """Given a Row object consisting of a sentence, create & supervise a Mention output object"""
   word = row.words[i]
   word_lower = word.lower()
   mid = '%s_%s_%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, i, gene_name, mention_supertype)
-  m = Mention(None, row.doc_id, row.section_id, row.sent_id, [i], mid, mention_supertype, mention_subtype, gene_name, [word], None)
+  m = Mention(None, row.doc_id, row.section_id, row.sent_id, [i], mid, mapping_type, mention_supertype, mention_subtype, gene_name, [word], None)
   dep_dag = deps.DepPathDAG(row.dep_parents, row.dep_paths, row.words)
 
   if SR.get('post-match'):
@@ -107,7 +106,7 @@ def create_supervised_mention(row, i, gene_name=None, mention_supertype=None, me
     pubmed_to_genes = CACHE['pubmed_to_genes']
     pmid = dutil.get_pubmed_id_for_doc(row.doc_id)
     if pmid and gene_name:
-      for (mention_ensembl_id, mapping_type) in CACHE['lower_phrase_to_genes'][gene_name.lower()]:
+      for (mention_ensembl_id, mapping_type) in CACHE['gene_name_to_genes'][gene_name.lower()]:
         if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
           return m._replace(is_correct=True, mention_supertype='%s_NCBI_ANNOTATION_TRUE' % mention_supertype, mention_subtype=mention_ensembl_id)
           break
@@ -165,7 +164,7 @@ def get_negative_mentions(row, mentions, d, per_row_max=2):
 
 if __name__ == '__main__':
   # load static data
-  CACHE['lower_phrase_to_genes'] = dutil.gene_symbol_to_ensembl_id_map()
+  CACHE['gene_name_to_genes'] = dutil.gene_symbol_to_ensembl_id_map()
   CACHE['pubmed_to_genes'] = read_pubmed_to_genes()
   # unnecessary currently b/c our doc id is the pmid, thankfully
   # CACHE['doi_to_pmid'] = dutil.read_doi_to_pmid()

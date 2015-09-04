@@ -110,9 +110,11 @@ def gene_symbol_to_ensembl_id_map():
   with open('%s/onto/data/ensembl_genes.tsv' % util.APP_HOME) as f:
     eid_map = defaultdict(set)
     for line in f:
-      eid, phrase, mapping_type = line.rstrip('\n').split('\t')
-      eid_map[phrase].add((eid, mapping_type))
-      eid_map[phrase.lower()].add((eid, mapping_type))
+      eid_canonical, gene_name, mapping_type = line.rstrip('\n').split('\t')
+      eid = eid_canonical.split(':')[0]
+      canonical_name = eid_canonical.split(':')[1]
+      eid_map[gene_name].add((eid, canonical_name, mapping_type))
+      eid_map[gene_name.lower()].add((eid, canonical_name, mapping_type))
   return eid_map
 
 

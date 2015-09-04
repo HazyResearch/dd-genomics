@@ -1,6 +1,6 @@
 SELECT 
   g.canonical_name, count(g.canonical_name) 
-FROM gene_mentions gm join genes g on (gm.gene_id = g.gene_id)
+FROM gene_mentions gm join genes g on (gm.gene_name = g.gene_name)
 WHERE 
   gm.is_correct != 'f' OR gm.is_correct IS NULL 
 GROUP BY g.canonical_name

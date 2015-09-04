@@ -1,8 +1,8 @@
 SELECT 
   g.canonical_name, count(g.canonical_name) 
-FROM genepheno_association ga join genes g on (ga.gene_id = g.gene_id)
+FROM genepheno_association ga join genes g on (ga.gene_name = g.gene_name)
 WHERE 
   ga.is_correct != 'f' OR ga.is_correct IS NULL 
-GROUP BY g.gene_id
+GROUP BY g.canonical_name
 ORDER BY count DESC
 LIMIT 1000

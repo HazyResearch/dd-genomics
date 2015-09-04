@@ -1,7 +1,7 @@
 SELECT 
   a.canonical_name, pheno_entity, count(*) 
 FROM 
-(SELECT g.canonical_name, gc.pheno_entity FROM genepheno_causation gc join genes g on (gc.gene_id = g.gene_id)
+(SELECT g.canonical_name, gc.pheno_entity FROM genepheno_causation gc join genes g on (gc.gene_name = g.gene_name)
 WHERE 
   gc.is_correct != 'f' OR gc.is_correct IS NULL 
 ) a

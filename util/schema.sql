@@ -21,6 +21,7 @@ CREATE TABLE gene_mentions (
 	sent_id int,
 	wordidxs int[],
 	mention_id text,
+        mapping_type text,
 	supertype text,
         subtype text,
         gene_name text,

@@ -83,7 +83,7 @@ SELECT
 ")
 report-log "Creating a few corpus stats 1"
 num_genes_candidates=$(run-sql "
-select count(distinct g.canonical_name) from gene_mentions gm join genes g on (gm.gene_id = g.gene_id) where gm.is_correct = 't' or gm.is_correct is null
+select count(distinct g.canonical_name) from gene_mentions gm join genes g on (gm.gene_name = g.gene_name) where gm.is_correct = 't' or gm.is_correct is null
 ")
 report-log "Creating a few corpus stats 1"
 num_phenos_candidates=$(run-sql "
@@ -91,7 +91,7 @@ select count(distinct entity) from pheno_mentions where is_correct = 't' or is_c
 ")
 report-log "Creating a few corpus stats 1"
 num_genes_in_pairs_candidates_before_supervision=$(run-sql "
-select count(distinct g.canonical_name) from genepheno_relations gp join genes g on (gp.gene_id = g.gene_id)
+select count(distinct g.canonical_name) from genepheno_relations gp join genes g on (gp.gene_name = g.gene_name)
 ")
 report-log "Creating a few corpus stats 1"
 num_phenos_in_pairs_candidates_before_supervision=$(run-sql "
@@ -99,7 +99,7 @@ select count(distinct pheno_entity) from genepheno_relations
 ")
 report-log "Creating a few corpus stats 1"
 num_genes_in_association_pairs_candidates=$(run-sql "
-select count(distinct g.canonical_name) from genepheno_association ga join genes g on (ga.gene_id = g.gene_id) where ga.is_correct = 't' or ga.is_correct is null
+select count(distinct g.canonical_name) from genepheno_association ga join genes g on (ga.gene_name = g.gene_name) where ga.is_correct = 't' or ga.is_correct is null
 ")
 report-log "Creating a few corpus stats 1"
 num_phenos_in_association_pairs_candidates=$(run-sql "
@@ -107,7 +107,7 @@ select count(distinct pheno_entity) from genepheno_association where is_correct 
 ")
 report-log "Creating a few corpus stats 1"
 num_genes_in_causation_pairs_candidates=$(run-sql "
-select count(distinct g.canonical_name) from genepheno_causation gc join genes g on (gc.gene_id = g.gene_id) where gc.is_correct = 't' or gc.is_correct is null
+select count(distinct g.canonical_name) from genepheno_causation gc join genes g on (gc.gene_name = g.gene_name) where gc.is_correct = 't' or gc.is_correct is null
 ")
 report-log "Creating a few corpus stats 1"
 num_phenos_in_causation_pairs_candidates=$(run-sql "
@@ -116,17 +116,17 @@ select count(distinct pheno_entity) from genepheno_causation where is_correct = 
 report-log "Creating a few corpus stats 1"
 num_genepheno_association_candidates=$(run-sql "
 select count(*) from
-(select distinct g.canonical_name, ga.pheno_entity from genepheno_association ga join genes g on (ga.gene_id = g.gene_id) where ga.is_correct is null or ga.is_correct = 't') a
+(select distinct g.canonical_name, ga.pheno_entity from genepheno_association ga join genes g on (ga.gene_name = g.gene_name) where ga.is_correct is null or ga.is_correct = 't') a
 ")
 report-log "Creating a few corpus stats 1"
 num_genepheno_causation_candidates=$(run-sql "
 select count(*) from
-(select distinct g.canonical_name, gc.pheno_entity from genepheno_causation gc join genes g on (gc.gene_id = g.gene_id) where gc.is_correct is null or gc.is_correct = 't') a
+(select distinct g.canonical_name, gc.pheno_entity from genepheno_causation gc join genes g on (gc.gene_name = g.gene_name) where gc.is_correct is null or gc.is_correct = 't') a
 ")
 
 report-log "Creating a few corpus stats 1"
 num_genes_inferred=$(run-sql "
-select count(distinct g.canonical_name) from gene_mentions_filtered_is_correct_inference gm join genes g on (gm.gene_id = g.gene_id) where gm.expectation > 0.9
+select count(distinct g.canonical_name) from gene_mentions_filtered_is_correct_inference gm join genes g on (gm.gene_name = g.gene_name) where gm.expectation > 0.9
 ")
 report-log "Creating a few corpus stats 1"
 num_phenos_inferred=$(run-sql "
@@ -134,7 +134,7 @@ select count(distinct entity) from pheno_mentions_filtered_is_correct_inference 
 ")
 report-log "Creating a few corpus stats 1"
 num_genes_in_association_pairs_inferred=$(run-sql "
-select count(distinct g.canonical_name) from genepheno_association_is_correct_inference ga join genes g on (ga.gene_id = g.gene_id) where ga.expectation > 0.9
+select count(distinct g.canonical_name) from genepheno_association_is_correct_inference ga join genes g on (ga.gene_name = g.gene_name) where ga.expectation > 0.9
 ")
 report-log "Creating a few corpus stats 1"
 num_phenos_in_association_pairs_inferred=$(run-sql "
@@ -142,7 +142,7 @@ select count(distinct pheno_entity) from genepheno_association_is_correct_infere
 ")
 report-log "Creating a few corpus stats 1"
 num_genes_in_causation_pairs_inferred=$(run-sql "
-select count(distinct g.canonical_name) from genepheno_causation_is_correct_inference gc join genes g on (gc.gene_id = g.gene_id) where gc.expectation > 0.9
+select count(distinct g.canonical_name) from genepheno_causation_is_correct_inference gc join genes g on (gc.gene_name = g.gene_name) where gc.expectation > 0.9
 ")
 report-log "Creating a few corpus stats 1"
 num_phenos_in_causation_pairs_inferred=$(run-sql "
@@ -151,12 +151,12 @@ select count(distinct pheno_entity) from genepheno_causation_is_correct_inferenc
 report-log "Creating a few corpus stats 1"
 num_genepheno_association_inferred=$(run-sql "
 select count(*) from
-(select distinct g.canonical_name, ga.pheno_entity from genepheno_association_is_correct_inference ga join genes g on (ga.gene_id = g.gene_id) where ga.expectation > 0.9) a
+(select distinct g.canonical_name, ga.pheno_entity from genepheno_association_is_correct_inference ga join genes g on (ga.gene_name = g.gene_name) where ga.expectation > 0.9) a
 ")
 report-log "Creating a few corpus stats 1"
 num_genepheno_causation_inferred=$(run-sql "
 select count(*) from
-(select distinct g.canonical_name, ga.pheno_entity from genepheno_causation_is_correct_inference ga join genes g on (ga.gene_id = g.gene_id) where ga.expectation > 0.9) a
+(select distinct g.canonical_name, ga.pheno_entity from genepheno_causation_is_correct_inference ga join genes g on (ga.gene_name = g.gene_name) where ga.expectation > 0.9) a
 ")
 
 # store the numbers
