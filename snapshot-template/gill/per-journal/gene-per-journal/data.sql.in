@@ -2,9 +2,9 @@ SELECT
   q1.source_name
   , coalesce(q1.count, 0) as num_docs
   , q2.count as gene_cands
-  , to_char(coalesce(q2.count, 0)::float / coalesce(q1.count, 1)::float, '999999999D99') as gene_cands_per_doc
+  , to_char(coalesce(q2.count, 0)::float / coalesce((CASE WHEN q1.count = 0 THEN 1 ELSE q1.count END), 1)::float, '999999999D99') as gene_cands_per_doc
   , coalesce(q3.count, 0) as gene_infs
-  , to_char(coalesce(q3.count, 0)::float / coalesce(q1.count, 1)::float, '999999999D99') as gene_infs_per_doc
+  , to_char(coalesce(q3.count, 0)::float / coalesce((CASE WHEN q1.count = 0 THEN 1 ELSE q1.count END), 1)::float, '999999999D99') as gene_infs_per_doc
   FROM
     (SELECT
       coalesce(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)

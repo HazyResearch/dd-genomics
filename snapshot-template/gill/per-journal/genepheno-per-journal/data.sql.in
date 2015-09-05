@@ -2,13 +2,13 @@ SELECT
   q1.source_name
   , coalesce(q1.count, 0) as num_docs
   , coalesce(q4.count, 0) as gp_assoc_cands
-  , to_char(coalesce(q4.count, 0)::float / coalesce(q1.count, 1)::float, '999999999D99') as gp_assoc_cands_per_doc
+  , to_char(coalesce(q4.count, 0)::float / coalesce((CASE WHEN q1.count = 0 THEN 1 ELSE q1.count END), 1)::float, '999999999D99') as gp_assoc_cands_per_doc
   , coalesce(q5.count, 0) as gp_caus_cands
-  , to_char(coalesce(q5.count, 0)::float / coalesce(q1.count, 1)::float, '999999999D99') as gp_caus_cands_per_doc
+  , to_char(coalesce(q5.count, 0)::float / coalesce((CASE WHEN q1.count = 0 THEN 1 ELSE q1.count END), 1)::float, '999999999D99') as gp_caus_cands_per_doc
   , coalesce(q6.count, 0) as gp_assoc_infs
-  , to_char(coalesce(q6.count, 0)::float / coalesce(q1.count, 1)::float, '999999999D99') as gp_assoc_infs_per_doc
+  , to_char(coalesce(q6.count, 0)::float / coalesce((CASE WHEN q1.count = 0 THEN 1 ELSE q1.count END), 1)::float, '999999999D99') as gp_assoc_infs_per_doc
   , coalesce(q7.count, 0) as gp_caus_infs
-  , to_char(coalesce(q7.count, 0)::float / coalesce(q1.count, 1)::float, '999999999D99') as gp_caus_infs_per_doc
+  , to_char(coalesce(q7.count, 0)::float / coalesce((CASE WHEN q1.count = 0 THEN 1 ELSE q1.count END), 1)::float, '999999999D99') as gp_caus_infs_per_doc
   FROM
     (SELECT
       coalesce(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
