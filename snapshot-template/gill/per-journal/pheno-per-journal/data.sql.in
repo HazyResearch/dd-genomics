@@ -7,7 +7,7 @@ SELECT
   , to_char(coalesce(q9.count, 0)::float / coalesce(q1.count, 1)::float, '999999999D99') as pheno_infs_per_doc
   FROM
     (SELECT
-      collate(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
+      coalesce(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
       FROM
         sentences_input si
         LEFT OUTER JOIN doc_metadata dm ON (si.doc_id = dm.doc_id)
@@ -17,7 +17,7 @@ SELECT
         count DESC) q1
     RIGHT OUTER JOIN
     (SELECT
-      collate(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
+      coalesce(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
       FROM
         pheno_mentions pm 
         LEFT OUTER JOIN doc_metadata dm ON (pm.doc_id = dm.doc_id)
@@ -29,7 +29,7 @@ SELECT
     ON (q1.source_name = q8.source_name)
     RIGHT OUTER JOIN
     (SELECT
-      collate(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
+      coalesce(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
       FROM
         pheno_mentions_filtered_is_correct_inference pm 
         LEFT OUTER JOIN doc_metadata dm ON (pm.doc_id = dm.doc_id)

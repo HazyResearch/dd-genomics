@@ -1,5 +1,5 @@
 SELECT
-  collate(source_name, 'UNKNOWN') source_name, count(distinct si.doc_id)
+  coalesce(source_name, 'UNKNOWN') source_name, count(distinct si.doc_id)
 FROM
   sentences_input si
   LEFT OUTER JOIN doc_metadata dm ON (si.doc_id = dm.doc_id)

@@ -11,7 +11,7 @@ SELECT
   , to_char(coalesce(q7.count, 0)::float / coalesce(q1.count, 1)::float, '999999999D99') as gp_caus_infs_per_doc
   FROM
     (SELECT
-      collate(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
+      coalesce(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
       FROM
         sentences_input si
         LEFT OUTER JOIN doc_metadata dm ON (si.doc_id = dm.doc_id)
@@ -21,7 +21,7 @@ SELECT
         count DESC) q1
     RIGHT OUTER JOIN
     (SELECT
-      collate(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
+      coalesce(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
       FROM
         genepheno_association ga 
         LEFT OUTER JOIN doc_metadata dm ON (ga.doc_id = dm.doc_id)
@@ -33,7 +33,7 @@ SELECT
     ON (q1.source_name = q4.source_name)
     RIGHT OUTER JOIN
     (SELECT
-      collate(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
+      coalesce(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
       FROM
         genepheno_causation gc 
         LEFT OUTER JOIN doc_metadata dm ON (gc.doc_id = dm.doc_id)
@@ -45,7 +45,7 @@ SELECT
     ON (q4.source_name = q5.source_name)
     RIGHT OUTER JOIN
     (SELECT
-      collate(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
+      coalesce(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
       FROM
         genepheno_association_is_correct_inference ga 
         LEFT OUTER JOIN doc_metadata dm ON (ga.doc_id = dm.doc_id)
@@ -57,7 +57,7 @@ SELECT
     ON (q5.source_name = q6.source_name)
     RIGHT OUTER JOIN
     (SELECT
-      collate(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
+      coalesce(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
       FROM
         genepheno_causation_is_correct_inference gc 
         LEFT OUTER JOIN doc_metadata dm ON (gc.doc_id = dm.doc_id)
