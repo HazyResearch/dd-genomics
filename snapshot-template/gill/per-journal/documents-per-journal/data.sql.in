@@ -1,8 +1,8 @@
 SELECT
-  source_name, count(distinct si.doc_id)
+  collate(source_name, 'UNKNOWN') source_name, count(distinct si.doc_id)
 FROM
   sentences_input si
-  JOIN doc_metadata dm ON (si.doc_id = dm.doc_id)
+  LEFT OUTER JOIN doc_metadata dm ON (si.doc_id = dm.doc_id)
 GROUP BY
   source_name
 ORDER BY

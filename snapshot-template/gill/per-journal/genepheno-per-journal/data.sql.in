@@ -11,20 +11,20 @@ SELECT
   , to_char(coalesce(q7.count, 0)::float / coalesce(q1.count, 1)::float, '999999999D99') as gp_caus_infs_per_doc
   FROM
     (SELECT
-      source_name, count(distinct dm.doc_id)
+      collate(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
       FROM
         sentences_input si
-        JOIN doc_metadata dm ON (si.doc_id = dm.doc_id)
+        LEFT OUTER JOIN doc_metadata dm ON (si.doc_id = dm.doc_id)
       GROUP BY
         source_name
       ORDER BY
         count DESC) q1
     RIGHT OUTER JOIN
     (SELECT
-      source_name, count(distinct dm.doc_id)
+      collate(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
       FROM
         genepheno_association ga 
-        JOIN doc_metadata dm ON (ga.doc_id = dm.doc_id)
+        LEFT OUTER JOIN doc_metadata dm ON (ga.doc_id = dm.doc_id)
       WHERE is_correct != 'f' OR is_correct IS NULL
       GROUP BY
         source_name
@@ -33,10 +33,10 @@ SELECT
     ON (q1.source_name = q4.source_name)
     RIGHT OUTER JOIN
     (SELECT
-      source_name, count(distinct dm.doc_id)
+      collate(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
       FROM
         genepheno_causation gc 
-        JOIN doc_metadata dm ON (gc.doc_id = dm.doc_id)
+        LEFT OUTER JOIN doc_metadata dm ON (gc.doc_id = dm.doc_id)
       WHERE is_correct != 'f' OR is_correct IS NULL
       GROUP BY
         source_name
@@ -45,10 +45,10 @@ SELECT
     ON (q4.source_name = q5.source_name)
     RIGHT OUTER JOIN
     (SELECT
-      source_name, count(distinct dm.doc_id)
+      collate(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
       FROM
         genepheno_association_is_correct_inference ga 
-        JOIN doc_metadata dm ON (ga.doc_id = dm.doc_id)
+        LEFT OUTER JOIN doc_metadata dm ON (ga.doc_id = dm.doc_id)
       WHERE expectation > 0.9
       GROUP BY
         source_name
@@ -57,10 +57,10 @@ SELECT
     ON (q5.source_name = q6.source_name)
     RIGHT OUTER JOIN
     (SELECT
-      source_name, count(distinct dm.doc_id)
+      collate(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
       FROM
         genepheno_causation_is_correct_inference gc 
-        JOIN doc_metadata dm ON (gc.doc_id = dm.doc_id)
+        LEFT OUTER JOIN doc_metadata dm ON (gc.doc_id = dm.doc_id)
       WHERE expectation > 0.9
       GROUP BY
         source_name

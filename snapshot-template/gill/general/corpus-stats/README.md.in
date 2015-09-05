@@ -20,8 +20,11 @@ report-log "Creating a few corpus stats 1"
 num_sources=$(run-sql "
 SELECT count(DISTINCT source_name)
 FROM
-  sentences_input si
-  JOIN doc_metadata ON (si.doc_id = doc_metadata.doc_id)
+  (SELECT collate(source_name, 'UNKNOWN') source_name
+   FROM
+     sentences_input si
+   LEFT OUTER JOIN doc_metadata ON (si.doc_id = doc_metadata.doc_id)) a
+  )
 ")
 report-log "Creating a few corpus stats 1"
 num_sentences=$(run-sql "
