@@ -274,3 +274,27 @@ CREATE TABLE genepheno_holdout_set (
         gene_wordidxs int[],
         pheno_wordidxs int[]
 ) DISTRIBUTED BY (doc_id, section_id);
+
+DROP TABLE IF EXISTS genepheno_causation_canon CASCADE;
+CREATE TABLE genepheno_causation_canon (
+  hpo_id text,
+  ensembl_id text
+) DISTRIBUTED BY (hpo_id, ensembl_id);
+
+DROP TABLE IF EXISTS genepheno_association_canon CASCADE;
+CREATE TABLE genepheno_association_canon (
+  hpo_id text,
+  ensembl_id text
+) DISTRIBUTED BY (hpo_id, ensembl_id);
+
+DROP TABLE IF EXISTS hpo_abnormalities CASCADE;
+CREATE TABLE hpo_abnormalities (
+  hpo_id text,
+  pheno_name text
+) DISTRIBUTED BY (hpo_id);
+
+DROP TABLE IF EXISTS charite_canon CASCADE;
+CREATE TABLE charite_canon (
+  hpo_id text,
+  ensembl_id text
+);

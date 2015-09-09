@@ -21,6 +21,7 @@ CREATE TABLE gene_mentions (
 	sent_id int,
 	wordidxs int[],
 	mention_id text,
+        mapping_type text,
 	supertype text,
         subtype text,
         gene_name text,
@@ -273,3 +274,27 @@ CREATE TABLE genepheno_holdout_set (
         gene_wordidxs int[],
         pheno_wordidxs int[]
 ) ;
+
+DROP TABLE IF EXISTS genepheno_causation_canon CASCADE;
+CREATE TABLE genepheno_causation_canon (
+  hpo_id text,
+  ensembl_id text
+) ;
+
+DROP TABLE IF EXISTS genepheno_association_canon CASCADE;
+CREATE TABLE genepheno_association_canon (
+  hpo_id text,
+  ensembl_id text
+) ;
+
+DROP TABLE IF EXISTS hpo_abnormalities CASCADE;
+CREATE TABLE hpo_abnormalities (
+  hpo_id text,
+  pheno_name text
+) ;
+
+DROP TABLE IF EXISTS charite_canon CASCADE;
+CREATE TABLE charite_canon (
+  hpo_id text,
+  ensembl_id text
+);
