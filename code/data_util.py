@@ -115,7 +115,7 @@ def gene_symbol_to_ensembl_id_map():
       canonical_name = eid_canonical.split(':')[1]
       eid_map[gene_name].add((eid, canonical_name, mapping_type))
       # XXX HACK Johannes: Maybe we shouldn't decide on case sensitivity in this helper method (?)
-      if mapping_type == 'CANONICAL_SYMBOL':
-        eid_map[gene_name.lower()].add((eid, canonical_name, mapping_type))
+      # if mapping_type == 'CANONICAL_SYMBOL':
+      #   eid_map[gene_name.lower()].add((eid, canonical_name, mapping_type))
   return eid_map
 
