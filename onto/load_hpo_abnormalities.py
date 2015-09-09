@@ -1,11 +1,11 @@
 #! /usr/bin/env python
 
-import sys
-sys.path.append('../code')
-import data_util as dutil
 import os
-
 APP_HOME = os.environ['GDD_HOME']
+import sys
+sys.path.append('%s/code' % APP_HOME)
+import data_util as dutil
+
 
 ### ATTENTION!!!! PLEASE PIPE THE OUTPUT OF THIS SCRIPT THROUGH sort | uniq !!! ###
 ### Doing it within python is a waste of resources. Linux does it much faster.  ###

@@ -1,11 +1,11 @@
 #! /usr/bin/env python
 
-import sys
-sys.path.append('../code')
-import data_util as dutil
 import os
-
 APP_HOME = os.environ['GDD_HOME']
+import sys
+sys.path.append('%s/code' % APP_HOME)
+import data_util as dutil
+
 
 ### ATTENTION!!!! PLEASE PIPE THE OUTPUT OF THIS SCRIPT THROUGH sort | uniq !!! ###
 ### Doing it within python is a waste of resources. Linux does it much faster.  ###
@@ -22,7 +22,7 @@ def get_parents(bottom_id, dag, root_id='HP:0000118'):
 
 if __name__ == '__main__':
   hpo_dag = dutil.read_hpo_dag()
-  with open('%s/onto/manual/harendra_phenotype_to_gene.map' % APP_HOME) as f:
+  with open(sys.argv[1]) as f:
     for line in f:
       toks = line.strip().split()
       hpo_id = toks[0]

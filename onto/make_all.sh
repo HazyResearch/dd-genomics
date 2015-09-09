@@ -129,7 +129,7 @@ fi
 # use Harendra's wizard phenotype to gene list; canonicalize it (i.e. for each
 # gene with associated phenotype, associate all parent phenotypes up to 118=phenotypic abnormality
 # with the gene as well
-./canonicalize_gene_phenotype.py | sort | uniq > data/canon_phenotype_to_ensgene.map
+./canonicalize_gene_phenotype.py manual/harendra_phenotype_to_gene.map | sort | uniq > data/canon_phenotype_to_ensgene.map
 join -1 1 -2 1 \
   <(cat data/ensembl_genes.tsv | 
     awk -F'[:\t]' '{print $1, $3}' | 
