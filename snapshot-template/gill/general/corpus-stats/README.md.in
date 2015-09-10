@@ -177,15 +177,13 @@ report-log "Creating a few corpus stats 1"
 num_genepheno_association_inferred_new_canon=$(run-sql "
 select count(*) from (
 select distinct
-  gm.pheno_entity, 
-  g.ensembl_id
+  gm.hpo_id, 
+  gm.ensembl_id
 from
   genepheno_association_canon gm 
-  join genes g
-    on (gm.gene_name = g.gene_name) 
   left outer join charite_canon ch
-    on (gm.pheno_entity = ch.hpo_id and g.ensembl_id = ch.ensembl_id)
-  where gm.expectation > 0.9 and ch.ensembl_id is null) a
+    on (gm.hpo_id = ch.hpo_id and gm.ensembl_id = ch.ensembl_id)
+  where ch.ensembl_id is null) a
 ")
 report-log "Creating a few corpus stats 1"
 num_genepheno_causation_inferred=$(run-sql "
@@ -214,15 +212,13 @@ report-log "Creating a few corpus stats 1"
 num_genepheno_causation_inferred_new_canon=$(run-sql "
 select count(*) from (
 select distinct
-  gm.pheno_entity, 
-  g.ensembl_id
+  gm.hpo_id, 
+  gm.ensembl_id
 from
   genepheno_causation_canon gm 
-  join genes g
-    on (gm.gene_name = g.gene_name) 
   left outer join charite_canon ch
-    on (gm.pheno_entity = ch.hpo_id and g.ensembl_id = ch.ensembl_id)
-  where gm.expectation > 0.9 and ch.ensembl_id is null) a
+    on (gm.hpo_id = ch.hpo_id and gm.ensembl_id = ch.ensembl_id)
+  where ch.ensembl_id is null) a
 ")
 report-log "Creating a few corpus stats 1"
 num_genes=$(run-sql "
@@ -314,10 +310,10 @@ $>
 * **<$ printf "%'d" $num_hpo_abnormalities $>** HPO phenotypic abnormalities
 * **<$ printf "%'d" $num_genes $>** Genes
 
-** **<$ printf "%'d" $num_canonical_genes $>** Canonical
-** **<$ printf "%'d" $num_noncanonical $>** Noncanonical
-** **<$ printf "%'d" $num_ensembl_genes $>** Ensembl IDs
-** **<$ printf "%'d" $num_refseq_ids $>** RefSeq IDs
+  * **<$ printf "%'d" $num_canonical_genes $>** Canonical
+  * **<$ printf "%'d" $num_noncanonical $>** Noncanonical
+  * **<$ printf "%'d" $num_ensembl_genes $>** Ensembl IDs
+  * **<$ printf "%'d" $num_refseq_ids $>** RefSeq IDs
 
 * **<$ printf "%'d" $num_charite $>** Charité supervised genepheno relationships (canonicalized)
 
@@ -359,14 +355,14 @@ $>
 **DON'T FORGET TO RUN ./run.sh canonicalize AFTER INFERENCE OR THIS WILL BE PITIFULLY WRONG**
 
 * **<$ printf "%'d" $num_genepheno_association_inferred $>** unique association genephenos (E &gt; 0.9)
-** **<$ printf "%'d" $num_genepheno_association_inferred_canon $>** unique association genephenos (E &gt; 0.9; **canonicalized**)
+  * **<$ printf "%'d" $num_genepheno_association_inferred_canon $>** unique association genephenos (E &gt; 0.9; **canonicalized**)
 * **<$ printf "%'d" $num_genepheno_association_inferred_new $>** unique **non-Charité** association genephenos (E &gt; 0.9)
-** **<$ printf "%'d" $num_genepheno_association_inferred_new_canon $>** unique **non-Charité** association genephenos (E &gt; 0.9; **canonicalized**)
+  * **<$ printf "%'d" $num_genepheno_association_inferred_new_canon $>** unique **non-Charité** association genephenos (E &gt; 0.9; **canonicalized**)
 
 * **<$ printf "%'d" $num_genepheno_causation_inferred $>** unique causation genephenos (E &gt; 0.9)
-** **<$ printf "%'d" $num_genepheno_causation_inferred_canon $>** unique causation genephenos (E &gt; 0.9; **canonicalized**)
+  * **<$ printf "%'d" $num_genepheno_causation_inferred_canon $>** unique causation genephenos (E &gt; 0.9; **canonicalized**)
 * **<$ printf "%'d" $num_genepheno_causation_inferred_new $>** unique **non-Charité** causation genephenos (E &gt; 0.9)
-** **<$ printf "%'d" $num_genepheno_causation_inferred_new_canon $>** unique **non-Charité** causation genephenos (E &gt; 0.9; **canonicalized**)
+  * **<$ printf "%'d" $num_genepheno_causation_inferred_new_canon $>** unique **non-Charité** causation genephenos (E &gt; 0.9; **canonicalized**)
 
 ### Number of documents for candidate extractions
 
