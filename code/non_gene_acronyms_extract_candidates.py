@@ -85,7 +85,7 @@ def create_supervised_mention(row, is_correct,
         is_correct = False
         supertype = 'FALSE_DEFINITION_IS_GENE_FULL'
         subtype = full_gene_name + '; LD=' + str(ld)
-        include = True
+        include = False
     else:
       supertype = 'FALSE_ABBREV_NOT_GENE'
       is_correct = False
