@@ -164,7 +164,7 @@ num_genepheno_association_inferred_new=$(run-sql "
 select count(*) from (
 select distinct
   gm.pheno_entity, 
-  g.ensembl_id
+  g.canonical_name
 from
   genepheno_association_is_correct_inference gm 
   join genes g
@@ -178,9 +178,11 @@ num_genepheno_association_inferred_new_canon=$(run-sql "
 select count(*) from (
 select distinct
   gm.hpo_id, 
-  gm.ensembl_id
+  g.canonical_name
 from
   genepheno_association_canon gm 
+  join genes g
+    on (gm.ensembl_id = g.ensembl_id)
   left outer join charite_canon ch
     on (gm.hpo_id = ch.hpo_id and gm.ensembl_id = ch.ensembl_id)
   where ch.ensembl_id is null) a
@@ -199,7 +201,7 @@ num_genepheno_causation_inferred_new=$(run-sql "
 select count(*) from (
 select distinct
   gm.pheno_entity, 
-  g.ensembl_id
+  g.canonical_name
 from
   genepheno_causation_is_correct_inference gm 
   join genes g
@@ -213,9 +215,11 @@ num_genepheno_causation_inferred_new_canon=$(run-sql "
 select count(*) from (
 select distinct
   gm.hpo_id, 
-  gm.ensembl_id
+  g.canonical_name
 from
   genepheno_causation_canon gm 
+  join genes g
+    on (gm.ensembl_id = g.ensembl_id)
   left outer join charite_canon ch
     on (gm.hpo_id = ch.hpo_id and gm.ensembl_id = ch.ensembl_id)
   where ch.ensembl_id is null) a
@@ -242,7 +246,11 @@ select count(distinct gene_name) from genes where name_type = 'REFSEQ'
 ")
 report-log "Creating a few corpus stats 1"
 num_charite=$(run-sql "
-select count(*) from charite_canon
+select count(*)
+from
+  (select distinct g.canonical_name, ch.hpo_id
+  from charite_canon ch
+  join genes g on (ch.ensembl_id = g.ensembl_id) ) a
 ")
 report-log "Creating a few corpus stats 1"
 num_hpo_abnormalities=$(run-sql "
@@ -352,16 +360,16 @@ $>
 
 #### Number of distinct genephenos after inference
 
-**DON'T FORGET TO RUN ./run.sh canonicalize AFTER INFERENCE OR THIS WILL BE PITIFULLY WRONG**
+**DO NOT FORGET TO RUN ./run.sh canonicalize AFTER INFERENCE OR THIS WILL BE PITIFULLY WRONG**
 
 * **<$ printf "%'d" $num_genepheno_association_inferred $>** unique association genephenos (E &gt; 0.9)
   * **<$ printf "%'d" $num_genepheno_association_inferred_canon $>** unique association genephenos (E &gt; 0.9; **canonicalized**)
-* **<$ printf "%'d" $num_genepheno_association_inferred_new $>** unique **non-Charité** association genephenos (E &gt; 0.9)
+  * **<$ printf "%'d" $num_genepheno_association_inferred_new $>** unique **non-Charité** association genephenos (E &gt; 0.9)
   * **<$ printf "%'d" $num_genepheno_association_inferred_new_canon $>** unique **non-Charité** association genephenos (E &gt; 0.9; **canonicalized**)
 
 * **<$ printf "%'d" $num_genepheno_causation_inferred $>** unique causation genephenos (E &gt; 0.9)
   * **<$ printf "%'d" $num_genepheno_causation_inferred_canon $>** unique causation genephenos (E &gt; 0.9; **canonicalized**)
-* **<$ printf "%'d" $num_genepheno_causation_inferred_new $>** unique **non-Charité** causation genephenos (E &gt; 0.9)
+  * **<$ printf "%'d" $num_genepheno_causation_inferred_new $>** unique **non-Charité** causation genephenos (E &gt; 0.9)
   * **<$ printf "%'d" $num_genepheno_causation_inferred_new_canon $>** unique **non-Charité** causation genephenos (E &gt; 0.9; **canonicalized**)
 
 ### Number of documents for candidate extractions
