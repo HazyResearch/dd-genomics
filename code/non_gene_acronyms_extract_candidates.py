@@ -63,7 +63,7 @@ def create_supervised_mention(row, is_correct,
   assert stop_abbrev == start_abbrev + 1
   mid = '%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, start_abbrev)
   gene_to_full_name = CACHE['gene_to_full_name']
-  include = True
+  include = None
   if is_correct:
     supertype = 'TRUE_DETECTOR'
     subtype = None
@@ -74,7 +74,7 @@ def create_supervised_mention(row, is_correct,
     supertype = 'DETECTOR_OMITTED_SENTENCE'
     subtype = None
     include = False
-  if is_correct and include:
+  if is_correct and include is not False:
     if abbrev in gene_to_full_name:
       full_gene_name = gene_to_full_name[abbrev]
       ld = levenshtein.levenshtein(full_gene_name.lower(), ' '.join(definition).lower())
@@ -85,18 +85,19 @@ def create_supervised_mention(row, is_correct,
         is_correct = False
         supertype = 'FALSE_DEFINITION_IS_GENE_FULL'
         subtype = full_gene_name + '; LD=' + str(ld)
-     else:
-       supertype = 'FALSE_ABBREV_NOT_GENE'
-       include = False
-  if include and is_correct and len(definition) == 1 and definition[0] in gene_to_full_name:
+        include = True
+    else:
+      supertype = 'FALSE_ABBREV_NOT_GENE'
+      is_correct = False
+  if include is not False and is_correct and len(definition) == 1 and definition[0] in gene_to_full_name:
     is_correct = False
     supertype = 'FALSE_DEFINITION_IS_GENE_ABBREV'
     subtype = None
-  if include and is_correct and abbrev in SR['short_words']:
+  if include is not False and is_correct and abbrev in SR['short_words']:
     is_correct = False
     supertype = 'FALSE_SHORT_WORD'
     btype = None
-  if include and (is_correct is True or (is_correct is False and neg_count < pos_count)):
+  if include is True or (include is not False and is_correct is True or (is_correct is False and neg_count < pos_count)):
     m = Mention(None, row.doc_id, row.section_id,
               row.sent_id, [i for i in xrange(start_abbrev, stop_abbrev + 1)],
               [i for i in xrange(start_definition, stop_definition + 1)],
