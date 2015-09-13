@@ -81,7 +81,7 @@ GENE = {
 
     'pre-neighbor-match' : {
       'pos' : [],
-      'neg' : ['(', '-LRB-'],
+      'neg' : [],
       'pos-rgx': [],
       'neg-rgx': []
     },

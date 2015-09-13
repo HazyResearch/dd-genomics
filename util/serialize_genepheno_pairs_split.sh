@@ -44,7 +44,7 @@ CREATE TABLE genepheno_pairs_sentences AS (
     gp.doc_id, 
     gp.section_id, 
     gp.sent_id
-) DISTRIBUTED BY (doc_id, section_id);
+);
 EOF
 psql -q -X --set ON_ERROR_STOP=1 -d $DB -f ${SQL_COMMAND_FILE} || exit 1
 rm -rf ${TMPDIR}

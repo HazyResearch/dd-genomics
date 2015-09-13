@@ -6,7 +6,6 @@ import sys
 import abbreviations
 import config
 import extractor_util as util
-from gene_extract_candidates import create_supervised_mention
 import levenshtein
 
 
@@ -23,7 +22,8 @@ parser = util.RowParser([
           ('dep_parents', 'int[]'),
           ('lemmas', 'text[]'),
           ('poses', 'text[]'),
-          ('ners', 'text[]')])
+          ('ners', 'text[]'),
+          ('gene_wordidx', 'int')])
 
 
 # This defines the output Mention object
@@ -47,10 +47,17 @@ SR = config.NON_GENE_ACRONYMS['SR']
 
 def extract_candidate_mentions(row, pos_count, neg_count):
   mentions = []
-  for (is_correct, abbrev, definition, detector_message) in abbreviations.getabbreviations(row.words):
-    m = create_supervised_mention(row, is_correct, abbrev, definition, detector_message, pos_count, neg_count)
-    if m:
-      mentions.append(m)
+  if row.doc_id == '10087438':
+    print >>sys.stderr, row.words[row.gene_wordidx]
+    print >>sys.stderr, row
+  if abbreviations.conditions(row.words[row.gene_wordidx]):
+    print >>sys.stderr, 'TRUE'
+    for (is_correct, abbrev, definition, detector_message) in abbreviations.getabbreviations(row.words, abbrevIndex=row.gene_wordidx):
+      m = create_supervised_mention(row, is_correct, abbrev, definition, detector_message, pos_count, neg_count)
+      if m:
+        mentions.append(m)
+  else:
+    print >>sys.stderr, 'FALSE'
   return mentions
 
 ### DISTANT SUPERVISION ###
@@ -97,6 +104,9 @@ def create_supervised_mention(row, is_correct,
     is_correct = False
     supertype = 'FALSE_SHORT_WORD'
     btype = None
+  if abbrev == 'NGF':
+    print >>sys.stderr, row
+    print >>sys.stderr, (is_correct, supertype, subtype, include)
   if include is True or (include is not False and is_correct is True or (is_correct is False and neg_count < pos_count)):
     m = Mention(None, row.doc_id, row.section_id,
               row.sent_id, [i for i in xrange(start_abbrev, stop_abbrev + 1)],

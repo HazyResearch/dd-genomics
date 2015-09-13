@@ -6,12 +6,10 @@ import sys
 import abbreviations
 import config
 import extractor_util as util
-from gene_extract_candidates import create_supervised_mention
 import levenshtein
 
 
 CACHE = dict()  # Cache results of disk I/O
-
 
 # This defines the Row object that we read in to the extractor
 parser = util.RowParser([
@@ -23,8 +21,8 @@ parser = util.RowParser([
           ('dep_parents', 'int[]'),
           ('lemmas', 'text[]'),
           ('poses', 'text[]'),
-          ('ners', 'text[]')])
-
+          ('ners', 'text[]'),
+          ('pheno_wordidxs', 'int[]')])
 
 # This defines the output Mention object
 Mention = collections.namedtuple('Mention', [
@@ -48,9 +46,9 @@ SR = config.PHENO_ACRONYMS['SR']
 def extract_candidate_mentions(row, pos_count, neg_count):
   mentions = []
   for (is_correct, abbrev, definition, detector_message) in abbreviations.getabbreviations(row.words):
-    m = create_supervised_mention(row, is_correct, abbrev, definition, detector_message)
-    ':type m: Mention'
-    mentions.append(m)
+    m = create_supervised_mention(row, is_correct, abbrev, definition, detector_message, pos_count, neg_count)
+    if m:
+      mentions.append(m)
   return mentions
 
 ### DISTANT SUPERVISION ###
@@ -58,23 +56,11 @@ VALS = config.PHENO_ACRONYMS['vals']
 def create_supervised_mention(row, is_correct, 
                               (start_abbrev, stop_abbrev, abbrev), 
                               (start_definition, stop_definition, 
-                               definition), detector_message):
+                               definition), detector_message, pos_count,
+                               neg_count):
   assert stop_abbrev == start_abbrev + 1
   mid = '%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, start_abbrev)
-  [
-            'dd_id',
-            'doc_id',
-            'section_id',
-            'sent_id',
-            'short_wordidxs',
-            'long_wordidxs',
-            'mention_id',
-            'mention_supertype',
-            'mention_subtype',
-            'abbrev_word',
-            'definition_words',
-            'is_correct']
-  gene_to_full_name = CACHE['gene_to_full_name']
+  include = None
   if is_correct:
     supertype = 'TRUE_DETECTOR'
     subtype = None
@@ -84,30 +70,42 @@ def create_supervised_mention(row, is_correct,
   else:
     supertype = 'DETECTOR_OMITTED_SENTENCE'
     subtype = None
-  if is_correct and abbrev in SR['short_words']:
+    include = False
+  if is_correct and include is not False:
+    if abbrev in gene_to_full_name:
+      full_gene_name = gene_to_full_name[abbrev]
+      ld = levenshtein.levenshtein(full_gene_name.lower(), ' '.join(definition).lower())
+      fgl = len(full_gene_name)
+      dl = len(' '.join(definition))
+      if dl >= fgl*0.75 and dl <= fgl*1.25 and float(ld) \
+            / len(' '.join(definition)) <= SR['levenshtein_cutoff']:
+        is_correct = False
+        supertype = 'FALSE_DEFINITION_IS_GENE_FULL'
+        subtype = full_gene_name + '; LD=' + str(ld)
+        include = False
+    else:
+      supertype = 'FALSE_ABBREV_NOT_GENE'
+      is_correct = False
+  if include is not False and is_correct and len(definition) == 1 and definition[0] in gene_to_full_name:
+    is_correct = False
+    supertype = 'FALSE_DEFINITION_IS_GENE_ABBREV'
+    subtype = None
+  if include is not False and is_correct and abbrev in SR['short_words']:
     is_correct = False
     supertype = 'FALSE_SHORT_WORD'
-    subtype = None
-  close_matches = difflib.get_close_matches(' '.join(definition), CACHE['phenos'], n=1, cutoff=SR['difflib.pheno_cutoff    '])
-  if is_correct and close_matches:
-    full_gene_name = gene_to_full_name[abbrev];
-    ld = levenshtein.levenshtein(full_gene_name.lower(), ' '.join(definition).lower())
-    supertype = 'TRUE_PHENO'
-    subtype = close_matches[0]
-  else:
-    is_correct = False
-    supertype = 'FALSE_NOT_A_PHENO'
-    subtype = None
-  m = Mention(None, row.doc_id, row.section_id,
+    btype = None
+  if include is True or (include is not False and is_correct is True or (is_correct is False and neg_count < pos_count)):
+    m = Mention(None, row.doc_id, row.section_id,
               row.sent_id, [i for i in xrange(start_abbrev, stop_abbrev + 1)],
               [i for i in xrange(start_definition, stop_definition + 1)],
               mid, supertype, subtype, abbrev, definition, is_correct);
+  else:
+    m = None
   return m
 
 if __name__ == '__main__':
   # load static data
   onto_path = lambda p : '%s/onto/%s' % (os.environ['GDD_HOME'], p)
-  CACHE['phenos'] = assert False, 'TODO'
 
   # generate the mentions, while trying to keep the supervision approx. balanced
   # print out right away so we don't bloat memory...

@@ -190,10 +190,13 @@ def definitionselection((startDefinition, stopDefinition, definition), (startAbb
 
   return (startDefinition, stopDefinition, definition)
 
-def getabbreviations(sentence):
+def getabbreviations(sentence, abbrevIndex=None):
   rv = []
   try:
-    abbrevs = getcandidates(sentence)
+    if not abbrevIndex:
+      abbrevs = getcandidates(sentence)
+    else:
+      abbrevs = [(abbrevIndex, abbrevIndex+1, sentence[abbrevIndex])]
   except ValueError, e:
     # sys.stderr.write('Abbreviation detection: omitting sentence\n')
     # sys.stderr.write('Reason: %s\n' % e.args[0])

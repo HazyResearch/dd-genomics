@@ -5,7 +5,6 @@ DROP TABLE IF EXISTS genes CASCADE;
 CREATE TABLE genes (
   -- include primary key when dd fixes find command
   -- gene_id text primary key,
-  gene_id text,
   ensembl_id text,
   canonical_name text,
   gene_name text,
@@ -305,3 +304,6 @@ CREATE TABLE dummy (
   b int,
   c int
 );
+
+DROP EXTENSION intarray;
+CREATE EXTENSION intarray;
