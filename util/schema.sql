@@ -9,7 +9,7 @@ CREATE TABLE genes (
   canonical_name text,
   gene_name text,
   name_type text
-) DISTRIBUTED BY (gene_id);
+) DISTRIBUTED BY (ensembl_id);
 
 -- Gene mentions
 DROP TABLE IF EXISTS gene_mentions CASCADE;
