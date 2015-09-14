@@ -305,5 +305,5 @@ CREATE TABLE dummy (
   c int
 );
 
-DROP EXTENSION intarray;
-CREATE EXTENSION intarray;
+-- DROP EXTENSION intarray;
+-- CREATE EXTENSION intarray;
