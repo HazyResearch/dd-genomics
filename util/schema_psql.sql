@@ -14,7 +14,7 @@ CREATE TABLE genes (
 DROP INDEX IF EXISTS genes_ensembl_id;
 CREATE INDEX genes_ensembl_id ON genes (ensembl_id);
 DROP INDEX IF EXISTS genes_gene_name;
-CREATE INDEX genes_ensembl_id ON genes (gene_name);
+CREATE INDEX genes_gene_name ON genes (gene_name);
 
 -- Gene mentions
 DROP TABLE IF EXISTS gene_mentions CASCADE;
@@ -39,6 +39,8 @@ DROP INDEX IF EXISTS gene_mentions_section_id;
 CREATE INDEX gene_mentions_section_id ON gene_mentions (section_id);
 DROP INDEX IF EXISTS gene_mentions_sent_id;
 CREATE INDEX gene_mentions_sent_id ON gene_mentions (sent_id);
+DROP INDEX IF EXISTS gene_mentions_mention_id;
+CREATE INDEX gene_mentions_mention_id ON gene_mentions (mention_id);
 
 -- Gene mentions
 DROP TABLE IF EXISTS variant_mentions CASCADE;
@@ -62,6 +64,8 @@ DROP INDEX IF EXISTS variant_mentions_section_id;
 CREATE INDEX variant_mentions_section_id ON variant_mentions (section_id);
 DROP INDEX IF EXISTS variant_mentions_sent_id;
 CREATE INDEX variant_mentions_sent_id ON variant_mentions (sent_id);
+DROP INDEX IF EXISTS variant_mentions_mention_id;
+CREATE INDEX variant_mentions_mention_id ON variant_mentions (mention_id);
 
 -- Gene mentions features
 DROP TABLE IF EXISTS gene_features CASCADE;
@@ -76,8 +80,8 @@ DROP INDEX IF EXISTS gene_features_doc_id;
 CREATE INDEX gene_features_doc_id ON gene_features (doc_id);
 DROP INDEX IF EXISTS gene_features_section_id;
 CREATE INDEX gene_features_section_id ON gene_features (section_id);
-DROP INDEX IF EXISTS gene_features_sent_id;
-CREATE INDEX gene_features_sent_id ON gene_features (sent_id);
+DROP INDEX IF EXISTS gene_features_mention_id;
+CREATE INDEX gene_features_mention_id ON gene_features (mention_id);
 
 -- phenotype mentions
 DROP TABLE IF EXISTS pheno_mentions CASCADE;
@@ -101,6 +105,8 @@ DROP INDEX IF EXISTS pheno_mentions_section_id;
 CREATE INDEX pheno_mentions_section_id ON pheno_mentions (section_id);
 DROP INDEX IF EXISTS pheno_mentions_sent_id;
 CREATE INDEX pheno_mentions_sent_id ON pheno_mentions (sent_id);
+DROP INDEX IF EXISTS pheno_mentions_mention_id;
+CREATE INDEX pheno_mentions_mention_id ON pheno_mentions (mention_id);
 
 -- Phenotype mentions features
 DROP TABLE IF EXISTS pheno_features CASCADE;
@@ -115,8 +121,8 @@ DROP INDEX IF EXISTS pheno_features_doc_id;
 CREATE INDEX pheno_features_doc_id ON pheno_features (doc_id);
 DROP INDEX IF EXISTS pheno_features_section_id;
 CREATE INDEX pheno_features_section_id ON pheno_features (section_id);
-DROP INDEX IF EXISTS pheno_features_sent_id;
-CREATE INDEX pheno_features_sent_id ON pheno_features (sent_id);
+DROP INDEX IF EXISTS pheno_features_mention_id;
+CREATE INDEX pheno_features_mention_id ON pheno_features (mention_id);
 
 -- Gene / Phenotype mentions
 DROP TABLE IF EXISTS genepheno_relations CASCADE;
@@ -232,8 +238,8 @@ DROP INDEX IF EXISTS genepheno_features_doc_id;
 CREATE INDEX genepheno_features_doc_id ON genepheno_features (doc_id);
 DROP INDEX IF EXISTS genepheno_features_section_id;
 CREATE INDEX genepheno_features_section_id ON genepheno_features (section_id);
-DROP INDEX IF EXISTS genepheno_features_sent_id;
-CREATE INDEX genepheno_features_sent_id ON genepheno_features (sent_id);
+DROP INDEX IF EXISTS genepheno_features_relation_id;
+CREATE INDEX genepheno_features_relation_id ON genepheno_features (relation_id);
 
 -- Gene / Variant mentions
 DROP TABLE IF EXISTS genevariant_relations CASCADE;
@@ -280,6 +286,7 @@ CREATE INDEX genevariant_relations_gene_name ON genevariant_relations (gene_name
 DROP TABLE IF EXISTS genevariant_features CASCADE;
 CREATE TABLE genevariant_features (
 	doc_id text,
+        section_id text,
 	relation_id text,
 	feature text
 ) ;
@@ -288,8 +295,8 @@ DROP INDEX IF EXISTS genevariant_features_doc_id;
 CREATE INDEX genevariant_features_doc_id ON genevariant_features (doc_id);
 DROP INDEX IF EXISTS genevariant_features_section_id;
 CREATE INDEX genevariant_features_section_id ON genevariant_features (section_id);
-DROP INDEX IF EXISTS genevariant_features_sent_id;
-CREATE INDEX genevariant_features_sent_id ON genevariant_features (sent_id);
+DROP INDEX IF EXISTS genevariant_features_relation_id;
+CREATE INDEX genevariant_features_relation_id ON genevariant_features (relation_id);
 
 DROP TABLE IF EXISTS test_nlp;
 CREATE TABLE test_nlp (id bigint) ;
@@ -323,6 +330,8 @@ DROP INDEX IF EXISTS non_gene_acronyms_section_id;
 CREATE INDEX non_gene_acronyms_section_id ON non_gene_acronyms (section_id);
 DROP INDEX IF EXISTS non_gene_acronyms_sent_id;
 CREATE INDEX non_gene_acronyms_sent_id ON non_gene_acronyms (sent_id);
+DROP INDEX IF EXISTS non_gene_acronyms_mention_id;
+CREATE INDEX non_gene_acronyms_mention_id ON non_gene_acronyms (mention_id);
 
 -- Gene mentions features
 DROP TABLE IF EXISTS non_gene_acronyms_features CASCADE;
@@ -337,8 +346,8 @@ DROP INDEX IF EXISTS non_gene_acronyms_features_doc_id;
 CREATE INDEX non_gene_acronyms_features_doc_id ON non_gene_acronyms_features (doc_id);
 DROP INDEX IF EXISTS non_gene_acronyms_features_section_id;
 CREATE INDEX non_gene_acronyms_features_section_id ON non_gene_acronyms_features (section_id);
-DROP INDEX IF EXISTS non_gene_acronyms_features_sent_id;
-CREATE INDEX non_gene_acronyms_features_sent_id ON non_gene_acronyms_features (sent_id);
+DROP INDEX IF EXISTS non_gene_acronyms_features_mention_id;
+CREATE INDEX non_gene_acronyms_features_mention_id ON non_gene_acronyms_features (mention_id);
 
 DROP TABLE IF EXISTS genepheno_holdout_set;
 CREATE TABLE genepheno_holdout_set (
