@@ -38,9 +38,4 @@ CREATE TABLE hpo_to_doc_via_mesh (
   doc_id text
 ) ;
 
-DROP TABLE IF EXISTS document_metadata CASCADE;
-CREATE TABLE document_metadata (
-  doc_id text,
-  source text,
-  year int
-) ;
+

@@ -36,4 +36,11 @@ fi
 echo "Copying to $TABLE table in database $DBNAME"
 cat $INPUT | ./md_cleanup.py | psql -U $DBUSER -h $DBHOST -p $DBPORT $DBNAME -X --set ON_ERROR_STOP=1 -c "COPY $TABLE FROM STDIN LOG ERRORS INTO md_err SEGMENT REJECT LIMIT 1000000 ROWS"
 
+psql -U $DBUSER -h $DBHOST -p $DBPORT $DBNAME -X --set ON_ERROR_STOP=1 -c "DROP INDEX IF EXISTS doc_metadata_doc_id;" 
+psql -U $DBUSER -h $DBHOST -p $DBPORT $DBNAME -X --set ON_ERROR_STOP=1 -c "CREATE INDEX doc_metadata_doc_id ON doc_metadata (doc_id);"
+psql -U $DBUSER -h $DBHOST -p $DBPORT $DBNAME -X --set ON_ERROR_STOP=1 -c "DROP INDEX IF EXISTS doc_metadata_source_year;" 
+psql -U $DBUSER -h $DBHOST -p $DBPORT $DBNAME -X --set ON_ERROR_STOP=1 -c "CREATE INDEX doc_metadata_source_year ON doc_metadata (source_year);"
+
+
+
 echo "Done."
