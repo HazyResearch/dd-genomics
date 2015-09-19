@@ -33,3 +33,5 @@ trap "kill $gpfdist_pid" EXIT
 
 cd $DEEPDIVE_HOME
 sbt "run -c $APP_HOME/${APP_CONF:-application.conf}"
+
+echo "Don't forget to VACUUM VERBOSE; in psql once in a while!"
