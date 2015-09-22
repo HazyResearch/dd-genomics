@@ -319,8 +319,8 @@ CREATE TABLE non_gene_acronyms (
 	mention_id text,
 	supertype text,
         subtype text,
-	entity text,
-	words text[],
+	abbrev text,
+	definition text[],
 	is_correct boolean
 ) DISTRIBUTED BY (doc_id, section_id);
 
@@ -361,8 +361,8 @@ CREATE TABLE pheno_acronyms (
 	mention_id text,
 	supertype text,
         subtype text,
-	entity text,
-	words text[],
+	abbrev text,
+	definition text[],
         entity text,
 	is_correct boolean
 ) DISTRIBUTED BY (doc_id, section_id);
