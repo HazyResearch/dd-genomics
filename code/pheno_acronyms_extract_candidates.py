@@ -22,7 +22,8 @@ parser = util.RowParser([
           ('lemmas', 'text[]'),
           ('poses', 'text[]'),
           ('ners', 'text[]'),
-          ('pheno_wordidxs', 'int[]')])
+          ('pheno_wordidxs', 'int[]'),
+          ('entity', 'text'),])
 
 # This defines the output Mention object
 Mention = collections.namedtuple('Mention', [
@@ -37,6 +38,7 @@ Mention = collections.namedtuple('Mention', [
             'mention_subtype',
             'abbrev_word',
             'definition_words',
+            'entity',
             'is_correct'])
 
 ### CANDIDATE EXTRACTION ###
@@ -71,21 +73,6 @@ def create_supervised_mention(row, is_correct,
     supertype = 'DETECTOR_OMITTED_SENTENCE'
     subtype = None
     include = False
-  if is_correct and include is not False:
-    if abbrev in gene_to_full_name:
-      full_gene_name = gene_to_full_name[abbrev]
-      ld = levenshtein.levenshtein(full_gene_name.lower(), ' '.join(definition).lower())
-      fgl = len(full_gene_name)
-      dl = len(' '.join(definition))
-      if dl >= fgl*0.75 and dl <= fgl*1.25 and float(ld) \
-            / len(' '.join(definition)) <= SR['levenshtein_cutoff']:
-        is_correct = False
-        supertype = 'FALSE_DEFINITION_IS_GENE_FULL'
-        subtype = full_gene_name + '; LD=' + str(ld)
-        include = False
-    else:
-      supertype = 'FALSE_ABBREV_NOT_GENE'
-      is_correct = False
   if include is not False and is_correct and len(definition) == 1 and definition[0] in gene_to_full_name:
     is_correct = False
     supertype = 'FALSE_DEFINITION_IS_GENE_ABBREV'
@@ -94,11 +81,11 @@ def create_supervised_mention(row, is_correct,
     is_correct = False
     supertype = 'FALSE_SHORT_WORD'
     btype = None
-  if include is True or (include is not False and is_correct is True or (is_correct is False and neg_count < pos_count)):
+  if include is True or (include is not False and (is_correct is True or (is_correct is False and neg_count < pos_count))):
     m = Mention(None, row.doc_id, row.section_id,
               row.sent_id, [i for i in xrange(start_abbrev, stop_abbrev + 1)],
               [i for i in xrange(start_definition, stop_definition + 1)],
-              mid, supertype, subtype, abbrev, definition, is_correct);
+              mid, supertype, subtype, abbrev, definition, row.entity, is_correct);
   else:
     m = None
   return m

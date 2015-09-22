@@ -349,6 +349,49 @@ CREATE INDEX non_gene_acronyms_features_section_id ON non_gene_acronyms_features
 DROP INDEX IF EXISTS non_gene_acronyms_features_mention_id;
 CREATE INDEX non_gene_acronyms_features_mention_id ON non_gene_acronyms_features (mention_id);
 
+DROP TABLE IF EXISTS pheno_acronyms CASCADE;
+CREATE TABLE pheno_acronyms (
+	-- id for random variable
+	id bigint,
+	doc_id text,
+        section_id text,
+	sent_id int,
+	short_wordidxs int[],
+	long_wordidxs int[],
+	mention_id text,
+	supertype text,
+        subtype text,
+	entity text,
+	words text[],
+        entity text,
+	is_correct boolean
+) DISTRIBUTED BY (doc_id, section_id);
+
+DROP INDEX IF EXISTS pheno_acronyms_doc_id;
+CREATE INDEX pheno_acronyms_doc_id ON pheno_acronyms (doc_id);
+DROP INDEX IF EXISTS pheno_acronyms_section_id;
+CREATE INDEX pheno_acronyms_section_id ON pheno_acronyms (section_id);
+DROP INDEX IF EXISTS pheno_acronyms_sent_id;
+CREATE INDEX pheno_acronyms_sent_id ON pheno_acronyms (sent_id);
+DROP INDEX IF EXISTS pheno_acronyms_mention_id;
+CREATE INDEX pheno_acronyms_mention_id ON pheno_acronyms (mention_id);
+
+-- Gene mentions features
+DROP TABLE IF EXISTS pheno_acronyms_features CASCADE;
+CREATE TABLE pheno_acronyms_features (
+	doc_id text,
+        section_id text,
+	mention_id text,
+	feature text
+) DISTRIBUTED BY (doc_id, section_id);
+
+DROP INDEX IF EXISTS pheno_acronyms_features_doc_id;
+CREATE INDEX pheno_acronyms_features_doc_id ON pheno_acronyms_features (doc_id);
+DROP INDEX IF EXISTS pheno_acronyms_features_section_id;
+CREATE INDEX pheno_acronyms_features_section_id ON pheno_acronyms_features (section_id);
+DROP INDEX IF EXISTS pheno_acronyms_features_mention_id;
+CREATE INDEX pheno_acronyms_features_mention_id ON pheno_acronyms_features (mention_id);
+
 DROP TABLE IF EXISTS genepheno_holdout_set;
 CREATE TABLE genepheno_holdout_set (
         doc_id text,
