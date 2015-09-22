@@ -35,8 +35,10 @@ def get_features_for_row(row):
   sentence = util.create_ddlib_sentence(row)
   allWordIdxs = row.short_wordidxs + row.long_wordidxs
   start = min(allWordIdxs)
-  length = max(allWordIdxs) - start
+  length = max(allWordIdxs) - start - 1
   span = ddlib.Span(begin_word_id=start, length=length)
+  assert len(span) > 0, row
+  assert start+length < len(row.words), (start+length, len(row.words), row)
   generic_features = [f._replace(name=feat) for feat in ddlib.get_generic_features_mention(sentence, span)]
 
   # Optionally filter out some generic features

@@ -47,7 +47,7 @@ SR = config.PHENO_ACRONYMS['SR']
 
 def extract_candidate_mentions(row, pos_count, neg_count):
   mentions = []
-  for (is_correct, abbrev, definition, detector_message) in abbreviations.getabbreviations(row.words):
+  for (is_correct, abbrev, definition, detector_message) in abbreviations.getabbreviations(row.words, ):
     m = create_supervised_mention(row, is_correct, abbrev, definition, detector_message, pos_count, neg_count)
     if m:
       mentions.append(m)
@@ -73,14 +73,10 @@ def create_supervised_mention(row, is_correct,
     supertype = 'DETECTOR_OMITTED_SENTENCE'
     subtype = None
     include = False
-  if include is not False and is_correct and len(definition) == 1 and definition[0] in gene_to_full_name:
-    is_correct = False
-    supertype = 'FALSE_DEFINITION_IS_GENE_ABBREV'
-    subtype = None
   if include is not False and is_correct and abbrev in SR['short_words']:
     is_correct = False
     supertype = 'FALSE_SHORT_WORD'
-    btype = None
+    subtype = None
   if include is True or (include is not False and (is_correct is True or (is_correct is False and neg_count < pos_count))):
     m = Mention(None, row.doc_id, row.section_id,
               row.sent_id, [i for i in xrange(start_abbrev, stop_abbrev + 1)],
