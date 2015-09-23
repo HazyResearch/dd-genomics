@@ -6,4 +6,4 @@ FROM
 GROUP BY
   canonical_name
 ORDER BY
-  count desc;
+  count desc

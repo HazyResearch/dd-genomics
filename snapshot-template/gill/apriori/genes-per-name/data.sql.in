@@ -7,4 +7,4 @@ FROM
 GROUP BY
   gene_name
 ORDER BY
-  count desc;
+  count desc
