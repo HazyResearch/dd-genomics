@@ -1,11 +1,11 @@
 SELECT 
   pheno_entity, hpo.pheno_name, count(pheno_entity) 
-FROM genepheno_association_is_correct_inference
+FROM genepheno_causation_is_correct_inference
   JOIN
   hpo_abnormalities hpo
-    ON (genepheno_association_is_correct_inference.pheno_entity = hpo.hpo_id)
+    ON (hpo.hpo_id = genepheno_causation_is_correct_inference.pheno_entity)
 WHERE 
   expectation > 0.9
 GROUP BY pheno_entity, hpo.pheno_name
-ORDER BY count DESC
+ORDER BY count ASC
 LIMIT 1000

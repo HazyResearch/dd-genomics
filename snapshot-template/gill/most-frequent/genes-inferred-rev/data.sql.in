@@ -4,5 +4,5 @@ FROM gene_mentions_filtered_is_correct_inference gm join genes g on (gm.gene_nam
 WHERE 
   gm.expectation > 0.9
 GROUP BY g.canonical_name
-ORDER BY count DESC
+ORDER BY count ASC
 LIMIT 1000

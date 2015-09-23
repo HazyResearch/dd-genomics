@@ -1,0 +1,8 @@
+SELECT 
+  g.canonical_name, count(g.canonical_name)
+FROM genepheno_causation gc join genes g on (gc.gene_name = g.gene_name)
+WHERE 
+  gc.is_correct != 'f' OR gc.is_correct IS NULL 
+GROUP BY g.canonical_name
+ORDER BY count ASC
+LIMIT 1000

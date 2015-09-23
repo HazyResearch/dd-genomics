@@ -1,9 +1,13 @@
 SELECT 
-  canonical_name, pheno_entity, count(*) 
+  canonical_name, pheno_entity, hpo.pheno_name, count(*) 
 FROM 
 (SELECT g.canonical_name, gc.pheno_entity FROM genepheno_causation_is_correct_inference gc join genes g on (gc.gene_name = g.gene_name)
 WHERE 
   gc.expectation > 0.9
 ) a
-GROUP BY canonical_name, pheno_entity
+  JOIN
+  hpo_abnormalities hpo
+    ON (hpo.hpo_id = a.pheno_entity)
+GROUP BY canonical_name, pheno_entity, hpo.pheno_name
 ORDER BY count DESC
+LIMIT 1000

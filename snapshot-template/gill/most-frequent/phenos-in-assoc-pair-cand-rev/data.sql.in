@@ -7,5 +7,5 @@ FROM genepheno_association
 WHERE 
   is_correct != 'f' OR is_correct IS NULL 
 GROUP BY pheno_entity, hpo.pheno_name
-ORDER BY count DESC
+ORDER BY count ASC
 LIMIT 1000

@@ -7,5 +7,5 @@ FROM genepheno_association_is_correct_inference
 WHERE 
   expectation > 0.9
 GROUP BY pheno_entity, hpo.pheno_name
-ORDER BY count DESC
+ORDER BY count ASC
 LIMIT 1000

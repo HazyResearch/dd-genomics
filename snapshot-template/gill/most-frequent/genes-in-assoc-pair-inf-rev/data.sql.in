@@ -4,5 +4,5 @@ FROM genepheno_association_is_correct_inference ga join genes g on (ga.gene_name
 WHERE 
   ga.expectation > 0.9
 GROUP BY g.canonical_name
-ORDER BY count DESC
+ORDER BY count ASC
 LIMIT 1000

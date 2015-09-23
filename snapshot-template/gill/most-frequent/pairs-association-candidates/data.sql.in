@@ -1,10 +1,13 @@
 SELECT 
-  canonical_name, pheno_entity, count(*) 
+  canonical_name, pheno_entity, hpo.pheno_name, count(*) 
 FROM 
-(SELECT g.canonical_name, ga.pheno_entity FROM genepheno_association ga join genes g on (ga.gene_name = g.gene_name)
-WHERE 
-  ga.is_correct != 'f' OR ga.is_correct IS NULL 
-) a
-GROUP BY canonical_name, pheno_entity
+  (SELECT g.canonical_name, ga.pheno_entity FROM genepheno_association ga join genes g on (ga.gene_name = g.gene_name)
+  WHERE 
+    ga.is_correct != 'f' OR ga.is_correct IS NULL 
+  ) a
+  JOIN
+  hpo_abnormalities hpo
+    ON (hpo.hpo_id = a.pheno_entity)
+GROUP BY canonical_name, pheno_entity, hpo.pheno_name
 ORDER BY count DESC
 LIMIT 1000

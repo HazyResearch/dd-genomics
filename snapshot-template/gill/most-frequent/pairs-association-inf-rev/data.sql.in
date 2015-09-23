@@ -9,5 +9,5 @@ WHERE
   hpo_abnormalities hpo
     ON (hpo.hpo_id = a.pheno_entity)
 GROUP BY canonical_name, pheno_entity, hpo.pheno_name
-ORDER BY count DESC
+ORDER BY count ASC
 LIMIT 1000

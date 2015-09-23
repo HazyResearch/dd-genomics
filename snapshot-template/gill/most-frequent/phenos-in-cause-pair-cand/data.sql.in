@@ -1,8 +1,11 @@
 SELECT 
-  pheno_entity, count(pheno_entity) 
+  pheno_entity, hpo.pheno_name, count(pheno_entity) 
 FROM genepheno_causation
+  JOIN
+  hpo_abnormalities hpo
+    ON (genepheno_causation.pheno_entity = hpo.hpo_id)
 WHERE 
   is_correct != 'f' OR is_correct IS NULL 
-GROUP BY pheno_entity
+GROUP BY pheno_entity, hpo.pheno_name
 ORDER BY count DESC
 LIMIT 1000

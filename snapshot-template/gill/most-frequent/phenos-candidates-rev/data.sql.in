@@ -7,5 +7,5 @@ FROM pheno_mentions
 WHERE
   is_correct != 'f' OR is_correct IS NULL
 GROUP BY entity, hpo.pheno_name
-ORDER BY count DESC
+ORDER BY count ASC
 LIMIT 1000

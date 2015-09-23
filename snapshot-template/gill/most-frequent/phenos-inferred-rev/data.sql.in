@@ -6,5 +6,5 @@ FROM pheno_mentions_filtered_is_correct_inference
 WHERE
   expectation > 0.9
 GROUP BY entity, hpo.pheno_name
-ORDER BY count DESC
+ORDER BY count ASC
 LIMIT 1000
