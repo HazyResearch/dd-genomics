@@ -47,10 +47,11 @@ SR = config.PHENO_ACRONYMS['SR']
 
 def extract_candidate_mentions(row, pos_count, neg_count):
   mentions = []
-  for (is_correct, abbrev, definition, detector_message) in abbreviations.getabbreviations(row.words, ):
-    m = create_supervised_mention(row, is_correct, abbrev, definition, detector_message, pos_count, neg_count)
-    if m:
-      mentions.append(m)
+  if max(row.pheno_wordidxs) + 2 < len(row.words) and len(row.words[max(row.pheno_wordidxs) + 2]) > 0:
+    for (is_correct, abbrev, definition, detector_message) in abbreviations.getabbreviations(row.words, abbrevIndex=max(row.pheno_wordidxs) + 2):
+      m = create_supervised_mention(row, is_correct, abbrev, definition, detector_message, pos_count, neg_count)
+      if m:
+        mentions.append(m)
   return mentions
 
 ### DISTANT SUPERVISION ###

@@ -126,6 +126,8 @@ def definitionselection((startDefinition, stopDefinition, definition), (startAbb
 
   # find all except the first char of the abbreviation
   while 1:
+    assert sIndex < 0
+    assert sIndex >= -len(abbrev), (sIndex, abbrev)
     shortChar = abbrev[sIndex].lower()
 
     if len(definition) == 0:
@@ -196,7 +198,10 @@ def getabbreviations(sentence, abbrevIndex=None):
     if not abbrevIndex:
       abbrevs = getcandidates(sentence)
     else:
-      abbrevs = [(abbrevIndex, abbrevIndex+1, sentence[abbrevIndex])]
+      if conditions(sentence[abbrevIndex]):
+        abbrevs = [(abbrevIndex, abbrevIndex+1, sentence[abbrevIndex])]
+      else:
+        abbrevs = []
   except ValueError, e:
     # sys.stderr.write('Abbreviation detection: omitting sentence\n')
     # sys.stderr.write('Reason: %s\n' % e.args[0])
