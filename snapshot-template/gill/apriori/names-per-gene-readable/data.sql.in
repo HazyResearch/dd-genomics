@@ -8,6 +8,6 @@ WHERE
   name_type LIKE '%CANONICAL%'
 GROUP BY
   canonical_name
+HAVING count(gene_name) >= 2
 ORDER BY
   count desc
-LIMIT 1000

@@ -1,13 +1,14 @@
 SELECT 
-  canonical_name, pheno_entity, hpo.pheno_name, count(*) 
+  canonical_name, pheno_entity, hpo.pheno_name, count(*), (array_agg(array_to_string(string_to_array(si.words, '|^|'), ' ')))[1]
 FROM 
-  (SELECT g.canonical_name, ga.pheno_entity FROM genepheno_association ga join genes g on (ga.gene_name = g.gene_name)
+  (SELECT g.canonical_name, ga.pheno_entity, ga.doc_id, ga.section_id, ga.sent_id FROM genepheno_association ga join genes g on (ga.gene_name = g.gene_name)
   WHERE 
     ga.is_correct != 'f' OR ga.is_correct IS NULL 
   ) a
   JOIN
   hpo_abnormalities hpo
     ON (hpo.hpo_id = a.pheno_entity)
+    join sentences_input si on (a.doc_id = si.doc_id and a.section_id = si.section_id and a.sent_id = si.sent_id)
 GROUP BY canonical_name, pheno_entity, hpo.pheno_name
 ORDER BY count ASC
 LIMIT 1000

@@ -6,6 +6,6 @@ FROM
   genes
 GROUP BY
   gene_name
+HAVING count(canonical_name) >= 2
 ORDER BY
   count desc
-LIMIT 1000

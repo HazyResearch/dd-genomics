@@ -1,6 +1,7 @@
 SELECT 
-  g.canonical_name, count(g.canonical_name)
+  g.canonical_name, count(g.canonical_name), (array_agg(array_to_string(string_to_array(si.words, '|^|'), ' ')))[1]
 FROM gene_mentions_filtered_is_correct_inference gm join genes g on (gm.gene_name = g.gene_name)
+join sentences_input si on (gm.doc_id = si.doc_id and gm.section_id = si.section_id and gm.sent_id = si.sent_id)
 WHERE 
   gm.expectation > 0.9
 GROUP BY g.canonical_name
