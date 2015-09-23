@@ -7,3 +7,4 @@ GROUP BY
   canonical_name
 ORDER BY
   count desc
+LIMIT 1000

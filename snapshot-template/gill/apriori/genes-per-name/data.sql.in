@@ -8,3 +8,4 @@ GROUP BY
   gene_name
 ORDER BY
   count desc
+LIMIT 1000
