@@ -7,4 +7,3 @@ WHERE
 ) a
 GROUP BY canonical_name, pheno_entity
 ORDER BY count DESC
-LIMIT 1000

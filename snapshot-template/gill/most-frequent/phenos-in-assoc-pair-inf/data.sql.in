@@ -5,4 +5,3 @@ WHERE
   expectation > 0.9
 GROUP BY pheno_entity
 ORDER BY count DESC
-LIMIT 1000

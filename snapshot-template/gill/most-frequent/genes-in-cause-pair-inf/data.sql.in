@@ -5,4 +5,3 @@ WHERE
   gc.expectation > 0.9
 GROUP BY g.canonical_name
 ORDER BY count DESC
-LIMIT 1000
