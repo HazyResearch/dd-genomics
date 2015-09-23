@@ -1,0 +1,9 @@
+SELECT
+  canonical_name,
+  count(gene_name)
+FROM
+  genes
+GROUP BY
+  canonical_name
+ORDER BY
+  count desc;

@@ -1,0 +1,10 @@
+SELECT
+  gene_name,
+  array_agg(canonical_name),
+  count(canonical_name)
+FROM
+  genes
+GROUP BY
+  gene_name
+ORDER BY
+  count desc;
