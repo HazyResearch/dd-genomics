@@ -110,8 +110,8 @@ EOF
 psql -q -X --set ON_ERROR_STOP=1 -d $DB -f ${SQL_COMMAND_FILE} || exit 1
 rm -rf ${TMPDIR}
 
-psql -U $DBUSER -h $DBHOST -p $DBPORT $DB -X --set ON_ERROR_STOP=1 -c "DROP INDEX IF EXISTS doc_metadata_doc_id;" 
-psql -U $DBUSER -h $DBHOST -p $DBPORT $DB -X --set ON_ERROR_STOP=1 -c "CREATE INDEX doc_metadata_doc_id ON doc_metadata (doc_id);"
-psql -U $DBUSER -h $DBHOST -p $DBPORT $DB -X --set ON_ERROR_STOP=1 -c "DROP INDEX IF EXISTS doc_metadata_source_year;" 
-psql -U $DBUSER -h $DBHOST -p $DBPORT $DB -X --set ON_ERROR_STOP=1 -c "CREATE INDEX doc_metadata_source_year ON doc_metadata (source_year);"
+# psql -U $DBUSER -h $DBHOST -p $DBPORT $DB -X --set ON_ERROR_STOP=1 -c "DROP INDEX IF EXISTS doc_metadata_doc_id;" 
+# psql -U $DBUSER -h $DBHOST -p $DBPORT $DB -X --set ON_ERROR_STOP=1 -c "CREATE INDEX doc_metadata_doc_id ON doc_metadata (doc_id);"
+# psql -U $DBUSER -h $DBHOST -p $DBPORT $DB -X --set ON_ERROR_STOP=1 -c "DROP INDEX IF EXISTS doc_metadata_source_year;" 
+# psql -U $DBUSER -h $DBHOST -p $DBPORT $DB -X --set ON_ERROR_STOP=1 -c "CREATE INDEX doc_metadata_source_year ON doc_metadata (source_year);"
 
