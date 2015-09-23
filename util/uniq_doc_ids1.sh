@@ -87,25 +87,6 @@ cat <<EOF >> ${SQL_COMMAND_FILE}
           GROUP BY
             doc_id
         );   
-        DROP TABLE IF EXISTS doc_metadata_uniq_uniq;
-        CREATE TABLE doc_metadata_uniq_uniq AS (
-          SELECT
-            doc_id,
-            (array_agg(source_name))[1] as source_name,
-            (array_agg(source_year))[1] as source_year,
-            (array_agg(source_text_year))[1] as source_text_year,
-            (array_agg(source_year_status))[1] as source_year_status,
-            (array_agg(issn_global))[1] as issn_global,
-            (array_agg(issn_print))[1] as issn_print,
-            (array_agg(issn_electronic))[1] as issn_electronic
-          FROM 
-            doc_metadata
-          GROUP BY
-            doc_id
-        );
-        DROP TABLE doc_metadata CASCADE;
-        DROP TABLE doc_metadata_uniq CASCADE;
-        ALTER TABLE doc_metadata_uniq_uniq RENAME TO doc_metadata;
 EOF
 psql -q -X --set ON_ERROR_STOP=1 -d $DB -f ${SQL_COMMAND_FILE} || exit 1
 rm -rf ${TMPDIR}
