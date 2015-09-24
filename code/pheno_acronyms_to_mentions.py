@@ -76,7 +76,7 @@ def generate_rand_negatives(row, pos, neg):
       break
     if word == row.pa_abbrev:
       continue
-    if word.isupper():
+    if word.isupper() and word.strip() != '-LRB-' and word.strip() != '-RRB-':
       mention_id = '%s_%s_%d_%d_%d_ABBREV_RAND_NEG_%s' %  \
            (row.doc_id, \
             row.section_id, \
@@ -109,7 +109,7 @@ if __name__ == '__main__':
     mentions = extract_candidate_mentions(row)
     pos += len(mentions)
     if SR.get('rand-negs'):
-      negs += generate_rand_negatives(row, pos, neg)
+      negs = generate_rand_negatives(row, pos, neg)
       neg += len(negs)
       mentions.extend(negs)
 
