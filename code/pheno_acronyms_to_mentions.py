@@ -21,10 +21,10 @@ parser = util.RowParser([
           ('poses', 'text[]'),
           ('ners', 'text[]'),
           ('pa_abbrev', 'text'),
-          ('pa_wordidxs', 'int[]')
           ('pheno_entity', 'text'),
-          ('pa_supertype', 'text'),
-          ('pa_subtype', 'text'),
+          ('pa_doc_id', 'text'),
+          ('pa_section_id', 'text'),
+          ('pa_sent_id', 'int'),
           ('pa_is_correct', 'boolean')])
 
 
@@ -44,8 +44,7 @@ Mention = namedtuple('Mention', [
 
 
 ### CANDIDATE EXTRACTION ###
-HF = config.PHENO['HF']
-SR = config.PHENO['SR']
+SR = config.PHENO_ACRONYMS['SR']
 
 def extract_candidate_mentions(row):
   """Extracts candidate phenotype mentions from an input row object"""
@@ -53,15 +52,50 @@ def extract_candidate_mentions(row):
   if row.pa_is_correct == False:
     return []
 
-  for word in row.words:
-    if word == row.abbrev:
-      mentions.append((None, row.doc_id, row.section_id, row.sent_id,
-          row.
+  for i, word in enumerate(row.words):
+    if word == row.pa_abbrev:
+      mention_id = '%s_%s_%d_%d_%d_ABBREV_%s' %  \
+           (row.doc_id, \
+            row.section_id, \
+            row.sent_id, \
+            i, \
+            i, \
+            row.pheno_entity)
+      subtype = '%s_%s_%d_%s' % (row.pa_doc_id, row.pa_section_id, row.pa_sent_id, row.pa_abbrev)
+      m = Mention(None, row.doc_id, row.section_id, row.sent_id,
+          [i], mention_id, "ABBREV", subtype, row.pheno_entity,
+          [word], row.pa_is_correct)
+      mentions.append(m)
   
+  return mentions
+
+def generate_rand_negatives(row, pos, neg):
+  mentions = []
+  for i, word in enumerate(row.words):
+    if neg >= pos:
+      break
+    if word == row.pa_abbrev:
+      continue
+    if word.isupper():
+      mention_id = '%s_%s_%d_%d_%d_ABBREV_RAND_NEG_%s' %  \
+           (row.doc_id, \
+            row.section_id, \
+            row.sent_id, \
+            i, \
+            i, \
+            row.pheno_entity)
+      subtype = '%s_%s_%d_%s' % (row.pa_doc_id, row.pa_section_id, row.pa_sent_id, row.pa_abbrev)
+      m = Mention(None, row.doc_id, row.section_id, row.sent_id, 
+          [i], mention_id, 'ABBREV_RAND_NEG', subtype, None, [word], False)
+      mentions.append(m)
+      neg += 1
   return mentions
 
 if __name__ == '__main__':
   onto_path = lambda p : '%s/onto/%s' % (os.environ['GDD_HOME'], p)
+
+  pos = 0
+  neg = 0
 
   # Read TSV data in as Row objects
   for line in sys.stdin:
@@ -73,8 +107,11 @@ if __name__ == '__main__':
 
     # find candidate mentions & supervise
     mentions = extract_candidate_mentions(row)
+    pos += len(mentions)
     if SR.get('rand-negs'):
-      mentions += generate_rand_negatives(row, mentions)
+      negs += generate_rand_negatives(row, pos, neg)
+      neg += len(negs)
+      mentions.extend(negs)
 
     # print output
     for mention in mentions:
