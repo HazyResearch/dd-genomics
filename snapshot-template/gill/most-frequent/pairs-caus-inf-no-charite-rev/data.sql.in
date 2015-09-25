@@ -1,5 +1,5 @@
 SELECT 
-  canonical_name cname, gene_name gname, pheno_entity, hpo.pheno_name, count(*), in_charite sv, (array_agg(array_to_string(string_to_array(si.words, '|^|'), ' ')))[1] 
+  canonical_name cname, gene_name gname, pheno_entity, hpo.pheno_name, count(*) ct, in_charite sv, (array_agg(array_to_string(string_to_array(si.words, '|^|'), ' ')))[1] 
 FROM 
 (SELECT g.canonical_name, ga.gene_name, ga.pheno_entity, ga.doc_id, ga.section_id, ga.sent_id , (CASE WHEN cc.hpo_id IS NULL THEN 'N' ELSE 'Y' END) AS in_charite FROM genepheno_causation_is_correct_inference ga join genes g on (ga.gene_name = g.gene_name)
   LEFT JOIN charite_canon cc ON (g.ensembl_id = cc.ensembl_id AND ga.pheno_entity = cc.hpo_id)
