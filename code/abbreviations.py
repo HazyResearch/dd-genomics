@@ -216,8 +216,8 @@ def getabbreviations(sentence, abbrevIndex=None):
       # sys.stderr.write('Omitting abbreviation candidate %s\n' % abbrev[2])
       # sys.stderr.write('Reason: %s\n' % e.args[0])
       if e.args[0].startswith('[SUP]'):
-        startFakeDefinition = max(abbrev[0] - 1 - len(abbrev[2]), 0)
-        stopFakeDefinition = abbrev[0] - 1
+        startFakeDefinition = max(abbrev[0] - 2 - len(abbrev[2]), 0)
+        stopFakeDefinition = abbrev[0] - 2
         rv.append((False, abbrev, (startFakeDefinition, stopFakeDefinition,
                                  sentence[startFakeDefinition:stopFakeDefinition]), e.args[0]))
     else:
@@ -227,8 +227,8 @@ def getabbreviations(sentence, abbrevIndex=None):
         # sys.stderr.write('Omitting abbreviation candidate %s\n' % abbrev[2])
         # sys.stderr.write('Reason: %s\n' % e.args[0])
         if e.args[0].startswith('[SUP]'):
-          startFakeDefinition = max(abbrev[0] - 1 - len(abbrev[2]), 0)
-          stopFakeDefinition = abbrev[1] - 1
+          startFakeDefinition = max(abbrev[0] - 2 - len(abbrev[2]), 0)
+          stopFakeDefinition = abbrev[1] - 2
           rv.append((False, abbrev, (startFakeDefinition, stopFakeDefinition,
                                  sentence[startFakeDefinition:stopFakeDefinition]), e.args[0]))
       else:
