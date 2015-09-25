@@ -11,5 +11,5 @@ WHERE
     ON (hpo.hpo_id = a.pheno_entity)
     join sentences_input si on (a.doc_id = si.doc_id and a.section_id = si.section_id and a.sent_id = si.sent_id)
 GROUP BY canonical_name, pheno_entity, hpo.pheno_name, gene_name, in_charite
-ORDER BY count DESC
+ORDER BY ct DESC
 LIMIT 1000
