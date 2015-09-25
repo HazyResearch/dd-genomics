@@ -23,7 +23,7 @@ parser = util.RowParser([
           ('poses', 'text[]'),
           ('ners', 'text[]'),
           ('pheno_wordidxs', 'int[]'),
-          ('entity', 'text'),])
+          ('entity', 'text')])
 
 # This defines the output Mention object
 Mention = collections.namedtuple('Mention', [
@@ -82,7 +82,7 @@ def create_supervised_mention(row, is_correct,
     m = Mention(None, row.doc_id, row.section_id,
               row.sent_id, [i for i in xrange(start_abbrev, stop_abbrev + 1)],
               [i for i in xrange(start_definition, stop_definition + 1)],
-              mid, supertype, subtype, abbrev, definition, row.entity, is_correct);
+              mid, supertype, subtype, abbrev, definition, row.entity.strip(), is_correct);
   else:
     m = None
   return m

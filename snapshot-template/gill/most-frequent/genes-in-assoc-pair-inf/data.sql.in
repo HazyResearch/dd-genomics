@@ -1,9 +1,9 @@
 SELECT 
-  g.canonical_name, count(g.canonical_name), (array_agg(array_to_string(string_to_array(si.words, '|^|'), ' ')))[1]
+  g.canonical_name, ga.gene_name, count(g.canonical_name), (array_agg(array_to_string(string_to_array(si.words, '|^|'), ' ')))[1]
 FROM genepheno_association_is_correct_inference ga join genes g on (ga.gene_name = g.gene_name)
 join sentences_input si on (ga.doc_id = si.doc_id and ga.section_id = si.section_id and ga.sent_id = si.sent_id)
 WHERE 
   ga.expectation > 0.9
-GROUP BY g.canonical_name
+GROUP BY g.canonical_name, ga.gene_name
 ORDER BY count DESC
 LIMIT 1000
