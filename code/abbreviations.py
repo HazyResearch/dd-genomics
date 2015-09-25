@@ -207,7 +207,7 @@ def getabbreviations(sentence, abbrevIndex=None):
     # sys.stderr.write('Reason: %s\n' % e.args[0])
     return rv
 
-  lastStopAbbreviation = 0
+  lastStopAbbreviation = -1
   for abbrev in abbrevs:
     try:
       definition = getdefinition(abbrev, sentence, lastStopAbbreviation)
