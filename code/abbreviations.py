@@ -61,7 +61,7 @@ def conditions(string):
 def getdefinition((startAbbrev, stopAbbrev, abbrev), sentence, stopLastAbbrev):
   ':type candidate: (int, int, list[str])'
   ':type sentence: list[str]'
-  startTokens = stopLastAbbrev + 1;
+  startTokens = stopLastAbbrev + 1
   # Take the tokens in front of the candidate
   tokens = [word.lower() for word in sentence[startTokens:startAbbrev - 1]]
 
