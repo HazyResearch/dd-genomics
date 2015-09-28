@@ -117,6 +117,14 @@ CREATE TABLE pheno_features (
 	feature text
 ) ;
 
+DROP TABLE IF EXISTS variant_features CASCADE;
+CREATE TABLE variant_features (
+	doc_id text,
+        section_id text,
+	mention_id text,
+	feature text
+) ;
+
 -- DROP INDEX IF EXISTS pheno_features_doc_id;
 -- CREATE INDEX pheno_features_doc_id ON pheno_features (doc_id);
 -- DROP INDEX IF EXISTS pheno_features_section_id;

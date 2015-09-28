@@ -117,7 +117,9 @@ GENE = {
 ### VARIANT
 VARIANT = {
   'vals' : BOOL_VALS,
-  'HF' : {}
+  'HF' : {},
+  'SR' : {},
+  'F'  : {}
 }
 
 ### GENE-VARIANT
