@@ -1,0 +1,8 @@
+SELECT 
+  v.entity, count(v.entity), (array_agg(array_to_string(string_to_array(si.words, '|^|'), ' ')))[1]
+FROM genevariant_pairs v join sentences_input si on (v.doc_id = si.doc_id and v.section_id = si.section_id and v.sent_id = si.sent_id)
+WHERE 
+  v.is_correct != 'f' OR v.is_correct IS NULL 
+GROUP BY v.entity
+ORDER BY count ASC
+LIMIT 1000
