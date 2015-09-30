@@ -3,7 +3,7 @@ select
   hs.doc_id
   , hs.section_id
   , hs.sent_id
-  , g.gene_id as gene_id
+  , array_agg(genes.ensembl_id) as gene_id
   , p.entity as pheno_name
   , g.wordidxs as gene_wordidxs
   , p.wordidxs as pheno_wordidxs
@@ -24,7 +24,15 @@ from
     on (hs.doc_id = si.doc_id
         and hs.section_id = si.section_id
         and hs.sent_id = si.sent_id)
--- perhaps we should rather make the order deterministic here (???)
-order by random()
+  join genes
+    on (g.gene_name = genes.gene_name)
+  group by
+    hs.doc_id
+    , hs.section_id
+    , hs.sent_id
+    , p.entity
+    , g.wordidxs
+    , p.wordidxs
+    , si.words
 )
 to stdout with csv header;
