@@ -21,14 +21,6 @@ def create_row_id(row):
   row_id += row[1]
   row_id += '_'
   row_id += row[2]
-  row_id += '_'
-  row_id += row[3]
-  row_id += '_'
-  row_id += row[4]
-  row_id += '_'
-  row_id += '|'.join(row[5])
-  row_id += '_'
-  row_id += '|'.join(row[6])
   return row_id
 
 writer = csv.writer(sys.stdout)
