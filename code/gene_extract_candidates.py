@@ -71,7 +71,8 @@ def extract_candidate_mentions(row):
       for (eid, canonical_name, mapping_type) in matches:
         mapping_types.add(mapping_type)
       for mapping_type in mapping_types:
-        m = create_supervised_mention(row, i, gene_name=word, mapping_type=mapping_type)
+        if len(word) >= HF['min-word-len'][mapping_type]:
+          m = create_supervised_mention(row, i, gene_name=word, mapping_type=mapping_type)
         if m:
           mentions.append(m)
   return mentions

@@ -69,7 +69,12 @@ GENE = {
 
     'ensembl-mapping-types' : ['CANONICAL_SYMBOL', 'NONCANONICAL_SYMBOL', 'ENSEMBL_ID', 'REFSEQ'],
 
-    'min-word-len': 2
+    'min-word-len': {
+      'CANONICAL_SYMBOL' : 2, 
+      'NONCANONICAL_SYMBOL' : 3, 
+      'ENSEMBL_ID' : 3, 
+      'REFSEQ' : 3
+    }
   },
 
   ## Supervision Rules
