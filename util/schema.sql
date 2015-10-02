@@ -375,14 +375,14 @@ CREATE TABLE pheno_acronyms (
 	is_correct boolean
 ) DISTRIBUTED BY (doc_id, section_id);
 
-DROP INDEX IF EXISTS pheno_acronyms_doc_id;
-CREATE INDEX pheno_acronyms_doc_id ON pheno_acronyms (doc_id);
-DROP INDEX IF EXISTS pheno_acronyms_section_id;
-CREATE INDEX pheno_acronyms_section_id ON pheno_acronyms (section_id);
-DROP INDEX IF EXISTS pheno_acronyms_sent_id;
-CREATE INDEX pheno_acronyms_sent_id ON pheno_acronyms (sent_id);
-DROP INDEX IF EXISTS pheno_acronyms_mention_id;
-CREATE INDEX pheno_acronyms_mention_id ON pheno_acronyms (mention_id);
+-- DROP INDEX IF EXISTS pheno_acronyms_doc_id;
+-- CREATE INDEX pheno_acronyms_doc_id ON pheno_acronyms (doc_id);
+-- DROP INDEX IF EXISTS pheno_acronyms_section_id;
+-- CREATE INDEX pheno_acronyms_section_id ON pheno_acronyms (section_id);
+-- DROP INDEX IF EXISTS pheno_acronyms_sent_id;
+-- CREATE INDEX pheno_acronyms_sent_id ON pheno_acronyms (sent_id);
+-- DROP INDEX IF EXISTS pheno_acronyms_mention_id;
+-- CREATE INDEX pheno_acronyms_mention_id ON pheno_acronyms (mention_id);
 
 -- Gene mentions features
 DROP TABLE IF EXISTS pheno_acronyms_features CASCADE;
@@ -393,12 +393,12 @@ CREATE TABLE pheno_acronyms_features (
 	feature text
 ) DISTRIBUTED BY (doc_id, section_id);
 
-DROP INDEX IF EXISTS pheno_acronyms_features_doc_id;
-CREATE INDEX pheno_acronyms_features_doc_id ON pheno_acronyms_features (doc_id);
-DROP INDEX IF EXISTS pheno_acronyms_features_section_id;
-CREATE INDEX pheno_acronyms_features_section_id ON pheno_acronyms_features (section_id);
-DROP INDEX IF EXISTS pheno_acronyms_features_mention_id;
-CREATE INDEX pheno_acronyms_features_mention_id ON pheno_acronyms_features (mention_id);
+-- DROP INDEX IF EXISTS pheno_acronyms_features_doc_id;
+-- CREATE INDEX pheno_acronyms_features_doc_id ON pheno_acronyms_features (doc_id);
+-- DROP INDEX IF EXISTS pheno_acronyms_features_section_id;
+-- CREATE INDEX pheno_acronyms_features_section_id ON pheno_acronyms_features (section_id);
+-- DROP INDEX IF EXISTS pheno_acronyms_features_mention_id;
+-- CREATE INDEX pheno_acronyms_features_mention_id ON pheno_acronyms_features (mention_id);
 
 DROP TABLE IF EXISTS genepheno_holdout_set;
 CREATE TABLE genepheno_holdout_set (
