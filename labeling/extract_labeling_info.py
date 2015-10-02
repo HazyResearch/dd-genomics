@@ -19,8 +19,18 @@ if __name__ == "__main__":
           keyComps = key.split('_')
           (doc_id, section_id, sent_id) = (str(keyComps[0]), str(keyComps[1]), int(keyComps[2]))
           rv = results['by_key'][key]['is_correct']
+          type_value = None
+          if u'Association' in results['by_key'][key]:
+            type_value = 'association'
+          elif u'Causation' in results['by_key'][key]:
+            type_value = 'causation'
+          is_correct = None
           if rv == True:
-            print '%s\t%s\t%d\t%d\t%s' % (doc_id, section_id, sent_id, 1, labeler)
+            is_correct = 't'
           if rv == False:
-            print '%s\t%s\t%d\t%d\t%s' % (doc_id, section_id, sent_id, 0, labeler)
-            
+            is_correct = 'f'
+          if is_correct == 't':
+            if type_value:
+              print '%s\t%s\t%d\t%s\t%s\t%s' % (doc_id, section_id, sent_id, is_correct, type_value, labeler)
+          elif is_correct == 'f':
+            print '%s\t%s\t%d\t%s\t%s\t%s' % (doc_id, section_id, sent_id, is_correct, type_value, labeler)

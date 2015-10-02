@@ -409,6 +409,16 @@ CREATE TABLE genepheno_holdout_set (
         pheno_wordidxs int[]
 ) DISTRIBUTED BY (doc_id, section_id);
 
+DROP TABLE IF EXISTS genepheno_holdout_labels;
+CREATE TABLE genepheno_holdout_labels (
+  doc_id text,
+  section_id text,
+  sent_id int,
+  is_correct text,
+  type text,
+  labeler text
+);
+
 -- DROP INDEX IF EXISTS genepheno_holdout_set_doc_id;
 -- CREATE INDEX genepheno_holdout_set_doc_id ON genepheno_holdout_set (doc_id);
 -- DROP INDEX IF EXISTS genepheno_holdout_set_section_id;
