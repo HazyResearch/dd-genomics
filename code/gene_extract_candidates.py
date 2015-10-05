@@ -65,7 +65,7 @@ def extract_candidate_mentions(row):
   gene_name_to_genes = CACHE['gene_name_to_genes']
   mentions = []
   for i, word in enumerate(row.words):
-    if (word in gene_name_to_genes) and (len(word) >= HF['min-word-len']):
+    if (word in gene_name_to_genes):
       matches = gene_name_to_genes[word]
       mapping_types = set()
       for (eid, canonical_name, mapping_type) in matches:
@@ -73,8 +73,8 @@ def extract_candidate_mentions(row):
       for mapping_type in mapping_types:
         if len(word) >= HF['min-word-len'][mapping_type]:
           m = create_supervised_mention(row, i, gene_name=word, mapping_type=mapping_type)
-        if m:
-          mentions.append(m)
+          if m:
+            mentions.append(m)
   return mentions
 
 
