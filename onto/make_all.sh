@@ -166,3 +166,28 @@ fi
 
 # Run script to extract Gene-Variant : HPO mapping, joining on OMIM
 python join_clinvar_omim_hpo.py > data/hgvs_to_hpo.tsv
+
+RAW="raw/generifs_basic"
+if [ ! -e "$RAW" ]; then
+  wget ftp://ftp.ncbi.nih.gov/gene/GeneRIF/generifs_basic.gz -O - | gzip -dc > $RAW
+fi
+
+RAW="raw/generifs_interactions"
+if [ ! -e "$RAW" ]; then
+  wget ftp://ftp.ncbi.nih.gov/gene/GeneRIF/interactions.gz -O - | gzip -dc > $RAW
+fi
+
+RAW="raw/ncbi_geneid_to_ensembl"
+if [ ! -e "$RAW" ]; then
+  wget ftp://ftp.ncbi.nih.gov/gene/DATA/gene2ensembl.gz -O - | gzip -dc > $RAW
+fi
+
+join -1 1 -2 1 -t$'\t' \
+  <(tail -n+2 raw/generifs_basic | 
+    cut -f 2,3,5 | 
+    sort -k1,1) \
+  <(tail -n+2 raw/ncbi_geneid_to_ensembl | 
+    cut -f 2,3 | 
+    sort -k1,1) | 
+  awk -F '\t' '{OFS="\t"; print $4,$2,$3}' |
+  grep -v 'HuGE Navigator' > data/generifs.tsv
