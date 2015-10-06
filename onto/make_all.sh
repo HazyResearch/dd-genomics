@@ -190,4 +190,4 @@ join -1 1 -2 1 -t$'\t' \
     cut -f 2,3 | 
     sort -k1,1) | 
   awk -F '\t' '{OFS="\t"; print $4,$2,$3}' |
-  grep -v 'HuGE Navigator' > data/generifs.tsv
+  grep -v 'HuGE Navigator' | sort | uniq | grep -e '^ENSG' > data/generifs.tsv

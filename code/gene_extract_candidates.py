@@ -121,6 +121,10 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
       if re.match(r'[a-zA-Z]{3}[a-zA-Z]*\d+\w*', word):
         return m._replace(is_correct=True, mention_supertype='COMPLICATED_GENE_NAME')
 
+  if SR['all-canonical-true']:
+    if m.mapping_type == 'CANONICAL_SYMBOL':
+      return m._replace(is_correct=True, mention_supertype='%s_ALL_TRUE' % m.mention_supertype)
+
   if SR['all-symbols-true']:
     if m.mapping_type in HF['ensembl-mapping-types']:
       return m._replace(is_correct=True, mention_supertype='%s_ALL_TRUE' % m.mention_supertype)

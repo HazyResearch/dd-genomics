@@ -106,7 +106,8 @@ GENE = {
     'complicated-gene-names-true': True,
 
     # all canonical and noncanonical
-    'all-symbols-true': True,
+    'all-symbols-true': False,
+    'all-canonical-true': True,
 
     'rand-negs': True
 
