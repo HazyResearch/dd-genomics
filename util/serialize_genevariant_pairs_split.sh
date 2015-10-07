@@ -23,8 +23,10 @@ DROP TABLE IF EXISTS genevariant_pairs_sentences;
 CREATE TABLE genevariant_pairs_sentences AS (
   SELECT
     gv.doc_id, 
-    gv.section_id, 
-    gv.sent_id,
+    gv.gene_section_id, 
+    gv.gene_sent_id,
+    gv.variant_section_id, 
+    gv.variant_sent_id,
     array_to_string(ARRAY_AGG(gv.gene_mention_id), '|^|') AS gene_mention_ids,
     ARRAY_AGG(gv.gene_name) AS gene_names, 
     array_to_string(ARRAY_AGG(gv.gene_wordidxs), '|^|') AS gene_wordidxs, 
@@ -58,8 +60,10 @@ do
   INSERT INTO genevariant_pairs_sentences (
     SELECT
       gv.doc_id, 
-      gv.section_id, 
-      gv.sent_id,
+      gv.gene_section_id, 
+      gv.gene_sent_id,
+      gv.variant_section_id, 
+      gv.variant_sent_id,
       array_to_string(ARRAY_AGG(gv.gene_mention_id), '|^|') AS gene_mention_ids,
       ARRAY_AGG(gv.gene_name) AS gene_names, 
       array_to_string(ARRAY_AGG(gv.gene_wordidxs), '|^|') AS gene_wordidxs, 
@@ -91,8 +95,10 @@ cat <<EOF >> ${SQL_COMMAND_FILE}
 INSERT INTO genevariant_pairs_sentences (
   SELECT
     gv.doc_id, 
-    gv.section_id, 
-    gv.sent_id,
+    gv.gene_section_id, 
+    gv.gene_sent_id,
+    gv.variant_section_id, 
+    gv.variant_sent_id,
     array_to_string(ARRAY_AGG(gv.gene_mention_id), '|^|') AS gene_mention_ids,
     ARRAY_AGG(gv.gene_name) AS gene_names, 
     array_to_string(ARRAY_AGG(gv.gene_wordidxs), '|^|') AS gene_wordidxs, 

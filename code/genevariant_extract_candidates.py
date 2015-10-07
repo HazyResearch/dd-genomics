@@ -13,20 +13,20 @@ import config
 # This defines the Row object that we read in to the extractor
 parser = util.RowParser([
           ('doc_id', 'text'),
-          ('section1_id', 'text'),
-          ('sent1_id', 'int'),
-          ('section2_id', 'text'),
-          ('sent2_id', 'int'),
-          ('words1', 'text[]'),
-          ('lemmas1', 'text[]'),
-          ('poses1', 'text[]'),
-          ('dep_paths1', 'text[]'),
-          ('dep_parents1', 'int[]'),
-          ('words2', 'text[]'),
-          ('lemmas2', 'text[]'),
-          ('poses2', 'text[]'),
-          ('dep_paths2', 'text[]'),
-          ('dep_parents2', 'int[]'),
+          ('gene_section_id', 'text'),
+          ('gene_sent_id', 'int'),
+          ('variant_section_id', 'text'),
+          ('variant_sent_id', 'int'),
+          ('gene_words', 'text[]'),
+          ('gene_lemmas', 'text[]'),
+          ('gene_poses', 'text[]'),
+          ('gene_dep_paths', 'text[]'),
+          ('gene_dep_parents', 'int[]'),
+          ('variant_words', 'text[]'),
+          ('variant_lemmas', 'text[]'),
+          ('variant_poses', 'text[]'),
+          ('variant_dep_paths', 'text[]'),
+          ('variant_dep_parents', 'int[]'),
           ('gene_mention_ids', 'text[]'),
           ('gene_names', 'text[]'),
           ('gene_wordidxs', 'int[][]'),
@@ -42,10 +42,10 @@ Relation = collections.namedtuple('Relation', [
             'dd_id',
             'relation_id',
             'doc_id',
-            'section1_id',
-            'sent1_id',
-            'section2_id',
-            'sent2_id',
+            'gene_section_id',
+            'gene_sent_id',
+            'variant_section_id',
+            'variant_sent_id',
             'gene_mention_id',
             'gene_name',
             'gene_wordidxs',
@@ -88,8 +88,8 @@ def create_relation(row, i, j):
   subtype = None
 
   relation_id = '%s_%s' % (gene_mention_id, variant_mention_id)
-  r = Relation(None, relation_id, row.doc_id, row.section1_id, \
-               row.sent1_id, row.section2_id, row.sent2_id, \
+  r = Relation(None, relation_id, row.doc_id, row.gene_section_id, \
+               row.gene_sent_id, row.variant_section_id, row.variant_sent_id, \
                gene_mention_id, gene_name, gene_wordidxs, \
                gene_is_correct, variant_mention_id, variant_entity, \
                variant_wordidxs, variant_is_correct, is_correct, supertype, subtype)

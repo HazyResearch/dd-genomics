@@ -23,8 +23,10 @@ DROP TABLE IF EXISTS genepheno_pairs_sentences;
 CREATE TABLE genepheno_pairs_sentences AS (
   SELECT
     gp.doc_id, 
-    gp.section_id, 
-    gp.sent_id,
+    gp.gene_section_id, 
+    gp.gene_sent_id,
+    gp.variant_section_id, 
+    gp.variant_sent_id,
     array_to_string(ARRAY_AGG(gp.gene_mention_id), '|^|') AS gene_mention_ids,
     ARRAY_AGG(gp.gene_name) AS gene_names, 
     array_to_string(ARRAY_AGG(gp.gene_wordidxs), '|^|') AS gene_wordidxs, 
@@ -42,8 +44,10 @@ CREATE TABLE genepheno_pairs_sentences AS (
       OR dm.source_year < $START_YEAR
   GROUP BY
     gp.doc_id, 
-    gp.section_id, 
-    gp.sent_id
+    gp.gene_section_id, 
+    gp.gene_sent_id,
+    gp.variant_section_id, 
+    gp.variant_sent_id
 );
 EOF
 psql -q -X --set ON_ERROR_STOP=1 -d $DB -f ${SQL_COMMAND_FILE} || exit 1
@@ -58,8 +62,10 @@ do
   INSERT INTO genepheno_pairs_sentences (
     SELECT
       gp.doc_id, 
-      gp.section_id, 
-      gp.sent_id,
+      gp.gene_section_id, 
+      gp.gene_sent_id,
+      gp.variant_section_id, 
+      gp.variant_sent_id,
       array_to_string(ARRAY_AGG(gp.gene_mention_id), '|^|') AS gene_mention_ids,
       ARRAY_AGG(gp.gene_name) AS gene_names, 
       array_to_string(ARRAY_AGG(gp.gene_wordidxs), '|^|') AS gene_wordidxs, 
@@ -76,8 +82,10 @@ do
         dm.source_year = $i
     GROUP BY
       gp.doc_id, 
-      gp.section_id, 
-      gp.sent_id
+      gp.gene_section_id, 
+      gp.gene_sent_id,
+      gp.variant_section_id, 
+      gp.variant_sent_id
   );
 EOF
   psql -q -X --set ON_ERROR_STOP=1 -d $DB -f ${SQL_COMMAND_FILE} || exit 1
@@ -91,8 +99,10 @@ cat <<EOF >> ${SQL_COMMAND_FILE}
 INSERT INTO genepheno_pairs_sentences (
   SELECT
     gp.doc_id, 
-    gp.section_id, 
-    gp.sent_id,
+    gp.gene_section_id, 
+    gp.gene_sent_id,
+    gp.variant_section_id, 
+    gp.variant_sent_id,
     array_to_string(ARRAY_AGG(gp.gene_mention_id), '|^|') AS gene_mention_ids,
     ARRAY_AGG(gp.gene_name) AS gene_names, 
     array_to_string(ARRAY_AGG(gp.gene_wordidxs), '|^|') AS gene_wordidxs, 
@@ -109,8 +119,10 @@ INSERT INTO genepheno_pairs_sentences (
       dm.source_year is null
   GROUP BY
     gp.doc_id, 
-    gp.section_id, 
-    gp.sent_id
+    gp.gene_section_id, 
+    gp.gene_sent_id,
+    gp.variant_section_id, 
+    gp.variant_sent_id
 );
 EOF
 psql -q -X --set ON_ERROR_STOP=1 -d $DB -f ${SQL_COMMAND_FILE} || exit 1
