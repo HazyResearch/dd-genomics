@@ -3,7 +3,7 @@ SELECT
   tp.tp true_pos,
   fp.fp false_pos,
   (tp.tp + fp.fp) positives,
-  (tp.tp::float / (tp.tp::float + fp.fp::float)) precision
+  (tp.tp::float / (tp.tp::float + fp.fp::float)) as precision
 FROM
   (SELECT
     labeler,
@@ -32,5 +32,4 @@ FROM
     gc.expectation > 0.9 
     AND l.is_correct = 't'
   GROUP BY labeler) tp
-  ON (fp.labeler = tp.labeler);
-
+  ON (fp.labeler = tp.labeler)

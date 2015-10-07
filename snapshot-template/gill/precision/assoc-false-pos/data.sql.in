@@ -14,5 +14,4 @@ FROM
     ON (si.doc_id = l.doc_id AND si.section_id = l.section_id AND si.sent_id = l.sent_id)  
 WHERE
   gc.expectation > 0.9 
-  AND l.is_correct = 'f';
-
+  AND l.is_correct = 'f'
