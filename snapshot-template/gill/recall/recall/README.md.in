@@ -167,25 +167,25 @@ FROM
 
 report-log "Creating a few recall stats 1"
 num_our_phenos_canon_assoc=$(run-sql "
-SELECT count(DISTINCT pheno_entity) FROM genepheno_association_canon i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id)
+SELECT count(DISTINCT i.hpo_id) FROM genepheno_association_canon i JOIN hpo_abnormalities g ON (i.hpo_id = g.hpo_id)
 ")
 report-log "Creating a few recall stats 1"
 frac_our_phenos_canon_assoc=$(run-sql "
 SELECT (a.count::float / b.count::float) * 100
 FROM
-  (SELECT count(DISTINCT pheno_entity) FROM genepheno_association_canon i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id)) a,
+  (SELECT count(DISTINCT i.hpo_id) FROM genepheno_association_canon i JOIN hpo_abnormalities g ON (i.hpo_id = g.hpo_id)) a,
   (SELECT count(DISTINCT hpo_id) FROM hpo_abnormalities) b
 ")
 
 report-log "Creating a few recall stats 1"
 num_our_phenos_canon_cause=$(run-sql "
-SELECT count(DISTINCT pheno_entity) FROM genepheno_causation_canon i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id)
+SELECT count(DISTINCT i.hpo_id) FROM genepheno_causation_canon i JOIN hpo_abnormalities g ON (i.hpo_id = g.hpo_id)
 ")
 report-log "Creating a few recall stats 1"
 frac_our_phenos_canon_cause=$(run-sql "
 SELECT (a.count::float / b.count::float) * 100
 FROM
-  (SELECT count(DISTINCT pheno_entity) FROM genepheno_causation_canon i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id)) a,
+  (SELECT count(DISTINCT i.hpo_id) FROM genepheno_causation_canon i JOIN hpo_abnormalities g ON (i.hpo_id = g.hpo_id)) a,
   (SELECT count(DISTINCT hpo_id) FROM hpo_abnormalities) b
 ")
 
@@ -194,40 +194,40 @@ num_charite_not_our_assoc_phenos_canon=$(run-sql "
 SELECT
   count(DISTINCT cc.hpo_id)
 FROM
-  (SELECT DISTINCT pheno_entity FROM genepheno_association_canon i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id)) our 
+  (SELECT DISTINCT i.hpo_id FROM genepheno_association_canon i JOIN hpo_abnormalities g ON (i.hpo_id = g.hpo_id)) our 
   FULL OUTER JOIN charite_canon cc 
-    ON (our.pheno_entity = cc.hpo_id) 
-WHERE our.pheno_entity IS NULL
+    ON (our.hpo_id = cc.hpo_id) 
+WHERE our.hpo_id IS NULL
 ")
 report-log "Creating a few recall stats 1"
 num_charite_not_our_cause_phenos_canon=$(run-sql "
 SELECT
   count(DISTINCT cc.hpo_id)
 FROM
-  (SELECT DISTINCT pheno_entity FROM genepheno_causation_canon i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id)) our 
+  (SELECT DISTINCT i.hpo_id FROM genepheno_causation_canon i JOIN hpo_abnormalities g ON (i.hpo_id = g.hpo_id)) our 
   FULL OUTER JOIN charite_canon cc 
-    ON (our.pheno_entity = cc.hpo_id) 
-WHERE our.pheno_entity IS NULL
+    ON (our.hpo_id = cc.hpo_id) 
+WHERE our.hpo_id IS NULL
 ")
 
 report-log "Creating a few recall stats 1"
 num_our_assoc_not_charite_phenos_canon=$(run-sql "
 SELECT
-  count(DISTINCT our.pheno_entity)
+  count(DISTINCT our.hpo_id)
 FROM
-  (SELECT DISTINCT pheno_entity FROM genepheno_association_canon i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id)) our 
+  (SELECT DISTINCT i.hpo_id FROM genepheno_association_canon i JOIN hpo_abnormalities g ON (i.hpo_id = g.hpo_id)) our 
   FULL OUTER JOIN charite_canon cc 
-    ON (our.pheno_entity = cc.hpo_id) 
+    ON (our.hpo_id = cc.hpo_id) 
 WHERE cc.hpo_id IS NULL
 ")
 report-log "Creating a few recall stats 1"
 num_our_cause_not_charite_phenos_canon=$(run-sql "
 SELECT
-  count(DISTINCT our.pheno_entity)
+  count(DISTINCT our.hpo_id)
 FROM
-  (SELECT DISTINCT pheno_entity FROM genepheno_causation_canon i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id)) our 
+  (SELECT DISTINCT i.hpo_id FROM genepheno_causation_canon i JOIN hpo_abnormalities g ON (i.hpo_id = g.hpo_id)) our 
   FULL OUTER JOIN charite_canon cc 
-    ON (our.pheno_entity = cc.hpo_id) 
+    ON (our.hpo_id = cc.hpo_id) 
 WHERE cc.hpo_id IS NULL
 ")
 
@@ -251,9 +251,10 @@ report-values \
     num_our_cause_not_charite_phenos=$num_our_cause_not_charite_phenos \
     num_charite_phenos_canon=$num_charite_phenos_canon \
     frac_charite_phenos_canon=$frac_charite_phenos_canon \
-    num_our_phenos_assoc_canon=$num_our_phenos_assoc_canon \
-    frac_our_phenos_assoc_canon=$frac_our_phenos_assoc_canon \
-    num_our_phenos_cause_canon=$frac_our_phenos_cause_canon \
+    num_our_phenos_canon_assoc=$num_our_phenos_canon_assoc \
+    frac_our_phenos_canon_assoc=$frac_our_phenos_canon_assoc \
+    num_our_phenos_canon_cause=$num_our_phenos_canon_cause \
+    frac_our_phenos_canon_cause=$frac_our_phenos_canon_cause \
     num_charite_not_our_assoc_phenos_canon=$num_charite_not_our_assoc_phenos_canon \
     num_charite_not_our_cause_phenos_canon=$num_charite_not_our_cause_phenos_canon \
     num_our_assoc_not_charite_phenos_canon=$num_our_assoc_not_charite_phenos_canon \
@@ -263,41 +264,41 @@ $>
 
 ### What fraction of genes is covered? (in genephenopairs after inference)
 
-* **Charité covers <$ printf "%'d (%.2f%% of all)" $num_charite_genes $frac_charite_genes $> genes** 
+* Charité covers **<$ printf "%'d (%.2f%% of all)" $num_charite_genes $frac_charite_genes $>** genes
 
-* **We cover <$ printf "%'d (%.2f%% of all)" $num_our_genes_assoc $frac_our_genes_assoc $> genes (after inference in genepheno association pairs)** 
-* **We cover <$ printf "%'d (%.2f%% of all)" $num_our_genes_cause $frac_our_genes_cause $> genes (after inference in genepheno causation pairs)**
+* We cover **<$ printf "%'d (%.2f%% of all)" $num_our_genes_assoc $frac_our_genes_assoc $>** genes (after inference in genepheno association pairs)
+* We cover **<$ printf "%'d (%.2f%% of all)" $num_our_genes_cause $frac_our_genes_cause $>** genes (after inference in genepheno causation pairs)
 
-* **Charité covers <$ printf "%'d" $num_charite_not_our_assoc_genes$> genes that we do not cover in association mentions** 
-* **Charité covers <$ printf "%'d" $num_charite_not_our_cause_genes$> genes that we do not cover in causation mentions** 
+* Charité covers **<$ printf "%'d" $num_charite_not_our_assoc_genes$>** genes that we do not cover in association mentions
+* Charité covers **<$ printf "%'d" $num_charite_not_our_cause_genes$>** genes that we do not cover in causation mentions
 
-* **We cover <$ printf "%'d" $num_our_assoc_not_charite_genes$> genes that Charité does not cover in association mentions** 
-* **We cover <$ printf "%'d" $num_our_cause_not_charite_genes$> genes that Charité does not cover in causation mentions** 
+* We cover **<$ printf "%'d" $num_our_assoc_not_charite_genes$>** genes that Charité does not cover in association mentions
+* We cover **<$ printf "%'d" $num_our_cause_not_charite_genes$>** genes that Charité does not cover in causation mentions
 
 ### What fraction of phenotypes is covered? (in genepheno pairs after inference, NOT CANONICALIZED)
 
-* **Charité covers <$ printf "%'d (%.2f%% of all)" $num_charite_phenos $frac_charite_phenos $> phenos** 
+* Charité covers **<$ printf "%'d (%.2f%% of all)" $num_charite_phenos $frac_charite_phenos $>** phenos
 
-* **We cover <$ printf "%'d (%.2f%% of all)" $num_our_phenos_assoc $frac_our_phenos_assoc $> phenos (after inference in genepheno association pairs)** 
-* **We cover <$ printf "%'d (%.2f%% of all)" $num_our_phenos_cause $frac_our_phenos_cause $> phenos (after inference in genepheno causation pairs)** 
+* We cover **<$ printf "%'d (%.2f%% of all)" $num_our_phenos_assoc $frac_our_phenos_assoc $>** phenos (after inference in genepheno association pairs)
+* We cover **<$ printf "%'d (%.2f%% of all)" $num_our_phenos_cause $frac_our_phenos_cause $>** phenos (after inference in genepheno causation pairs)
 
-* **Charité covers <$ printf "%'d" $num_charite_not_our_assoc_phenos$> phenos that we do not cover in association mentions** 
-* **Charité covers <$ printf "%'d" $num_charite_not_our_cause_phenos$> phenos that we do not cover in causation mentions** 
+* Charité covers **<$ printf "%'d" $num_charite_not_our_assoc_phenos$>** phenos that we do not cover in association mentions
+* Charité covers **<$ printf "%'d" $num_charite_not_our_cause_phenos$>** phenos that we do not cover in causation mentions
 
-* **We cover <$ printf "%'d" $num_our_assoc_not_charite_phenos$> phenos that Charité does not cover in association mentions** 
-* **We cover <$ printf "%'d" $num_our_cause_not_charite_phenos$> phenos that Charité does not cover in causation mentions** 
+* We cover **<$ printf "%'d" $num_our_assoc_not_charite_phenos$>** phenos that Charité does not cover in association mentions
+* We cover **<$ printf "%'d" $num_our_cause_not_charite_phenos$>** phenos that Charité does not cover in causation mentions
 
 ### What fraction of phenotypes is covered? (in genepheno pairs after inference, CANONICALIZED)
 
 **DO NOT FORGET TO RUN ./run.sh canonicalize AFTER INFERENCE OR THIS WILL BE PITIFULLY WRONG**
 
-* **Charité covers <$ printf "%'d (%.2f%% of all)" $num_charite_phenos_canon $frac_charite_phenos_canon $> phenos** 
+* Charité covers **<$ printf "%'d (%.2f%% of all)" $num_charite_phenos_canon $frac_charite_phenos_canon $>** phenos
 
-* **We cover <$ printf "%'d (%.2f%% of all)" $num_our_phenos_canon_assoc $frac_our_phenos_canon_assoc $> phenos (after inference in genepheno association pairs)** 
-* **We cover <$ printf "%'d (%.2f%% of all)" $num_our_phenos_canon_cause $frac_our_phenos_canon_cause $> phenos (after inference in genepheno causation pairs)** 
+* We cover **<$ printf "%'d (%.2f%% of all)" $num_our_phenos_canon_assoc $frac_our_phenos_canon_assoc $>** phenos (after inference in genepheno association pairs)
+* We cover **<$ printf "%'d (%.2f%% of all)" $num_our_phenos_canon_cause $frac_our_phenos_canon_cause $>** phenos (after inference in genepheno causation pairs)
 
-* **Charité covers <$ printf "%'d" $num_charite_not_our_assoc_phenos_canon$> phenos that we do not cover in association mentions** 
-* **Charité covers <$ printf "%'d" $num_charite_not_our_cause_phenos_canon$> phenos that we do not cover in causation mentions** 
+* Charité covers **<$ printf "%'d" $num_charite_not_our_assoc_phenos_canon$>** phenos that we do not cover in association mentions
+* Charité covers **<$ printf "%'d" $num_charite_not_our_cause_phenos_canon$>** phenos that we do not cover in causation mentions
 
-* **We cover <$ printf "%'d" $num_our_assoc_not_charite_phenos_canon$> phenos that Charité does not cover in association mentions** 
-* **We cover <$ printf "%'d" $num_our_cause_not_charite_phenos_canon$> phenos that Charité does not cover in causation mentions** 
+* We cover **<$ printf "%'d" $num_our_assoc_not_charite_phenos_canon$>** phenos that Charité does not cover in association mentions
+* We cover **<$ printf "%'d" $num_our_cause_not_charite_phenos_canon$>** phenos that Charité does not cover in causation mentions
