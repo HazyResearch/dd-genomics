@@ -44,8 +44,10 @@ CREATE TABLE genevariant_pairs_sentences AS (
       OR dm.source_year < $START_YEAR
   GROUP BY
     gv.doc_id, 
-    gv.section_id, 
-    gv.sent_id
+    gv.gene_section_id, 
+    gv.gene_sent_id,
+    gv.variant_section_id, 
+    gv.variant_sent_id
 );
 EOF
 psql -q -X --set ON_ERROR_STOP=1 -d $DB -f ${SQL_COMMAND_FILE} || exit 1
@@ -80,8 +82,10 @@ do
         dm.source_year = $i
     GROUP BY
       gv.doc_id, 
-      gv.section_id, 
-      gv.sent_id
+      gv.gene_section_id, 
+      gv.gene_sent_id,
+      gv.variant_section_id, 
+      gv.variant_sent_id
   );
 EOF
   psql -q -X --set ON_ERROR_STOP=1 -d $DB -f ${SQL_COMMAND_FILE} || exit 1
@@ -115,8 +119,10 @@ INSERT INTO genevariant_pairs_sentences (
       dm.source_year is null
   GROUP BY
     gv.doc_id, 
-    gv.section_id, 
-    gv.sent_id
+    gv.gene_section_id, 
+    gv.gene_sent_id,
+    gv.variant_section_id, 
+    gv.variant_sent_id
 );
 EOF
 psql -q -X --set ON_ERROR_STOP=1 -d $DB -f ${SQL_COMMAND_FILE} || exit 1
