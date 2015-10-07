@@ -287,6 +287,13 @@ CREATE TABLE charite_canon (
   ensembl_id text
 );
 
+DROP TABLE IF EXISTS charite CASCADE;
+CREATE TABLE charite (
+  hpo_id text,
+  ensembl_id text,
+  source text
+);
+
 DROP TABLE IF EXISTS dummy CASCADE;
 CREATE TABLE dummy (
   a int,

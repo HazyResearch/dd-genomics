@@ -17,7 +17,7 @@ SELECT
   tp.tp true_pos,
   fp.fp false_pos,
   (tp.tp + fp.fp) positives,
-  (tp.tp::float / (tp.tp::float + fp.fp::float)) precision
+  (tp.tp::float / (tp.tp::float + fp.fp::float)) as precision
 FROM
   (SELECT
     labeler,
@@ -53,7 +53,7 @@ SELECT
   tp.tp true_pos,
   fp.fp false_pos,
   (tp.tp + fp.fp) positives,
-  (tp.tp::float / (tp.tp::float + fp.fp::float)) precision
+  (tp.tp::float / (tp.tp::float + fp.fp::float)) as precision
 FROM
   (SELECT
     labeler,
