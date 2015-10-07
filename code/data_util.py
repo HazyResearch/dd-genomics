@@ -74,9 +74,8 @@ def load_hgvs_to_hpo():
   hgvs_to_hpo = defaultdict(set)
   with open(onto_path('data/hgvs_to_hpo.tsv'), 'rb') as f:
     for line in f:
-      hgvs_ids, hpo_ids = line.strip().split('\t')
-      for hgvs_id in hgvs_ids.split('|'):
-        hgvs_to_hpo[hgvs_id].update(hpo_ids.split('|'))
+      hgvs_id, hpo_id = line.strip().split('\t')
+      hgvs_to_hpo[hgvs_id].update(hpo_id)
   return hgvs_to_hpo
 
 def load_pmid_to_hpo():

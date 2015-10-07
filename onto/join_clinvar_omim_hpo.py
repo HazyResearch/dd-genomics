@@ -22,4 +22,6 @@ with open('raw/clinvar.tsv', 'rb') as f:
       omim_id = omim_match.group(1)
       hpos = disease_to_hpos.get(omim_id)
       if hpos:
-        print '%s\t%s' % ('|'.join(hgvs), '|'.join(hpos))
+        for variant in hgvs:
+          for pheno in hpos:
+            print '%s\t%s' % (variant, pheno)

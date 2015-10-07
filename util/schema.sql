@@ -294,6 +294,12 @@ CREATE TABLE charite (
   source text
 );
 
+DROP TABLE IF EXISTS hgvs_hpo CASCADE;
+CREATE TABLE hgvs_hpo (
+  variant text,
+  hpo_id text
+);
+
 DROP TABLE IF EXISTS dummy CASCADE;
 CREATE TABLE dummy (
   a int,
