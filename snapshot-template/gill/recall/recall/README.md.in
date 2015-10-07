@@ -1,0 +1,53 @@
+<$
+report-log "Creating a few recall stats 1"
+num_documents=$(run-sql "
+SELECT 
+")
+
+# store the numbers
+report-values \
+    num_documents=$num_documents \
+    #
+$>
+
+### What fraction of genes is covered? (in genephenopairs after inference)
+
+* **Charité covers <$ printf "%'d (%.2f%%)" $num_charite_genes $frac_charite_genes $> genes** 
+
+* **We cover <$ printf "%'d (%.2f%%)" $num_our_genes_assoc $frac_our_genes_assoc $> genes (after inference in genepheno association pairs)** 
+* **We cover <$ printf "%'d (%.2f%%)" $num_our_genes_cause $frac_our_genes_cause $> genes (after inference in genepheno causation pairs)**
+
+* **Charité covers <$ printf "%'d" $num_charite_not_our_assoc_genes$> genes that we do not cover in association mentions** 
+* **Charité covers <$ printf "%'d" $num_charite_not_our_cause_genes$> genes that we do not cover in causation mentions** 
+
+* **We cover <$ printf "%'d" $num_our_assoc_not_charite_genes$> genes that Charité does not cover in association mentions** 
+* **We cover <$ printf "%'d" $num_our_cause_not_charite_genes$> genes that Charité does not cover in causation mentions** 
+
+### What fraction of phenotypes is covered? (in genepheno pairs after inference, NOT CANONICALIZED)
+
+* **Charité covers <$ printf "%'d (%.2f%%)" $num_charite_phenos $frac_charite_phenos $> phenos** 
+
+* **We cover <$ printf "%'d (%.2f%%)" $num_our_phenos_assoc $frac_our_phenos_assoc $> phenos (after inference in genepheno association pairs)** 
+* **We cover <$ printf "%'d (%.2f%%)" $num_our_phenos_cause $frac_our_phenos_cause $> phenos (after inference in genepheno causation pairs)** 
+
+* **Charité covers <$ printf "%'d" $num_charite_not_our_assoc_phenos$> phenos that we do not cover in association mentions** 
+* **Charité covers <$ printf "%'d" $num_charite_not_our_cause_phenos$> phenos that we do not cover in causation mentions** 
+
+* **We cover <$ printf "%'d" $num_our_assoc_not_charite_phenos$> phenos that Charité does not cover in association mentions** 
+* **We cover <$ printf "%'d" $num_our_cause_not_charite_phenos$> phenos that Charité does not cover in causation mentions** 
+
+### What fraction of phenotypes is covered? (in genepheno pairs after inference, CANONICALIZED)
+
+**DO NOT FORGET TO RUN ./run.sh canonicalize AFTER INFERENCE OR THIS WILL BE PITIFULLY WRONG**
+
+* **Charité covers <$ printf "%'d (%.2f%%)" $num_charite_phenos_canon $frac_charite_phenos_canon $> pheno (canonicalized)** 
+
+* **We cover <$ printf "%'d (%.2f%%)" $num_our_phenos_assoc_canon $frac_our_phenos_assoc_canon $> phenos (after inference in genepheno association pairs, canonicalized)** 
+* **We cover <$ printf "%'d (%.2f%%)" $num_our_phenos_cause_canon $frac_our_phenos_cause_canon $> phenos (after inference in genepheno causation pairs, canonicalized)** 
+
+* **Charité covers <$ printf "%'d" $num_charite_not_our_assoc_phenos_canon$> phenos that we do not cover in association mentions** 
+* **Charité covers <$ printf "%'d" $num_charite_not_our_cause_phenos_canon$> phenos that we do not cover in causation mentions** 
+
+* **We cover <$ printf "%'d" $num_our_assoc_not_charite_phenos_canon$> phenos that Charité does not cover in association mentions** 
+* **We cover <$ printf "%'d" $num_our_cause_not_charite_phenos_canon$> phenos that Charité does not cover in causation mentions** 
+
