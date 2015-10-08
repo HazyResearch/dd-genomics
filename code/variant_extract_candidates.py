@@ -46,8 +46,8 @@ def comp_gv_rgx():
   b = r'ATCGatcgu'
 
   s1 = r'0-9\_\.\:'
-  s2 = r'\/\>\?\(\)\[\]\;\:\*\_\-\+0-9'
-  s3 = r'\/\>\<\?\(\)\[\]\;\:\*\_\-\+0-9'
+  s2 = r'\/>\?\(\)\[\]\;\:\*\_\-\+0-9'
+  s3 = r'\/><\?\(\)\[\]\;\:\*\_\-\+0-9'
 
   b1 = r'[%s]' % b
   bs1 = r'[%s%s]' % (b,s1)
@@ -74,48 +74,54 @@ def comp_gv_rgx():
     (r'([p]\.[A-Z][a-z]{0,2}[\W\-]{0,1}[0-9]+[\W\-]{0,1}([A-Z][a-z]{0,2}|(fs|fsx|fsX)))', 'p')]
 
   # Just return as one giant regex for now
-  return r'|'.join([gvr[0] for gvr in GV_RGXS])
+  return [gvr[0] for gvr in GV_RGXS]
 
-def extract_candidate_mentions(row, gv_rgx):
+def extract_candidate_mentions(row, gv_rgxs):
   mentions = []
   for i,word in enumerate(row.words):
-    if re.match(gv_rgx, word, flags=re.I):
-      mentions.append(Mention(
-        dd_id=None, 
-        doc_id=row.doc_id, 
-        section_id=row.section_id,
-        sent_id=row.sent_id,
-        wordidxs=[i],
-        mention_id='%s_%s_%s_%s_GV' % (row.doc_id, row.section_id, row.sent_id, i),
-        mention_supertype='GV_RGX_MATCH',
-        mention_subtype=None,
-        entity=word,
-        words=[word],
-        is_correct=True))
+    for gv_rgx in gv_rgxs:
+      gv_rgx = '^(%s)$' % gv_rgx
+      if re.match(gv_rgx, word, flags=re.I):
+        mentions.append(Mention(
+          dd_id=None, 
+          doc_id=row.doc_id, 
+          section_id=row.section_id,
+          sent_id=row.sent_id,
+          wordidxs=[i],
+          mention_id='%s_%s_%s_%s_GV' % (row.doc_id, row.section_id, row.sent_id, i),
+          mention_supertype='GV_RGX_MATCH_1',
+          mention_subtype=gv_rgx.replace('|', '/').replace('\\', '/'),
+          entity=word,
+          words=[word],
+          is_correct=True))
+        break
 
-    # Sometimes some of the regex patterns get split up
-    elif re.match(r'[cgrm]\.|IVS.*', word):
-      for j in range(i+1, min(i+7, len(row.words))):
-        words = row.words[i:j]
-        if re.match(gv_rgx, ''.join(words), flags=re.I):
-          mentions.append(Mention(
-            dd_id=None, 
-            doc_id=row.doc_id, 
-            section_id=row.section_id,
-            sent_id=row.sent_id,
-            wordidxs=range(i,j),
-            mention_id='%s_%s_%s_%s_%s_GV' % (row.doc_id, row.section_id, row.sent_id, i, j),
-            mention_supertype='GV_RGX_MATCH',
-            mention_subtype=None,
-            entity=''.join(words),
-            words=words,
-            is_correct=True))
-          break
+      # Sometimes some of the regex patterns get split up
+      elif re.match(r'[cgrmp]\.|IVS.*', word):
+        for j in reversed(range(i+1, min(i+7, len(row.words)))):
+          words = row.words[i:j]
+          if re.match(gv_rgx, ''.join(words), flags=re.I):
+            mentions.append(Mention(
+              dd_id=None, 
+              doc_id=row.doc_id, 
+              section_id=row.section_id,
+              sent_id=row.sent_id,
+              wordidxs=range(i,j),
+              mention_id='%s_%s_%s_%s_%s_GV' % (row.doc_id, row.section_id, row.sent_id, i, j),
+              mention_supertype='GV_RGX_MATCH_%d' % (j - i),
+              mention_subtype=gv_rgx.replace('|', '/').replace('\\', '/'),
+              entity=''.join(words),
+              words=words,
+              is_correct=True))
+            break
+        else:
+          continue
+        break
   return mentions
 
 
 if __name__ == '__main__':
-  GV_RGX = r'^(%s)$' % comp_gv_rgx()
+  GV_RGXs = comp_gv_rgx()
   for line in sys.stdin:
     row = parser.parse_tsv_row(line)
 
@@ -124,7 +130,7 @@ if __name__ == '__main__':
       continue
 
     # Find candidate mentions & supervise
-    mentions = extract_candidate_mentions(row, GV_RGX)
+    mentions = extract_candidate_mentions(row, GV_RGXs)
 
     # print output
     for mention in mentions:
