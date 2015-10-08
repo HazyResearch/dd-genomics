@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import collections
 import extractor_util as util
 import data_util as dutil
@@ -59,13 +61,23 @@ bs3 = r'[%s %s]' % (b,s3)
 
 c1 = r'(inv|del|ins|dup|tri|qua|con|delins|indel)'
 c2 = r'(del|ins|dup|tri|qua|con|delins|indel)'
-c3 = r'(inv|del|ins|dup|tri|qua|con|delins|indel|fsX|fsx|fs)'
+c3 = r'([Ii]nv|[Dd]el|[Ii]ns|[Dd]up|[Tt]ri|[Qq]ua|[Cc]on|[Dd]elins|[Ii]ndel|fsX|fsx|fs)'
 
 p = r'CISQMNPKDTFAGHLRWVEYX'
 ps2 = r'[%s %s]' % (p, s2)
 ps3 = r'[%s %s]' % (p, s3)
 
-d = '[ATCGRYUatcgryu]'
+d = '[ATCGRYU]'
+
+aa_long_to_short = {'CYS': 'C', 'ASP': 'D', 'SER': 'S', 'GLN': 'Q', 'LYS': 'K',
+  'ILE': 'I', 'PRO': 'P', 'THR': 'T', 'PHE': 'F', 'ASN': 'N', 
+  'GLY': 'G', 'HIS': 'H', 'LEU': 'L', 'ARG': 'R', 'TRP': 'W', 
+  'ALA': 'A', 'VAL':'V', 'GLU': 'E', 'TYR': 'Y', 'MET': 'M'}
+aa_camel = {}
+for aa in aa_long_to_short:
+  aa_camel[aa[0] + aa[1].lower() + aa[2].lower()] = aa_long_to_short[aa]
+
+aal = '(' + '|'.join([x for x in aa_long_to_short] + [x for x in aa_camel]) + ')'
 
 # regexes from tmVar paper
 # See Table 3 in http://bioinformatics.oxfordjournals.org/content/early/2013/04/04/bioinformatics.btt156.full.pdf
@@ -152,7 +164,7 @@ def extract_candidate_mentions(row, gv_rgxs):
   return mentions
 
 def extract_relative_coords(mention):
-  m = re.match(r'^([cgrnm]\.)?([0-9]+)(_([0-9]+))?([\+\-][0-9]+)?(%s)(%s*)' % (c3, d), mention.entity)
+  m = re.match(r'^([cgrnm]\.)?([0-9]+)([_-]+([0-9]+))?([\+\-][0-9]+)?(%s)(%s+)?' % (c3, d), mention.entity)
   if m:
     mtype = m.group(6)
     if mention.entity.startswith('c.'):
@@ -168,14 +180,17 @@ def extract_relative_coords(mention):
     else:
       vtype = 'DNA_%s' % mtype
     fromPos = m.group(2)
-    toPos = m.group(4) 
+    toPos = m.group(4)
+    seq = m.group(8)
+    if seq:
+      seq = seq.upper()
     if toPos is not None and m.group(3) != '':
-      mention = mention._replace(variant_type = vtype, fromPos = fromPos, toPos = toPos, posPlus = m.group(5), seq = m.group(6).upper())
+      mention = mention._replace(variant_type = vtype, fromPos = fromPos, toPos = toPos, posPlus = m.group(5), seq = seq)
     else:
-      mention = mention._replace(variant_type = vtype, pos = fromPos, posPlus = m.group(5), seq = m.group(6).upper())
+      mention = mention._replace(variant_type = vtype, pos = fromPos, posPlus = m.group(5), seq = seq)
     return mention
 
-  m = re.match(r'^[cgrnm]\.([0-9]+)?([\+\-][0-9]+)?(%s)>(%s)' % (d, d), mention.entity)
+  m = re.match(r'^[cgrnm]\.([0-9]+)?([\+\-][0-9]+)?(%s)[>/→](%s)' % (d, d), mention.entity)
   if m: 
     if mention.entity.startswith('c.'):
       vtype = 'coding_SNP'
@@ -190,9 +205,15 @@ def extract_relative_coords(mention):
     mention = mention._replace(variant_type = vtype, pos = m.group(1), posPlus = m.group(2), fromSeq = m.group(3).upper(), toSeq = m.group(4).upper())
     return mention
 
-  m = re.match(r'^p\.([%s])([0-9]+)([%s])' % (p, p), mention.entity)
+  m = re.match(r'^p\.(([%s])|%s)([0-9]+)(([%s])|%s)' % (p, aal, p, aal), mention.entity)
   if m:
-    mention = mention._replace(variant_type = 'protein_SAP', pos = m.group(2), fromSeq = m.group(1), toSeq = m.group(3))
+    fromSeq = m.group(1)
+    if fromSeq.upper() in aa_long_to_short:
+      fromSeq = aa_long_to_short[fromSeq.upper()]
+    toSeq = m.group(5)
+    if toSeq.upper() in aa_long_to_short:
+      toSeq = aa_long_to_short[toSeq.upper()]
+    mention = mention._replace(variant_type = 'protein_SAP', pos = m.group(4), fromSeq = fromSeq, toSeq = toSeq)
     return mention
 
   m = re.match(r'^(%s)([0-9]+)(%s)' % (d, d), mention.entity)
