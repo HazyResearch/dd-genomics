@@ -40,6 +40,14 @@ CREATE TABLE variant_mentions (
 	supertype text,
         subtype text,
 	entity text,
+        variant_type text,
+        pos text,
+        posPlus text,
+        fromPos text,
+        toPos text,
+        seq text,
+        fromSeq text,
+        toSeq text,
 	words text[],
 	is_correct boolean
 ) ;
