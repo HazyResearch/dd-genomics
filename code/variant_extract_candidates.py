@@ -164,7 +164,28 @@ def extract_candidate_mentions(row, gv_rgxs):
   return mentions
 
 def extract_relative_coords(mention):
-  m = re.match(r'^([cgrnm]\.)?([0-9]+)([_-]+([0-9]+))?([\+\-][0-9]+)?(%s)(%s+)?' % (c3, d), mention.entity)
+  m = re.match(r'^([cgrnm]\.)?([0-9]+)([_-]+([0-9]+))([\+\-\*][0-9]+)?(%s)[>/→](%s)' % (d, d), mention.entity)
+  if m:
+    if mention.entity.startswith('c.'):
+      vtype = 'coding_range_mut'
+    elif mention.entity.startswith('g.'):
+      vtype = 'gene_range_mut'
+    elif mention.entity.startswith('r.'):
+      vtype = 'RNA_range_mut'
+    elif mention.entity.startswith('n.'):
+      vtype = 'noncoding_range_mut'
+    elif mention.entity.startswith('m.'):
+      vtype = 'mitochondrial_range_mut'
+    else:
+      vtype = 'DNA_range_mut' % mtype
+    fromPos = m.group(2)
+    toPos = m.group(4)
+    fromSeq = m.group(6)
+    toSeq = m.group(7)
+    mention = mention._replace(variant_type = vtype, fromPos = fromPos, toPos = toPos, posPlus = m.group(5), fromSeq = fromSeq, toSeq = toSeq)
+    return mention
+
+  m = re.match(r'^([cgrnm]\.)?([0-9]+)([_-]+([0-9]+))?([\+\-\*][0-9]+)?(%s)(%s+)?' % (c3, d), mention.entity)
   if m:
     mtype = m.group(6)
     if mention.entity.startswith('c.'):
@@ -190,7 +211,7 @@ def extract_relative_coords(mention):
       mention = mention._replace(variant_type = vtype, pos = fromPos, posPlus = m.group(5), seq = seq)
     return mention
 
-  m = re.match(r'^[cgrnm]\.([0-9]+)?([\+\-][0-9]+)?(%s)[>/→](%s)' % (d, d), mention.entity)
+  m = re.match(r'^[cgrnm]\.([0-9]+)?([\+\-\*][0-9]+)?(%s)[>/→](%s)' % (d, d), mention.entity)
   if m: 
     if mention.entity.startswith('c.'):
       vtype = 'coding_SNP'
@@ -205,6 +226,21 @@ def extract_relative_coords(mention):
     mention = mention._replace(variant_type = vtype, pos = m.group(1), posPlus = m.group(2), fromSeq = m.group(3).upper(), toSeq = m.group(4).upper())
     return mention
 
+  m = re.match(r'^[cgrnm]\.([0-9]+)?([\+\-\*][0-9]+)?(%s)' % (d), mention.entity)
+  if m: 
+    if mention.entity.startswith('c.'):
+      vtype = 'coding_SNP_from_U'
+    if mention.entity.startswith('g.'):
+      vtype = 'gene_SNP_from_U'
+    if mention.entity.startswith('r.'):
+      vtype = 'RNA_SNP_from_U'
+    if mention.entity.startswith('n.'):
+      vtype = 'noncoding_SNP_from_U'
+    if mention.entity.startswith('m.'):
+      vtype = 'mitochondrial_SNP_from_U'
+    mention = mention._replace(variant_type = vtype, pos = m.group(1), posPlus = m.group(2), fromSeq = 'U', toSeq = m.group(3).upper())
+    return mention
+
   m = re.match(r'^p\.(([%s])|%s)([0-9]+)(([%s])|%s)' % (p, aal, p, aal), mention.entity)
   if m:
     fromSeq = m.group(1)
@@ -214,6 +250,29 @@ def extract_relative_coords(mention):
     if toSeq.upper() in aa_long_to_short:
       toSeq = aa_long_to_short[toSeq.upper()]
     mention = mention._replace(variant_type = 'protein_SAP', pos = m.group(4), fromSeq = fromSeq, toSeq = toSeq)
+    return mention
+
+  m = re.match(r'^p\.(([%s])|%s)([0-9]+)[_-]+(([%s])|%s)([0-9]+)(%s)' % (p, aal, p, aal, c3), mention.entity)
+  if m:
+    fromSeq = m.group(1)
+    toSeq = m.group(5)
+    fromPos = m.group(4)
+    toPos = m.group(8)
+    mtype = m.group(9)
+    if fromSeq.upper() in aa_long_to_short:
+      fromSeq = aa_long_to_short[fromSeq.upper()]
+    if toSeq.upper() in aa_long_to_short:
+      toSeq = aa_long_to_short[toSeq.upper()]
+    mention = mention._replace(variant_type = 'protein_%s' % mtype, fromSeq = fromSeq, toSeq = toSeq, fromPos = fromPos, toPos = toPos)
+    return mention
+
+  m = re.match(r'^p\.(([%s])|%s)([0-9]+)(%s)' % (p, aal, c3), mention.entity)
+  if m:
+    seq = m.group(1)
+    mtype = m.group(5)
+    if seq.upper() in aa_long_to_short:
+      seq = aa_long_to_short[seq.upper()]
+    mention = mention._replace(variant_type = 'protein_%s_mut' % mtype, pos = m.group(3), seq = seq)
     return mention
 
   m = re.match(r'^(%s)([0-9]+)(%s)' % (d, d), mention.entity)
