@@ -27,18 +27,18 @@ parser = util.RowParser([
           ('pa_sent_ids', 'int[]')])
 
 ExpandedRow = namedtuple('ExpandedRow', [
-          ('doc_id', 'text'),
-          ('section_id', 'text'),
-          ('sent_id', 'int'),
-          ('words', 'text[]'),
-          ('lemmas', 'text[]'),
-          ('poses', 'text[]'),
-          ('ners', 'text[]'),
-          ('pa_abbrev', 'text'),
-          ('pheno_entity', 'text'),
-          ('pa_doc_id', 'text'),
-          ('pa_section_id', 'text'),
-          ('pa_sent_id', 'int')])
+          'doc_id',
+          'section_id',
+          'sent_id',
+          'words',
+          'lemmas',
+          'poses',
+          'ners',
+          'pa_abbrev',
+          'pheno_entity',
+          'pa_doc_id',
+          'pa_section_id',
+          'pa_sent_id'])
 
 
 
@@ -60,6 +60,7 @@ def expand_array_rows(array_row):
   for i, pa_abbrev in enumerate(array_row.pa_abbrevs):
     row = ExpandedRow(doc_id = array_row.doc_id,
                       section_id = array_row.section_id,
+                      sent_id = array_row.sent_id,
                       words = array_row.words,
                       lemmas = array_row.lemmas,
                       poses = array_row.poses,
@@ -67,7 +68,7 @@ def expand_array_rows(array_row):
                       pa_abbrev = pa_abbrev,
                       pheno_entity = array_row.pheno_entities[i],
                       pa_doc_id = array_row.pa_doc_ids[i],
-                      pa_section_id = array_row.pa_sectionids[i],
+                      pa_section_id = array_row.pa_section_ids[i],
                       pa_sent_id = array_row.pa_sent_ids[i])
     yield row
 
@@ -127,7 +128,11 @@ if __name__ == '__main__':
   # Read TSV data in as Row objects
   for line in sys.stdin:
     array_row = parser.parse_tsv_row(line)
+    abbrevs = set()
     for row in expand_array_rows(array_row):
+      if row.pa_abbrev in abbrevs:
+        continue
+      abbrevs.add(row.pa_abbrev)
   
       # Skip row if sentence doesn't contain a verb, contains URL, etc.
       if util.skip_row(row):
