@@ -65,6 +65,9 @@ def extract_candidate_mentions(row):
   gene_name_to_genes = CACHE['gene_name_to_genes']
   mentions = []
   for i, word in enumerate(row.words):
+    if HF['require-one-letter']:
+      if not re.match(r'.*[a-zA-Z].*', word):
+        continue
     if (word in gene_name_to_genes):
       matches = gene_name_to_genes[word]
       mapping_types = set()

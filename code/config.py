@@ -74,7 +74,9 @@ GENE = {
       'NONCANONICAL_SYMBOL' : 3, 
       'ENSEMBL_ID' : 3, 
       'REFSEQ' : 3
-    }
+    },
+
+    'require-one-letter': True
   },
 
   ## Supervision Rules
