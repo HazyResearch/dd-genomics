@@ -41,6 +41,7 @@ CREATE TABLE variant_mentions (
         subtype text,
 	entity text,
         variant_type text,
+        ivsNum text,
         pos text,
         posPlus text,
         fromPos text,
