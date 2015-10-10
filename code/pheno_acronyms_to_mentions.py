@@ -22,7 +22,6 @@ parser = util.RowParser([
           ('ners', 'text[]'),
           ('pa_abbrevs', 'text[]'),
           ('pheno_entities', 'text[]'),
-          ('pa_doc_ids', 'text[]'),
           ('pa_section_ids', 'text[]'),
           ('pa_sent_ids', 'int[]')])
 
@@ -36,7 +35,6 @@ ExpandedRow = namedtuple('ExpandedRow', [
           'ners',
           'pa_abbrev',
           'pheno_entity',
-          'pa_doc_id',
           'pa_section_id',
           'pa_sent_id'])
 
@@ -67,7 +65,6 @@ def expand_array_rows(array_row):
                       ners = array_row.ners,
                       pa_abbrev = pa_abbrev,
                       pheno_entity = array_row.pheno_entities[i],
-                      pa_doc_id = array_row.pa_doc_ids[i],
                       pa_section_id = array_row.pa_section_ids[i],
                       pa_sent_id = array_row.pa_sent_ids[i])
     yield row
@@ -89,7 +86,7 @@ def extract_candidate_mentions(row):
             i, \
             i, \
             row.pheno_entity)
-      subtype = '%s_%s_%d_%s' % (row.pa_doc_id, row.pa_section_id, row.pa_sent_id, row.pa_abbrev)
+      subtype = '%s_%s_%d_%s' % (row.doc_id, row.pa_section_id, row.pa_sent_id, row.pa_abbrev)
       m = Mention(None, row.doc_id, row.section_id, row.sent_id,
           [i], mention_id, "ABBREV", subtype, row.pheno_entity,
           [word], True)
@@ -112,10 +109,9 @@ def generate_rand_negatives(row, pos, neg):
             i, \
             i, \
             row.pheno_entity)
-      subtype = '%s_%s_%d_%s' % (row.pa_doc_id, row.pa_section_id, row.pa_sent_id, row.pa_abbrev)
+      subtype = '%s_%s_%d_%s' % (row.doc_id, row.pa_section_id, row.pa_sent_id, row.pa_abbrev)
       m = Mention(None, row.doc_id, row.section_id, row.sent_id, 
           [i], mention_id, 'ABBREV_RAND_NEG', subtype, None, [word], False)
-      mentions.append(m)
       neg += 1
   return mentions
 
@@ -149,3 +145,4 @@ if __name__ == '__main__':
       # print output
       for mention in mentions:
         util.print_tsv_output(mention)
+#!/usr/bin/env python
