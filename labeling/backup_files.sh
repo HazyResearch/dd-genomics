@@ -22,5 +22,5 @@ do
     echo "$f $name"
     cp $f $newdir/$name
   done
-  sleep 120
+  sleep 600
 done

@@ -41,14 +41,14 @@ CREATE TABLE sentences_input (
   dep_parents text
  ) DISTRIBUTED BY (doc_id, section_id);
 
--- DROP INDEX IF EXISTS sentences_input_doc_id;
--- CREATE INDEX sentences_input_doc_id ON sentences_input (doc_id);
--- DROP INDEX IF EXISTS sentences_input_section_id;
--- CREATE INDEX sentences_input_section_id ON sentences_input (section_id);
--- DROP INDEX IF EXISTS sentences_input_sent_id;
--- CREATE INDEX sentences_input_sent_id ON sentences_input (sent_id);
--- DROP INDEX IF EXISTS sentences_input_ref_doc_id;
--- CREATE INDEX sentences_input_ref_doc_id ON sentences_input (ref_doc_id);
+DROP INDEX IF EXISTS sentences_input_doc_id;
+CREATE INDEX sentences_input_doc_id ON sentences_input (doc_id);
+DROP INDEX IF EXISTS sentences_input_section_id;
+CREATE INDEX sentences_input_section_id ON sentences_input (section_id);
+DROP INDEX IF EXISTS sentences_input_sent_id;
+CREATE INDEX sentences_input_sent_id ON sentences_input (sent_id);
+DROP INDEX IF EXISTS sentences_input_ref_doc_id;
+CREATE INDEX sentences_input_ref_doc_id ON sentences_input (ref_doc_id);
 
 -- Distantly supervision via MeSH: HPO to document map
 DROP TABLE IF EXISTS hpo_to_doc_via_mesh CASCADE;
