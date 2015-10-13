@@ -141,7 +141,7 @@ def extract_candidate_mentions(row, gv_rgxs):
   return mentions
 
 def extract_relative_coords(mention):
-  m = re.match(r'^([cgrnm]\.)?([0-9]+)([_-]+([0-9]+))([\+\-\*][0-9]+)?(%s)[->/→](%s)' % (d, d), mention.entity)
+  m = re.match(r'^([cgrnm]\.)?([0-9]+)([_]+([0-9]+))([\+\-\*][0-9]+)?(%s)[->/→](%s)' % (d, d), mention.entity)
   if m:
     if mention.entity.startswith('c.'):
       vtype = 'coding_range_mut'
@@ -162,7 +162,7 @@ def extract_relative_coords(mention):
     mention = mention._replace(variant_type = vtype, fromPos = fromPos, toPos = toPos, posPlus = m.group(5), fromSeq = fromSeq, toSeq = toSeq)
     return mention
 
-  m = re.match(r'^([cgrnm]\.)?([0-9]+)([_-]+([0-9]+))?([\+\-\*][0-9]+)?(%s)(%s+)?' % (c3, d), mention.entity)
+  m = re.match(r'^([cgrnm]\.)?([0-9]+)([_]+([0-9]+))?([\+\-\*][0-9]+)?(%s)(%s+)?' % (c3, d), mention.entity)
   if m:
     mtype = m.group(6)
     if mention.entity.startswith('c.'):
@@ -249,7 +249,7 @@ def extract_relative_coords(mention):
     mention = mention._replace(variant_type = 'protein_SAP', pos = m.group(4), fromSeq = fromSeq, toSeq = toSeq)
     return mention
 
-  m = re.match(r'^p\.(([%s])|%s)([0-9]+)[_-]+(([%s])|%s)([0-9]+)(%s)' % (p, aal, p, aal, c3), mention.entity)
+  m = re.match(r'^p\.(([%s])|%s)([0-9]+)[_]+(([%s])|%s)([0-9]+)(%s)' % (p, aal, p, aal, c3), mention.entity)
   if m:
     fromSeq = m.group(1)
     toSeq = m.group(5)
