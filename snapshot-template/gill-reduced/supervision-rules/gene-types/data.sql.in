@@ -1,0 +1,8 @@
+SELECT
+  name_type,
+  count(name_type)
+FROM
+  gene_mentions gm
+  JOIN genes g 
+    ON (gm.gene_name = g.gene_name)
+GROUP BY name_type

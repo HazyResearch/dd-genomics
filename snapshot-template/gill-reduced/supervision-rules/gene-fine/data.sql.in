@@ -1,0 +1,5 @@
+SELECT count(*) as count, supertype, subtype
+FROM gene_mentions
+GROUP BY supertype, subtype
+ORDER BY count DESC
+LIMIT 1000

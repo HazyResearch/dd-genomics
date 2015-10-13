@@ -1,0 +1,15 @@
+SELECT 
+  a.canonical_name cname, a.gene_name gname, pheno_entity, hpo.pheno_name, count(*) ct, in_charite sv, (array_agg(array_to_string(string_to_array(si.words, '|^|'), ' ')))[1]
+FROM 
+(SELECT g.canonical_name, gc.gene_name, gc.pheno_entity, gc.doc_id, gc.section_id, gc.sent_id , (CASE WHEN cc.hpo_id IS NULL THEN 'N' ELSE 'Y' END) AS in_charite FROM genepheno_causation gc join genes g on (gc.gene_name = g.gene_name)
+  LEFT JOIN charite_canon cc ON (g.ensembl_id = cc.ensembl_id AND gc.pheno_entity = cc.hpo_id)
+WHERE 
+  gc.is_correct != 'f' OR gc.is_correct IS NULL 
+) a
+  JOIN
+  hpo_abnormalities hpo
+    ON (hpo.hpo_id = a.pheno_entity)
+    join sentences_input si on (a.doc_id = si.doc_id and a.section_id = si.section_id and a.sent_id = si.sent_id)
+GROUP BY canonical_name, pheno_entity, hpo.pheno_name, a.gene_name, in_charite
+ORDER BY ct DESC
+LIMIT 1000

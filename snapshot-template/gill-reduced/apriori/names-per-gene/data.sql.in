@@ -1,0 +1,10 @@
+SELECT
+  canonical_name,
+  count(gene_name)
+FROM
+  genes
+GROUP BY
+  canonical_name
+HAVING count(gene_name) >= 2
+ORDER BY
+  count desc

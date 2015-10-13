@@ -1,0 +1,169 @@
+<$
+report-log "Creating a few stats 1"
+num_gene_mentions=$(run-sql "
+SELECT count(*)
+FROM
+  (SELECT DISTINCT * FROM gene_mentions) a
+") 
+report-log "Creating a few stats 1"
+num_supervised_true_gene_mentions=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions WHERE is_correct = 't') a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions) b) bc
+")
+report-log "Creating a few stats 1"
+num_inferred_true_gene_mentions=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions_filtered_is_correct_inference WHERE expectation > 0.9) a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions) b) bc
+")
+report-log "Creating a few stats 1"
+num_supervised_false_gene_mentions=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions WHERE is_correct = 'f') a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions) b) bc
+")
+report-log "Creating a few stats 1"
+num_supervised_gene_mentions=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions WHERE is_correct IS NOT NULL) a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM gene_mentions) b) bc
+")
+report-log "Creating a few stats 1"
+num_pheno_mentions=$(run-sql "
+SELECT count(*)
+FROM
+  (SELECT DISTINCT * FROM pheno_mentions) a
+")
+report-log "Creating a few stats 1"
+num_supervised_true_pheno_mentions=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM pheno_mentions WHERE is_correct = 't') a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM pheno_mentions) b) bc
+")
+report-log "Creating a few stats 1"
+num_inferred_true_pheno_mentions=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM pheno_mentions_filtered_is_correct_inference WHERE expectation > 0.9) a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM pheno_mentions) b) bc
+")
+report-log "Creating a few stats 1"
+num_supervised_false_pheno_mentions=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM pheno_mentions WHERE is_correct = 'f') a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM pheno_mentions) b) bc
+")
+report-log "Creating a few stats 1"
+num_supervised_pheno_mentions=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM pheno_mentions WHERE is_correct IS NOT NULL) a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM pheno_mentions) b) bc
+")
+report-log "Creating a few stats 1"
+num_genepheno_association=$(run-sql "
+SELECT count(*)
+FROM
+  (SELECT DISTINCT * FROM genepheno_association) a
+")
+report-log "Creating a few stats 1"
+num_supervised_true_genepheno_association=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_association WHERE is_correct = 't') a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_association) b) bc
+")
+report-log "Creating a few stats 1"
+num_inferred_true_genepheno_association=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_association_is_correct_inference WHERE expectation > 0.9) a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_association) b) bc
+")
+report-log "Creating a few stats 1"
+num_supervised_false_genepheno_association=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_association WHERE is_correct = 'f') a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_association) b) bc
+")
+report-log "Creating a few stats 1"
+num_supervised_genepheno_association=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_association WHERE is_correct IS NOT NULL) a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_association) b) bc
+")
+report-log "Creating a few stats 1"
+num_genepheno_causation=$(run-sql "
+SELECT count(*)
+FROM
+  (SELECT DISTINCT * FROM genepheno_causation) a
+")
+report-log "Creating a few stats 1"
+num_supervised_true_genepheno_causation=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_causation WHERE is_correct = 't') a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_causation) b) bc
+")
+report-log "Creating a few stats 1"
+num_inferred_true_genepheno_causation=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_causation_is_correct_inference WHERE expectation > 0.9) a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_causation) b) bc
+")
+report-log "Creating a few stats 1"
+num_supervised_false_genepheno_causation=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_causation WHERE is_correct = 'f') a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_causation) b) bc
+")
+report-log "Creating a few stats 1"
+num_supervised_genepheno_causation=$(run-sql "
+SELECT ac.c::float / bc.c::float * 100
+FROM
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_causation WHERE is_correct IS NOT NULL) a) ac,
+  (SELECT count(*) c FROM (SELECT DISTINCT * FROM genepheno_causation) b) bc
+")
+
+# store the numbers
+report-values \
+    num_gene_mentions=$num_gene_mentions \
+    num_supervised_true_gene_mentions=$num_supervised_true_gene_mentions \
+    num_inferred_true_gene_mentions=$num_inferred_true_gene_mentions \
+    num_supervised_false_gene_mentions=$num_supervised_false_gene_mentions \
+    num_supervised_gene_mentions=$num_supervised_gene_mentions \
+    num_pheno_mentions=$num_pheno_mentions \
+    num_supervised_true_pheno_mentions=$num_supervised_true_pheno_mentions \
+    num_inferred_true_pheno_mentions=$num_inferred_true_gene_mentions \
+    num_supervised_false_pheno_mentions=$num_supervised_false_pheno_mentions \
+    num_supervised_pheno_mentions=$num_supervised_pheno_mentions \
+    num_genepheno_association=$num_genepheno_association \
+    num_supervised_true_genepheno_association=$num_supervised_true_genepheno_association \
+    num_inferred_true_genepheno_association=$num_inferred_true_genepheno_association \
+    num_supervised_false_genepheno_association=$num_supervised_false_genepheno_association \
+    num_supervised_genepheno_association=$num_supervised_genepheno_association \
+    num_genepheno_causation=$num_genepheno_causation \
+    num_supervised_true_genepheno_causation=$num_supervised_true_genepheno_causation \
+    num_inferred_true_genepheno_causation=$num_inferred_true_genepheno_causation \
+    num_supervised_false_genepheno_causation=$num_supervised_false_genepheno_causation \
+    num_supervised_genepheno_causation=$num_supervised_genepheno_causation \
+    #
+$>
+
+### Supervision and Inference Percentages (Gene, Pheno, Gene-Pheno)
+
+* <$ printf "**%'d** (non-distinct) gene mentions \n  * **%.2f%%** inferred true \n  * **%.2f%%** supervised true \n  * **%.2f%%** supervised false \n  * **%.2f%%** supervised total" $num_gene_mentions $num_inferred_true_gene_mentions $num_supervised_true_gene_mentions $num_supervised_false_gene_mentions $num_supervised_gene_mentions$>
+* <$ printf "**%'d** (non-distinct) pheno mentions \n  * **%.2f%%** inferred true \n  * **%.2f%%** supervised true \n  * **%.2f%%** supervised false \n  * **%.2f%%** supervised total" $num_pheno_mentions $num_inferred_true_pheno_mentions  $num_supervised_true_pheno_mentions $num_supervised_false_pheno_mentions $num_supervised_pheno_mentions$>
+* <$ printf "**%'d** (non-distinct) genepheno **association** mentions \n  * **%.2f%%** inferred true \n  * **%.2f%%** supervised true \n  * **%.2f%%** supervised false \n  * **%.2f%%** supervised total" $num_genepheno_association $num_inferred_true_genepheno_association $num_supervised_true_genepheno_association $num_supervised_false_genepheno_association $num_supervised_genepheno_association$>
+* <$ printf "**%'d** (non-distinct) genepheno **causation** mentions \n  * **%.2f%%** inferred true \n  * **%.2f%%** supervised true \n  * **%.2f%%** supervised false \n  * **%.2f%%** supervised total" $num_genepheno_causation $num_inferred_true_genepheno_causation $num_supervised_true_genepheno_causation $num_supervised_false_genepheno_causation $num_supervised_genepheno_causation$>

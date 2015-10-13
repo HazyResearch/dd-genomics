@@ -1,0 +1,71 @@
+SELECT 
+  q1.source_name
+  , coalesce(q1.count, 0) as num_docs
+  , coalesce(q4.count, 0) as gp_assoc_cands
+  , to_char(coalesce(q4.count, 0)::float / coalesce((CASE WHEN q1.count = 0 THEN 1 ELSE q1.count END), 1)::float, '999999999D99') as gp_assoc_cands_per_doc
+  , coalesce(q5.count, 0) as gp_caus_cands
+  , to_char(coalesce(q5.count, 0)::float / coalesce((CASE WHEN q1.count = 0 THEN 1 ELSE q1.count END), 1)::float, '999999999D99') as gp_caus_cands_per_doc
+  , coalesce(q6.count, 0) as gp_assoc_infs
+  , to_char(coalesce(q6.count, 0)::float / coalesce((CASE WHEN q1.count = 0 THEN 1 ELSE q1.count END), 1)::float, '999999999D99') as gp_assoc_infs_per_doc
+  , coalesce(q7.count, 0) as gp_caus_infs
+  , to_char(coalesce(q7.count, 0)::float / coalesce((CASE WHEN q1.count = 0 THEN 1 ELSE q1.count END), 1)::float, '999999999D99') as gp_caus_infs_per_doc
+  FROM
+    (SELECT
+      coalesce(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
+      FROM
+        sentences_input si
+        LEFT OUTER JOIN doc_metadata dm ON (si.doc_id = dm.doc_id)
+      GROUP BY
+        source_name
+      ORDER BY
+        count DESC) q1
+    RIGHT OUTER JOIN
+    (SELECT
+      coalesce(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
+      FROM
+        genepheno_association ga 
+        LEFT OUTER JOIN doc_metadata dm ON (ga.doc_id = dm.doc_id)
+      WHERE is_correct != 'f' OR is_correct IS NULL
+      GROUP BY
+        source_name
+      ORDER BY
+        count DESC) q4
+    ON (q1.source_name = q4.source_name)
+    RIGHT OUTER JOIN
+    (SELECT
+      coalesce(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
+      FROM
+        genepheno_causation gc 
+        LEFT OUTER JOIN doc_metadata dm ON (gc.doc_id = dm.doc_id)
+      WHERE is_correct != 'f' OR is_correct IS NULL
+      GROUP BY
+        source_name
+      ORDER BY
+        count DESC) q5
+    ON (q4.source_name = q5.source_name)
+    RIGHT OUTER JOIN
+    (SELECT
+      coalesce(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
+      FROM
+        genepheno_association_is_correct_inference ga 
+        LEFT OUTER JOIN doc_metadata dm ON (ga.doc_id = dm.doc_id)
+      WHERE expectation > 0.9
+      GROUP BY
+        source_name
+      ORDER BY
+        count DESC) q6
+    ON (q5.source_name = q6.source_name)
+    RIGHT OUTER JOIN
+    (SELECT
+      coalesce(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
+      FROM
+        genepheno_causation_is_correct_inference gc 
+        LEFT OUTER JOIN doc_metadata dm ON (gc.doc_id = dm.doc_id)
+      WHERE expectation > 0.9
+      GROUP BY
+        source_name
+      ORDER BY
+        count DESC) q7
+    ON (q6.source_name = q7.source_name)
+ORDER BY num_docs DESC
+LIMIT 1000

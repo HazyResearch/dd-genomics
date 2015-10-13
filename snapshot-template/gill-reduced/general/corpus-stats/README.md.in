@@ -1,0 +1,388 @@
+<$
+report-log "Creating a few corpus stats 1"
+num_documents=$(run-sql "
+SELECT
+  count(DISTINCT a.pmid)
+  FROM
+    (SELECT doc_id as pmid
+     FROM (SELECT doc_id FROM sentences_input) b) a
+")
+report-log "Creating a few corpus stats 1"
+num_documents_with_body=$(run-sql "
+SELECT
+  count(DISTINCT doc_id)
+FROM
+  sentences_input
+WHERE
+  section_id like 'Body%'
+")
+report-log "Creating a few corpus stats 1"
+num_sources=$(run-sql "
+SELECT count(DISTINCT source_name)
+FROM
+  (SELECT coalesce(source_name, 'UNKNOWN') source_name
+   FROM
+     sentences_input si
+   LEFT OUTER JOIN doc_metadata ON (si.doc_id = doc_metadata.doc_id)) a
+")
+report-log "Creating a few corpus stats 1"
+num_sentences=$(run-sql "
+SELECT count(*)
+FROM
+  sentences_input
+")
+report-log "Creating a few corpus stats 1"
+num_candidates_docs_with_genes=$(run-sql "
+SELECT
+  count(DISTINCT doc_id)
+  FROM gene_mentions
+  WHERE is_correct != 'f' OR is_correct IS NULL
+")
+report-log "Creating a few corpus stats 1"
+num_candidates_docs_with_phenos=$(run-sql "
+SELECT
+  count(DISTINCT doc_id)
+  FROM pheno_mentions
+  WHERE is_correct != 'f' OR is_correct IS NULL
+")
+report-log "Creating a few corpus stats 1"
+num_candidates_docs_with_genepheno_association=$(run-sql "
+SELECT
+  count(DISTINCT doc_id)
+  FROM genepheno_association
+  WHERE is_correct != 'f' OR is_correct IS NULL
+")
+report-log "Creating a few corpus stats 1"
+num_candidates_docs_with_genepheno_causation=$(run-sql "
+SELECT
+  count(DISTINCT doc_id)
+  FROM genepheno_causation
+  WHERE is_correct != 'f' OR is_correct IS NULL
+")
+report-log "Creating a few corpus stats 1"
+num_inferred_docs_with_genes=$(run-sql "
+SELECT
+  count(DISTINCT doc_id)
+  FROM gene_mentions_filtered_is_correct_inference WHERE expectation > 0.9
+")
+report-log "Creating a few corpus stats 1"
+num_inferred_docs_with_phenos=$(run-sql "
+SELECT
+  count(DISTINCT doc_id)
+  FROM pheno_mentions_filtered_is_correct_inference WHERE expectation > 0.9
+")
+report-log "Creating a few corpus stats 1"
+num_inferred_docs_with_genepheno_association=$(run-sql "
+SELECT
+  count(DISTINCT doc_id)
+  FROM genepheno_association_is_correct_inference WHERE expectation > 0.9
+")
+report-log "Creating a few corpus stats 1"
+num_inferred_docs_with_genepheno_causation=$(run-sql "
+SELECT
+  count(DISTINCT doc_id)
+  FROM genepheno_causation_is_correct_inference WHERE expectation > 0.9
+")
+report-log "Creating a few corpus stats 1"
+num_genes_candidates=$(run-sql "
+select count(distinct g.canonical_name) from gene_mentions gm join genes g on (gm.gene_name = g.gene_name) where gm.is_correct = 't' or gm.is_correct is null
+")
+report-log "Creating a few corpus stats 1"
+num_phenos_candidates=$(run-sql "
+select count(distinct entity) from pheno_mentions where is_correct = 't' or is_correct is null
+")
+report-log "Creating a few corpus stats 1"
+num_genes_in_pairs_candidates_before_supervision=$(run-sql "
+select count(distinct g.canonical_name) from genepheno_relations gp join genes g on (gp.gene_name = g.gene_name)
+")
+report-log "Creating a few corpus stats 1"
+num_phenos_in_pairs_candidates_before_supervision=$(run-sql "
+select count(distinct pheno_entity) from genepheno_relations
+")
+report-log "Creating a few corpus stats 1"
+num_genes_in_association_pairs_candidates=$(run-sql "
+select count(distinct g.canonical_name) from genepheno_association ga join genes g on (ga.gene_name = g.gene_name) where ga.is_correct = 't' or ga.is_correct is null
+")
+report-log "Creating a few corpus stats 1"
+num_phenos_in_association_pairs_candidates=$(run-sql "
+select count(distinct pheno_entity) from genepheno_association where is_correct = 't' or is_correct is null
+")
+report-log "Creating a few corpus stats 1"
+num_genes_in_causation_pairs_candidates=$(run-sql "
+select count(distinct g.canonical_name) from genepheno_causation gc join genes g on (gc.gene_name = g.gene_name) where gc.is_correct = 't' or gc.is_correct is null
+")
+report-log "Creating a few corpus stats 1"
+num_phenos_in_causation_pairs_candidates=$(run-sql "
+select count(distinct pheno_entity) from genepheno_causation where is_correct = 't' or is_correct is null
+")
+report-log "Creating a few corpus stats 1"
+num_genepheno_association_candidates=$(run-sql "
+select count(*) from
+(select distinct g.canonical_name, ga.pheno_entity from genepheno_association ga join genes g on (ga.gene_name = g.gene_name) where ga.is_correct is null or ga.is_correct = 't') a
+")
+report-log "Creating a few corpus stats 1"
+num_genepheno_causation_candidates=$(run-sql "
+select count(*) from
+(select distinct g.canonical_name, gc.pheno_entity from genepheno_causation gc join genes g on (gc.gene_name = g.gene_name) where gc.is_correct is null or gc.is_correct = 't') a
+")
+
+report-log "Creating a few corpus stats 1"
+num_genes_inferred=$(run-sql "
+select count(distinct g.canonical_name) from gene_mentions_filtered_is_correct_inference gm join genes g on (gm.gene_name = g.gene_name) where gm.expectation > 0.9
+")
+report-log "Creating a few corpus stats 1"
+num_phenos_inferred=$(run-sql "
+select count(distinct entity) from pheno_mentions_filtered_is_correct_inference where expectation > 0.9
+")
+report-log "Creating a few corpus stats 1"
+num_genes_in_association_pairs_inferred=$(run-sql "
+select count(distinct g.canonical_name) from genepheno_association_is_correct_inference ga join genes g on (ga.gene_name = g.gene_name) where ga.expectation > 0.9
+")
+report-log "Creating a few corpus stats 1"
+num_phenos_in_association_pairs_inferred=$(run-sql "
+select count(distinct pheno_entity) from genepheno_association_is_correct_inference where expectation > 0.9
+")
+report-log "Creating a few corpus stats 1"
+num_genes_in_causation_pairs_inferred=$(run-sql "
+select count(distinct g.canonical_name) from genepheno_causation_is_correct_inference gc join genes g on (gc.gene_name = g.gene_name) where gc.expectation > 0.9
+")
+report-log "Creating a few corpus stats 1"
+num_phenos_in_causation_pairs_inferred=$(run-sql "
+select count(distinct pheno_entity) from genepheno_causation_is_correct_inference where expectation > 0.9
+")
+report-log "Creating a few corpus stats 1"
+num_genepheno_association_inferred=$(run-sql "
+select count(*) from
+(select distinct g.canonical_name, ga.pheno_entity from genepheno_association_is_correct_inference ga join genes g on (ga.gene_name = g.gene_name) where ga.expectation > 0.9) a
+")
+report-log "Creating a few corpus stats 1"
+num_genepheno_association_inferred_canon=$(run-sql "
+select count(*) from genepheno_association_canon
+")
+report-log "Creating a few corpus stats 1"
+num_genepheno_association_inferred_new=$(run-sql "
+select count(*) from (
+select distinct
+  gm.pheno_entity, 
+  g.canonical_name
+from
+  genepheno_association_is_correct_inference gm 
+  join genes g
+    on (gm.gene_name = g.gene_name) 
+  left outer join charite_canon ch
+    on (gm.pheno_entity = ch.hpo_id and g.ensembl_id = ch.ensembl_id)
+  where gm.expectation > 0.9 and ch.ensembl_id is null) a
+")
+report-log "Creating a few corpus stats 1"
+num_genepheno_association_inferred_new_canon=$(run-sql "
+select count(*) from (
+select distinct
+  gm.hpo_id, 
+  g.canonical_name
+from
+  genepheno_association_canon gm 
+  join genes g
+    on (gm.ensembl_id = g.ensembl_id)
+  left outer join charite_canon ch
+    on (gm.hpo_id = ch.hpo_id and gm.ensembl_id = ch.ensembl_id)
+  where ch.ensembl_id is null) a
+")
+report-log "Creating a few corpus stats 1"
+num_genepheno_causation_inferred=$(run-sql "
+select count(*) from
+(select distinct g.canonical_name, ga.pheno_entity from genepheno_causation_is_correct_inference ga join genes g on (ga.gene_name = g.gene_name) where ga.expectation > 0.9) a
+")
+report-log "Creating a few corpus stats 1"
+num_genepheno_causation_inferred_canon=$(run-sql "
+select count(*) from genepheno_causation_canon
+")
+report-log "Creating a few corpus stats 1"
+num_genepheno_causation_inferred_new=$(run-sql "
+select count(*) from (
+select distinct
+  gm.pheno_entity, 
+  g.canonical_name
+from
+  genepheno_causation_is_correct_inference gm 
+  join genes g
+    on (gm.gene_name = g.gene_name) 
+  left outer join charite_canon ch
+    on (gm.pheno_entity = ch.hpo_id and g.ensembl_id = ch.ensembl_id)
+  where gm.expectation > 0.9 and ch.ensembl_id is null) a
+")
+report-log "Creating a few corpus stats 1"
+num_genepheno_causation_inferred_new_canon=$(run-sql "
+select count(*) from (
+select distinct
+  gm.hpo_id, 
+  g.canonical_name
+from
+  genepheno_causation_canon gm 
+  join genes g
+    on (gm.ensembl_id = g.ensembl_id)
+  left outer join charite_canon ch
+    on (gm.hpo_id = ch.hpo_id and gm.ensembl_id = ch.ensembl_id)
+  where ch.ensembl_id is null) a
+")
+report-log "Creating a few corpus stats 1"
+num_genes=$(run-sql "
+select count(distinct gene_name) from genes
+")
+report-log "Creating a few corpus stats 1"
+num_canonical_genes=$(run-sql "
+select count(distinct gene_name) from genes where name_type = 'CANONICAL_SYMBOL'
+")
+report-log "Creating a few corpus stats 1"
+num_noncanonical=$(run-sql "
+select count(distinct gene_name) from genes where name_type = 'NONCANONICAL_SYMBOL'
+")
+report-log "Creating a few corpus stats 1"
+num_ensembl_genes=$(run-sql "
+select count(distinct gene_name) from genes where name_type = 'ENSEMBL_ID'
+")
+report-log "Creating a few corpus stats 1"
+num_refseq_ids=$(run-sql "
+select count(distinct gene_name) from genes where name_type = 'REFSEQ'
+")
+report-log "Creating a few corpus stats 1"
+num_charite=$(run-sql "
+select count(*)
+from
+  (select distinct g.canonical_name, ch.hpo_id
+  from charite_canon ch
+  join genes g on (ch.ensembl_id = g.ensembl_id) ) a
+")
+report-log "Creating a few corpus stats 1"
+num_hpo_abnormalities=$(run-sql "
+select count(*) from hpo_abnormalities
+")
+
+# store the numbers
+report-values \
+    num_documents=$num_documents \
+    num_documents_with_body=$num_documents_with_body \
+
+    num_genes_candidates=$num_genes_candidates \
+    num_phenos_candidates=$num_phenos_candidates \
+    num_genes_in_pairs_candidates_before_supervision=$num_genes_in_pairs_candidates_before_supervision \
+    num_phenos_in_pairs_candidates_before_supervision=$num_phenos_in_pairs_candidates_before_supervision \
+    num_genes_in_association_pairs_candidates=$num_genes_in_association_pairs_candidates \
+    num_phenos_in_association_pairs_candidates=$num_phenos_in_association_pairs_candidates \
+    num_genes_in_causation_pairs_candidates=$num_genes_in_causation_pairs_candidates \
+    num_phenos_in_causation_pairs_candidates=$num_phenos_in_causation_pairs_candidates \
+    num_genepheno_association_candidates=$num_genepheno_association_candidates \
+    num_genepheno_causation_candidates=$num_genepheno_causation_candidates \
+
+    num_genes_inferred=$num_genes_inferred \
+    num_phenos_inferred=$num_phenos_inferred \
+    num_genes_in_association_pairs_inferred=$num_genes_in_association_pairs_inferred \
+    num_phenos_in_association_pairs_inferred=$num_phenos_in_association_pairs_inferred \
+    num_genes_in_causation_pairs_inferred=$num_genes_in_causation_pairs_inferred \
+    num_phenos_in_causation_pairs_inferred=$num_phenos_in_causation_pairs_inferred \
+    num_genepheno_association_inferred=$num_genepheno_association_inferred \
+    num_genepheno_association_inferred_canon=$num_genepheno_association_inferred_canon \
+    num_genepheno_causation_inferred=$num_genepheno_causation_inferred \
+    num_genepheno_causation_inferred_canon=$num_genepheno_causation_inferred_canon \
+    num_genepheno_association_inferred_new=$num_genepheno_association_inferred_new \
+    num_genepheno_association_inferred_new_canon=$num_genepheno_association_inferred_new_canon \
+    num_genepheno_causation_inferred_new=$num_genepheno_causation_inferred_new \
+    num_genepheno_causation_inferred_new_canon=$num_genepheno_causation_inferred_new_canon \
+
+    num_sources=$num_sources \
+    num_candidates_docs_with_genes=$num_candidates_docs_with_genes \
+    num_candidates_docs_with_phenos=$num_candidates_docs_with_phenos \
+    num_candidates_docs_with_genepheno_association=$num_candidates_docs_with_genepheno_association \
+    num_candidates_docs_with_genepheno_causation=$num_candidates_docs_with_genepheno_causation \
+    num_inferred_docs_with_genes=$num_inferred_docs_with_genes \
+    num_inferred_docs_with_phenos=$num_inferred_docs_with_phenos \
+    num_inferred_docs_with_genepheno_association=$num_inferred_docs_with_genepheno_association \
+    num_inferred_docs_with_genepheno_causation=$num_inferred_docs_with_genepheno_causation \
+    num_hpo_abnormalities=$num_hpo_abnormalities \
+    num_genes=$num_genes \
+    num_canonical_genes=$num_canonical_genes \
+    num_noncanonical=$num_noncanonical \
+    num_ensembl_genes=$num_ensembl_genes \
+    num_refseq_ids=$num_refseq_ids \
+    num_charite=$num_charite \
+    #
+$>
+
+### Number of documents and sentences
+
+* **<$ printf "%'d" $num_documents $>** documents
+* **<$ printf "%'d" $num_documents_with_body $>** documents with body
+* **<$ printf "%'d" $num_sources $>** journals
+
+### A priori dataset sizes
+
+* **<$ printf "%'d" $num_hpo_abnormalities $>** HPO phenotypic abnormalities
+* **<$ printf "%'d" $num_genes $>** Genes
+
+  * **<$ printf "%'d" $num_canonical_genes $>** Canonical
+  * **<$ printf "%'d" $num_noncanonical $>** Noncanonical
+  * **<$ printf "%'d" $num_ensembl_genes $>** Ensembl IDs
+  * **<$ printf "%'d" $num_refseq_ids $>** RefSeq IDs
+
+* **<$ printf "%'d" $num_charite $>** Charité supervised genepheno relationships (canonicalized)
+
+### Number of genes and phenos
+
+#### Number of distinct gene candidates
+
+* **<$ printf "%'d" $num_genes_candidates $>** unique gene candidates (true/null)
+* **<$ printf "%'d" $num_genes_in_pairs_candidates_before_supervision $>** unique genes in genepheno pairs before any supervision
+* **<$ printf "%'d" $num_genes_in_association_pairs_candidates $>** unique genes in genepheno association candidates (true/null)
+* **<$ printf "%'d" $num_genes_in_causation_pairs_candidates $>** unique genes in genepheno causation candidates (true/null)
+
+#### Number of distinct genes after inference
+
+* **<$ printf "%'d" $num_genes_inferred $>** unique genes (E &gt; 0.9)
+* **<$ printf "%'d" $num_genes_in_association_pairs_inferred $>** unique genes in association pairs (E &gt; 0.9)
+* **<$ printf "%'d" $num_genes_in_causation_pairs_inferred $>** unique genes in causation pairs (E &gt; 0.9)
+
+#### Number of distinct pheno candidates
+
+* **<$ printf "%'d" $num_phenos_candidates $>** unique pheno candidates (true/null)
+* **<$ printf "%'d" $num_phenos_in_pairs_candidates_before_supervision $>** unique phenos in genepheno pairs before any supervision
+* **<$ printf "%'d" $num_phenos_in_association_pairs_candidates $>** unique phenos in genepheno association candidates (true/null)
+* **<$ printf "%'d" $num_phenos_in_causation_pairs_candidates $>** unique phenos in genepheno causation candidates (true/null)
+
+#### Number of distinct phenos after inference
+
+* **<$ printf "%'d" $num_phenos_inferred $>** unique phenos (E &gt; 0.9)
+* **<$ printf "%'d" $num_phenos_in_association_pairs_inferred $>** unique phenos in association pairs (E &gt; 0.9)
+* **<$ printf "%'d" $num_phenos_in_causation_pairs_inferred $>** unique phenos in causation pairs (E &gt; 0.9)
+
+#### Number of distinct genepheno candidates
+
+* **<$ printf "%'d" $num_genepheno_association_candidates $>** unique genepheno association candidates (true/null)
+* **<$ printf "%'d" $num_genepheno_causation_candidates $>** unique genepheno causation candidates (true/null)
+
+#### Number of distinct genephenos after inference
+
+**DO NOT FORGET TO RUN ./run.sh canonicalize AFTER INFERENCE OR THIS WILL BE PITIFULLY WRONG**
+
+* **<$ printf "%'d" $num_genepheno_association_inferred $>** unique association genephenos (E &gt; 0.9)
+  * **<$ printf "%'d" $num_genepheno_association_inferred_canon $>** unique association genephenos (E &gt; 0.9; **canonicalized**)
+  * **<$ printf "%'d" $num_genepheno_association_inferred_new $>** unique **non-Charité** association genephenos (E &gt; 0.9)
+  * **<$ printf "%'d" $num_genepheno_association_inferred_new_canon $>** unique **non-Charité** association genephenos (E &gt; 0.9; **canonicalized**)
+
+* **<$ printf "%'d" $num_genepheno_causation_inferred $>** unique causation genephenos (E &gt; 0.9)
+  * **<$ printf "%'d" $num_genepheno_causation_inferred_canon $>** unique causation genephenos (E &gt; 0.9; **canonicalized**)
+  * **<$ printf "%'d" $num_genepheno_causation_inferred_new $>** unique **non-Charité** causation genephenos (E &gt; 0.9)
+  * **<$ printf "%'d" $num_genepheno_causation_inferred_new_canon $>** unique **non-Charité** causation genephenos (E &gt; 0.9; **canonicalized**)
+
+### Number of documents for candidate extractions
+
+* **<$ printf "%'d" $num_candidates_docs_with_genes $>** documents with (true/null) candidate gene mentions
+* **<$ printf "%'d" $num_candidates_docs_with_phenos $>** documents with (true/null) pheno mentions
+* **<$ printf "%'d" $num_candidates_docs_with_genepheno_association $>** documents with (true/null) candidate genepheno association mentions
+* **<$ printf "%'d" $num_candidates_docs_with_genepheno_causation $>** documents with (true/null) candidate genepheno causation mentions
+
+### Number of documents after inference
+
+* **<$ printf "%'d" $num_inferred_docs_with_genes $>** documents with (E &gt; 0.9) inferred gene mentions
+* **<$ printf "%'d" $num_inferred_docs_with_phenos $>** documents with (E &gt; 0.9) pheno mentions
+* **<$ printf "%'d" $num_inferred_docs_with_genepheno_association $>** documents with (E &gt; 0.9) inferred genepheno association mentions
+* **<$ printf "%'d" $num_inferred_docs_with_genepheno_causation $>** documents with (E &gt; 0.9) inferred genepheno causation mentions
+
