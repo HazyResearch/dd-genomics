@@ -106,9 +106,20 @@ if [ ! -f data/meshToPmid.tsv ]; then
     cp /dfs/scratch0/jbirgmei/dd_onto_data/meshToPmid.tsv data/meshToPmid.tsv
   else
     echo " Copying meshToPmid.tsv from local filesystem failed."
-    echo " If have access to raiders2, run scp username@raiders2:/dfs/scratch0/jbirgmei/dd_onto_data/meshToPmid.tsv data/meshToPmid.tsv"
+    echo " If you have access to raiders2, run scp username@raiders2:/dfs/scratch0/jbirgmei/dd_onto_data/meshToPmid.tsv data/meshToPmid.tsv"
     echo " Otherwise, use ./makeMeshToPmid.sh to re-generate file by querying PubMed."
     echo " Then, re-run this script."
+    exit 1
+  fi
+fi
+
+if [ ! -f data/hg19_ensGene.sql ]; then
+  if [ -f /dfs/scratch0/jbirgmei/dd_onto_data/hg19_ensGene.sql ]; then
+    cp /dfs/scratch0/jbirgmei/dd_onto_data/hg19_ensGene.sql raw/hg19_ensGene.sql
+  else
+    echo " Copying hg19_ensGene.sql from local filesystem failed."
+    echo " If have access to raiders2, run scp username@raiders2:/dfs/scratch0/jbirgmei/dd_onto_data/hg19_ensGene.sql raw/hg19_ensGene.sql""
+    echo " Otherwise, you're screwed."
     exit 1
   fi
 fi
