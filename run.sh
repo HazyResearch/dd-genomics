@@ -24,7 +24,7 @@ if [ "${1-}" == "" ]; then
   # exit 1
   export PIPELINE=initdb
   cd $DEEPDIVE_HOME
-  sbt "run -c $APP_HOME/app_from_ddlog.conf"
+  sbt "run -c $APP_HOME/deepdive.conf"
 else
   export GDD_PIPELINE="$1"
   # Launch gpfdist if not launched.
