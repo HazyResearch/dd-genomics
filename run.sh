@@ -20,18 +20,23 @@ fi
 
 unset GDD_PIPELINE
 if [ "${1-}" == "" ]; then
-  echo "Usage: ./run.sh [PIPELINE_TO_RUN]"
-  exit 1
+  # echo "Usage: ./run.sh [PIPELINE_TO_RUN]"
+  # exit 1
+  export PIPELINE=initdb
+  cd $DEEPDIVE_HOME
+  sbt "run -c $APP_HOME/app_from_ddlog.conf"
 else
   export GDD_PIPELINE="$1"
+  # Launch gpfdist if not launched.
+  gpfdist -d $GPPATH -p $GPPORT &
+  gpfdist_pid=$!
+  trap "kill $gpfdist_pid" EXIT
+
+  cd $DEEPDIVE_HOME
+  #sbt "run -c $APP_HOME/${APP_CONF:-application.conf}"
+  deepdive env java org.deepdive.Main -c $APP_HOME/application.conf -o $APP_HOME/../output_dir
+
+  echo "Don't forget to VACUUM VERBOSE; in psql once in a while!"
 fi
 
-# Launch gpfdist if not launched.
-gpfdist -d $GPPATH -p $GPPORT &
-gpfdist_pid=$!
-trap "kill $gpfdist_pid" EXIT
 
-cd $DEEPDIVE_HOME
-sbt "run -c $APP_HOME/${APP_CONF:-application.conf}"
-
-echo "Don't forget to VACUUM VERBOSE; in psql once in a while!"
