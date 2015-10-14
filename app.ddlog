@@ -165,21 +165,21 @@ genevariant_relations (
   id bigint,
   relation_id text,
   doc_id text,
-        section1_id text,
+  section1_id text,
   sent1_id int,
-        section2_id text,
+  section2_id text,
   sent2_id int,
   variant_mention_id text,
-        variant_entity text,
-        variant_wordidxs int[],
-        variant_is_correct boolean,
-        gene_mention_id text,
-        gene_name text,
-        gene_wordidxs int[],
-        gene_is_correct boolean,
+  variant_entity text,
+  variant_wordidxs int[],
+  variant_is_correct boolean,
+  gene_mention_id text,
+  gene_name text,
+  gene_wordidxs int[],
+  gene_is_correct boolean,
   is_correct boolean,
-        supertype text,
-        subtype text
+  supertype text,
+  subtype text
 ).
 
 genevariant_features (
@@ -400,13 +400,41 @@ pheno_mentions += pheno_extract_candidates(doc_id, section_id, sent_id, words, l
 sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, _, _).
 
 
+#ERROR; for obscure reasons, impossible to add genevariant_relations
+#Create table variant_mentions_filtered
+#variant_filter_candidates
+variant_mentions_filtered(id, doc_id , section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct) :-
+variant_mentions(id, doc_id , section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
+#genevariant_relations(  id, relation_id, doc_id,section1_id,sent1_id,section2_id,sent2_id,mention_id,variant_entity,variant_wordidxs,variant_is_correct,gene_mention_id,gene_name,gene_wordidxs,gene_is_correct,is_correct,supertype ,  subtype).
+
+
+#Add dependency for the previous extractor, certainly
 #variant_extract_features
 function variant_extract_features over rows like variant_extract_features_input
   returns rows like variant_features
   implementation "code/variant_extract_features.py" handles tsv lines.
 
 variant_features += variant_extract_features(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, mention_id, array_to_string(wordidxs, "|^|")) :- sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
-variant_mentions_filtered(_, _, _, _, wordidxs, mention_id, _, _, _, _, _).
+variant_mentions_filtered(_, doc_id, section_id, sent_id, wordidxs, mention_id, _, _, _, _, _).
+
+#Create table pheno_mentions_filtered
+#pheno_filter_candidates
+#pheno_mentions_filtered (id, doc_id, section_id, sent_id, #wordidxs,mention_id, supertype, subtype, entity, words, #is_correct,g_id, g_doc_id, g_section_id, g_sent_id, array_to_string(#g_wordidxs, '|^|'), g_mention_id, g_mapping_type, g_supertype, #g_subtype, g_gene_name, array_to_string(g_words, '|^|'), g_is_correct)#:- 
+#pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, #supertype, subtype, entity, words, is_correct), 
+#genepheno_relations (g_id, _, g_doc_id, g_section_id, g_sent_id, _, #_, g_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, #pheno_wordidxs, pheno_is_correct).
+
+#Add dependency for the previous extractor certainly
+#pheno_extract_features
+function pheno_extract_features over rows like pheno_extract_features_input
+returns rows like pheno_features
+implementation "code/pheno_extract_features.py" handles tsv lines.
+
+pheno_features += pheno_extract_features(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, mention_id, array_to_string(wordidxs, "|^|")) :- sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
+pheno_mentions_filtered(_, doc_id, section_id, sent_id, wordidxs, mention_id, _, _, _, _, _).
+
+    # We first get G-P pairs, then aggregate & serialize them, then do G-P supervision
+    # This is to avoide the VMEM error caused by large operations
+    # This is also in line with what we will do when we switch to ddlog format
 
 
 
