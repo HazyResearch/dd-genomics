@@ -319,11 +319,11 @@ CREATE TABLE dummy (
 DROP TABLE IF EXISTS ensembl_protein_sequences CASCADE;
 CREATE TABLE ensembl_protein_sequences (
   ensembl_transcript text,
-  aa_seq text
+  aa_seq text[]
 ) DISTRIBUTED BY (ensembl_transcript);
 
 DROP TABLE IF EXISTS ensembl_gene_sequences CASCADE;
 CREATE TABLE ensembl_gene_sequences (
   ensembl_transcript text,
-  n_seq text
+  n_seq text[]
 ) DISTRIBUTED BY (ensembl_transcript);
