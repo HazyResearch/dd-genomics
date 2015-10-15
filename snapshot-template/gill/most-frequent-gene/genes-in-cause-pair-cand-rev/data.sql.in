@@ -1,9 +1,0 @@
-SELECT 
-  g.canonical_name, gc.gene_name, count(g.canonical_name), (array_agg(array_to_string(string_to_array(si.words, '|^|'), ' ')))[1]
-FROM genepheno_causation gc join genes g on (gc.gene_name = g.gene_name)
-join sentences_input si on (gc.doc_id = si.doc_id and gc.section_id = si.section_id and gc.sent_id = si.sent_id)
-WHERE 
-  gc.is_correct != 'f' OR gc.is_correct IS NULL 
-GROUP BY g.canonical_name, gc.gene_name
-ORDER BY count ASC
-LIMIT 1000

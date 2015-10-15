@@ -1,5 +1,0 @@
-SELECT count(*) as count, supertype, subtype
-FROM genepheno_association
-GROUP BY supertype, subtype
-ORDER BY count DESC
-LIMIT 1000

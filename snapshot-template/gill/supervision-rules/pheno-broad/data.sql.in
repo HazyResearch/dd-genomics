@@ -1,5 +1,0 @@
-SELECT count(*) as count, supertype
-FROM pheno_mentions
-GROUP BY supertype
-ORDER BY count DESC
-LIMIT 1000

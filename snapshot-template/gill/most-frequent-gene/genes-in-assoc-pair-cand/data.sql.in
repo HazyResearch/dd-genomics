@@ -1,9 +1,0 @@
-SELECT 
-  g.canonical_name, ga.gene_name, count(g.canonical_name), (array_agg(array_to_string(string_to_array(si.words, '|^|'), ' ')))[1]
-FROM genepheno_association ga join genes g on (ga.gene_name = g.gene_name)
-join sentences_input si on (ga.doc_id = si.doc_id and ga.section_id = si.section_id and ga.sent_id = si.sent_id)
-WHERE 
-  ga.is_correct != 'f' OR ga.is_correct IS NULL 
-GROUP BY g.canonical_name, ga.gene_name
-ORDER BY count DESC
-LIMIT 1000
