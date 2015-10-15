@@ -118,7 +118,18 @@ if [ ! -f data/hg19_ensGene.sql ]; then
     cp /dfs/scratch0/jbirgmei/dd_onto_data/hg19_ensGene.sql raw/hg19_ensGene.sql
   else
     echo " Copying hg19_ensGene.sql from local filesystem failed."
-    echo " If have access to raiders2, run scp username@raiders2:/dfs/scratch0/jbirgmei/dd_onto_data/hg19_ensGene.sql raw/hg19_ensGene.sql""
+    echo " If have access to raiders2, run scp username@raiders2:/dfs/scratch0/jbirgmei/dd_onto_data/hg19_ensGene.sql raw/hg19_ensGene.sql"
+    echo " Otherwise, you're screwed."
+    exit 1
+  fi
+fi
+
+if [ ! -f data/ucscEnsemblProteinTable.tsv ]; then
+  if [ -f /dfs/scratch0/jbirgmei/dd_onto_data/ucscEnsemblProteinTable.tsv ]; then
+    cp /dfs/scratch0/jbirgmei/dd_onto_data/ucscEnsemblProteinTable.tsv raw/ucscEnsemblProteinTable.tsv
+  else
+    echo " Copying ucscEnsemblProteinTable.tsv from local filesystem failed."
+    echo " If have access to raiders2, run scp username@raiders2:/dfs/scratch0/jbirgmei/dd_onto_data/ucscEnsemblProteinTable.tsv data/ucscEnsemblProteinTable.tsv"
     echo " Otherwise, you're screwed."
     exit 1
   fi

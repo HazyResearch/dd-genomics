@@ -316,3 +316,8 @@ CREATE TABLE dummy (
   c int
 );
 
+DROP TABLE IF EXISTS ensembl_protein_sequences CASCADE;
+CREATE TABLE ensembl_protein_sequences (
+  ensembl_transcript text,
+  aa_seq text
+) ;
