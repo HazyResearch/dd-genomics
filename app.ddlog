@@ -436,7 +436,8 @@ pheno_mentions_filtered(_, doc_id, section_id, sent_id, wordidxs, mention_id, _,
     # This is to avoide the VMEM error caused by large operations
     # This is also in line with what we will do when we switch to ddlog format
 
-
+#Create table genepheno_pairs
+#get_genepheno_pairs
 
 
 
