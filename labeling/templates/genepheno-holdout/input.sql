@@ -26,13 +26,16 @@ from
         and hs.sent_id = si.sent_id)
   join genes
     on (g.gene_name = genes.gene_name)
-  group by
-    hs.doc_id
-    , hs.section_id
-    , hs.sent_id
-    , p.entity
-    , g.wordidxs
-    , p.wordidxs
-    , si.words
+where
+  g.gene_name is not null
+  AND p.entity is not null
+group by
+  hs.doc_id
+  , hs.section_id
+  , hs.sent_id
+  , p.entity
+  , g.wordidxs
+  , p.wordidxs
+  , si.words
 )
 to stdout with csv header;
