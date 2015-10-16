@@ -1,0 +1,10 @@
+apriori
+general
+supervision-rules
+most-frequent-gene
+most-frequent-pheno
+most-frequent-variant
+most-frequent-genepheno
+per-journal
+precision
+recall
