@@ -57,13 +57,22 @@ gene_mentions (
 variant_mentions (
   id bigint,
   doc_id text,
-        section_id text,
+  section_id text,
   sent_id int,
   wordidxs int[],
   mention_id text,
   supertype text,
-        subtype text,
+  subtype text,
   entity text,
+  variant_type text,
+  ivsNum text,
+  pos text,
+  posPlus text,
+  fromPos text,
+  toPos text,
+  seq text,
+  fromSeq text,
+  toSeq text,
   words text[],
   is_correct boolean
 ).
@@ -101,23 +110,6 @@ variant_features (
         section_id text,
   mention_id text,
   feature text
-).
-
-
-genepheno_relations (
-  id bigint,
-  relation_id text,
-  doc_id text,
-        section_id text,
-  sent_id int,
-        gene_mention_id text,
-        gene_name text,
-        gene_wordidxs int[],
-        gene_is_correct boolean,
-  pheno_mention_id text,
-        pheno_entity text,
-        pheno_wordidxs int[],
-        pheno_is_correct boolean
 ).
 
 genepheno_association (
@@ -161,6 +153,7 @@ genepheno_features (
   feature text
 ).
 
+#? Do we keep this table ?
 genevariant_relations (
   id bigint,
   relation_id text,
@@ -471,7 +464,30 @@ genepheno_pairs(
 #serialize_genepheno_pairs_split ?
 
 #get_genevariant_pairs
-
+genevariant_pairs(
+  doc_id text,
+  gene_section_id text,
+  gene_sent_id int,
+  variant_section_id text,
+  variant_sent_id int,
+  gene_mention_id text,
+  gene_name text,
+  gene_wordidxs text,
+  gene_is_correct boolean,
+  variant_mention_id text,
+  variant_entity text,
+  variant_wordidxs wordidxs,
+  variant_type,
+  v.ivsnum variant_ivsnum,
+  v.pos variant_pos,
+  v.posplus variant_posplus,
+  v.frompos variant_frompos,
+  v.topos variant_topos,
+  v.seq variant_seq,
+  v.fromseq variant_fromseq,
+  v.toseq variant_toseq,
+  v.is_correct AS variant_is_correct
+).
 
   
 
