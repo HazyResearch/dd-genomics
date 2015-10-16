@@ -12,24 +12,27 @@ FROM
 ")
 
 num_our_genes_assoc=$(run-sql "
-SELECT count(DISTINCT ensembl_id) FROM genepheno_association_is_correct_inference i JOIN genes g ON (i.gene_name = g.gene_name)
+SELECT count(DISTINCT ensembl_id) FROM genepheno_association_is_correct_inference i JOIN genes g ON (i.gene_name = g.gene_name) where i.expectation > 0.9
 ")
 report-log "Creating a few recall stats 1"
 frac_our_genes_assoc=$(run-sql "
 SELECT (a.count::float / b.count::float) * 100
 FROM
-  (SELECT count(DISTINCT ensembl_id) FROM genepheno_association_is_correct_inference i JOIN genes g ON (i.gene_name = g.gene_name)) a,
+  (SELECT count(DISTINCT ensembl_id) FROM genepheno_association_is_correct_inference i JOIN genes g ON (i.gene_name = g.gene_name) where i.expectation > 0.9
+) a,
   (SELECT count(DISTINCT ensembl_id) FROM genes) b
 ")
 
 num_our_genes_cause=$(run-sql "
-SELECT count(DISTINCT ensembl_id) FROM genepheno_causation_is_correct_inference i JOIN genes g ON (i.gene_name = g.gene_name)
+SELECT count(DISTINCT ensembl_id) FROM genepheno_causation_is_correct_inference i JOIN genes g ON (i.gene_name = g.gene_name) where i.expectation > 0.9
+
 ")
 report-log "Creating a few recall stats 1"
 frac_our_genes_cause=$(run-sql "
 SELECT (a.count::float / b.count::float) * 100
 FROM
-  (SELECT count(DISTINCT ensembl_id) FROM genepheno_causation_is_correct_inference i JOIN genes g ON (i.gene_name = g.gene_name)) a,
+  (SELECT count(DISTINCT ensembl_id) FROM genepheno_causation_is_correct_inference i JOIN genes g ON (i.gene_name = g.gene_name) where i.expectation > 0.9
+) a,
   (SELECT count(DISTINCT ensembl_id) FROM genes) b
 ")
 
@@ -38,7 +41,8 @@ num_charite_not_our_assoc_genes=$(run-sql "
 SELECT
   count(DISTINCT cc.ensembl_id)
 FROM
-  (SELECT DISTINCT ensembl_id FROM genepheno_association_is_correct_inference i JOIN genes g ON (i.gene_name = g.gene_name)) our 
+  (SELECT DISTINCT ensembl_id FROM genepheno_association_is_correct_inference i JOIN genes g ON (i.gene_name = g.gene_name) where i.expectation > 0.9
+) our 
   FULL OUTER JOIN charite cc 
     ON (our.ensembl_id = cc.ensembl_id) 
 WHERE our.ensembl_id IS NULL
@@ -48,7 +52,8 @@ num_charite_not_our_cause_genes=$(run-sql "
 SELECT
   count(DISTINCT cc.ensembl_id)
 FROM
-  (SELECT DISTINCT ensembl_id FROM genepheno_causation_is_correct_inference i JOIN genes g ON (i.gene_name = g.gene_name)) our 
+  (SELECT DISTINCT ensembl_id FROM genepheno_causation_is_correct_inference i JOIN genes g ON (i.gene_name = g.gene_name) where i.expectation > 0.9
+) our 
   FULL OUTER JOIN charite cc 
     ON (our.ensembl_id = cc.ensembl_id) 
 WHERE our.ensembl_id IS NULL
@@ -59,7 +64,8 @@ num_our_assoc_not_charite_genes=$(run-sql "
 SELECT
   count(DISTINCT our.ensembl_id)
 FROM
-  (SELECT DISTINCT ensembl_id FROM genepheno_association_is_correct_inference i JOIN genes g ON (i.gene_name = g.gene_name)) our 
+  (SELECT DISTINCT ensembl_id FROM genepheno_association_is_correct_inference i JOIN genes g ON (i.gene_name = g.gene_name) where i.expectation > 0.9
+) our 
   FULL OUTER JOIN charite cc 
     ON (our.ensembl_id = cc.ensembl_id) 
 WHERE cc.ensembl_id IS NULL
@@ -69,7 +75,8 @@ num_our_cause_not_charite_genes=$(run-sql "
 SELECT
   count(DISTINCT our.ensembl_id)
 FROM
-  (SELECT DISTINCT ensembl_id FROM genepheno_causation_is_correct_inference i JOIN genes g ON (i.gene_name = g.gene_name)) our 
+  (SELECT DISTINCT ensembl_id FROM genepheno_causation_is_correct_inference i JOIN genes g ON (i.gene_name = g.gene_name) where i.expectation > 0.9
+) our 
   FULL OUTER JOIN charite cc 
     ON (our.ensembl_id = cc.ensembl_id) 
 WHERE cc.ensembl_id IS NULL
@@ -89,25 +96,29 @@ FROM
 
 report-log "Creating a few recall stats 1"
 num_our_phenos_assoc=$(run-sql "
-SELECT count(DISTINCT pheno_entity) FROM genepheno_association_is_correct_inference i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id)
+SELECT count(DISTINCT pheno_entity) FROM genepheno_association_is_correct_inference i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id) where i.expectation > 0.9
+
 ")
 report-log "Creating a few recall stats 1"
 frac_our_phenos_assoc=$(run-sql "
 SELECT (a.count::float / b.count::float) * 100
 FROM
-  (SELECT count(DISTINCT pheno_entity) FROM genepheno_association_is_correct_inference i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id)) a,
+  (SELECT count(DISTINCT pheno_entity) FROM genepheno_association_is_correct_inference i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id) where i.expectation > 0.9
+) a,
   (SELECT count(DISTINCT hpo_id) FROM hpo_abnormalities) b
 ")
 
 report-log "Creating a few recall stats 1"
 num_our_phenos_cause=$(run-sql "
-SELECT count(DISTINCT pheno_entity) FROM genepheno_causation_is_correct_inference i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id)
+SELECT count(DISTINCT pheno_entity) FROM genepheno_causation_is_correct_inference i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id) where i.expectation > 0.9
+
 ")
 report-log "Creating a few recall stats 1"
 frac_our_phenos_cause=$(run-sql "
 SELECT (a.count::float / b.count::float) * 100
 FROM
-  (SELECT count(DISTINCT pheno_entity) FROM genepheno_causation_is_correct_inference i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id)) a,
+  (SELECT count(DISTINCT pheno_entity) FROM genepheno_causation_is_correct_inference i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id) where i.expectation > 0.9
+) a,
   (SELECT count(DISTINCT hpo_id) FROM hpo_abnormalities) b
 ")
 
@@ -116,7 +127,8 @@ num_charite_not_our_assoc_phenos=$(run-sql "
 SELECT
   count(DISTINCT cc.hpo_id)
 FROM
-  (SELECT DISTINCT pheno_entity FROM genepheno_association_is_correct_inference i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id)) our 
+  (SELECT DISTINCT pheno_entity FROM genepheno_association_is_correct_inference i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id) where i.expectation > 0.9
+) our 
   FULL OUTER JOIN charite cc 
     ON (our.pheno_entity = cc.hpo_id) 
 WHERE our.pheno_entity IS NULL
@@ -126,7 +138,8 @@ num_charite_not_our_cause_phenos=$(run-sql "
 SELECT
   count(DISTINCT cc.hpo_id)
 FROM
-  (SELECT DISTINCT pheno_entity FROM genepheno_causation_is_correct_inference i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id)) our 
+  (SELECT DISTINCT pheno_entity FROM genepheno_causation_is_correct_inference i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id) where i.expectation > 0.9
+) our 
   FULL OUTER JOIN charite cc 
     ON (our.pheno_entity = cc.hpo_id) 
 WHERE our.pheno_entity IS NULL
@@ -137,7 +150,8 @@ num_our_assoc_not_charite_phenos=$(run-sql "
 SELECT
   count(DISTINCT our.pheno_entity)
 FROM
-  (SELECT DISTINCT pheno_entity FROM genepheno_association_is_correct_inference i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id)) our 
+  (SELECT DISTINCT pheno_entity FROM genepheno_association_is_correct_inference i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id) where i.expectation > 0.9
+) our 
   FULL OUTER JOIN charite cc 
     ON (our.pheno_entity = cc.hpo_id) 
 WHERE cc.hpo_id IS NULL
@@ -147,7 +161,8 @@ num_our_cause_not_charite_phenos=$(run-sql "
 SELECT
   count(DISTINCT our.pheno_entity)
 FROM
-  (SELECT DISTINCT pheno_entity FROM genepheno_causation_is_correct_inference i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id)) our 
+  (SELECT DISTINCT pheno_entity FROM genepheno_causation_is_correct_inference i JOIN hpo_abnormalities g ON (i.pheno_entity = g.hpo_id) where i.expectation > 0.9
+) our 
   FULL OUTER JOIN charite cc 
     ON (our.pheno_entity = cc.hpo_id) 
 WHERE cc.hpo_id IS NULL
@@ -168,24 +183,28 @@ FROM
 report-log "Creating a few recall stats 1"
 num_our_phenos_canon_assoc=$(run-sql "
 SELECT count(DISTINCT i.hpo_id) FROM genepheno_association_canon i JOIN hpo_abnormalities g ON (i.hpo_id = g.hpo_id)
+
 ")
 report-log "Creating a few recall stats 1"
 frac_our_phenos_canon_assoc=$(run-sql "
 SELECT (a.count::float / b.count::float) * 100
 FROM
-  (SELECT count(DISTINCT i.hpo_id) FROM genepheno_association_canon i JOIN hpo_abnormalities g ON (i.hpo_id = g.hpo_id)) a,
+  (SELECT count(DISTINCT i.hpo_id) FROM genepheno_association_canon i JOIN hpo_abnormalities g ON (i.hpo_id = g.hpo_id)
+) a,
   (SELECT count(DISTINCT hpo_id) FROM hpo_abnormalities) b
 ")
 
 report-log "Creating a few recall stats 1"
 num_our_phenos_canon_cause=$(run-sql "
 SELECT count(DISTINCT i.hpo_id) FROM genepheno_causation_canon i JOIN hpo_abnormalities g ON (i.hpo_id = g.hpo_id)
+
 ")
 report-log "Creating a few recall stats 1"
 frac_our_phenos_canon_cause=$(run-sql "
 SELECT (a.count::float / b.count::float) * 100
 FROM
-  (SELECT count(DISTINCT i.hpo_id) FROM genepheno_causation_canon i JOIN hpo_abnormalities g ON (i.hpo_id = g.hpo_id)) a,
+  (SELECT count(DISTINCT i.hpo_id) FROM genepheno_causation_canon i JOIN hpo_abnormalities g ON (i.hpo_id = g.hpo_id)
+) a,
   (SELECT count(DISTINCT hpo_id) FROM hpo_abnormalities) b
 ")
 
@@ -194,7 +213,8 @@ num_charite_not_our_assoc_phenos_canon=$(run-sql "
 SELECT
   count(DISTINCT cc.hpo_id)
 FROM
-  (SELECT DISTINCT i.hpo_id FROM genepheno_association_canon i JOIN hpo_abnormalities g ON (i.hpo_id = g.hpo_id)) our 
+  (SELECT DISTINCT i.hpo_id FROM genepheno_association_canon i JOIN hpo_abnormalities g ON (i.hpo_id = g.hpo_id)
+) our 
   FULL OUTER JOIN charite_canon cc 
     ON (our.hpo_id = cc.hpo_id) 
 WHERE our.hpo_id IS NULL
@@ -204,7 +224,8 @@ num_charite_not_our_cause_phenos_canon=$(run-sql "
 SELECT
   count(DISTINCT cc.hpo_id)
 FROM
-  (SELECT DISTINCT i.hpo_id FROM genepheno_causation_canon i JOIN hpo_abnormalities g ON (i.hpo_id = g.hpo_id)) our 
+  (SELECT DISTINCT i.hpo_id FROM genepheno_causation_canon i JOIN hpo_abnormalities g ON (i.hpo_id = g.hpo_id)
+) our 
   FULL OUTER JOIN charite_canon cc 
     ON (our.hpo_id = cc.hpo_id) 
 WHERE our.hpo_id IS NULL
@@ -215,7 +236,8 @@ num_our_assoc_not_charite_phenos_canon=$(run-sql "
 SELECT
   count(DISTINCT our.hpo_id)
 FROM
-  (SELECT DISTINCT i.hpo_id FROM genepheno_association_canon i JOIN hpo_abnormalities g ON (i.hpo_id = g.hpo_id)) our 
+  (SELECT DISTINCT i.hpo_id FROM genepheno_association_canon i JOIN hpo_abnormalities g ON (i.hpo_id = g.hpo_id)
+) our 
   FULL OUTER JOIN charite_canon cc 
     ON (our.hpo_id = cc.hpo_id) 
 WHERE cc.hpo_id IS NULL
@@ -225,7 +247,8 @@ num_our_cause_not_charite_phenos_canon=$(run-sql "
 SELECT
   count(DISTINCT our.hpo_id)
 FROM
-  (SELECT DISTINCT i.hpo_id FROM genepheno_causation_canon i JOIN hpo_abnormalities g ON (i.hpo_id = g.hpo_id)) our 
+  (SELECT DISTINCT i.hpo_id FROM genepheno_causation_canon i JOIN hpo_abnormalities g ON (i.hpo_id = g.hpo_id)
+) our 
   FULL OUTER JOIN charite_canon cc 
     ON (our.hpo_id = cc.hpo_id) 
 WHERE cc.hpo_id IS NULL
