@@ -305,6 +305,16 @@ genepheno_pairs_sentences(
   pheno_wordidxs text,
   pheno_is_corrects boolean[]).
 
+ensembl_protein_sequences (
+  ensembl_transcript text,
+  aa_seq text[]
+).
+
+ensembl_gene_sequences (
+  ensembl_transcript text,
+  n_seq text[]
+).
+
 ##### Declare Variable Relations #####
 
 gene_mentions_filtered?(relation_id text).
@@ -396,8 +406,9 @@ sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, _, _).
 #ERROR; for obscure reasons, impossible to add genevariant_relations
 #Create table variant_mentions_filtered
 #variant_filter_candidates
-variant_mentions_filtered(id, doc_id , section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct) :-
-variant_mentions(id, doc_id , section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
+variant_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, variant_type, ivsnum, pos, posplus, frompos, topos, seq, fromseq, toseq, words, is_correct) :-
+#variant_mentions(id, doc_id , section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
+variant_mentions (id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, variant_type, ivsnum, pos, posplus, frompos, topos, seq, fromseq, toseq, words, is_correct).
 #genevariant_relations(  id, relation_id, doc_id,section1_id,sent1_id,section2_id,sent2_id,mention_id,variant_entity,variant_wordidxs,variant_is_correct,gene_mention_id,gene_name,gene_wordidxs,gene_is_correct,is_correct,supertype ,  subtype).
 
 
@@ -413,7 +424,7 @@ variant_mentions_filtered(_, doc_id, section_id, sent_id, wordidxs, mention_id, 
 #Create table pheno_mentions_filtered
 #pheno_filter_candidates
 #pheno_mentions_filtered (id, doc_id, section_id, sent_id, #wordidxs,mention_id, supertype, subtype, entity, words, #is_correct,g_id, g_doc_id, g_section_id, g_sent_id, array_to_string(#g_wordidxs, '|^|'), g_mention_id, g_mapping_type, g_supertype, #g_subtype, g_gene_name, array_to_string(g_words, '|^|'), g_is_correct)#:- 
-#pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, #supertype, subtype, entity, words, is_correct), 
+#pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct), 
 #genepheno_relations (g_id, _, g_doc_id, g_section_id, g_sent_id, _, #_, g_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, #pheno_wordidxs, pheno_is_correct).
 
 #Add dependency for the previous extractor certainly
@@ -476,20 +487,113 @@ genevariant_pairs(
   gene_is_correct boolean,
   variant_mention_id text,
   variant_entity text,
-  variant_wordidxs wordidxs,
-  variant_type,
-  v.ivsnum variant_ivsnum,
-  v.pos variant_pos,
-  v.posplus variant_posplus,
-  v.frompos variant_frompos,
-  v.topos variant_topos,
-  v.seq variant_seq,
-  v.fromseq variant_fromseq,
-  v.toseq variant_toseq,
-  v.is_correct AS variant_is_correct
+  variant_wordidxs text,
+  variant_type text,
+  variant_ivsnum text,
+  variant_pos text,
+  variant_posplus text,
+  variant_frompos text,
+  variant_topos text,
+  variant_seq text,
+  variant_fromseq text,
+  variant_toseq text,
+  variant_is_correct boolean
 ).
 
-  
+
+genevariant_pairs(
+    doc_id,
+    gene_section_id,
+    gene_sent_id,
+    variant_section_id,
+    variant_sent_id,
+    gene_mention_id,
+    gene_name,
+    array_to_string(gene_wordidxs, "|^|"),
+    gene_is_correct,
+    variant_mention_id,
+    variant_entity,
+    array_to_string(variant_wordidxs, "|^|"),
+    variant_variant_type,
+    variant_ivsnum,
+    variant_pos ,
+    variant_posplus,
+    variant_frompos,
+    variant_topos,
+    variant_seq,
+    variant_fromseq,
+    variant_toseq,
+    variant_is_correct)
+    :- gene_mentions(_, doc_id, gene_section_id, gene_sent_id, gene_wordidxs, gene_mention_id, _, _, _, gene_name, _, gene_is_correct), 
+    variant_mentions (variant_id, doc_id, variant_section_id, variant_sent_id, variant_wordidxs, variant_mention_id, variant_supertype, variant_subtype, variant_entity, variant_variant_type, variant_ivsnum, variant_pos, variant_posplus, variant_frompos, variant_topos, variant_seq, variant_fromseq, variant_toseq, variant_words, variant_is_correct).
+
+
+#non_gene_acronyms_extract_candidates
+function non_gene_acronyms_extract_candidates over (doc_id text, section_id text, sent_id int, words text, dep_paths text, dep_parents text, lemmas text, poses text, ners text,  wordidx int)
+returns rows like non_gene_acronyms
+implementation "code/non_gene_acronyms_extract_candidates.py" handles tsv lines.
+
+#ajouter une view temp from gene_mentions avec distinct pour qqes elts
+#error: call to an elt of an array + like in psql.
+
+non_gene_acronyms_extract_candidates_view_temp_1(doc_id, section_id, sent_id, wordidxs) *:- gene_mentions(_, doc_id, section_id, sent_id, wordidxs, _, _, _, _, _, _, _).
+
+#non_gene_acronyms_extract_candidates_view_temp_2(doc_id, section_id,sent_id, word_string, string_to_array(word_string, "|^|"),  dep_paths, dep_parents, lemmas, poses, ners, wordidxs[1]) :- sentences_input(doc_id, section_id, sent_id, word_string, lemmas, poses, ners, dep_paths, dep_parents), 
+#non_gene_acronyms_extract_candidates_view_temp_1(doc_id, section_id, sent_id, wordidxs), 
+#word_string LIKE "%-LRB-%".
+
+#non_gene_acronyms += non_gene_acronyms_extract_candidates(doc_id, section_id, sent_id, word_string, dep_paths, dep_parents, lemmas, poses, ners, wordidx)  :- non_gene_acronyms_extract_candidates_view_temp_2(doc_id, section_id, sent_id, word_string, words,  dep_paths, dep_parents, lemmas, poses, ners, wordidx).
+#, words[wordidx] LIKE "-LRB-".
+
+
+#non_gene_acronyms_extract_features
+function non_gene_acronyms_extract_features over (doc_id text,section_id text,sent_id int,words text,lemmas text,poses text,ners text,dep_paths text,dep_parents text,mention_id text,supertype text,short_wordidxs_to_string text,long_wordidxs_to_string text)
+returns rows like non_gene_acronyms_features
+implementation "code/non_gene_acronyms_extract_features.py" handles tsv lines.
+
+non_gene_acronyms_features += non_gene_acronyms_extract_features( doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, mention_id, supertype, array_to_string(short_wordidxs, "|^|"), array_to_string(long_wordidxs, "|^|")) :-
+sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
+non_gene_acronyms(id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs, mention_id, supertype, subtype, abbrev, definition, is_correct).
+
+#pheno_acronyms_extract_candidates
+#error, same as previously, the call words[wordidxs...] not recognized by ddlog currently.
+
+function pheno_acronyms_extract_candidates over (doc_id text, section_id text, sent_id int, words_string text, dep_paths text, dep_parents text, lemmas text, poses text, ners text,  wordidxs int[], entity text)
+returns rows like pheno_acronyms
+implementation "code/pheno_acronyms_extract_candidates.py" handles tsv lines.
+
+pheno_acronyms_extract_candidates_view_temp_1(doc_id, section_id, sent_id, wordidxs, entity) *:- 
+pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct), 
+[is_correct = "t" ; is_correct IS NULL].
+
+pheno_acronyms_extract_candidates_view_temp_2(doc_id, section_id, sent_id, word_string, string_to_array(word_string, "|^|"), dep_paths, dep_parents, lemmas, poses, ners, wordidxs, entity) :-
+sentences_input(doc_id, section_id, sent_id, word_string, lemmas, poses, ners, dep_paths, dep_parents), 
+pheno_acronyms_extract_candidates_view_temp_1(doc_id, section_id, sent_id, wordidxs, entity), 
+[word_string LIKE "%-LRB-%"].
+
+pheno_acronyms += pheno_acronyms_extract_candidates( doc_id, section_id, sent_id, word_string, dep_paths, dep_parents, lemmas, poses, ners, wordidxs, entity) :-
+pheno_acronyms_extract_candidates_view_temp_2(doc_id, section_id, sent_id, word_string, words, dep_paths, dep_parents, lemmas, poses, ners, wordidxs, entity).
+#[words[wordidxs[array_upper(wordidxs, 1)]+2] LIKE "-LRB-"].
+
+
+#pheno_acronyms_aggregate_candidates
+#Creating table pheno_acronyms_aggregate
+
+pheno_acronyms_aggregate(
+  doc_id text,
+  pa_section_ids text,
+  pa_sent_ids text,
+  pa_abbrevs text,
+  pheno_entities text).
+
+pheno_acronyms_aggregate(doc_id, array_to_string(ARRAY_AGG(section_id), "|^|"), array_to_string(ARRAY_AGG(sent_id), "|^|"), array_to_string(ARRAY_AGG(abbrev), "|^|"), array_to_string(ARRAY_AGG(entity), "|^|")) *:-
+pheno_acronyms(id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs, mention_id, supertype, subtype, abbrev, definition, entity, "t").
+
+
+
+
+
+
 
 
 
