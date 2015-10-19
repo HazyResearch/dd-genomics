@@ -3,7 +3,7 @@ set -beEu -o pipefail
 
 if [ $# -ne 2 ]; then
 	echo "$0: ERROR: wrong number of arguments" >&2
-	echo "$0: USAGE: $0 DB onto/raw/hg19_ensGenes.sql" >&2
+	echo "$0: USAGE: $0 DB onto/manual/hg19_ensGenes.sql" >&2
 	exit 1
 fi
 
