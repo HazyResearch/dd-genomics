@@ -293,17 +293,18 @@ dummy (
 ).
 
 genepheno_pairs_sentences(
-  doc_id text,
-  section_id text,
-  sent_id int,
-  gene_mention_ids text,
-  gene_entities text[],
-  gene_wordidxs text,
-  gene_is_corrects boolean[],
-  pheno_mention_ids text,
-  pheno_entities text[],
-  pheno_wordidxs text,
-  pheno_is_corrects boolean[]).
+ doc_id            text,     
+ section_id        text,      
+ sent_id           integer,  
+ gene_mention_ids  text,      
+ gene_names        text[], 
+ gene_wordidxs     text,      
+ gene_is_corrects  boolean[],
+ pheno_mention_ids text,      
+ pheno_entities    text[],
+ pheno_wordidxs    text,      
+ pheno_is_corrects boolean[]
+).
 
 ensembl_protein_sequences (
   ensembl_transcript text,
@@ -640,9 +641,41 @@ implementation "code/genepheno_extract_candidates.py" handles tsv lines.
 
 genepheno_relations += genepheno_extract_candidates( doc_id, section_id, sent_id, words, lemmas, poses, dep_paths, dep_parents, gene_mention_ids, gene_names, gene_wordidxs, gene_is_corrects, pheno_mention_ids, pheno_entities, pheno_wordidxs, pheno_is_corrects) :-
 sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
-genepheno_pairs_sentences( doc_id, section_id, sent_id, gene_mention_ids, gene_entities, gene_wordidxs, gene_is_corrects, pheno_mention_ids, pheno_entities, pheno_wordidxs, pheno_is_corrects).
+genepheno_pairs_sentences(doc_id, section_id, sent_id, gene_mention_ids, gene_names, gene_wordidxs, gene_is_corrects, pheno_mention_ids, pheno_entities, pheno_wordidxs, pheno_is_corrects).
 
 
+
+
+
+#Create table gene_to_transcripts
+#gene_to_transcripts(g.gene_name,
+#            array_to_string(ARRAY_AGG(eg.name2), '|~|') ensembl_ids,
+#            array_to_string(ARRAY_AGG(eg.name), '|~|') #ensembl_transcripts,
+#            array_to_string(ARRAY_AGG(eg.chrom), '|~|') chroms,
+#            array_to_string(ARRAY_AGG(eg.strand), '|~|') strands,
+#            array_to_string(ARRAY_AGG(eg.cdsstart), '|~|') txstarts,
+#            array_to_string(ARRAY_AGG(eg.cdsend), '|~|') txends,
+#            array_to_string(ARRAY_AGG(eg.exonstarts), '|~|') exonstarts,
+#            array_to_string(ARRAY_AGG(eg.exonends), '|~|') exonends) *:-
+#genes(ensembl_id, canonical_name, gene_name, name_type),
+
+
+
+#genevariant_extract_candidates
+
+#function genevariant_extract_candidates over rows like genevariant_extract_candidates_input
+#returns rows like genevariant_relations
+#implementation "code/genevariant_extract_candidates.py" handles tsv lines.
+
+
+
+#genevariant_relations += genevariant_extract_candidates ( doc_id, variant_section_id, variant_sent_id, variant_entity, variant_wordidxs, variant_type, variant_ivsnum, variant_pos, variant_posplus, variant_frompos, variant_topos, variant_seq, variant_fromseq, variant_toseq, variant_is_correct, array_to_string(ARRAY_AGG(gene_section_id), "|^|") gene_section_ids, array_to_string(ARRAY_AGG(gene_sent_id), "|^|"), array_to_string(ARRAY_AGG(gene_wordidxs), "|^|"), array_to_string(ARRAY_AGG(gt.gene_name), "|^|"), array_to_string(ARRAY_AGG(gene_is_correct), "|^|"), array_to_string(ARRAY_AGG(ensembl_ids), "|^|"), array_to_string(ARRAY_AGG(ensembl_transcripts), "|^|"), array_to_string(ARRAY_AGG(chroms), "|^|"), array_to_string(ARRAY_AGG(strands), "|^|"), array_to_string(ARRAY_AGG(txstarts), "|^|"), array_to_string(ARRAY_AGG(txends), "|^|"), array_to_string(ARRAY_AGG(exonstarts), "|^|"), array_to_string(ARRAY_AGG(exonends), "|^|")) :-
+#genevariant_pairs( doc_id, gene_section_id, gene_sent_id, variant_section_id, variant_sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, variant_mention_id, variant_entity, variant_wordidxs, variant_variant_type, variant_ivsnum, variant_pos , variant_posplus, variant_frompos, variant_topos, variant_seq, variant_fromseq, variant_toseq, variant_is_correct), 
+
+# Skipping extractors that require genevariant_extract_candidates in depedencies and need ensgene, which are genevariant_supervise_matching_coding_genes, genevariant_supervise_matching_proteins, 
+
+
+#gene_filter_candidates
 
 
 
