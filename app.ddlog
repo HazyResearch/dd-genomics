@@ -589,8 +589,26 @@ pheno_acronyms_aggregate(
 pheno_acronyms_aggregate(doc_id, array_to_string(ARRAY_AGG(section_id), "|^|"), array_to_string(ARRAY_AGG(sent_id), "|^|"), array_to_string(ARRAY_AGG(abbrev), "|^|"), array_to_string(ARRAY_AGG(entity), "|^|")) *:-
 pheno_acronyms(id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs, mention_id, supertype, subtype, abbrev, definition, entity, "t").
 
+pheno_acronyms_ids(
+  doc_id text).
 
+pheno_acronyms_ids(doc_id) *:- pheno_acronyms_aggregate(doc_id, pa_section_ids, pa_sent_ids, pa_abbrevs, pheno_entities).
 
+sentences_input_with_pheno_acronyms(
+  doc_id text,
+  section_id text,
+  sent_id int,
+  words text,
+  lemmas text,
+  poses text,
+  ners text,
+  dep_paths text,
+  dep_parents text
+ ).
+
+sentences_input_with_pheno_acronyms(doc_id,section_id,sent_id int,words,lemmas,poses,ners,dep_paths,dep_parents) :-
+sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
+pheno_acronyms_ids(doc_id).
 
 
 
