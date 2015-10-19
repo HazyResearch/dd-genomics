@@ -606,9 +606,49 @@ sentences_input_with_pheno_acronyms(
   dep_parents text
  ).
 
-sentences_input_with_pheno_acronyms(doc_id,section_id,sent_id int,words,lemmas,poses,ners,dep_paths,dep_parents) :-
+sentences_input_with_pheno_acronyms(doc_id,section_id,sent_id,words,lemmas,poses,ners,dep_paths,dep_parents) :-
 sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
 pheno_acronyms_ids(doc_id).
+
+#pheno_acronyms_insert_candidates
+
+function pheno_acronyms_insert_candidates over rows like pheno_acronyms_insert_candidates_input
+returns rows like pheno_mentions
+implementation "code/pheno_acronyms_to_mentions.py" handles tsv lines.
+
+pheno_mentions += pheno_acronyms_insert_candidates(doc_id, section_id, sent_id, words, lemmas, poses, ners, pa_abbrevs, pheno_entities, pa_section_ids, pa_sent_ids) :-
+sentences_input_with_pheno_acronyms(doc_id,section_id,sent_id,words,lemmas,poses,ners,dep_paths,dep_parents), 
+pheno_acronyms_aggregate(doc_id, pa_section_ids, pa_sent_ids, pa_abbrevs, pheno_entities).
+
+
+#pheno_acronyms_extract_features
+
+function pheno_acronyms_extract_features over rows like pheno_acronyms_extract_features_input
+returns rows like pheno_acronyms_features
+implementation "code/pheno_acronyms_extract_features.py" handles tsv lines.
+
+pheno_acronyms_features += pheno_acronyms_extract_features( doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, mention_id, supertype, array_to_string(short_wordidxs, "|^|"), array_to_string(long_wordidxs, "|^|")) :-
+sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
+pheno_acronyms(id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs, mention_id, supertype, subtype, abbrev, definition, entity, is_correct).
+
+
+# genepheno_extract_candidates
+
+function genepheno_extract_candidates over rows like genepheno_extract_candidates_input
+returns rows like genepheno_relations
+implementation "code/genepheno_extract_candidates.py" handles tsv lines.
+
+genepheno_relations += genepheno_extract_candidates( doc_id, section_id, sent_id, words, lemmas, poses, dep_paths, dep_parents, gene_mention_ids, gene_names, gene_wordidxs, gene_is_corrects, pheno_mention_ids, pheno_entities, pheno_wordidxs, pheno_is_corrects) :-
+sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
+genepheno_pairs_sentences( doc_id, section_id, sent_id, gene_mention_ids, gene_entities, gene_wordidxs, gene_is_corrects, pheno_mention_ids, pheno_entities, pheno_wordidxs, pheno_is_corrects).
+
+
+
+
+
+
+
+
 
 
 
