@@ -24,7 +24,4 @@ if __name__ == "__main__":
             is_correct = 't'
           if rv == False:
             is_correct = 'f'
-          if is_correct == 't':
-            print '%s\t%s\t%d\t%s\t%s\t%s' % (doc_id, section_id, sent_id, is_correct, labeler)
-          elif is_correct == 'f':
-            print '%s\t%s\t%d\t%s\t%s\t%s' % (doc_id, section_id, sent_id, is_correct, labeler)
+          print '%s\t%s\t%d\t%s\t%s' % (doc_id, section_id, sent_id, is_correct, labeler)
