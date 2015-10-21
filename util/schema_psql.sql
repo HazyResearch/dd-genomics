@@ -245,7 +245,6 @@ CREATE TABLE gene_holdout_labels (
   section_id text,
   sent_id int,
   is_correct text,
-  type text,
   labeler text
 );
 

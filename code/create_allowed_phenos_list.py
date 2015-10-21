@@ -9,7 +9,7 @@ if __name__ == "__main__":
     parent_ids = get_parents(hpo_id, hpo_dag) # includes the original hpo_id
     assert hpo_id in parent_ids
     if 'HP:0000118' not in parent_ids:
-      sys.stderr.write('line "{0}": not a phenotypic abnormality\n'.format(line.strip()))
+      sys.stderr.write('"{0}": not a phenotypic abnormality\n'.format(hpo_id.strip()))
       continue
     parent_ids.remove('HP:0000118')
     for parent_id in parent_ids:

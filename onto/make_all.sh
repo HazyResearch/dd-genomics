@@ -26,10 +26,10 @@ RAW="raw/gene2ensembl.gz"
 if [ ! -e "$RAW" ]; then
   wget ftp://ftp.ncbi.nih.gov/gene/DATA/gene2ensembl.gz -O "$RAW"
 fi
-RAW="raw/gene2refseq.gz"
-if [ ! -e "$RAW" ]; then
-  wget ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2refseq.gz -O "$RAW"
-fi
+# RAW="raw/gene2refseq.gz"
+# if [ ! -e "$RAW" ]; then
+#   wget ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2refseq.gz -O "$RAW"
+# fi
 # grab all the pmids that have less than 5 gene annotations since other genes have too many mappings for us to reasonably assess (gene collection papers, gwas, etc.)
 gzip -dc raw/gene2pubmed.gz | awk '{if($1==9606) print $2"\t"$3}' |
  sort -u  | cut -f2 | sort | uniq -c | awk '{if($1<=5) print $2}' | sort -k1,1 | uniq |
