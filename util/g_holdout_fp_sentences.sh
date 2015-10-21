@@ -19,9 +19,9 @@ SELECT DISTINCT
   g.wordidxs,
   array_to_string(string_to_array(si.words, '|^|'), ' ') words
 FROM
-  gene_mentions_is_correct_inference g 
+  gene_mentions_filtered_is_correct_inference g 
   JOIN gene_holdout_set s 
-    ON (s.doc_id = g.doc_id AND s.section_id = g.section_id AND s.sent_id = g.sent_id AND g.wordidxs = s.gene_wordidxs) 
+    ON (s.doc_id = g.doc_id AND s.section_id = g.section_id AND s.sent_id = g.sent_id AND (STRING_TO_ARRAY(g.wordidxs::int[], '|^|'))::int[] = s.gene_wordidxs) 
   JOIN gene_holdout_labels l
     ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
   JOIN sentences_input_with_holdout si

@@ -21,11 +21,11 @@ SELECT
 FROM
   (SELECT
     labeler,
-    COUNT(DISTINCT relation_id) fp
+    COUNT(DISTINCT mention_id) fp
   FROM
-    gene_mentions_is_correct_inference g 
+    gene_mentions_filtered_is_correct_inference g 
     JOIN gene_holdout_set s 
-      ON (s.doc_id = g.doc_id AND s.section_id = g.section_id AND s.sent_id = g.sent_id AND g.gene_wordidxs = s.gene_wordidxs) 
+      ON (s.doc_id = g.doc_id AND s.section_id = g.section_id AND s.sent_id = g.sent_id AND (STRING_TO_ARRAY(g.wordidxs, '|^|'))::int[] = s.gene_wordidxs) 
     JOIN gene_holdout_labels l
       ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
   WHERe
@@ -35,11 +35,11 @@ FROM
   JOIN
   (SELECT
     labeler,
-    COUNT(DISTINCT relation_id) tp
+    COUNT(DISTINCT mention_id) tp
   FROM
-    gene_mentions_is_correct_inference g 
+    gene_mentions_filtered_is_correct_inference g 
     JOIN gene_holdout_set s 
-      ON (s.doc_id = g.doc_id AND s.section_id = g.section_id AND s.sent_id = g.sent_id AND g.gene_wordidxs = s.gene_wordidxs) 
+      ON (s.doc_id = g.doc_id AND s.section_id = g.section_id AND s.sent_id = g.sent_id AND (STRING_TO_ARRAY(g.wordidxs))::int[] = s.gene_wordidxs) 
     JOIN gene_holdout_labels l
       ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
   WHERe
