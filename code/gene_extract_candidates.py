@@ -90,6 +90,8 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
   m = Mention(None, row.doc_id, row.section_id, row.sent_id, [i], mid, mapping_type, mention_supertype, mention_subtype, gene_name, [word], None)
   dep_dag = deps.DepPathDAG(row.dep_parents, row.dep_paths, row.words)
 
+  phrase = ' '.join(row.words)
+  lemma_phrase = ' '.join(row.lemmas)
   if SR.get('post-match'):
     opts = SR['post-match']
     phrase_post = " ".join(row.words[i+1:])
