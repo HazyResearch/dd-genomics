@@ -231,6 +231,24 @@ CREATE TABLE genepheno_holdout_labels (
   labeler text
 );
 
+DROP TABLE IF EXISTS gene_holdout_set;
+CREATE TABLE gene_holdout_set (
+        doc_id text,
+        section_id text,
+        sent_id int,
+        gene_wordidxs int[]
+) DISTRIBUTED BY (doc_id);
+
+DROP TABLE IF EXISTS gene_holdout_labels;
+CREATE TABLE gene_holdout_labels (
+  doc_id text,
+  section_id text,
+  sent_id int,
+  is_correct text,
+  type text,
+  labeler text
+);
+
 DROP TABLE IF EXISTS genepheno_causation_canon CASCADE;
 CREATE TABLE genepheno_causation_canon (
   hpo_id text,
