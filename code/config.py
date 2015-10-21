@@ -231,9 +231,9 @@ GENE_PHENO = {
       # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
       'phrases-in-sent' : {
         'pos' : ['caused by mutations'],
-        'neg' : ['risk', 'variance', 'patients', 'gwas', 'association study', 'reported', 'therapeutic utility', 'methylated genes', 'transcription factor', 'viral', 'virus', 'pathogen', 'families', 'possible association'],
+        'neg' : ['risk', 'variance', 'gwas', 'association study', 'possible association', 'to investigate', 'could reveal', 'to determine', 'unclear', 'hypothesize', 'to evaluate'],
         'pos-rgx' : [],
-        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\d+\s+(adult|patient|studie|subject)s']
+        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*to determine', r'^\s*to evaluate', r'^\s*to investigate',]
       },
 
       # Supervise as T/F based on phrases (exact or regex) only between the G and P mentions
@@ -260,7 +260,7 @@ GENE_PHENO = {
         'max-dist' : 1,
         'pos-g' : ['cause', 'mutate', 'mutation', 'variant', 'allele'],
         'pos-p' : ['gene', 'mutation', 'mutate'],
-        'neg-g' : ['express', 'expression', 'coexpression', 'coexpress', 'co-expression', 'co-express', 'overexpress', 'overexpression', 'over-expression', 'over-express', 'somatic', 'infection', 'interacts', 'regulate', 'up-regulate', 'upregulate', 'down-regulate', 'downregulate'],
+        'neg-g' : ['express', 'expression', 'coexpression', 'coexpress', 'co-expression', 'co-express', 'overexpress', 'overexpression', 'over-expression', 'over-express', 'somatic', 'infection', 'interacts', 'regulate', 'up-regulate', 'upregulate', 'down-regulate', 'downregulate', 'production'],
         'neg-p' : []
       },
 
@@ -295,10 +295,10 @@ GENE_PHENO = {
 
       # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
       'phrases-in-sent' : {
-        'pos' : [],
-        'neg' : [],
+        'pos' : ['caused by mutations'],
+        'neg' : ['risk', 'variance', 'gwas', 'association study', 'possible association', 'to investigate', 'could reveal', 'we evaluated', 'to determine', 'unclear', 'hypothesize', 'to evaluate'],
         'pos-rgx' : [],
-        'neg-rgx' : []
+        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*to determine', r'^\s*to evaluate', r'^\s*to investigate',]
       },
 
       # Supervise as T/F based on phrases (exact or regex) only between the G and P mentions
@@ -323,9 +323,9 @@ GENE_PHENO = {
       # Supervise GP pairs as T/F based on dependency-path neighbor lemmas of G and P
       'dep-lemma-neighbors' : {
         'max-dist' : 1,
-        'pos-g' : [],
+        'pos-g' : ['mutate', 'mutation', 'variant', 'allele'],
         'pos-p' : [],
-        'neg-g' : [],
+        'neg-g' : ['express', 'expression', 'coexpression', 'coexpress', 'co-expression', 'co-express', 'overexpress', 'overexpression', 'over-expression', 'over-express', 'somatic', 'infection', 'interacts', 'regulate', 'up-regulate', 'upregulate', 'down-regulate', 'downregulate', 'production'],
         'neg-p' : []
       },
 
