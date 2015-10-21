@@ -82,9 +82,11 @@ GENE = {
   ## Supervision Rules
   'SR' : {
     # Label some P mentions based on the toks / phrases that follow
+    'bad-genes': ['ANOVA', 'MRI', 'CO2', 'gamma', 'spatial', 'tau', 'Men', 'ghrelin'],
+
     'post-match' : {
-      'pos' : [],
-      'neg' : [],
+      'pos' : ['_ mutation', 'mutation', '_ mutations', 'mutations', 'mutant', 'mutants', 'gene', 'exon', 'residue', 'residues', 'coding', 'isoform', 'isoforms', 'deletion', 'mRNA'],
+      'neg' : ['+', 'pathway', 'patient', 'patients', 'risk factor', 'risk factors', 'inhibitor', 'inhibitors'],
       'pos-rgx' : [],
       'neg-rgx' : [r'cell(s|\slines?)']
     },
@@ -99,6 +101,13 @@ GENE = {
     'neighbor-match': {
       'pos' : [],
       'neg' : [],
+      'pos-rgx': [],
+      'neg-rgx': []
+    },
+
+    'phrases-in-sent': {
+      'pos' : [],
+      'neg' : ['serum', 'level'],
       'pos-rgx': [],
       'neg-rgx': []
     },
@@ -259,7 +268,7 @@ GENE_PHENO = {
       'dep-lemma-neighbors' : {
         'max-dist' : 1,
         'pos-g' : ['cause', 'mutate', 'mutation', 'variant', 'allele'],
-        'pos-p' : ['gene', 'mutation', 'mutate'],
+        'pos-p' : ['mutation', 'mutate'],
         'neg-g' : ['express', 'expression', 'coexpression', 'coexpress', 'co-expression', 'co-express', 'overexpress', 'overexpression', 'over-expression', 'over-express', 'somatic', 'infection', 'interacts', 'regulate', 'up-regulate', 'upregulate', 'down-regulate', 'downregulate', 'production'],
         'neg-p' : []
       },

@@ -17,7 +17,7 @@ CREATE TABLE gene_holdout_set AS (
     doc_id,
     section_id,
     sent_id,
-    string_to_array(gene_wordidxs, '|~|')::int[] AS gene_wordidxs,
+    wordidxs AS gene_wordidxs
   FROM
     gene_mentions gm
   ORDER BY random()

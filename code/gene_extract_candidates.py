@@ -98,6 +98,10 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
         match = util.rgx_mult_search(phrase_post, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
           return m._replace(is_correct=val, mention_supertype='POST_MATCH_%s_%s' % (name, val), mention_subtype=match)
+  
+  if SR.get('bad-genes'):
+    if gene_name in SR['bad-genes']:
+      return m._replace(is_correct=None, mention_supertype='BAD_GENE' % gene_name)
 
   if SR.get('pre-neighbor-match') and i > 0:
     opts = SR['pre-neighbor-match']
@@ -108,6 +112,15 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
         if match:
           return m._replace(is_correct=val, mention_supertype='PRE_NEIGHBOR_MATCH_%s_%s' % (name, val), mention_subtype=match)
 
+  if SR.get('phrases-in-sent'):
+    opts = SR['phrases-in-sent']
+    for name,val in VALS:
+      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
+        match = util.rgx_mult_search(phrase + ' ' + lemma_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
+        if match:
+          # backslashes cause postgres errors in postgres 9
+          return r._replace(is_correct=val, mention_supertype='PHRASE_%s' % name, mention_subtype=match.replace('\\', '/'))
+ 
   ## DS RULE: matches from papers that NCBI annotates as being about the mentioned gene are likely true.
   if SR['pubmed-paper-genes-true']:
     pubmed_to_genes = CACHE['pubmed_to_genes']

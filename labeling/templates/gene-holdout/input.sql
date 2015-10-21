@@ -13,7 +13,7 @@ from
         and hs.section_id = g.section_id
         and hs.sent_id = g.sent_id
         and hs.gene_wordidxs = g.wordidxs)
-  join sentences_input si
+  join sentences_input_with_gene_mention si
     on (hs.doc_id = si.doc_id
         and hs.section_id = si.section_id
         and hs.sent_id = si.sent_id)
@@ -21,14 +21,11 @@ from
     on (g.gene_name = genes.gene_name)
 where
   g.gene_name is not null
-  AND p.entity is not null
 group by
   hs.doc_id
   , hs.section_id
   , hs.sent_id
-  , p.entity
   , g.wordidxs
-  , p.wordidxs
   , si.words
 )
 to stdout with csv header;
