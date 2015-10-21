@@ -286,3 +286,6 @@ CREATE TABLE ensembl_gene_sequences (
   ensembl_transcript text,
   n_seq text[]
 ) DISTRIBUTED BY (ensembl_transcript);
+
+DROP TABLE IF EXISTS allowed_phenos CASCADE;
+CREATE TABLE allowed_phenos (hpo_id text) DISTRIBUTED BY (hpo_id);

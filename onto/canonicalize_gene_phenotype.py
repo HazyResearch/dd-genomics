@@ -10,16 +10,6 @@ import data_util as dutil
 ### ATTENTION!!!! PLEASE PIPE THE OUTPUT OF THIS SCRIPT THROUGH sort | uniq !!! ###
 ### Doing it within python is a waste of resources. Linux does it much faster.  ###
 
-def get_parents(bottom_id, dag, root_id='HP:0000118'):
-    if bottom_id == root_id:
-      return set([bottom_id])
-    rv = set()
-    if bottom_id in dag.edges:
-      for parent in dag.edges[bottom_id]:
-        rv |= get_parents(parent, dag)
-    rv.add(bottom_id)
-    return rv
-
 if __name__ == '__main__':
   hpo_dag = dutil.read_hpo_dag()
   with open(sys.argv[1]) as f:
@@ -27,7 +17,7 @@ if __name__ == '__main__':
       toks = line.strip().split()
       hpo_id = toks[0]
       ensemble_gene = toks[1]
-      parent_ids = get_parents(hpo_id, hpo_dag) # includes the original hpo_id
+      parent_ids = dutil.get_parents(hpo_id, hpo_dag) # includes the original hpo_id
 
       assert hpo_id in parent_ids
       if 'HP:0000118' not in parent_ids:

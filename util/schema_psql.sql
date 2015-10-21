@@ -95,24 +95,6 @@ CREATE TABLE variant_features (
 	feature text
 ) ;
 
--- Gene / Phenotype mentions
-DROP TABLE IF EXISTS genepheno_relations CASCADE;
-CREATE TABLE genepheno_relations (
-	id bigint,
-	relation_id text,
-	doc_id text,
-        section_id text,
-	sent_id int,
-        gene_mention_id text,
-        gene_name text,
-        gene_wordidxs int[],
-        gene_is_correct boolean,
-	pheno_mention_id text,
-        pheno_entity text,
-        pheno_wordidxs int[],
-        pheno_is_correct boolean
-) ;
-
 -- Gene / Phenotype association mentions
 DROP TABLE IF EXISTS genepheno_association CASCADE;
 CREATE TABLE genepheno_association (
@@ -158,29 +140,6 @@ CREATE TABLE genepheno_features (
         section_id text,
 	relation_id text,
 	feature text
-) ;
-
--- Gene / Variant mentions
-DROP TABLE IF EXISTS genevariant_relations CASCADE;
-CREATE TABLE genevariant_relations (
-	id bigint,
-	relation_id text,
-	doc_id text,
-        section1_id text,
-	sent1_id int,
-        section2_id text,
-	sent2_id int,
-	variant_mention_id text,
-        variant_entity text,
-        variant_wordidxs int[],
-        variant_is_correct boolean,
-        gene_mention_id text,
-        gene_name text,
-        gene_wordidxs int[],
-        gene_is_correct boolean,
-	is_correct boolean,
-        supertype text,
-        subtype text
 ) ;
 
 DROP TABLE IF EXISTS genevariant_features CASCADE;
@@ -327,3 +286,6 @@ CREATE TABLE ensembl_gene_sequences (
   ensembl_transcript text,
   n_seq text[]
 ) ;
+
+DROP TABLE IF EXISTS allowed_phenos CASCADE;
+CREATE TABLE allowed_phenos (hpo_id text) ;

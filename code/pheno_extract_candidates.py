@@ -35,6 +35,9 @@ Mention = namedtuple('Mention', [
             'words',
             'is_correct'])
 
+### CANDIDATE EXTRACTION ###
+HF = config.PHENO['HF']
+SR = config.PHENO['SR']
 
 def load_pheno_terms():
   phenos = {}
@@ -43,7 +46,6 @@ def load_pheno_terms():
   Load phenotypes (as phrases + as frozensets to allow permutations)
   Output a dict with pheno phrases as keys, and a dict with pheno sets as keys
   """
-
   # [See onto/prep_pheno_terms.py]
   # Note: for now, we don't distinguish between lemmatized / exact
   rows = [line.split('\t') for line in open(onto_path('data/pheno_terms.tsv'), 'rb')]
@@ -62,9 +64,6 @@ def load_pheno_terms():
   return phenos, pheno_sets
 
 
-### CANDIDATE EXTRACTION ###
-HF = config.PHENO['HF']
-SR = config.PHENO['SR']
 
 def keep_word(w):
   return (w.lower() not in STOPWORDS and len(w) > HF['min-word-len'] - 1)

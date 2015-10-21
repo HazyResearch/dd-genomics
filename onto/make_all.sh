@@ -142,6 +142,8 @@ fi
 # Join to get HPO to pubmed ID map through MeSH
 join -t $'\t' -1 2 -2 1 -o 1.1,2.2 <(cut -f1,7 data/hpo_phenotypes.tsv | egrep -v $'\t''$' | sort -k2) data/meshToPmid.tsv > data/hpo_to_pmid_via_mesh.tsv
 
+python prep_pheno_terms.py
+
 # Get map between PMIDs and DOIs.
 RAW="raw/PMC-ids.csv"
 if [ ! -e "$RAW" ]; then

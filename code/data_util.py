@@ -51,10 +51,11 @@ def read_hpo_dag():
     return Dag(nodes, edges)
 
 
-def get_hpo_phenos(hpo_dag, parent='HP:0000118'):
-  """Get only the children of 'Phenotypic Abnormality' (HP:0000118)."""
+def get_hpo_phenos(hpo_dag, parent='HP:0000118', exclude_parents=['HP:0002664', 'HP:0002527']):
+  """Get only the children of 'Phenotypic Abnormality' (HP:0000118), excluding all children of neoplasm (0002664) and falls (0002527)."""
   return [hpo_term for hpo_term in hpo_dag.nodes
-          if hpo_dag.has_child(parent, hpo_term)]
+          if (hpo_dag.has_child(parent, hpo_term) 
+          and all([not hpo_dag.has_child(p, hpo_term) for p in exclude_parents]))]
 
 
 def read_hpo_synonyms():
@@ -117,4 +118,14 @@ def gene_symbol_to_ensembl_id_map():
       # if mapping_type == 'CANONICAL_SYMBOL':
       #   eid_map[gene_name.lower()].add((eid, canonical_name, mapping_type))
   return eid_map
+
+def get_parents(bottom_id, dag, root_id='HP:0000118'):
+    if bottom_id == root_id:
+      return set([bottom_id])
+    rv = set()
+    if bottom_id in dag.edges:
+      for parent in dag.edges[bottom_id]:
+        rv |= get_parents(parent, dag)
+    rv.add(bottom_id)
+    return rv
 
