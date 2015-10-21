@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+import csv
+import sys
+
+input_csv = sys.argv[1]
+
+def create_row_id(row):
+  row_id = ''
+  row_id += row[0]
+  row_id += '_'
+  row_id += row[1]
+  row_id += '_'
+  row_id += row[2]
+  return row_id
+
+writer = csv.writer(sys.stdout)
+with open(input_csv) as f:
+  reader = csv.reader(f)
+  for i, row in enumerate(reader):
+    if i == 0:
+      new_row = ['row_id'] + row
+    else:
+      row[6] = row[6].replace('-LRB-', '(')
+      row[6] = row[6].replace('-RRB-', ')')
+      row[6] = row[6].replace('-LSB-', '[')
+      row[6] = row[6].replace('-RSB-', ']')
+      row_id = create_row_id(row)
+      new_row = [row_id] + row
+    writer.writerow(new_row)
