@@ -85,7 +85,7 @@ GENE = {
     'bad-genes': ['ANOVA', 'MRI', 'CO2', 'gamma', 'spatial', 'tau', 'Men', 'ghrelin'],
 
     'post-match' : {
-      'pos' : ['_ mutation', 'mutation', '_ mutations', 'mutations', 'mutant', 'mutants', 'gene', 'exon', 'residue', 'residues', 'coding', 'isoform', 'isoforms', 'deletion', 'mRNA'],
+      'pos' : ['_ mutation', 'mutation', '_ mutations', 'mutations', 'mutant', 'mutants', 'gene', 'exon', 'residue', 'residues', 'coding', 'isoform', 'isoforms', 'deletion', 'mRNA', 'homozyous'],
       'neg' : ['+', 'pathway', 'patient', 'patients', 'risk factor', 'risk factors', 'inhibitor', 'inhibitors'],
       'pos-rgx' : [],
       'neg-rgx' : [r'cell(s|\slines?)']
@@ -239,9 +239,9 @@ GENE_PHENO = {
 
       # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
       'phrases-in-sent' : {
-        'pos' : ['caused by mutations'],
+        'pos' : ['caused by mutations', 'homozygous', 'confirmed linkage'],
         'neg' : ['risk', 'variance', 'gwas', 'association study', 'possible association', 'to investigate', 'could reveal', 'to determine', 'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression'],
-        'pos-rgx' : ['mutations .*(have been |were )(implicated?|found)', 'mutations in.*cause.*'],
+        'pos-rgx' : ['mutations .*(have been |were )(implicated?|found)', 'mutations in.*cause.*', 'genotype.*linked to'],
         'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*to determine', r'^\s*to evaluate', r'^\s*to investigate', '\d+ h ', r'^\s*to assess', ]
       },
 
@@ -304,9 +304,9 @@ GENE_PHENO = {
 
       # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
       'phrases-in-sent' : {
-        'pos' : ['caused by mutations'],
+        'pos' : ['caused by mutations', 'confirmed linkage'],
         'neg' : ['risk', 'variance', 'gwas', 'association study', 'possible association', 'to investigate', 'could reveal', 'we evaluated', 'to determine', 'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression'],
-        'pos-rgx' : ['mutations.*(have been|were).*(implicated?|found|associated)'],
+        'pos-rgx' : ['mutations .*(have been |were )(implicated?|found)', 'mutations (in|of).*(cause|give rise to).*', 'genotype.*linked to', 'associated with.*mutation'],
         'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*to determine', r'^\s*to evaluate', r'^\s*to investigate', r'^\s*to assess', '\d+ h ']
       },
 
