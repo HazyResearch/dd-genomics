@@ -18,6 +18,7 @@ SELECT DISTINCT
   gc.gene_name,
   gc.gene_wordidxs,
   gc.pheno_wordidxs,
+  (string_to_array(si.words, '|^|'))[(gc.pheno_wordidxs)[1] + 1] first_pheno,
   array_to_string(string_to_array(si.words, '|^|'), ' ') words
 FROM
   genepheno_association_is_correct_inference gc 

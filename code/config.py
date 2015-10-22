@@ -82,7 +82,7 @@ GENE = {
   ## Supervision Rules
   'SR' : {
     # Label some P mentions based on the toks / phrases that follow
-    'bad-genes': ['ANOVA', 'MRI', 'CO2', 'gamma', 'spatial', 'tau', 'Men', 'ghrelin'],
+    'bad-genes': ['ANOVA', 'MRI', 'CO2', 'gamma', 'spatial', 'tau', 'Men', 'ghrelin', 'MIM', 'NHS'],
 
     'post-match' : {
       'pos' : ['_ mutation', 'mutation', '_ mutations', 'mutations', 'mutant', 'mutants', 'gene', 'exon', 'residue', 'residues', 'coding', 'isoform', 'isoforms', 'deletion', 'mRNA', 'homozyous'],
@@ -220,7 +220,7 @@ GENE_PHENO = {
     'take-best-only-dups' : True,
 
     # Only consider the closest GP pairs by dep-path distance such that all G,P are covered
-    'take-best-only' : True
+    'take-best-only' : False
   },
 
   'vals' : BOOL_VALS,
@@ -241,8 +241,8 @@ GENE_PHENO = {
       'phrases-in-sent' : {
         'pos' : ['caused by mutations', 'homozygous', 'confirmed linkage'],
         'neg' : ['risk', 'variance', 'gwas', 'association study', 'possible association', 'to investigate', 'could reveal', 'to determine', 'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression'],
-        'pos-rgx' : ['mutations .*(have been |were )(implicated?|found)', 'mutations in.*cause.*', 'genotype.*linked to'],
-        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*to determine', r'^\s*to evaluate', r'^\s*to investigate', '\d+ h ', r'^\s*to assess', ]
+        'pos-rgx' : [r'mutations .*GENE.*(have been |were )(implicated?|found)PHENO', r'mutations in.*GENE.*cause.*PHENO', r'genotype.*linked to.*PHENO'],
+        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*To determine', r'^\s*To evaluate', r'^\s*To investigate', '\d+ h ', r'^\s*To assess', ]
       },
 
       # Supervise as T/F based on phrases (exact or regex) only between the G and P mentions
@@ -306,8 +306,8 @@ GENE_PHENO = {
       'phrases-in-sent' : {
         'pos' : ['caused by mutations', 'confirmed linkage'],
         'neg' : ['risk', 'variance', 'gwas', 'association study', 'possible association', 'to investigate', 'could reveal', 'we evaluated', 'to determine', 'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression'],
-        'pos-rgx' : ['mutations .*(have been |were )(implicated?|found)', 'mutations (in|of).*(cause|give rise to).*', 'genotype.*linked to', 'associated with.*mutation'],
-        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*to determine', r'^\s*to evaluate', r'^\s*to investigate', r'^\s*to assess', '\d+ h ']
+        'pos-rgx' : [r'mutations .*GENE.*(have been |were )(implicated?|found)PHENO', r'mutations in.*GENE.*cause.*PHENO', r'.*GENE.*associated with.*PHENO', r'GENE.*genotype.*linked to.*PHENO'],
+        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*To determine', r'^\s*To evaluate', r'^\s*To investigate', r'^\s*To assess', '\d+ h ']
       },
 
       # Supervise as T/F based on phrases (exact or regex) only between the G and P mentions

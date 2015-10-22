@@ -128,4 +128,3 @@ def get_parents(bottom_id, dag, root_id='HP:0000118'):
         rv |= get_parents(parent, dag)
     rv.add(bottom_id)
     return rv
-

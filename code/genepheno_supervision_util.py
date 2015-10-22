@@ -48,6 +48,16 @@ Relation = collections.namedtuple('Relation', [
 
 HPO_DAG = dutil.read_hpo_dag()
 
+def replace_opts(opts, replaceList):
+  ret = {}
+  for name in opts:
+    strings = opts[name]
+    for (pattern, subst) in replaceList:
+      strings = [s.replace(pattern, subst) for s in strings]
+    ret[name] = strings
+    print >>sys.stderr, strings
+  return ret
+
 def read_supervision():
   """Reads genepheno supervision data (from charite)."""
   supervision_pairs = set()
@@ -77,6 +87,8 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
   pheno_entity = row.pheno_entity
   pheno_wordidxs = row.pheno_wordidxs
   pheno_is_correct = row.pheno_is_correct
+  gene = row.gene_name
+  pheno = ' '.join([row.words[i] for i in row.pheno_wordidxs])
 
   phrase = ' '.join(row.words)
   lemma_phrase = ' '.join(row.lemmas)
@@ -128,9 +140,11 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
         # count_adjacent_false_none += 1
         return None
 
+  gene_name = row.gene_name
   VALS = config.GENE_PHENO['vals']
   if SR.get('phrases-in-sent'):
     opts = SR['phrases-in-sent']
+    opts = replace_opts(opts, [('GENE', gene), ('PHENO', pheno)])
     for name,val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
         match = util.rgx_mult_search(phrase + ' ' + lemma_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
@@ -140,6 +154,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
 
   if SR.get('phrases-in-between'):
     opts = SR['phrases-in-between']
+    opts = replace_opts(opts, [('GENE', gene), ('PHENO', pheno)])
     for name,val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
         match = util.rgx_mult_search(between_phrase + ' ' + between_phrase_lemmas, opts[name], opts['%s-rgx' % name], flags=re.I)
