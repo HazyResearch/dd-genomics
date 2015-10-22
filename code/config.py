@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # CONFIG
 # The master configuration file for candidate extraction, distant supervision and feature
 # extraction hyperparameters / configurations
@@ -242,7 +243,7 @@ GENE_PHENO = {
       'phrases-in-sent' : {
         'pos' : ['caused by mutations', 'homozygous', 'confirmed linkage'],
         'neg' : ['risk', 'variance', 'gwas', 'association study', 'possible association', 'to investigate', 'could reveal', 'to determine', 'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression'],
-        'pos-rgx' : [r'mutations .*GENE.*(have been |were )(implicated?|found)PHENO', r'mutations in.*GENE.*cause.*PHENO', r'genotype.*linked to.*PHENO'],
+        'pos-rgx' : [r'mutations .*GENE.*(have been |were )(implicated?|found).*PHENO', r'mutations in.*GENE.*cause.*PHENO', r'genotype.*linked to.*PHENO', r'PHENO.*linkage to.*GENE'],
         'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*To determine', r'^\s*To evaluate', r'^\s*To investigate', '\d+ h ', r'^\s*To assess', 'unlikely.*GENE.*PHENO']
       },
 
@@ -270,7 +271,7 @@ GENE_PHENO = {
         'max-dist' : 1,
         'pos-g' : ['cause', 'mutate', 'mutation', 'variant', 'allele'],
         'pos-p' : ['mutation', 'mutate'],
-        'neg-g' : ['express', 'expression', 'coexpression', 'coexpress', 'co-expression', 'co-express', 'overexpress', 'overexpression', 'over-expression', 'over-express', 'somatic', 'infection', 'interacts', 'regulate', 'up-regulate', 'upregulate', 'down-regulate', 'downregulate', 'production'],
+        'neg-g' : ['express', 'expression', 'coexpression', 'coexpress', 'co-expression', 'co-express', 'overexpress', 'overexpression', 'over-expression', 'over-express', 'somatic', 'infection', 'interacts', 'regulate', 'up-regulate', 'upregulate', 'down-regulate', 'downregulate', 'production', 'product', 'increased', 'increase', 'increas'],
         'neg-p' : []
       },
 
@@ -307,7 +308,7 @@ GENE_PHENO = {
       'phrases-in-sent' : {
         'pos' : ['caused by mutations', 'confirmed linkage'],
         'neg' : ['risk', 'variance', 'gwas', 'association study', 'possible association', 'to investigate', 'could reveal', 'we evaluated', 'to determine', 'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression'],
-        'pos-rgx' : [r'mutations .*GENE.*(have been |were )(implicated?|found)PHENO', r'mutations in.*GENE.*cause.*PHENO', r'.*GENE.*associated with.*PHENO', r'GENE.*genotype.*linked to.*PHENO'],
+        'pos-rgx' : [r'mutations .*GENE.*(have been |were )(implicated?|found).*PHENO', r'mutations in.*GENE.*cause.*PHENO', r'genotype.*linked to.*PHENO', r'PHENO.*linkage to.*GENE', r'.*GENE.*associated with.*PHENO'],
         'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*To determine', r'^\s*To evaluate', r'^\s*To investigate', r'^\s*To assess', '\d+ h ']
       },
 

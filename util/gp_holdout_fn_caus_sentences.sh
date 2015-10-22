@@ -19,7 +19,8 @@ SELECT DISTINCT
   gc.gene_wordidxs,
   gc.pheno_wordidxs,
   (string_to_array(si.words, '|^|'))[(gc.pheno_wordidxs)[1] + 1] first_pheno,
-  array_to_string(string_to_array(si.words, '|^|'), ' ') words
+  array_to_string(string_to_array(si.words, '|^|'), ' ') words,
+  array_to_string(string_to_array(si.lemmas, '|^|'), ' ') lemmas
 FROM
   genepheno_causation_is_correct_inference gc 
   RIGHT JOIN genepheno_holdout_set s 

@@ -17,7 +17,9 @@ SELECT DISTINCT
   l.labeler ASSOCIATION_FALSE_POSITIVES,
   g.gene_name,
   g.wordidxs,
-  array_to_string(string_to_array(si.words, '|^|'), ' ') words
+  array_to_string(string_to_array(si.words, '|^|'), ' ') words,
+  array_to_string(string_to_array(si.lemmas, '|^|'), ' ') lemmas
+
 FROM
   gene_mentions_filtered_is_correct_inference g 
   RIGHT JOIN gene_holdout_set s 
