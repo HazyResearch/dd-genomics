@@ -240,9 +240,9 @@ GENE_PHENO = {
       # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
       'phrases-in-sent' : {
         'pos' : ['caused by mutations'],
-        'neg' : ['risk', 'variance', 'gwas', 'association study', 'possible association', 'to investigate', 'could reveal', 'to determine', 'unclear', 'hypothesize', 'to evaluate'],
-        'pos-rgx' : [],
-        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*to determine', r'^\s*to evaluate', r'^\s*to investigate',]
+        'neg' : ['risk', 'variance', 'gwas', 'association study', 'possible association', 'to investigate', 'could reveal', 'to determine', 'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression'],
+        'pos-rgx' : ['mutations .*(have been |were )(implicated?|found)', 'mutations in.*cause.*'],
+        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*to determine', r'^\s*to evaluate', r'^\s*to investigate', '\d+ h ', r'^\s*to assess', ]
       },
 
       # Supervise as T/F based on phrases (exact or regex) only between the G and P mentions
@@ -305,9 +305,9 @@ GENE_PHENO = {
       # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
       'phrases-in-sent' : {
         'pos' : ['caused by mutations'],
-        'neg' : ['risk', 'variance', 'gwas', 'association study', 'possible association', 'to investigate', 'could reveal', 'we evaluated', 'to determine', 'unclear', 'hypothesize', 'to evaluate'],
-        'pos-rgx' : [],
-        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*to determine', r'^\s*to evaluate', r'^\s*to investigate',]
+        'neg' : ['risk', 'variance', 'gwas', 'association study', 'possible association', 'to investigate', 'could reveal', 'we evaluated', 'to determine', 'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression'],
+        'pos-rgx' : ['mutations.*(have been|were).*(implicated?|found|associated)'],
+        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*to determine', r'^\s*to evaluate', r'^\s*to investigate', r'^\s*to assess', '\d+ h ']
       },
 
       # Supervise as T/F based on phrases (exact or regex) only between the G and P mentions
