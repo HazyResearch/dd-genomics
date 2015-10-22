@@ -12,12 +12,12 @@ DB=$1
 TMPDIR=$(mktemp -d /tmp/dft.XXXXXX)
 SQL_COMMAND_FILE=${TMPDIR}/dft.sql
 cat <<EOF >> ${SQL_COMMAND_FILE}
-DROP TABLE IF EXISTS sentences_input_with_holdout;
-CREATE TABLE sentences_input_with_holdout AS (
+DROP TABLE IF EXISTS sentences_input_with_holdout_g;
+CREATE TABLE sentences_input_with_holdout_g AS (
   SELECT si.*
   FROM 
     sentences_input_with_gene_mention si
-    JOIN genepheno_holdout_set s
+    JOIN gene_holdout_set s
       ON (si.doc_id = s.doc_id)
 ) DISTRIBUTED BY (doc_id);
 EOF
