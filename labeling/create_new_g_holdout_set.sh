@@ -17,7 +17,7 @@ CREATE TABLE gene_holdout_set AS (
     doc_id,
     section_id,
     sent_id,
-    wordidxs AS gene_wordidxs
+    STRING_TO_ARRAY(wordidxs, '|^|')::int[] AS gene_wordidxs
   FROM
     gene_mentions_filtered gm
   ORDER BY random()
@@ -45,7 +45,7 @@ do
 done
 
 echo "Tasks for you: "
-echo "  * Take the new gene-holdout task and create *.{AARON,HARENDRA,JOHANNES} tasks from it"
+echo "  * Copy & create *.{AARON,HARENDRA,JOHANNES} tasks"
 echo "  * Then (start MindTagger and) create the necessary labels"
 echo "  * Don't forget to start and cleanup the backup!"
 
