@@ -19,7 +19,7 @@ CREATE TABLE gene_holdout_set AS (
     sent_id,
     wordidxs AS gene_wordidxs
   FROM
-    gene_mentions gm
+    gene_mentions_filtered gm
   ORDER BY random()
   LIMIT 1000
 ) DISTRIBUTED BY (doc_id);

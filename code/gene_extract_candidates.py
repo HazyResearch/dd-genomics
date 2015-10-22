@@ -103,7 +103,7 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
   
   if SR.get('bad-genes'):
     if gene_name in SR['bad-genes']:
-      return m._replace(is_correct=None, mention_supertype='BAD_GENE' % gene_name)
+      return m._replace(is_correct=None, mention_supertype='BAD_GENE')
 
   if SR.get('pre-neighbor-match') and i > 0:
     opts = SR['pre-neighbor-match']

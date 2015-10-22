@@ -88,3 +88,4 @@ db.url
 /log*
 
 /oldlogs/
+/writes

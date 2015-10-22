@@ -22,9 +22,9 @@ FROM
   gene_mentions_filtered_is_correct_inference g
   JOIN gene_holdout_set s 
     ON (s.doc_id = g.doc_id AND s.section_id = g.section_id AND s.sent_id = g.sent_id AND (STRING_TO_ARRAY(g.wordidxs, '|^|'))::int[] = s.gene_wordidxs) 
-  JOIN genepheno_holdout_labels l
+  JOIN gene_holdout_labels l
     ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
-  JOIN sentences_input_with_holdout si
+  JOIN sentences_input_with_holdout_g si
     ON (si.doc_id = l.doc_id AND si.section_id = l.section_id AND si.sent_id = l.sent_id)
 WHERE
   g.expectation <= 0.9 
