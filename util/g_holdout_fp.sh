@@ -32,59 +32,59 @@ SELECT
 FROM
   (SELECT
     labeler,
-    COUNT(DISTINCT mention_id) fp
+    COUNT(DISTINCT s.doc_id) fp
   FROM
     gene_mentions_filtered_is_correct_inference g 
-    JOIN gene_holdout_set s 
+    RIGHT JOIN gene_holdout_set s 
       ON (s.doc_id = g.doc_id AND s.section_id = g.section_id AND s.sent_id = g.sent_id AND (STRING_TO_ARRAY(g.wordidxs, '|^|'))::int[] = s.gene_wordidxs) 
     JOIN gene_holdout_labels l
       ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
   WHERe
-    g.expectation > 0.9 
+    COALESCE(g.expectation, 0) > 0.9 
     AND l.is_correct = 'f'
   GROUP BY labeler) fp
   FULL OUTER JOIN
   (SELECT
     labeler,
-    COUNT(DISTINCT mention_id) tp
+    COUNT(DISTINCT s.doc_id) tp
   FROM
     gene_mentions_filtered_is_correct_inference g 
-    JOIN gene_holdout_set s 
+    RIGHT JOIN gene_holdout_set s 
       ON (s.doc_id = g.doc_id AND s.section_id = g.section_id AND s.sent_id = g.sent_id AND (STRING_TO_ARRAY(g.wordidxs, '|^|'))::int[] = s.gene_wordidxs) 
     JOIN gene_holdout_labels l
       ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
   WHERe
-    g.expectation > 0.9 
+    COALESCE(g.expectation, 0) > 0.9 
     AND l.is_correct = 't'
   GROUP BY labeler) tp
   ON (fp.labeler = tp.labeler)
   FULL OUTER JOIN
   (SELECT
     labeler,
-    COUNT(DISTINCT mention_id) fn
+    COUNT(DISTINCT s.doc_id) fn
   FROM
     gene_mentions_filtered_is_correct_inference g 
-    JOIN gene_holdout_set s 
+    RIGHT JOIN gene_holdout_set s 
       ON (s.doc_id = g.doc_id AND s.section_id = g.section_id AND s.sent_id = g.sent_id AND (STRING_TO_ARRAY(g.wordidxs, '|^|'))::int[] = s.gene_wordidxs) 
     JOIN gene_holdout_labels l
       ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
   WHERe
-    g.expectation <= 0.9 
+    COALESCE(g.expectation, 0) <= 0.9 
     AND l.is_correct = 't'
   GROUP BY labeler) fn
   ON (fp.labeler = fn.labeler)
   FULL OUTER JOIN
   (SELECT
     labeler,
-    COUNT(DISTINCT mention_id) tn
+    COUNT(DISTINCT s.doc_id) tn
   FROM
     gene_mentions_filtered_is_correct_inference g 
-    JOIN gene_holdout_set s 
+    RIGHT JOIN gene_holdout_set s 
       ON (s.doc_id = g.doc_id AND s.section_id = g.section_id AND s.sent_id = g.sent_id AND (STRING_TO_ARRAY(g.wordidxs, '|^|'))::int[] = s.gene_wordidxs) 
     JOIN gene_holdout_labels l
       ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
   WHERe
-    g.expectation <= 0.9 
+    COALESCE(g.expectation, 0) <= 0.9 
     AND l.is_correct = 'f'
   GROUP BY labeler) tn
   ON (fp.labeler = tn.labeler)) a;

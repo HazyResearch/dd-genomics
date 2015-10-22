@@ -21,10 +21,10 @@ SELECT
 FROM
   (SELECT
     labeler,
-    COUNT(DISTINCT relation_id) fp
+    COUNT(DISTINCT s.doc_id) fp
   FROM
     genepheno_causation_is_correct_inference gc 
-    JOIN genepheno_holdout_set s 
+    RIGHT JOIN genepheno_holdout_set s 
       ON (s.doc_id = gc.doc_id AND s.section_id = gc.section_id AND s.sent_id = gc.sent_id AND gc.gene_wordidxs = s.gene_wordidxs AND gc.pheno_wordidxs = s.pheno_wordidxs) 
     JOIN genepheno_holdout_labels l
       ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
@@ -35,10 +35,10 @@ FROM
   JOIN
   (SELECT
     labeler,
-    COUNT(DISTINCT relation_id) tp
+    COUNT(DISTINCT s.doc_id) tp
   FROM
     genepheno_causation_is_correct_inference gc 
-    JOIN genepheno_holdout_set s 
+    RIGHT JOIN genepheno_holdout_set s 
       ON (s.doc_id = gc.doc_id AND s.section_id = gc.section_id AND s.sent_id = gc.sent_id AND gc.gene_wordidxs = s.gene_wordidxs AND gc.pheno_wordidxs = s.pheno_wordidxs) 
     JOIN genepheno_holdout_labels l
       ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
@@ -57,10 +57,10 @@ SELECT
 FROM
   (SELECT
     labeler,
-    COUNT(DISTINCT relation_id) fp
+    COUNT(DISTINCT s.doc_id) fp
   FROM
     genepheno_association_is_correct_inference gc 
-    JOIN genepheno_holdout_set s 
+    RIGHT JOIN genepheno_holdout_set s 
       ON (s.doc_id = gc.doc_id AND s.section_id = gc.section_id AND s.sent_id = gc.sent_id AND gc.gene_wordidxs = s.gene_wordidxs AND gc.pheno_wordidxs = s.pheno_wordidxs) 
     JOIN genepheno_holdout_labels l
       ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
@@ -71,10 +71,10 @@ FROM
   JOIN
   (SELECT
     labeler,
-    COUNT(DISTINCT relation_id) tp
+    COUNT(DISTINCT s.doc_id) tp
   FROM
     genepheno_association_is_correct_inference gc 
-    JOIN genepheno_holdout_set s 
+    RIGHT JOIN genepheno_holdout_set s 
       ON (s.doc_id = gc.doc_id AND s.section_id = gc.section_id AND s.sent_id = gc.sent_id AND gc.gene_wordidxs = s.gene_wordidxs AND gc.pheno_wordidxs = s.pheno_wordidxs) 
     JOIN genepheno_holdout_labels l
       ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 

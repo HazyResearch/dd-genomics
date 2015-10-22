@@ -28,7 +28,7 @@ FROM
   JOIN sentences_input_with_holdout_gp si
     ON (si.doc_id = l.doc_id AND si.section_id = l.section_id AND si.sent_id = l.sent_id)
 WHERE
-  COALESCE(gc.expectation, 0) > 0.9 
+  COALESCE(gc.expectation, 0) <= 0.9 
   AND l.is_correct = 'f') TO STDOUT;
 EOF
 psql -q -X --set ON_ERROR_STOP=1 -d $DB -f ${SQL_COMMAND_FILE} > /dev/stderr
