@@ -82,13 +82,14 @@ GENE = {
   ## Supervision Rules
   'SR' : {
     # Label some P mentions based on the toks / phrases that follow
-    'bad-genes': ['ANOVA', 'MRI', 'CO2', 'gamma', 'spatial', 'tau', 'Men', 'ghrelin', 'MIM', 'NHS'],
+    'bad-genes': ['ANOVA', 'MRI', 'CO2', 'gamma', 'spatial', 'tau', 'Men', 'ghrelin', 'MIM', 'NHS', 'STD'],
 
     'post-match' : {
       'pos' : ['_ mutation', 'mutation', '_ mutations', 'mutations', 'mutant', 'mutants', 'gene', 'exon', 'residue', 'residues', 'coding', 'isoform', 'isoforms', 'deletion', 'mRNA', 'homozyous'],
-      'neg' : ['+', 'pathway', 'patient', 'patients', 'risk factor', 'risk factors', 'inhibitor', 'inhibitors'],
+      'neg' : ['+', 'pathway', 'patient', 'patients', 'risk factor', 'risk factors', 'inhibitor', 'inhibitors', 'cell', 'cells', 'is used'],
       'pos-rgx' : [],
-      'neg-rgx' : [r'cell(s|\slines?)']
+      # can't copy the lt-equal sign from anywhere now, it should be down there as well
+      'neg-rgx' : [r'cell(s|\slines?)', '< \d+', '<= \d+', '≥ \d+', '> \d+', '>= \d+'] 
     },
 
     'pre-neighbor-match' : {
@@ -107,7 +108,7 @@ GENE = {
 
     'phrases-in-sent': {
       'pos' : [],
-      'neg' : ['serum', 'level'],
+      'neg' : ['serum', 'level', 'elevated', 'plasma'],
       'pos-rgx': [],
       'neg-rgx': []
     },
@@ -242,7 +243,7 @@ GENE_PHENO = {
         'pos' : ['caused by mutations', 'homozygous', 'confirmed linkage'],
         'neg' : ['risk', 'variance', 'gwas', 'association study', 'possible association', 'to investigate', 'could reveal', 'to determine', 'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression'],
         'pos-rgx' : [r'mutations .*GENE.*(have been |were )(implicated?|found)PHENO', r'mutations in.*GENE.*cause.*PHENO', r'genotype.*linked to.*PHENO'],
-        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*To determine', r'^\s*To evaluate', r'^\s*To investigate', '\d+ h ', r'^\s*To assess', ]
+        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*To determine', r'^\s*To evaluate', r'^\s*To investigate', '\d+ h ', r'^\s*To assess', 'unlikely.*GENE.*PHENO']
       },
 
       # Supervise as T/F based on phrases (exact or regex) only between the G and P mentions

@@ -55,7 +55,6 @@ def replace_opts(opts, replaceList):
     for (pattern, subst) in replaceList:
       strings = [s.replace(pattern, subst) for s in strings]
     ret[name] = strings
-    print >>sys.stderr, strings
   return ret
 
 def read_supervision():
