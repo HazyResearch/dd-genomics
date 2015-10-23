@@ -4,6 +4,7 @@ import os
 import re
 import sys
 import ddlib
+import traceback
 
 FIX_DEP_PARENTS=True
 
@@ -17,13 +18,21 @@ def rgx_comp(strings=[], rgxs=[]):
 
 def rgx_mult_search(phrase, strings=[], rgxs=[], flags=re.I):
   for s in strings:
-    regex = re.escape(s)
-    if re.search(regex, phrase, flags):
-      return s
+    try:
+      regex = re.escape(s)
+      if re.search(regex, phrase, flags):
+        return s
+    except Exception:
+      traceback.print_exc()
+      print regex
   for s in rgxs:
-    regex = s
-    if re.search(regex, phrase, flags):
-      return s
+    try:
+      regex = s
+      if re.search(regex, phrase, flags):
+        return s
+    except Exception:
+      traceback.print_exc()
+      print regex
   return None
 
 # HACK[Alex]: this is probably justified but a bit hackey still...

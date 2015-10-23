@@ -12,8 +12,8 @@ DB=$1
 TMPDIR=$(mktemp -d /tmp/dft.XXXXXX)
 SQL_COMMAND_FILE=${TMPDIR}/dft.sql
 cat <<EOF >> ${SQL_COMMAND_FILE}
-DROP TABLE IF EXISTS sentences_input_with_holdout;
-CREATE TABLE sentences_input_with_holdout AS (
+DROP TABLE IF EXISTS sentences_input_with_holdout_gp;
+CREATE TABLE sentences_input_with_holdout_gp AS (
   SELECT si.*
   FROM 
     sentences_input_with_gene_mention si
