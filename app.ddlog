@@ -801,11 +801,20 @@ variant_mentions_filtered(
   is_correct boolean
 ).
 
-#Need to add genevariant, check what is true first.
+#Need to add genevariant, but check the true definition or use of genevariant_relations first.
 
 variant_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, variant_type, ivsnum, pos, posplus, frompos, topos, seq, fromseq, toseq, words, is_correct) *:-
 variant_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, variant_type, ivsnum, pos, posplus, frompos, topos, seq, fromseq, toseq, words, is_correct).
 #genevariant_relations ( _, _, _, _, _, _, _, mention_id, _, _, _, _, _, _, _, _, _, _).
+
+#Pheno_filter_candidates
+#Exctractor seems wrong in the application.conf (What is g ?)
+
+#genepheno_extract_features
+
+
+
+
 
 
 
