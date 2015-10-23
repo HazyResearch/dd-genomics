@@ -316,6 +316,25 @@ ensembl_gene_sequences (
   n_seq text[]
 ).
 
+ensgene (
+  bin int,
+  name text,
+  chrom text,
+  strand text,
+  txStart int,
+  txEnd int,
+  cdsStart int,
+  cdsEnd int,
+  exonCount int,
+  exonStarts text,
+  exonEnds text,
+  score int,
+  name2 text,
+  cdsStartStat text,
+  cdsEndStat text,
+  exonFrames text
+).
+
 ##### Declare Variable Relations #####
 
 gene_mentions_filtered?(relation_id text).
@@ -426,7 +445,7 @@ variant_mentions_filtered(_, doc_id, section_id, sent_id, wordidxs, mention_id, 
 #pheno_filter_candidates
 #pheno_mentions_filtered (id, doc_id, section_id, sent_id, #wordidxs,mention_id, supertype, subtype, entity, words, #is_correct,g_id, g_doc_id, g_section_id, g_sent_id, array_to_string(#g_wordidxs, '|^|'), g_mention_id, g_mapping_type, g_supertype, #g_subtype, g_gene_name, array_to_string(g_words, '|^|'), g_is_correct)#:- 
 #pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct), 
-#genepheno_relations (g_id, _, g_doc_id, g_section_id, g_sent_id, _, #_, g_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, #pheno_wordidxs, pheno_is_correct).
+#genepheno_relations (g_id, _, g_doc_id, g_section_id, g_sent_id, _, _, g_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, #pheno_wordidxs, pheno_is_correct).
 
 #Add dependency for the previous extractor certainly
 #pheno_extract_features
@@ -648,43 +667,145 @@ genepheno_pairs_sentences(doc_id, section_id, sent_id, gene_mention_ids, gene_na
 
 
 #Create table gene_to_transcripts
-#gene_to_transcripts(g.gene_name,
-#            array_to_string(ARRAY_AGG(eg.name2), '|~|') ensembl_ids,
-#            array_to_string(ARRAY_AGG(eg.name), '|~|') #ensembl_transcripts,
-#            array_to_string(ARRAY_AGG(eg.chrom), '|~|') chroms,
-#            array_to_string(ARRAY_AGG(eg.strand), '|~|') strands,
-#            array_to_string(ARRAY_AGG(eg.cdsstart), '|~|') txstarts,
-#            array_to_string(ARRAY_AGG(eg.cdsend), '|~|') txends,
-#            array_to_string(ARRAY_AGG(eg.exonstarts), '|~|') exonstarts,
-#            array_to_string(ARRAY_AGG(eg.exonends), '|~|') exonends) *:-
-#genes(ensembl_id, canonical_name, gene_name, name_type),
+gene_to_transcripts(gene_name text,
+            ensembl_ids text,
+            ensembl_transcripts text,
+            chroms text,
+            strands text,
+            txstarts text,
+            txends text,
+            exonstarts text,
+            exonends text).
+
+gene_to_transcripts(
+            gene_name,
+            array_to_string(ARRAY_AGG(ensembl_id), "|~|"),
+            array_to_string(ARRAY_AGG(name), "|~|"),
+            array_to_string(ARRAY_AGG(chrom), "|~|"),
+            array_to_string(ARRAY_AGG(strand), "|~|"),
+            array_to_string(ARRAY_AGG(cdsstart), "|~|"),
+            array_to_string(ARRAY_AGG(cdsend), "|~|"),
+            array_to_string(ARRAY_AGG(exonstarts), "|~|"),
+            array_to_string(ARRAY_AGG(exonends), "|~|")) *:-
+genes(ensembl_id, canonical_name, gene_name, name_type),
+ensgene( bin, name, chrom, strand, txstart, txend, cdsstart, cdsend, exoncount, exonstarts, exonends, score, ensembl_id, cdsstartstat, cdsendstat, exonframes).
 
 
 
 #genevariant_extract_candidates
 
-#function genevariant_extract_candidates over rows like genevariant_extract_candidates_input
-#returns rows like genevariant_relations
-#implementation "code/genevariant_extract_candidates.py" handles tsv lines.
+function genevariant_extract_candidates over rows like genevariant_extract_candidates_input
+returns rows like genevariant_relations
+implementation "code/genevariant_extract_candidates.py" handles tsv lines.
 
 
 
-#genevariant_relations += genevariant_extract_candidates ( doc_id, variant_section_id, variant_sent_id, variant_entity, variant_wordidxs, variant_type, variant_ivsnum, variant_pos, variant_posplus, variant_frompos, variant_topos, variant_seq, variant_fromseq, variant_toseq, variant_is_correct, array_to_string(ARRAY_AGG(gene_section_id), "|^|") gene_section_ids, array_to_string(ARRAY_AGG(gene_sent_id), "|^|"), array_to_string(ARRAY_AGG(gene_wordidxs), "|^|"), array_to_string(ARRAY_AGG(gt.gene_name), "|^|"), array_to_string(ARRAY_AGG(gene_is_correct), "|^|"), array_to_string(ARRAY_AGG(ensembl_ids), "|^|"), array_to_string(ARRAY_AGG(ensembl_transcripts), "|^|"), array_to_string(ARRAY_AGG(chroms), "|^|"), array_to_string(ARRAY_AGG(strands), "|^|"), array_to_string(ARRAY_AGG(txstarts), "|^|"), array_to_string(ARRAY_AGG(txends), "|^|"), array_to_string(ARRAY_AGG(exonstarts), "|^|"), array_to_string(ARRAY_AGG(exonends), "|^|")) :-
-#genevariant_pairs( doc_id, gene_section_id, gene_sent_id, variant_section_id, variant_sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, variant_mention_id, variant_entity, variant_wordidxs, variant_variant_type, variant_ivsnum, variant_pos , variant_posplus, variant_frompos, variant_topos, variant_seq, variant_fromseq, variant_toseq, variant_is_correct), 
+genevariant_relations += genevariant_extract_candidates ( doc_id, variant_section_id, variant_sent_id, variant_entity, variant_wordidxs, variant_type, variant_ivsnum, variant_pos, variant_posplus, variant_frompos, variant_topos, variant_seq, variant_fromseq, variant_toseq, variant_is_correct, array_to_string(ARRAY_AGG(gene_section_id), "|^|"), array_to_string(ARRAY_AGG(gene_sent_id), "|^|"), array_to_string(ARRAY_AGG(gene_wordidxs), "|^|"), array_to_string(ARRAY_AGG(gene_name), "|^|"), array_to_string(ARRAY_AGG(gene_is_correct), "|^|"), array_to_string(ARRAY_AGG(ensembl_ids), "|^|"), array_to_string(ARRAY_AGG(ensembl_transcripts), "|^|"), array_to_string(ARRAY_AGG(chroms), "|^|"), array_to_string(ARRAY_AGG(strands), "|^|"), array_to_string(ARRAY_AGG(txstarts), "|^|"), array_to_string(ARRAY_AGG(txends), "|^|"), array_to_string(ARRAY_AGG(exonstarts), "|^|"), array_to_string(ARRAY_AGG(exonends), "|^|")) :-
+genevariant_pairs( doc_id, gene_section_id, gene_sent_id, variant_section_id, variant_sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, variant_mention_id, variant_entity, variant_wordidxs, variant_type, variant_ivsnum, variant_pos , variant_posplus, variant_frompos, variant_topos, variant_seq, variant_fromseq, variant_toseq, variant_is_correct),
+gene_to_transcripts(gene_name, ensembl_ids, ensembl_transcripts, chroms, strands, txstarts, txends, exonstarts, exonends).
 
-# Skipping extractors that require genevariant_extract_candidates in depedencies and need ensgene, which are genevariant_supervise_matching_coding_genes, genevariant_supervise_matching_proteins, 
+#genevariant_supervise_matching_coding_genes
+genevariant_coding_supervise_true( 
+          doc_id text,
+          mention_id text,
+          entity text,
+          pos text,
+          fromseq text,
+          toseq text,
+          gene_names text[]).
+
+genevariant_coding_supervise_true(
+          doc_id,
+          mention_id,
+          entity,
+          pos,
+          fromseq,
+          toseq,
+          ARRAY_AGG(gene_name)) *:-
+#variant_mentions (id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, variant_type, ivsnum, pos, posplus, frompos, topos, seq, fromseq, toseq, words, is_correct), 
+variant_mentions (_, doc_id, _, _, _, mention_id, _, _, entity, variant_type,_, pos, posplus, _, _, _, fromseq, toseq, _, _), 
+gene_mentions(gene_id, doc_id, _, _, gene_wordidxs, gene_mention_id, gene_mapping_type, gene_supertype, gene_subtype, gene_name, gene_words, gene_is_correct),
+genes(ensembl_id, canonical_name, gene_name, name_type),
+ensgene( bin, name, chrom, strand, txstart, txend, cdsstart, cdsend, exoncount, exonstarts, exonends, score, ensembl_id, cdsstartstat, cdsendstat, exonframes),
+ensembl_gene_sequences (  name, n_seq), 
+[ARRAY_LENGTH(ARRAY_AGG(gene_name), 1) = 1].
+#, [pos IS NOT NULL; fromseq IS NOT NULL; variant_type LIKE "coding%", fromseq != "U", posplus IS NULL].
+
+#error: for "is not null" and fromseq = n_seq[pos::int]
+#error: and add order by
+
+#create table genevariant_coding_supervise_false
+#Where is the table "genevariant_supervise_true" created ?
+
+#! Actually letting aside the tables concerning genevariant, which means
+#genevariant_extract_candidates, genevariant_supervise_matching_coding_genes, genevariant_supervise_matching_proteins
 
 
 #gene_filter_candidates
 
+#Create table gene_mentions_filtered
+gene_mentions_filtered( id bigint, doc_id text, section_id text, sent_id integer, wordidxs text, mention_id text, mapping_type text, supertype text, subtype text, gene_name text, words text, is_correct boolean).
+
+gene_mentions_filtered( id, doc_id, section_id, sent_id, array_to_string(wordidxs, "|^|"), mention_id, mapping_type, supertype, subtype, gene_name, array_to_string(words, "|^|"), is_correct) *:-
+gene_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct),
+genepheno_relations(_, _, _, _, _, gene_mention_id, _, _, _,_,_,_,_).
+
+
+#Create table gene_mention_ids
+
+gene_mention_ids( doc_id text).
+
+gene_mention_ids(doc_id) *:- gene_mentions_filtered(_, doc_id, _, _, _,_, _, _, _, _, _, _).
 
 
 
+#Create table sentences_input_with_gene_mention
+sentences_input_with_gene_mention(
+  doc_id text,
+  section_id text,
+  sent_id int,
+  words text,
+  lemmas text,
+  poses text,
+  ners text,
+  dep_paths text,
+  dep_parents text).
 
+sentences_input_with_gene_mention( doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents) :-
+sentences_input( doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
+gene_mention_ids(doc_id).
 
+#variant_filter_candidates
+#! variant_mentions_filtered seems to have already been declared previously, be careful
 
+variant_mentions_filtered(
+  id bigint,
+  doc_id text,
+  section_id text,
+  sent_id int,
+  wordidxs int[],
+  mention_id text,
+  supertype text,
+  subtype text,
+  entity text,
+  variant_type text,
+  ivsNum text,
+  pos text,
+  posPlus text,
+  fromPos text,
+  toPos text,
+  seq text,
+  fromSeq text,
+  toSeq text,
+  words text[],
+  is_correct boolean
+).
 
+#Need to add genevariant, check what is true first.
 
+variant_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, variant_type, ivsnum, pos, posplus, frompos, topos, seq, fromseq, toseq, words, is_correct) *:-
+variant_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, variant_type, ivsnum, pos, posplus, frompos, topos, seq, fromseq, toseq, words, is_correct).
+#genevariant_relations ( _, _, _, _, _, _, _, mention_id, _, _, _, _, _, _, _, _, _, _).
 
 
 
