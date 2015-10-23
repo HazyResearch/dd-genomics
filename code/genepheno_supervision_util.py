@@ -53,6 +53,8 @@ def replace_opts(opts, replaceList):
   for name in opts:
     strings = opts[name]
     for (pattern, subst) in replaceList:
+      if name.endsWith('rgx'):
+        subst = re.escape(subst)
       strings = [s.replace(pattern, subst) for s in strings]
     ret[name] = strings
   return ret
