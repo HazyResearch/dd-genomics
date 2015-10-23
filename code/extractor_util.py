@@ -16,6 +16,9 @@ def rgx_comp(strings=[], rgxs=[]):
     r += r'(' + r')|('.join(rgxs) + r')'
   return r
 
+# XXX HACK Johannes: Catching regex exceptions and then continuing is not the nicest way
+# but ever since I had a single regex error in the middle of a 5-hour run and the whole extractor failed
+# I'd rather have the thing continue with a wrong value at the single position ...
 def rgx_mult_search(phrase, strings=[], rgxs=[], flags=re.I):
   for s in strings:
     try:
