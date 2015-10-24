@@ -1,0 +1,39 @@
+full_pipeline_gp:       
+	  load_genes,
+      load_genepheno_holdout_set,
+      load_genepheno_holdout_labels,
+      load_hpo_abnormalities,
+      load_charite,
+      load_charite_canon,
+      load_hgvs_hpo,
+      cleanup_doc_ids1,
+      cleanup_doc_ids2,
+      gene_extract_candidates, 
+      non_gene_acronyms_extract_candidates,
+      non_gene_acronyms_delete_candidates,
+      gene_extract_features, 
+      pheno_extract_candidates, 
+      pheno_acronyms_extract_candidates,
+      pheno_acronyms_aggregate_candidates,
+      pheno_acronyms_insert_candidates,
+      #pheno_extract_features,
+      get_genepheno_pairs,
+      serialize_genepheno_pairs_split,
+      genepheno_extract_candidates,
+      gene_filter_candidates,
+      #pheno_filter_candidates,
+      genepheno_extract_features,
+      genepheno_causation_supervision,
+      genepheno_association_supervision,
+      gene_inference,
+      #pheno_inference,
+      genepheno_causation_to_gene,
+      genepheno_association_to_gene,
+      genepheno_association_inference,
+      genepheno_causation_inference,
+      #pheno_acronyms_inference.
+
+
+
+
+      test: test1, test2, #test3,    test4.
