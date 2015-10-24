@@ -449,18 +449,17 @@ variant_mentions_filtered(_, doc_id, section_id, sent_id, wordidxs, mention_id, 
 
 
 #pheno_filter_candidates
+#g ? doesn't make sense ?
 
 #Create table pheno_mentions_filtered
-#? error: g doesn't make sense in the original application.conf file
-
-#pheno_mentions_filtered()
+#pheno_mentions_filtered().
 
 
 
 
-pheno_mentions_filtered (id, doc_id, section_id, sent_id, wordidxs,mention_id, supertype, subtype, entity, words, is_correct,g_id, g_doc_id, g_section_id, g_sent_id, array_to_string(g_wordidxs, '|^|'), g_mention_id, g_mapping_type, g_supertype, g_subtype, g_gene_name, array_to_string(g_words, '|^|'), g_is_correct):- 
-pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct), 
-genepheno_relations (g_id, _, g_doc_id, g_section_id, g_sent_id, _, _, g_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct).
+#pheno_mentions_filtered (id, doc_id, section_id, sent_id, wordidxs,mention_id, supertype, subtype, entity, words, is_correct,g_id, g_doc_id, g_section_id, g_sent_id, array_to_string(g_wordidxs, "|^|"), g_mention_id, g_mapping_type, g_supertype, g_subtype, g_gene_name, array_to_string(g_words, "|^|"), g_is_correct):- 
+#pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct), 
+#genepheno_relations (g_id, _, g_doc_id, g_section_id, g_sent_id, _, _, g_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct).
 
 #Add dependency for the previous extractor certainly
 #pheno_extract_features
@@ -754,14 +753,13 @@ ensembl_gene_sequences (  name, n_seq).
 #! Actually letting aside the tables concerning genevariant, which means
 #genevariant_extract_candidates, genevariant_supervise_matching_coding_genes, genevariant_supervise_matching_proteins
 
-
 #gene_filter_candidates
 #Create table gene_mentions_filtered
 gene_mentions_filtered( id bigint, doc_id text, section_id text, sent_id integer, wordidxs text, mention_id text, mapping_type text, supertype text, subtype text, gene_name text, words text, is_correct boolean).
 
 gene_mentions_filtered( id, doc_id, section_id, sent_id, array_to_string(wordidxs, "|^|"), mention_id, mapping_type, supertype, subtype, gene_name, array_to_string(words, "|^|"), is_correct) *:-
 gene_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct),
-genepheno_relations(_, _, _, _, _, gene_mention_id, _, _, _,_,_,_,_).
+genepheno_relations(_, _, _, _, _, mention_id, _, _, _,_,_,_,_).
 
 
 #Create table gene_mention_ids
@@ -769,8 +767,6 @@ genepheno_relations(_, _, _, _, _, gene_mention_id, _, _, _,_,_,_,_).
 gene_mention_ids( doc_id text).
 
 gene_mention_ids(doc_id) *:- gene_mentions_filtered(_, doc_id, _, _, _,_, _, _, _, _, _, _).
-
-
 
 #Create table sentences_input_with_gene_mention
 sentences_input_with_gene_mention(
@@ -864,11 +860,11 @@ sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_pat
 
 ##### Declare Variable Relations #####
 
-gene_mentions_filtered_inference?(rmention_id text).
-pheno_mentions_filtered_inference?(rmention_id text).
+gene_mentions_filtered_inference?(mention_id text).
+pheno_mentions_filtered_inference?(mention_id text).
 genepheno_association_inference?(relation_id text).
 genepheno_causation_inference?(relation_id text).
-non_gene_acronyms_inference?(relation_id text).
+non_gene_acronyms_inference?(mention_id text).
 genevariant_relations_inference?(relation_id text).
 
 
@@ -877,11 +873,24 @@ genevariant_relations_inference?(relation_id text).
 @label(is_correct)
 gene_mentions_filtered_inference(mention_id) :- gene_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct).
 
+#@label(is_correct)
+#pheno_mentions_filtered_inference(mention_id) :- pheno_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
+
 @label(is_correct)
-pheno_mentions_filtered_inference(mention_id) :- pheno_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
+genepheno_association_inference(relation_id) :- genepheno_association(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype).
+
+@label(is_correct)
+genepheno_causation_inference(relation_id) :- genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype).
+
+@label(is_correct)
+non_gene_acronyms_inference(mention_id) :- non_gene_acronyms(id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs, mention_id, supertype, subtype, abbrev, definition, is_correct).
+
+@label(is_correct)
+genevariant_relations_inference(relation_id) :- genevariant_relations ( id, relation_id, doc_id, section1_id, sent1_id, section2_id, sent2_id, variant_mention_id, variant_entity, variant_wordidxs, variant_is_correct, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, is_correct, supertype, subtype).
 
 
 ### INFERENCE RULES ###
+
 
 
 
