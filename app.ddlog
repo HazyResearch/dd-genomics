@@ -335,14 +335,20 @@ ensgene (
   exonFrames text
 ).
 
-##### Declare Variable Relations #####
-
-gene_mentions_filtered?(relation_id text).
-pheno_mentions_filtered?(relation_id text).
-genepheno_association?(relation_id text).
-genepheno_causation?(relation_id text).
-non_gene_acronyms?(relation_id text).
-genevariant_relations?(relation_id text).
+genepheno_relations(
+  id bigint,
+  relation_id text,
+  doc_id text,
+  section_id text,
+  sent_id int,
+  gene_mention_id text,
+  gene_entity text,
+  gene_wordidxs int[],
+  gene_is_correct boolean,
+  pheno_mention_id text,
+  pheno_entity text,
+  pheno_wordidxs int[],
+  pheno_is_correct boolean).
 
 
 
@@ -359,7 +365,7 @@ sentences_input(
   ARRAY_TO_STRING(poses, "|^|"),
   ARRAY_TO_STRING(ners, "|^|"),
   ARRAY_TO_STRING(dep_paths, "|^|"),
-  ARRAY_TO_STRING(dep_parents, "|^|")) :-  sentences(doc_id, section_id, _, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
+  ARRAY_TO_STRING(dep_parents, "|^|")) :-  sentences(doc_id, section_id, sent_id,_, words, lemmas, poses, ners, dep_paths, dep_parents).
 
 
 #How to clean some tables ?
@@ -370,7 +376,7 @@ sentences_input(
 #Load_genes:
 function load_genes over rows like genes
   returns rows like genes
-  implementation "${APP_HOME}/code/load_ensembl_table.sh" handles tsv lines.
+  implementation "code/load_ensembl_table.sh" handles tsv lines.
 
 
 #genes += load_genes(a, b, c).
@@ -441,11 +447,20 @@ function variant_extract_features over rows like variant_extract_features_input
 variant_features += variant_extract_features(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, mention_id, array_to_string(wordidxs, "|^|")) :- sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
 variant_mentions_filtered(_, doc_id, section_id, sent_id, wordidxs, mention_id, _, _, _, _, _).
 
-#Create table pheno_mentions_filtered
+
 #pheno_filter_candidates
-#pheno_mentions_filtered (id, doc_id, section_id, sent_id, #wordidxs,mention_id, supertype, subtype, entity, words, #is_correct,g_id, g_doc_id, g_section_id, g_sent_id, array_to_string(#g_wordidxs, '|^|'), g_mention_id, g_mapping_type, g_supertype, #g_subtype, g_gene_name, array_to_string(g_words, '|^|'), g_is_correct)#:- 
-#pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct), 
-#genepheno_relations (g_id, _, g_doc_id, g_section_id, g_sent_id, _, _, g_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, #pheno_wordidxs, pheno_is_correct).
+
+#Create table pheno_mentions_filtered
+#? error: g doesn't make sense in the original application.conf file
+
+#pheno_mentions_filtered()
+
+
+
+
+pheno_mentions_filtered (id, doc_id, section_id, sent_id, wordidxs,mention_id, supertype, subtype, entity, words, is_correct,g_id, g_doc_id, g_section_id, g_sent_id, array_to_string(g_wordidxs, '|^|'), g_mention_id, g_mapping_type, g_supertype, g_subtype, g_gene_name, array_to_string(g_words, '|^|'), g_is_correct):- 
+pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct), 
+genepheno_relations (g_id, _, g_doc_id, g_section_id, g_sent_id, _, _, g_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct).
 
 #Add dependency for the previous extractor certainly
 #pheno_extract_features
@@ -453,8 +468,8 @@ function pheno_extract_features over rows like pheno_extract_features_input
 returns rows like pheno_features
 implementation "code/pheno_extract_features.py" handles tsv lines.
 
-pheno_features += pheno_extract_features(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, mention_id, array_to_string(wordidxs, "|^|")) :- sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
-pheno_mentions_filtered(_, doc_id, section_id, sent_id, wordidxs, mention_id, _, _, _, _, _).
+#pheno_features += pheno_extract_features(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, mention_id, array_to_string(wordidxs, "|^|")) :- sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
+#pheno_mentions_filtered(_, doc_id, section_id, sent_id, wordidxs, mention_id, _, _, _, _, _).
 
     # We first get G-P pairs, then aggregate & serialize them, then do G-P supervision
     # This is to avoide the VMEM error caused by large operations
@@ -698,8 +713,6 @@ function genevariant_extract_candidates over rows like genevariant_extract_candi
 returns rows like genevariant_relations
 implementation "code/genevariant_extract_candidates.py" handles tsv lines.
 
-
-
 genevariant_relations += genevariant_extract_candidates ( doc_id, variant_section_id, variant_sent_id, variant_entity, variant_wordidxs, variant_type, variant_ivsnum, variant_pos, variant_posplus, variant_frompos, variant_topos, variant_seq, variant_fromseq, variant_toseq, variant_is_correct, array_to_string(ARRAY_AGG(gene_section_id), "|^|"), array_to_string(ARRAY_AGG(gene_sent_id), "|^|"), array_to_string(ARRAY_AGG(gene_wordidxs), "|^|"), array_to_string(ARRAY_AGG(gene_name), "|^|"), array_to_string(ARRAY_AGG(gene_is_correct), "|^|"), array_to_string(ARRAY_AGG(ensembl_ids), "|^|"), array_to_string(ARRAY_AGG(ensembl_transcripts), "|^|"), array_to_string(ARRAY_AGG(chroms), "|^|"), array_to_string(ARRAY_AGG(strands), "|^|"), array_to_string(ARRAY_AGG(txstarts), "|^|"), array_to_string(ARRAY_AGG(txends), "|^|"), array_to_string(ARRAY_AGG(exonstarts), "|^|"), array_to_string(ARRAY_AGG(exonends), "|^|")) :-
 genevariant_pairs( doc_id, gene_section_id, gene_sent_id, variant_section_id, variant_sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, variant_mention_id, variant_entity, variant_wordidxs, variant_type, variant_ivsnum, variant_pos , variant_posplus, variant_frompos, variant_topos, variant_seq, variant_fromseq, variant_toseq, variant_is_correct),
 gene_to_transcripts(gene_name, ensembl_ids, ensembl_transcripts, chroms, strands, txstarts, txends, exonstarts, exonends).
@@ -727,12 +740,13 @@ variant_mentions (_, doc_id, _, _, _, mention_id, _, _, entity, variant_type,_, 
 gene_mentions(gene_id, doc_id, _, _, gene_wordidxs, gene_mention_id, gene_mapping_type, gene_supertype, gene_subtype, gene_name, gene_words, gene_is_correct),
 genes(ensembl_id, canonical_name, gene_name, name_type),
 ensgene( bin, name, chrom, strand, txstart, txend, cdsstart, cdsend, exoncount, exonstarts, exonends, score, ensembl_id, cdsstartstat, cdsendstat, exonframes),
-ensembl_gene_sequences (  name, n_seq), 
-[ARRAY_LENGTH(ARRAY_AGG(gene_name), 1) = 1].
+ensembl_gene_sequences (  name, n_seq).
+#[ARRAY_LENGTH(ARRAY_AGG(gene_name), 1) = 1].
 #, [pos IS NOT NULL; fromseq IS NOT NULL; variant_type LIKE "coding%", fromseq != "U", posplus IS NULL].
 
 #error: for "is not null" and fromseq = n_seq[pos::int]
 #error: and add order by
+#error: adding an aggregate function in where: [ARRAY_LENGTH(ARRAY_AGG(gene_name), 1) = 1]
 
 #create table genevariant_coding_supervise_false
 #Where is the table "genevariant_supervise_true" created ?
@@ -742,7 +756,6 @@ ensembl_gene_sequences (  name, n_seq),
 
 
 #gene_filter_candidates
-
 #Create table gene_mentions_filtered
 gene_mentions_filtered( id bigint, doc_id text, section_id text, sent_id integer, wordidxs text, mention_id text, mapping_type text, supertype text, subtype text, gene_name text, words text, is_correct boolean).
 
@@ -808,10 +821,67 @@ variant_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertyp
 #genevariant_relations ( _, _, _, _, _, _, _, mention_id, _, _, _, _, _, _, _, _, _, _).
 
 #Pheno_filter_candidates
-#Exctractor seems wrong in the application.conf (What is g ?)
+#? Exctractor seems wrong in the application.conf (What is g ?)
 
 #genepheno_extract_features
+function genepheno_extract_features over rows like genepheno_extract_features_input returns rows like genepheno_features
+implementation "code/genepheno_extract_features.py" handles tsv lines.
 
+genepheno_features += genepheno_extract_features( relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_wordidxs, pheno_mention_id, pheno_wordidxs, words, lemmas, poses, ners, dep_paths, dep_parents) :-
+genepheno_relations(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct), 
+sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
+
+
+#genepheno_association_supervision
+function genepheno_association_supervision over rows like genepheno_association_supervision_input returns rows like genepheno_association
+implementation "code/genepheno_association_supervision.py" handles tsv lines.
+
+
+genepheno_association += genepheno_association_supervision( relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct, words, lemmas, poses, dep_paths, dep_parents) :-
+genepheno_relations(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct), 
+sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
+
+
+
+#genepheno_causation_supervision
+
+function genepheno_causation_supervision over rows like genepheno_causation_supervision_input returns rows like genepheno_causation
+implementation "code/genepheno_causation_supervision.py" handles tsv lines.
+
+genepheno_causation += genepheno_causation_supervision(relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct, words, lemmas, poses, dep_paths, dep_parents) :-
+genepheno_relations(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct), 
+sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
+
+
+
+#extract_entity_level_relations
+
+#? Don't find scheme for genepheno_association_is_correct_inference, postprocess to finish
+
+#the two canonicalize processes too: canonicalize_genepheno_association, canonicalize_genepheno_causation
+
+
+
+##### Declare Variable Relations #####
+
+gene_mentions_filtered_inference?(rmention_id text).
+pheno_mentions_filtered_inference?(rmention_id text).
+genepheno_association_inference?(relation_id text).
+genepheno_causation_inference?(relation_id text).
+non_gene_acronyms_inference?(relation_id text).
+genevariant_relations_inference?(relation_id text).
+
+
+#### Supervision Rule #####
+
+@label(is_correct)
+gene_mentions_filtered_inference(mention_id) :- gene_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct).
+
+@label(is_correct)
+pheno_mentions_filtered_inference(mention_id) :- pheno_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
+
+
+### INFERENCE RULES ###
 
 
 
