@@ -353,7 +353,7 @@ genepheno_relations(
 
 
 
-##### Candidate Mapping and Supervision Rules #####
+##### Extractors #####
 
 #Extractor: serialize_sentences
 sentences_input(
