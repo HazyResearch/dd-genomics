@@ -1,3 +1,6 @@
+cleanup_doc_ids1
+
+
 full_pipeline_gp:       
 	  load_genes,
       load_genepheno_holdout_set,
