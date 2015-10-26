@@ -428,8 +428,6 @@ variant_mentions += variant_extract_candidates(doc_id, section_id, sent_id, word
 
 
 #Pheno extract candidates
-    # NOTE: input_batch_size extended because Robin thought that the init cost was highest
-    # TODO -> re-evaluate this / test..?  
 function pheno_extract_candidates over rows like pheno_extract_candidates_input
   returns rows like pheno_mentions
   implementation "code/pheno_extract_candidates.py" handles tsv lines.
@@ -439,7 +437,6 @@ sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, _, _).
 
 
 
-#Add dependency for the previous extractor, certainly
 #variant_extract_features
 function variant_extract_features over rows like variant_extract_features_input
   returns rows like variant_features
@@ -450,17 +447,35 @@ variant_mentions_filtered(_, doc_id, section_id, sent_id, wordidxs, mention_id, 
 
 
 #pheno_filter_candidates
-#g ? doesn't make sense ?
-
 #Create table pheno_mentions_filtered
-#pheno_mentions_filtered().
+pheno_mentions_filtered( id bigint, doc_id text, section_id text, sent_id integer, wordidxs text, mention_id text, supertype text, subtype text, entity text, words text, is_correct boolean).
+
+pheno_mentions_filtered( id, doc_id, section_id, sent_id, array_to_string(wordidxs, "|^|"), mention_id, supertype, subtype, entity, array_to_string(words, "|^|"), is_correct) *:-
+pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct),
+genepheno_relations(_, _, _, _, _, mention_id, _, _, _,_,_,_,_).
+
+#Create table pheno_mention_ids
+pheno_mention_ids( doc_id text).
+
+pheno_mention_ids(doc_id) *:- pheno_mentions_filtered(_, doc_id, _, _,_, _, _, _, _, _, _).
+
+#Create table sentences_input_with_pheno_mention
+sentences_input_with_pheno_mention(
+  doc_id text,
+  section_id text,
+  sent_id int,
+  words text,
+  lemmas text,
+  poses text,
+  ners text,
+  dep_paths text,
+  dep_parents text).
+
+sentences_input_with_pheno_mention( doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents) :-
+sentences_input( doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
+pheno_mention_ids(doc_id).
 
 
-
-
-#pheno_mentions_filtered (id, doc_id, section_id, sent_id, wordidxs,mention_id, supertype, subtype, entity, words, is_correct,g_id, g_doc_id, g_section_id, g_sent_id, array_to_string(g_wordidxs, "|^|"), g_mention_id, g_mapping_type, g_supertype, g_subtype, g_gene_name, array_to_string(g_words, "|^|"), g_is_correct):- 
-#pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct), 
-#genepheno_relations (g_id, _, g_doc_id, g_section_id, g_sent_id, _, _, g_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct).
 
 #Add dependency for the previous extractor certainly
 #pheno_extract_features
