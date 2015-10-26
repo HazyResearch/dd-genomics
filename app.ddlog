@@ -368,21 +368,6 @@ sentences_input(
   ARRAY_TO_STRING(dep_parents, "|^|")) :-  sentences(doc_id, section_id, sent_id,_, words, lemmas, poses, ners, dep_paths, dep_parents).
 
 
-#How to clean some tables ?
-#Issues for sql_extractors cleanup_doc_ids1/2
-
-
-#How to load from tsv files ? 8 extractors
-#Load_genes:
-function load_genes over rows like genes
-  returns rows like genes
-  implementation "code/load_ensembl_table.sh" handles tsv lines.
-
-
-#genes += load_genes(a, b, c).
-
-
-
 # gene_extract_candidates:
 function gene_extract_candidates over (doc_id text,
   section_id text,
@@ -399,7 +384,31 @@ function gene_extract_candidates over (doc_id text,
 gene_mentions += gene_extract_candidates(doc_id, section_id, sent_id, words, dep_paths, dep_parents, lemmas, poses, ners) :-
   sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
 
-#Define sql extractor non_gene_acronyms_delete_candidates ?
+#non_gene_acronyms_delete_candidates
+gene_mentions_non_gene_acronyms(
+  id bigint,
+  doc_id text,
+        section_id text,
+  sent_id int,
+  wordidxs int[],
+  mention_id text,
+        mapping_type text,
+  supertype text,
+        subtype text,
+        gene_name text,
+  words text[],
+  is_correct boolean
+).
+
+gene_mentions_non_gene_acronyms_view_temp(abbrev, doc_id) :-
+non_gene_acronyms( id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs, mention_id, supertype, subtype, abbrev, definition, is_correct), 
+[is_correct = "t" ; is_correct IS NULL].
+
+gene_mentions_non_gene_acronyms(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct) :- 
+gene_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct), 
+gene_mentions_non_gene_acronyms_view_temp(gene_name, doc_id).
+
+#! : how to add the delete from gene_mentions ? Maybe create a gene_mentions_temp first and then create the final gene_mentions here
 
 #Gene extract features
 function gene_extract_features over rows like gene_extract_features_input

@@ -1,16 +1,26 @@
-cleanup_doc_ids1
+load_pipeline:   
+      genes,
+      genepheno_holdout_set,
+      genepheno_holdout_labels,
+      hpo_abnormalities,
+      charite,
+      charite_canon,
+      hgvs_hpo.
+
+cleanup_doc_pipeline: 
+      cleanup_doc_ids1,
+      cleanup_doc_ids2.
+
+full_pipeline_gp:
+      #Attention, before with truncate genes to add.
+      ext_gene_mentions_by_gene_extract_candidates, 
+      
+
+
+
 
 
 full_pipeline_gp:       
-	  load_genes,
-      load_genepheno_holdout_set,
-      load_genepheno_holdout_labels,
-      load_hpo_abnormalities,
-      load_charite,
-      load_charite_canon,
-      load_hgvs_hpo,
-      cleanup_doc_ids1,
-      cleanup_doc_ids2,
       gene_extract_candidates, 
       non_gene_acronyms_extract_candidates,
       non_gene_acronyms_delete_candidates,
