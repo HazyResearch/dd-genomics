@@ -7,6 +7,7 @@ import random
 import re
 import sys
 import config
+import string
 
 
 # This defines the Row object that we read in to the extractor
@@ -151,7 +152,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
         match = util.rgx_mult_search(phrase + ' ' + lemma_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
           # backslashes cause postgres errors in postgres 9
-          return r._replace(is_correct=val, relation_supertype='PHRASE_%s' % name, relation_subtype=match.replace('\\', '/'))
+          return r._replace(is_correct=val, relation_supertype='PHRASE_%s' % name)
 
   if SR.get('phrases-in-between'):
     opts = SR['phrases-in-between']
@@ -161,7 +162,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
         match = util.rgx_mult_search(between_phrase + ' ' + between_phrase_lemmas, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
           # backslashes cause postgres errors in postgres 9
-          return r._replace(is_correct=val, relation_supertype='PHRASE_BETWEEN_%s' % name, relation_subtype=match.replace('\\', '/'))
+          return r._replace(is_correct=val, relation_supertype='PHRASE_BETWEEN_%s' % name)
 
   if SR.get('primary-verb-modifiers') and dep_dag:
     opts = SR['primary-verb-modifiers']
@@ -174,7 +175,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
           d = dep_dag.path_len_sets(verbs_between, mod_words)
           if d and d < opts['max-dist'] + 1:
             subtype = 'ModWords: ' + ' '.join([str(m) for m in mod_words]) + ', VerbsBetween: ' + ' '.join([str(m) for m in verbs_between]) + ', d: ' + str(d)
-            return r._replace(is_correct=val, relation_supertype='PRIMARY_VB_MOD_%s' % name, relation_subtype=subtype)
+            return r._replace(is_correct=val, relation_supertype='PRIMARY_VB_MOD_%s' % name)
 
   if SR.get('dep-lemma-connectors') and dep_dag:
     opts = SR['dep-lemma-connectors']
@@ -182,7 +183,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
       if dep_path_between:
         connectors = [i for i,x in enumerate(row.lemmas) if i in dep_path_between and x in opts[name]]
         if len(connectors) > 0:
-          return r._replace(is_correct=val, relation_supertype='DEP_LEMMA_CONNECT_%s' % name, relation_subtype=' '.join([str(c) for c in connectors]))
+          return r._replace(is_correct=val, relation_supertype='DEP_LEMMA_CONNECT_%s' % name)
 
   if SR.get('dep-lemma-neighbors') and dep_dag:
     opts = SR['dep-lemma-neighbors']
@@ -192,7 +193,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
         d = dep_dag.path_len_sets(gene_wordidxs, lemmas)
         if d and d < opts['max-dist'] + 1:
           subtype = ' '.join([str(l) for l in lemmas]) + ', d: ' + str(d)
-          return r._replace(is_correct=val, relation_supertype='DEP_LEMMA_NB_%s_%s' % (name,entity), relation_subtype=subtype)
+          return r._replace(is_correct=val, relation_supertype='DEP_LEMMA_NB_%s_%s' % (name,entity))
 
   if SR.get('charite-all-pos'):
     if (pheno_entity, gene_name) in charite_pairs:
