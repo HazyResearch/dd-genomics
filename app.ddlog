@@ -39,6 +39,21 @@ genes (
   name_type text
 ).
 
+gene_mentions_temp_before_non_gene_acronyms_delete_candidates (
+  id bigint,
+  doc_id text,
+        section_id text,
+  sent_id int,
+  wordidxs int[],
+  mention_id text,
+        mapping_type text,
+  supertype text,
+        subtype text,
+        gene_name text,
+  words text[],
+  is_correct boolean
+).
+
 gene_mentions (
   id bigint,
   doc_id text,
@@ -350,7 +365,15 @@ genepheno_relations(
   pheno_wordidxs int[],
   pheno_is_correct boolean).
 
-
+doc_metadata(
+doc_id              text,    
+ source_name        text,    
+ source_year        integer,
+ source_text_year   text,    
+ source_year_status text,    
+ issn_global        text,    
+ issn_print         text,    
+ issn_electronic    text).
 
 
 ##### Extractors #####
@@ -381,8 +404,12 @@ function gene_extract_candidates over (doc_id text,
   returns rows like gene_mentions
   implementation "code/gene_extract_candidates.py" handles tsv lines.
 
-gene_mentions += gene_extract_candidates(doc_id, section_id, sent_id, words, dep_paths, dep_parents, lemmas, poses, ners) :-
-  sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
+gene_extract_candidates_view_temp (doc_id) *:-
+pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
+
+gene_mentions_temp_before_non_gene_acronyms_delete_candidates += gene_extract_candidates(doc_id, section_id, sent_id, words, dep_paths, dep_parents, lemmas, poses, ners) :-
+  sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
+  gene_extract_candidates_view_temp (doc_id).
 
 #non_gene_acronyms_delete_candidates
 gene_mentions_non_gene_acronyms(
@@ -405,7 +432,7 @@ non_gene_acronyms( id, doc_id, section_id, sent_id, short_wordidxs, long_wordidx
 [is_correct = "t" ; is_correct IS NULL].
 
 gene_mentions_non_gene_acronyms(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct) :- 
-gene_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct), 
+gene_mentions_temp_before_non_gene_acronyms_delete_candidates(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct), 
 gene_mentions_non_gene_acronyms_view_temp(gene_name, doc_id).
 
 #! : how to add the delete from gene_mentions ? Maybe create a gene_mentions_temp first and then create the final gene_mentions here
@@ -583,16 +610,17 @@ function non_gene_acronyms_extract_candidates over (doc_id text, section_id text
 returns rows like non_gene_acronyms
 implementation "code/non_gene_acronyms_extract_candidates.py" handles tsv lines.
 
-#ajouter une view temp from gene_mentions avec distinct pour qqes elts
+#We extract genes from gene_mentions_temp_before_non_gene_acronyms_delete_candidates and non gene_mentions because the first gene extraction is done in gene_mentions_temp_before_non_gene_acronyms_delete_candidates. Then the non_gene_acronyms_delete_candidates will create gene_mentions which will be used in the rest of the run.
 #error: call to an elt of an array + like in psql.
 
-non_gene_acronyms_extract_candidates_view_temp_1(doc_id, section_id, sent_id, wordidxs) *:- gene_mentions(_, doc_id, section_id, sent_id, wordidxs, _, _, _, _, _, _, _).
+non_gene_acronyms_extract_candidates_view_temp_1(doc_id, section_id, sent_id, wordidxs) *:- gene_mentions_temp_before_non_gene_acronyms_delete_candidates(_, doc_id, section_id, sent_id, wordidxs, _, _, _, _, _, _, _).
 
-#non_gene_acronyms_extract_candidates_view_temp_2(doc_id, section_id,sent_id, word_string, string_to_array(word_string, "|^|"),  dep_paths, dep_parents, lemmas, poses, ners, wordidxs[1]) :- sentences_input(doc_id, section_id, sent_id, word_string, lemmas, poses, ners, dep_paths, dep_parents), 
-#non_gene_acronyms_extract_candidates_view_temp_1(doc_id, section_id, sent_id, wordidxs), 
-#word_string LIKE "%-LRB-%".
+non_gene_acronyms_extract_candidates_view_temp_2(doc_id, section_id,sent_id, word_string, string_to_array(word_string, "|^|"),  dep_paths, dep_parents, lemmas, poses, ners, wordidxs) :- sentences_input(doc_id, section_id, sent_id, word_string, lemmas, poses, ners, dep_paths, dep_parents), 
+non_gene_acronyms_extract_candidates_view_temp_1(doc_id, section_id, sent_id, wordidxs), 
+word_string LIKE "%-LRB-%".
+#wordidxs[1] instead of wordidxs ideally
 
-#non_gene_acronyms += non_gene_acronyms_extract_candidates(doc_id, section_id, sent_id, word_string, dep_paths, dep_parents, lemmas, poses, ners, wordidx)  :- non_gene_acronyms_extract_candidates_view_temp_2(doc_id, section_id, sent_id, word_string, words,  dep_paths, dep_parents, lemmas, poses, ners, wordidx).
+non_gene_acronyms += non_gene_acronyms_extract_candidates(doc_id, section_id, sent_id, word_string, dep_paths, dep_parents, lemmas, poses, ners, wordidx)  :- non_gene_acronyms_extract_candidates_view_temp_2(doc_id, section_id, sent_id, word_string, words,  dep_paths, dep_parents, lemmas, poses, ners, wordidx).
 #, words[wordidx] LIKE "-LRB-".
 
 
