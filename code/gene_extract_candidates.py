@@ -65,6 +65,9 @@ def extract_candidate_mentions(row):
   gene_name_to_genes = CACHE['gene_name_to_genes']
   mentions = []
   for i, word in enumerate(row.words):
+    if HF['require-one-letter']:
+      if not re.match(r'.*[a-zA-Z].*', word):
+        continue
     if (word in gene_name_to_genes):
       matches = gene_name_to_genes[word]
       mapping_types = set()
@@ -87,6 +90,8 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
   m = Mention(None, row.doc_id, row.section_id, row.sent_id, [i], mid, mapping_type, mention_supertype, mention_subtype, gene_name, [word], None)
   dep_dag = deps.DepPathDAG(row.dep_parents, row.dep_paths, row.words)
 
+  phrase = ' '.join(row.words)
+  lemma_phrase = ' '.join(row.lemmas)
   if SR.get('post-match'):
     opts = SR['post-match']
     phrase_post = " ".join(row.words[i+1:])
@@ -95,6 +100,10 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
         match = util.rgx_mult_search(phrase_post, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
           return m._replace(is_correct=val, mention_supertype='POST_MATCH_%s_%s' % (name, val), mention_subtype=match)
+  
+  if SR.get('bad-genes'):
+    if gene_name in SR['bad-genes']:
+      return m._replace(is_correct=False, mention_supertype='BAD_GENE')
 
   if SR.get('pre-neighbor-match') and i > 0:
     opts = SR['pre-neighbor-match']
@@ -105,6 +114,15 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
         if match:
           return m._replace(is_correct=val, mention_supertype='PRE_NEIGHBOR_MATCH_%s_%s' % (name, val), mention_subtype=match)
 
+  if SR.get('phrases-in-sent'):
+    opts = SR['phrases-in-sent']
+    for name,val in VALS:
+      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
+        match = util.rgx_mult_search(phrase + ' ' + lemma_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
+        if match:
+          # backslashes cause postgres errors in postgres 9
+          return m._replace(is_correct=val, mention_supertype='PHRASE_%s' % name, mention_subtype=match.replace('\\', '/'))
+ 
   ## DS RULE: matches from papers that NCBI annotates as being about the mentioned gene are likely true.
   if SR['pubmed-paper-genes-true']:
     pubmed_to_genes = CACHE['pubmed_to_genes']

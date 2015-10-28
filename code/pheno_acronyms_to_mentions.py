@@ -20,12 +20,24 @@ parser = util.RowParser([
           ('lemmas', 'text[]'),
           ('poses', 'text[]'),
           ('ners', 'text[]'),
-          ('pa_abbrev', 'text'),
-          ('pheno_entity', 'text'),
-          ('pa_doc_id', 'text'),
-          ('pa_section_id', 'text'),
-          ('pa_sent_id', 'int'),
-          ('pa_is_correct', 'boolean')])
+          ('pa_abbrevs', 'text[]'),
+          ('pheno_entities', 'text[]'),
+          ('pa_section_ids', 'text[]'),
+          ('pa_sent_ids', 'int[]')])
+
+ExpandedRow = namedtuple('ExpandedRow', [
+          'doc_id',
+          'section_id',
+          'sent_id',
+          'words',
+          'lemmas',
+          'poses',
+          'ners',
+          'pa_abbrev',
+          'pheno_entity',
+          'pa_section_id',
+          'pa_sent_id'])
+
 
 
 # This defines the output Mention object
@@ -42,6 +54,21 @@ Mention = namedtuple('Mention', [
             'words',
             'is_correct'])
 
+def expand_array_rows(array_row):
+  for i, pa_abbrev in enumerate(array_row.pa_abbrevs):
+    row = ExpandedRow(doc_id = array_row.doc_id,
+                      section_id = array_row.section_id,
+                      sent_id = array_row.sent_id,
+                      words = array_row.words,
+                      lemmas = array_row.lemmas,
+                      poses = array_row.poses,
+                      ners = array_row.ners,
+                      pa_abbrev = pa_abbrev,
+                      pheno_entity = array_row.pheno_entities[i],
+                      pa_section_id = array_row.pa_section_ids[i],
+                      pa_sent_id = array_row.pa_sent_ids[i])
+    yield row
+
 
 ### CANDIDATE EXTRACTION ###
 SR = config.PHENO_ACRONYMS['SR']
@@ -49,8 +76,6 @@ SR = config.PHENO_ACRONYMS['SR']
 def extract_candidate_mentions(row):
   """Extracts candidate phenotype mentions from an input row object"""
   mentions = []
-  if row.pa_is_correct == False:
-    return []
 
   for i, word in enumerate(row.words):
     if word == row.pa_abbrev:
@@ -61,10 +86,10 @@ def extract_candidate_mentions(row):
             i, \
             i, \
             row.pheno_entity)
-      subtype = '%s_%s_%d_%s' % (row.pa_doc_id, row.pa_section_id, row.pa_sent_id, row.pa_abbrev)
+      subtype = '%s_%s_%d_%s' % (row.doc_id, row.pa_section_id, row.pa_sent_id, row.pa_abbrev)
       m = Mention(None, row.doc_id, row.section_id, row.sent_id,
           [i], mention_id, "ABBREV", subtype, row.pheno_entity,
-          [word], row.pa_is_correct)
+          [word], True)
       mentions.append(m)
   
   return mentions
@@ -84,10 +109,9 @@ def generate_rand_negatives(row, pos, neg):
             i, \
             i, \
             row.pheno_entity)
-      subtype = '%s_%s_%d_%s' % (row.pa_doc_id, row.pa_section_id, row.pa_sent_id, row.pa_abbrev)
+      subtype = '%s_%s_%d_%s' % (row.doc_id, row.pa_section_id, row.pa_sent_id, row.pa_abbrev)
       m = Mention(None, row.doc_id, row.section_id, row.sent_id, 
           [i], mention_id, 'ABBREV_RAND_NEG', subtype, None, [word], False)
-      mentions.append(m)
       neg += 1
   return mentions
 
@@ -99,20 +123,26 @@ if __name__ == '__main__':
 
   # Read TSV data in as Row objects
   for line in sys.stdin:
-    row = parser.parse_tsv_row(line)
-
-    # Skip row if sentence doesn't contain a verb, contains URL, etc.
-    if util.skip_row(row):
-      continue
-
-    # find candidate mentions & supervise
-    mentions = extract_candidate_mentions(row)
-    pos += len(mentions)
-    if SR.get('rand-negs'):
-      negs = generate_rand_negatives(row, pos, neg)
-      neg += len(negs)
-      mentions.extend(negs)
-
-    # print output
-    for mention in mentions:
-      util.print_tsv_output(mention)
+    array_row = parser.parse_tsv_row(line)
+    abbrevs = set()
+    for row in expand_array_rows(array_row):
+      if row.pa_abbrev in abbrevs:
+        continue
+      abbrevs.add(row.pa_abbrev)
+  
+      # Skip row if sentence doesn't contain a verb, contains URL, etc.
+      if util.skip_row(row):
+        continue
+  
+      # find candidate mentions & supervise
+      mentions = extract_candidate_mentions(row)
+      pos += len(mentions)
+      if SR.get('rand-negs'):
+        negs = generate_rand_negatives(row, pos, neg)
+        neg += len(negs)
+        mentions.extend(negs)
+  
+      # print output
+      for mention in mentions:
+        util.print_tsv_output(mention)
+#!/usr/bin/env python
