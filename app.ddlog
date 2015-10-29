@@ -606,12 +606,13 @@ genevariant_pairs(
 
 
 #non_gene_acronyms_extract_candidates
-function non_gene_acronyms_extract_candidates over (doc_id text, section_id text, sent_id int, words text, dep_paths text, dep_parents text, lemmas text, poses text, ners text,  wordidx int)
+function non_gene_acronyms_extract_candidates over rows like non_gene_acronyms_extract_candidates_input
 returns rows like non_gene_acronyms
-implementation "code/non_gene_acronyms_extract_candidates.py" handles tsv lines.
+implementation "code/non_gene_acronyms_extract_candidates_ddlog.py" handles tsv lines.
 
 #We extract genes from gene_mentions_temp_before_non_gene_acronyms_delete_candidates and non gene_mentions because the first gene extraction is done in gene_mentions_temp_before_non_gene_acronyms_delete_candidates. Then the non_gene_acronyms_delete_candidates will create gene_mentions which will be used in the rest of the run.
-#error: call to an elt of an array + like in psql.
+
+#issue: call to an elt of an array. Python script modified to take that into account here
 
 non_gene_acronyms_extract_candidates_view_temp_1(doc_id, section_id, sent_id, wordidxs) *:- gene_mentions_temp_before_non_gene_acronyms_delete_candidates(_, doc_id, section_id, sent_id, wordidxs, _, _, _, _, _, _, _).
 

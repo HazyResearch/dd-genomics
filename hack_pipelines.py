@@ -66,5 +66,3 @@ if idx_cleanup >= len(list_pipelines):
 #Add the pipeline in a deepdive.conf file
 #Actually, according to jahoe, the deepdive.conf file can contain only the new pipeline since a run of deepdive will compile app.ddlog
 # if list_pipelines
-
-print list_code_pipelines
