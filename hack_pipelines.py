@@ -11,7 +11,7 @@ with open("./pipelines.txt") as file_pipeline:
       string_pipeline = ''
       for line in file_pipeline:
             line = line.strip()
-            if line != '':
+            if line != '' and line[0] != "#":
                   string_pipeline += line
                   if '.' in line:
                         list_string_pipeline.append(string_pipeline.replace(".", ""))
@@ -27,8 +27,6 @@ for str_pipeline in list_string_pipeline:
                   list_elt_pipeline.append(i.strip())
       list_pipelines.append((name_pipeline, list_elt_pipeline))
 
-
-print list_pipelines
 
 #Launching the load pipeline
 idx_load = 0
@@ -65,4 +63,9 @@ if idx_cleanup >= len(list_pipelines):
 
 #Add the pipeline in a deepdive.conf file
 #Actually, according to jahoe, the deepdive.conf file can contain only the new pipeline since a run of deepdive will compile app.ddlog
-# if list_pipelines
+with open('deepdive.conf', 'w') as f:
+      for name_pipe, list_elt_pipe in list_pipelines:
+            f.write('deepdive.pipeline.pipelines.' + name_pipe + ': [\n')
+            for extractor in list_elt_pipe:
+                  f.write('\t'+extractor+'\n')
+            f.write(']\n')
