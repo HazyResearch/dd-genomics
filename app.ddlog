@@ -351,19 +351,19 @@ ensgene (
 ).
 
 genepheno_relations(
-  id bigint,
-  relation_id text,
-  doc_id text,
-  section_id text,
-  sent_id int,
-  gene_mention_id text,
-  gene_entity text,
-  gene_wordidxs int[],
-  gene_is_correct boolean,
-  pheno_mention_id text,
-  pheno_entity text,
-  pheno_wordidxs int[],
-  pheno_is_correct boolean).
+ id               bigint, 
+ relation_id      text,      
+ doc_id           text,      
+ section_id       text,      
+ sent_id          integer,
+ gene_mention_id  text,      
+ gene_name        text,      
+ gene_wordidxs    integer[], 
+ gene_is_correct  boolean,   
+ pheno_mention_id text,      
+ pheno_entity     text,      
+ pheno_wordidxs   integer[], 
+ pheno_is_correct boolean).
 
 doc_metadata(
 doc_id              text,    
@@ -454,6 +454,11 @@ gene_mentions_non_gene_acronyms(id, doc_id, section_id, sent_id, wordidxs, menti
 gene_mentions_temp_before_non_gene_acronyms_delete_candidates(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct), 
 gene_mentions_non_gene_acronyms_view_temp(gene_name, doc_id).
 
+gene_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct) :-
+gene_mentions_temp_before_non_gene_acronyms_delete_candidates(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct), 
+! EXISTS[non_gene_acronyms(_, doc_id, _, _, _, _, _, _, _, gene_name, _, is_correct_nga), [is_correct_nga = "t" ; is_correct_nga IS NULL]].
+
+
 #! : how to add the delete from gene_mentions ? Maybe create a gene_mentions_temp first and then create the final gene_mentions here
 
 #Gene extract features
@@ -498,7 +503,8 @@ pheno_mentions_filtered( id bigint, doc_id text, section_id text, sent_id intege
 
 pheno_mentions_filtered( id, doc_id, section_id, sent_id, array_to_string(wordidxs, "|^|"), mention_id, supertype, subtype, entity, array_to_string(words, "|^|"), is_correct) *:-
 pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct),
-genepheno_relations(_, _, _, _, _, mention_id, _, _, _,_,_,_,_).
+genepheno_relations(_,_,_,_,_,_,_,_,_,mention_id,_,_,_).
+
 
 #Create table pheno_mention_ids
 pheno_mention_ids( doc_id text).
@@ -823,7 +829,7 @@ gene_mentions_filtered( id bigint, doc_id text, section_id text, sent_id integer
 
 gene_mentions_filtered( id, doc_id, section_id, sent_id, array_to_string(wordidxs, "|^|"), mention_id, mapping_type, supertype, subtype, gene_name, array_to_string(words, "|^|"), is_correct) *:-
 gene_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct),
-genepheno_relations(_, _, _, _, _, mention_id, _, _, _,_,_,_,_).
+genepheno_relations(_,_,_,_,_,mention_id,_,_,_,_,_,_,_).
 
 
 #Create table gene_mention_ids
@@ -886,8 +892,8 @@ variant_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertyp
 function genepheno_extract_features over rows like genepheno_extract_features_input returns rows like genepheno_features
 implementation "code/genepheno_extract_features.py" handles tsv lines.
 
-genepheno_features += genepheno_extract_features( relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_wordidxs, pheno_mention_id, pheno_wordidxs, words, lemmas, poses, ners, dep_paths, dep_parents) :-
-genepheno_relations(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct), 
+genepheno_features += genepheno_extract_features( relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_wordidxs, pheno_mention_id, pheno_wordidxs, words, lemmas, poses, ners, dep_paths, dep_parents) :- 
+genepheno_relations(id,relation_id,doc_id,section_id,sent_id,gene_mention_id,gene_name,gene_wordidxs,gene_is_correct,pheno_mention_id,pheno_entity,pheno_wordidxs,pheno_is_correct),
 sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
 
 
