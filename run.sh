@@ -35,7 +35,7 @@ unset GDD_PIPELINE
 
   cd $DEEPDIVE_HOME
   #sbt "run -c $APP_HOME/${APP_CONF:-application.conf}"
-  deepdive env java org.deepdive.Main -c $APP_HOME/application.conf -o $APP_HOME/../output_dir
+  deepdive env java org.deepdive.Main -c $APP_HOME/application_psql.conf -o $APP_HOME/../output_dir
 
 #   echo "Don't forget to VACUUM VERBOSE; in psql once in a while!"
 # fi
