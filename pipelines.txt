@@ -23,7 +23,10 @@ full_pipeline_ddlog:
       ext_non_gene_acronyms_extract_candidates_view_temp_2,
       ext_non_gene_acronyms_by_non_gene_acronyms_extract_candidates,
       ext_pheno_mentions_by_pheno_extract_candidates,
-      ext_pheno_mentions_by_pheno_acronyms_insert_candidates    .
+      ext_pheno_mentions_by_pheno_acronyms_insert_candidates,
+      ext_gene_mentions_non_gene_acronyms_view_temp,
+      ext_gene_mentions_non_gene_acronyms,
+      ext_gene_mentions.
 
 
 #full_pipeline_gp:       
@@ -31,22 +34,18 @@ full_pipeline_ddlog:
 #      gene_extract_features, 
 #      pheno_acronyms_extract_candidates,
 #      pheno_acronyms_aggregate_candidates,
-#      #pheno_extract_features,
 #      get_genepheno_pairs,
 #      serialize_genepheno_pairs_split,
 #      genepheno_extract_candidates,
 #      gene_filter_candidates,
-#      #pheno_filter_candidates,
 #      genepheno_extract_features,
 #      genepheno_causation_supervision,
 #      genepheno_association_supervision,
 #      gene_inference,
-#      #pheno_inference,
 #      genepheno_causation_to_gene,
 #      genepheno_association_to_gene,
 #      genepheno_association_inference,
 #      genepheno_causation_inference.
-#      #pheno_acronyms_inference.
 
 
 
