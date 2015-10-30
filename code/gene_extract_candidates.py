@@ -75,8 +75,7 @@ def extract_candidate_mentions(row):
         mapping_types.add(mapping_type)
       for mapping_type in mapping_types:
         if len(word) >= HF['min-word-len'][mapping_type]:
-          m = create_supervised_mention(row, i, gene_name=word, mapping_type=mapping_type)
-          if m:
+          for m in create_supervised_mention(row, i, gene_name=word, mapping_type=mapping_type):
             mentions.append(m)
   return mentions
 
@@ -89,6 +88,7 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
   mid = '%s_%s_%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, i, gene_name, mention_supertype)
   m = Mention(None, row.doc_id, row.section_id, row.sent_id, [i], mid, mapping_type, mention_supertype, mention_subtype, gene_name, [word], None)
   dep_dag = deps.DepPathDAG(row.dep_parents, row.dep_paths, row.words)
+  supervised = False
 
   phrase = ' '.join(row.words)
   lemma_phrase = ' '.join(row.lemmas)
@@ -99,11 +99,13 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
         match = util.rgx_mult_search(phrase_post, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
-          return m._replace(is_correct=val, mention_supertype='POST_MATCH_%s_%s' % (name, val), mention_subtype=match)
+          yield m._replace(is_correct=val, mention_supertype='POST_MATCH_%s_%s' % (name, val), mention_subtype=match)
+          supervised = True
   
   if SR.get('bad-genes'):
     if gene_name in SR['bad-genes']:
-      return m._replace(is_correct=False, mention_supertype='BAD_GENE')
+      yield m._replace(is_correct=False, mention_supertype='BAD_GENE')
+      supervised = True
 
   if SR.get('pre-neighbor-match') and i > 0:
     opts = SR['pre-neighbor-match']
@@ -112,7 +114,8 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
         match = util.rgx_mult_search(pre_neighbor, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
-          return m._replace(is_correct=val, mention_supertype='PRE_NEIGHBOR_MATCH_%s_%s' % (name, val), mention_subtype=match)
+          yield m._replace(is_correct=val, mention_supertype='PRE_NEIGHBOR_MATCH_%s_%s' % (name, val), mention_subtype=match)
+          supervised = True
 
   if SR.get('phrases-in-sent'):
     opts = SR['phrases-in-sent']
@@ -121,7 +124,8 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
         match = util.rgx_mult_search(phrase + ' ' + lemma_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
           # backslashes cause postgres errors in postgres 9
-          return m._replace(is_correct=val, mention_supertype='PHRASE_%s' % name, mention_subtype=match.replace('\\', '/'))
+          yield m._replace(is_correct=val, mention_supertype='PHRASE_%s' % name, mention_subtype=match.replace('\\', '/'))
+          supervised = True
  
   ## DS RULE: matches from papers that NCBI annotates as being about the mentioned gene are likely true.
   if SR['pubmed-paper-genes-true']:
@@ -130,22 +134,26 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
     if pmid and gene_name:
       for (mention_ensembl_id, canonical_name, mapping_type) in CACHE['gene_name_to_genes'][gene_name]:
         if mention_ensembl_id in pubmed_to_genes.get(pmid, {}):
-          return m._replace(is_correct=True, mention_supertype='%s_NCBI_ANNOTATION_TRUE' % mention_supertype, mention_subtype=mention_ensembl_id)
+          yield m._replace(is_correct=True, mention_supertype='%s_NCBI_ANNOTATION_TRUE' % mention_supertype, mention_subtype=mention_ensembl_id)
+          supervised = True
           break
 
   ## DS RULE: Genes on the gene list with complicated names are probably good for exact matches.
   if SR['complicated-gene-names-true']:
     if m.mapping_type in HF['ensembl-mapping-types']:
       if re.match(r'[a-zA-Z]{3}[a-zA-Z]*\d+\w*', word):
-        return m._replace(is_correct=True, mention_supertype='COMPLICATED_GENE_NAME')
+        yield m._replace(is_correct=True, mention_supertype='COMPLICATED_GENE_NAME')
+        supervised = True
 
   if SR['all-canonical-true']:
     if m.mapping_type == 'CANONICAL_SYMBOL':
-      return m._replace(is_correct=True, mention_supertype='%s_ALL_TRUE' % m.mention_supertype)
+      yield m._replace(is_correct=True, mention_supertype='%s_ALL_TRUE' % m.mention_supertype)
+      supervised = True
 
   if SR['all-symbols-true']:
     if m.mapping_type in HF['ensembl-mapping-types']:
-      return m._replace(is_correct=True, mention_supertype='%s_ALL_TRUE' % m.mention_supertype)
+      yield m._replace(is_correct=True, mention_supertype='%s_ALL_TRUE' % m.mention_supertype)
+      supervised = True
 
   if SR.get('neighbor-match'):
     opts = SR['neighbor-match']
@@ -155,9 +163,11 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
           neighbor = row.words[neighbor_idx]
           match = util.rgx_mult_search(neighbor, opts[name],  opts['%s-rgx' % name], flags=re.I)
           if match:
-            return m._replace(is_correct=val, mention_supertype='NEIGHBOR_MATCH_%s_%s' % (name, val), mention_subtype='Neighbor: ' + neighbor + ', match: ' + match)
+            yield m._replace(is_correct=val, mention_supertype='NEIGHBOR_MATCH_%s_%s' % (name, val), mention_subtype='Neighbor: ' + neighbor + ', match: ' + match)
+            supervised = True
 
-  return m
+  if not supervised:
+    yield m
 
 def get_negative_mentions(row, mentions, d, per_row_max=2):
   """Generate random / pseudo-random negative examples, trying to keep set approx. balanced"""
