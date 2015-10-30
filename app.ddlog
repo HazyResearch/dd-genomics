@@ -375,6 +375,25 @@ doc_id              text,
  issn_print         text,    
  issn_electronic    text).
 
+allowed_phenos (hpo_id text).
+
+
+gene_holdout_set (
+        doc_id text,
+        section_id text,
+        sent_id int,
+        gene_wordidxs int[]
+).
+
+
+gene_holdout_labels (
+  doc_id text,
+  section_id text,
+  sent_id int,
+  is_correct text,
+  labeler text
+).
+
 
 ##### Extractors #####
 
@@ -612,7 +631,7 @@ implementation "code/non_gene_acronyms_extract_candidates_ddlog.py" handles tsv 
 
 #We extract genes from gene_mentions_temp_before_non_gene_acronyms_delete_candidates and non gene_mentions because the first gene extraction is done in gene_mentions_temp_before_non_gene_acronyms_delete_candidates. Then the non_gene_acronyms_delete_candidates will create gene_mentions which will be used in the rest of the run.
 
-#issue: call to an elt of an array. Python script modified to take that into account here
+#issue solved: call to an elt of an array. Python script modified to take that into account here
 
 non_gene_acronyms_extract_candidates_view_temp_1(doc_id, section_id, sent_id, wordidxs) *:- gene_mentions_temp_before_non_gene_acronyms_delete_candidates(_, doc_id, section_id, sent_id, wordidxs, _, _, _, _, _, _, _).
 

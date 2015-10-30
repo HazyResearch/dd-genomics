@@ -2,6 +2,14 @@
 
 #This is to be included in the run.sh finally when we run with ddlog, used now locally and to test rapidely
 
+if [ -f env_local.sh ]; then
+  echo "Using env_local.sh"
+  source ./env_local.sh
+else
+  echo "Using env.sh"
+  source ./env.sh
+fi
+
 deepdive run initdb
 
 cd parser
