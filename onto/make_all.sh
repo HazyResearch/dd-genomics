@@ -26,6 +26,10 @@ RAW="raw/gene2ensembl.gz"
 if [ ! -e "$RAW" ]; then
   wget ftp://ftp.ncbi.nih.gov/gene/DATA/gene2ensembl.gz -O "$RAW"
 fi
+# RAW="raw/gene2refseq.gz"
+# if [ ! -e "$RAW" ]; then
+#   wget ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2refseq.gz -O "$RAW"
+# fi
 # grab all the pmids that have less than 5 gene annotations since other genes have too many mappings for us to reasonably assess (gene collection papers, gwas, etc.)
 gzip -dc raw/gene2pubmed.gz | awk '{if($1==9606) print $2"\t"$3}' |
  sort -u  | cut -f2 | sort | uniq -c | awk '{if($1<=5) print $2}' | sort -k1,1 | uniq |
@@ -102,19 +106,43 @@ cp dicts/ensembl_map.tsv data/ensembl_genes.tsv
 
 # Get mesh to pubmed ID map
 if [ ! -f data/meshToPmid.tsv ]; then
-  if [ -f /dfs/scratch0/jbirgmei/meshToPmid.tsv ]; then
-    cp /dfs/scratch0/jbirgmei/meshToPmid.tsv data/meshToPmid.tsv
+  if [ -f /dfs/scratch0/jbirgmei/dd_onto_data/meshToPmid.tsv ]; then
+    cp /dfs/scratch0/jbirgmei/dd_onto_data/meshToPmid.tsv data/meshToPmid.tsv
   else
     echo " Copying meshToPmid.tsv from local filesystem failed."
-    echo " If have access to raiders2, run scp username@raiders2:/dfs/scratch0/jbirgmei/meshToPmid.tsv data/meshToPmid.tsv"
+    echo " If you have access to raiders2, run scp username@raiders2:/dfs/scratch0/jbirgmei/dd_onto_data/meshToPmid.tsv data/meshToPmid.tsv"
     echo " Otherwise, use ./makeMeshToPmid.sh to re-generate file by querying PubMed."
     echo " Then, re-run this script."
     exit 1
   fi
 fi
 
+if [ ! -f data/hg19_ensGene.sql ]; then
+  if [ -f /dfs/scratch0/jbirgmei/dd_onto_data/hg19_ensGene.sql ]; then
+    cp /dfs/scratch0/jbirgmei/dd_onto_data/hg19_ensGene.sql raw/hg19_ensGene.sql
+  else
+    echo " Copying hg19_ensGene.sql from local filesystem failed."
+    echo " If have access to raiders2, run scp username@raiders2:/dfs/scratch0/jbirgmei/dd_onto_data/hg19_ensGene.sql raw/hg19_ensGene.sql"
+    echo " Otherwise, you're screwed."
+    exit 1
+  fi
+fi
+
+if [ ! -f data/ucscEnsemblProteinTable.tsv ]; then
+  if [ -f /dfs/scratch0/jbirgmei/dd_onto_data/ucscEnsemblProteinTable.tsv ]; then
+    cp /dfs/scratch0/jbirgmei/dd_onto_data/ucscEnsemblProteinTable.tsv raw/ucscEnsemblProteinTable.tsv
+  else
+    echo " Copying ucscEnsemblProteinTable.tsv from local filesystem failed."
+    echo " If have access to raiders2, run scp username@raiders2:/dfs/scratch0/jbirgmei/dd_onto_data/ucscEnsemblProteinTable.tsv data/ucscEnsemblProteinTable.tsv"
+    echo " Otherwise, you're screwed."
+    exit 1
+  fi
+fi
+
 # Join to get HPO to pubmed ID map through MeSH
 join -t $'\t' -1 2 -2 1 -o 1.1,2.2 <(cut -f1,7 data/hpo_phenotypes.tsv | egrep -v $'\t''$' | sort -k2) data/meshToPmid.tsv > data/hpo_to_pmid_via_mesh.tsv
+
+python prep_pheno_terms.py
 
 # Get map between PMIDs and DOIs.
 RAW="raw/PMC-ids.csv"
