@@ -496,8 +496,13 @@ function pheno_extract_candidates over rows like pheno_extract_candidates_input
   returns rows like pheno_mentions
   implementation "code/pheno_extract_candidates.py" handles tsv lines.
 
-pheno_mentions += pheno_extract_candidates(doc_id, section_id, sent_id, words, lemmas, poses, ners) :-
+#Here we fill out first this temporary table to avoid dependency loop.
+pheno_mentions_without_acronyms += pheno_extract_candidates(doc_id, section_id, sent_id, words, lemmas, poses, ners) :-
 sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, _, _).
+
+#And we also fill out pheno_mentions with the same values so oheno_mentions will be the union of this extractor and of pheno_acronyms_insert_candidates.
+pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct) :-
+pheno_mentions_without_acronyms(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
 
 
 
@@ -673,14 +678,13 @@ sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_pat
 non_gene_acronyms(id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs, mention_id, supertype, subtype, abbrev, definition, is_correct).
 
 #pheno_acronyms_extract_candidates
-#error, same as previously, the call words[wordidxs...] not recognized by ddlog currently.
 
 function pheno_acronyms_extract_candidates over (doc_id text, section_id text, sent_id int, words_string text, dep_paths text, dep_parents text, lemmas text, poses text, ners text,  wordidxs int[], entity text)
 returns rows like pheno_acronyms
 implementation "code/pheno_acronyms_extract_candidates_ddlog.py" handles tsv lines.
 
 pheno_acronyms_extract_candidates_view_temp_1(doc_id, section_id, sent_id, wordidxs, entity) *:- 
-pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct), 
+pheno_mentions_without_acronyms(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct), 
 [is_correct = "t" ; is_correct IS NULL].
 
 pheno_acronyms_extract_candidates_view_temp_2(doc_id, section_id, sent_id, word_string, string_to_array(word_string, "|^|"), dep_paths, dep_parents, lemmas, poses, ners, wordidxs, entity) :-
