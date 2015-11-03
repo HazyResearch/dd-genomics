@@ -49,6 +49,10 @@ full_pipeline_ddlog_part_after_serialize_genepheno_pairs_split:
       ext_genepheno_features_by_genepheno_extract_features,
       ext_genepheno_association_by_genepheno_association_supervision,
       ext_genepheno_causation_by_genepheno_causation_supervision,
+      #Adding the supervision rules, particular at ddlog since the inference is made in other tables, not directly in a column of an existing table. For instance, the variable is_true of gene_mentions_filtered, we create the table gene_mentions_filtered_inference
+      ext_gene_mentions_filtered_inference,
+      ext_genepheno_causation_inference,
+      ext_genepheno_association_inference,
       inf_istrue_gene_mentions_filtered_inference,
       inf_istrue_genepheno_association_inference,
       inf_istrue_genepheno_causation_inference,

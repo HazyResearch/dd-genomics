@@ -167,4 +167,9 @@ Then start the dashboard, if it's not already running, with
 
     - In ddlog, we cannot add twice in pheno_mentions when the second addition requires the first one beforehand. Therefore, the table pheno_mentions_without_acronyms is first created, which is used to compute pheno_acronyms_aggregate_candidates. Then, the result of pheno_acronyms_insert_candidates and the initial extractions in pheno_mentions_without_acronyms are put in pheno_mentions
 
-    - THe shell script ${APP_HOME}/util/serialize_genepheno_pairs_split.sh genomics cannot be called during the deepdive run. Therefore we cut once again the pipeline to call this script.
+    - The shell script ${APP_HOME}/util/serialize_genepheno_pairs_split.sh genomics cannot be called during the deepdive run. Therefore we cut once again the pipeline to call this script.
+
+    - The holdout fraction cannot be defined in ddlog. Therefore we add the sentence "calibration.holdout_fraction: 0.1" in the deepdive.conf file (while writing the pipelines. This writing is done in hack_pipelines.py)
+
+    - in ddlog, when we create variables and inference rules, the variable is not just a column of an existing table, it has to be a new table. For instance, the variable is_true of gene_mentions_filtered, we create the table gene_mentions_filtered_inference. Therefore, don't forget to add in the pipeline the extractor linking the table_inference and the corresponding mention table !
+    For instance, here, we have to add the extractor ext_gene_mentions_filtered_inference, otherwise the inference part doesn't bring any result...
