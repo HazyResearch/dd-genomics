@@ -14,7 +14,7 @@ cleanup_doc_pipeline:
       cleanup_doc_ids1,
       cleanup_doc_ids2.
 
-full_pipeline_ddlog:
+full_pipeline_ddlog_part_before_serialize_genepheno_pairs_split:
       #add serialize_sentences here at the beginning. Not right now since it's done in temp_script_initdb.sh but when we don't try with application.conf anymore
 
       ext_gene_extract_candidates_view_temp,
@@ -26,16 +26,22 @@ full_pipeline_ddlog:
       ext_pheno_mentions_by_pheno_acronyms_insert_candidates,
       ext_gene_mentions_non_gene_acronyms_view_temp,
       ext_gene_mentions_non_gene_acronyms,
-      ext_gene_mentions.
+      ext_gene_mentions,
+      ext_gene_features_by_gene_extract_features,
+      ext_pheno_acronyms_extract_candidates_view_temp_1,
+      ext_pheno_acronyms_extract_candidates_view_temp_2,
+      ext_pheno_acronyms_by_pheno_acronyms_extract_candidates,
+#      ext_pheno_acronyms_aggregate,
+#      ext_pheno_acronyms_ids,
+#      ext_sentences_input_with_pheno_acronyms,
+#      ext_genepheno_pairs.
+
+full_pipeline_ddlog_part_after_serialize_genepheno_pairs_split:
+
+      .
 
 
 #full_pipeline_gp:       
-#      non_gene_acronyms_delete_candidates,
-#      gene_extract_features, 
-#      pheno_acronyms_extract_candidates,
-#      pheno_acronyms_aggregate_candidates,
-#      get_genepheno_pairs,
-#      serialize_genepheno_pairs_split,
 #      genepheno_extract_candidates,
 #      gene_filter_candidates,
 #      genepheno_extract_features,
