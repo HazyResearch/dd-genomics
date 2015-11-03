@@ -22,36 +22,38 @@ full_pipeline_ddlog_part_before_serialize_genepheno_pairs_split:
       ext_non_gene_acronyms_extract_candidates_view_temp_1,
       ext_non_gene_acronyms_extract_candidates_view_temp_2,
       ext_non_gene_acronyms_by_non_gene_acronyms_extract_candidates,
-      ext_pheno_mentions_by_pheno_extract_candidates,
-      ext_pheno_mentions_by_pheno_acronyms_insert_candidates,
+      #This extractor is to export data from pheno_mentions_without_acronyms to pheno_mentions.
+      ext_pheno_mentions,
+      ext_pheno_mentions_without_acronyms_by_pheno_extract_candidates,
       ext_gene_mentions_non_gene_acronyms_view_temp,
       ext_gene_mentions_non_gene_acronyms,
-      ext_gene_mentions,
-      ext_gene_features_by_gene_extract_features,
       ext_pheno_acronyms_extract_candidates_view_temp_1,
       ext_pheno_acronyms_extract_candidates_view_temp_2,
       ext_pheno_acronyms_by_pheno_acronyms_extract_candidates,
-#      ext_pheno_acronyms_aggregate,
-#      ext_pheno_acronyms_ids,
-#      ext_sentences_input_with_pheno_acronyms,
-#      ext_genepheno_pairs.
+      ext_pheno_acronyms_aggregate,
+      ext_pheno_acronyms_ids,
+      ext_sentences_input_with_pheno_acronyms,
+      ext_pheno_mentions_by_pheno_acronyms_insert_candidates.
+
+
+full_pipeline_cut_for_bug_in_dependencies:
+      ext_gene_mentions,
+      ext_gene_features_by_gene_extract_features,
+      ext_genepheno_pairs.
 
 full_pipeline_ddlog_part_after_serialize_genepheno_pairs_split:
-
-      .
-
-
-#full_pipeline_gp:       
-#      genepheno_extract_candidates,
-#      gene_filter_candidates,
-#      genepheno_extract_features,
-#      genepheno_causation_supervision,
-#      genepheno_association_supervision,
-#      gene_inference,
-#      genepheno_causation_to_gene,
-#      genepheno_association_to_gene,
-#      genepheno_association_inference,
-#      genepheno_causation_inference.
+      ext_genepheno_relations_by_genepheno_extract_candidates, 
+      ext_gene_mentions_filtered,
+      ext_gene_mention_ids,
+      ext_sentences_input_with_gene_mention,
+      ext_genepheno_features_by_genepheno_extract_features,
+      ext_genepheno_association_by_genepheno_association_supervision,
+      ext_genepheno_causation_by_genepheno_causation_supervision,
+      inf_istrue_gene_mentions_filtered_inference,
+      inf_istrue_genepheno_association_inference,
+      inf_istrue_genepheno_causation_inference,
+      inf_imply_genepheno_association_inference_gene_mentions_filtered_inference,
+      inf_imply_genepheno_causation_inference_gene_mentions_filtered_inference.
 
 
 

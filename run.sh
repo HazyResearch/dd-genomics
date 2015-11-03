@@ -47,7 +47,9 @@ python ${APP_HOME}/onto/prep_pheno_terms.py
 
 deepdive run full_pipeline_ddlog_part_before_serialize_genepheno_pairs_split
 
-# ${APP_HOME}/util/serialize_genepheno_pairs_split.sh genomics
+deepdive run full_pipeline_cut_for_bug_in_dependencies
 
-# deepdive run full_pipeline_ddlog_part_after_serialize_genepheno_pairs_split
+${APP_HOME}/util/serialize_genepheno_pairs_split.sh genomics
+
+deepdive run full_pipeline_ddlog_part_after_serialize_genepheno_pairs_split
 
