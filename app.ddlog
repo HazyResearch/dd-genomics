@@ -956,8 +956,8 @@ genevariant_relations_inference?(relation_id text).
 
 #### Supervision Rule #####
 
-@label(is_correct)
-gene_mentions_filtered_inference(mention_id) :- gene_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct).
+#@label(is_correct)
+gene_mentions_filtered_inference(mention_id) = is_correct :- gene_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct).
 
 #@label(is_correct)
 #pheno_mentions_filtered_inference(mention_id) :- pheno_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
@@ -980,7 +980,7 @@ genevariant_relations_inference(relation_id) :- genevariant_relations ( id, rela
 #gene_inference
 @weight(feature)
 gene_mentions_filtered_inference(mention_id) :-
-  gene_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct),
+  gene_mentions_filtered(_, _,_, _, _, mention_id, _, _, _, _, _, is_correct),
   gene_features(_, _, mention_id, feature).
 
 #pheno_inference

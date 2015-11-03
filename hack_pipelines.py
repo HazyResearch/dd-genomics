@@ -69,3 +69,6 @@ with open('deepdive.conf', 'w') as f:
             for extractor in list_elt_pipe:
                   f.write('\t'+extractor+'\n')
             f.write(']\n')
+      f.write('deepdive.calibration.holdout_fraction: 0.1 \n')
+
+
