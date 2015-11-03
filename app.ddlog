@@ -113,6 +113,22 @@ pheno_mentions (
   is_correct boolean
 ).
 
+#Temporary table created to avoid a "dependency loop" and help the compiler understand better the order pheno_extract_candidates ->p heno_acronyms_extract_candidates -> pheno_acronyms_aggregate_candidates pheno_acronyms_insert_candidates
+
+pheno_mentions_without_acronyms (
+  id bigint,
+  doc_id text,
+        section_id text,
+  sent_id int,
+  wordidxs int[],
+  mention_id text,
+  supertype text,
+        subtype text,
+  entity text,
+  words text[],
+  is_correct boolean
+).
+
 pheno_features (
   doc_id text,
         section_id text,
@@ -458,9 +474,6 @@ gene_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_typ
 gene_mentions_temp_before_non_gene_acronyms_delete_candidates(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct), 
 ! EXISTS[non_gene_acronyms(_, doc_id, _, _, _, _, _, _, _, gene_name, _, is_correct_nga), [is_correct_nga = "t" ; is_correct_nga IS NULL]].
 
-
-#! : how to add the delete from gene_mentions ? Maybe create a gene_mentions_temp first and then create the final gene_mentions here
-
 #Gene extract features
 function gene_extract_features over rows like gene_extract_features_input
   returns rows like gene_features
@@ -664,7 +677,7 @@ non_gene_acronyms(id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs
 
 function pheno_acronyms_extract_candidates over (doc_id text, section_id text, sent_id int, words_string text, dep_paths text, dep_parents text, lemmas text, poses text, ners text,  wordidxs int[], entity text)
 returns rows like pheno_acronyms
-implementation "code/pheno_acronyms_extract_candidates.py" handles tsv lines.
+implementation "code/pheno_acronyms_extract_candidates_ddlog.py" handles tsv lines.
 
 pheno_acronyms_extract_candidates_view_temp_1(doc_id, section_id, sent_id, wordidxs, entity) *:- 
 pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct), 
