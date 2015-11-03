@@ -83,7 +83,7 @@ GENE = {
   ## Supervision Rules
   'SR' : {
     # Label some P mentions based on the toks / phrases that follow
-    'bad-genes': ['ANOVA', 'MRI', 'CO2', 'gamma', 'spatial', 'tau', 'Men', 'ghrelin', 'MIM', 'NHS', 'STD'],
+    'bad-genes': ['ANOVA', 'MRI', 'CO2', 'gamma', 'spatial', 'tau', 'Men', 'ghrelin', 'MIM', 'NHS', 'STD', 'hole'],
 
     'post-match' : {
       'pos' : ['_ mutation', 'mutation', '_ mutations', 'mutations', 'mutant', 'mutants', 'gene', 'exon', 'residue', 'residues', 'coding', 'isoform', 'isoforms', 'deletion', 'mRNA', 'homozyous'],
