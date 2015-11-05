@@ -157,7 +157,17 @@ Then start the dashboard, if it's not already running, with
 
 * Go to the directory and start downloading
 
-### Limitations
+### DDLOg
+
+Main changes from application.conf:
+
+	- Pipelines. Not existing now in ddlog. A small diversion was done here to allow pipelines. The file pipelines.txt allows to create pipelines that would be compiled in a deepdive.conf file.
+		- The pipelines work as explained in pipelines.txt. The first pipeline is used to load data in the database. Same for cleanup_doc_pipeline.
+		 - The other pipelines can be defined by the user. To find the name of an extractor from ddlog, the app.ddlog needs to be compiled (with for instance the command ~/local/bin/ddlog compile $APP_HOME/app.ddlog > $APP_HOME/deepdive_compiled.conf) and the corresponding extractor needs to be found (manually for now) in the compiled file. Then we can add this extractor in the pipeline.
+
+	- many temporary tables and views (due to complicated sql queries that cannot be translated directly in ddlog). This should not effect the speed of the process.
+
+limitations and remarks:
 
     - a call to an elt of a tab doesn't work. Therefore, in the extractor "non_gene_acronyms_extract_candidates", the sql query is slightly different (doesn't include gm.wordidxs[1] and a.words[a.wordidx] LIKE '-LRB-';) and the udf is slightly changed in non_gene_acronyms_extract_candidates_ddlog.py to make this comparison in the python script.
 

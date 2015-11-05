@@ -1,3 +1,7 @@
+#Extractors are wrriten in the format name_pipeline: extractor1, extractor2, extractor3.
+#The name of the extractor is followed by ":", the extractors are separeted by commas and the last extractor ends with a "."
+
+#This pipeline helps to put data in the database. Each extractor "name_extractor" calls the corresponding init_name_extractor.sh scripts located in input/
 load_pipeline:   
       allowed_phenos,
       genes,
@@ -13,6 +17,8 @@ load_pipeline:
 cleanup_doc_pipeline: 
       cleanup_doc_ids1,
       cleanup_doc_ids2.
+
+#To find the name of an extractor from ddlog, the app.ddlog needs to be compiled (with for instance the command ~/local/bin/ddlog compile $APP_HOME/app.ddlog > $APP_HOME/deepdive_compiled.conf) and the corresponding extractor needs to be found (manually for now) in the compiled file. Then we can add this extractor in the pipeline.
 
 full_pipeline_ddlog_part_before_serialize_genepheno_pairs_split:
       #add serialize_sentences here at the beginning. Not right now since it's done in temp_script_initdb.sh but when we don't try with application.conf anymore
