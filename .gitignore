@@ -91,3 +91,4 @@ db.url
 /writes
 /scores*.lst
 /match_paths
+/search
