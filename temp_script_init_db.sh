@@ -10,7 +10,7 @@ else
   source ./env.sh
 fi
 
-deepdive run initdb
+deepdive initdb
 
 cd parser
 ./load_sentences.sh ../../genomics_sentences_10k.tsv sentences
