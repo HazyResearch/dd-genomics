@@ -1,7 +1,7 @@
 #! /bin/bash
 
 if [ "$#" -lt 3 ]; then
-  echo "Usage: $0 [INPUT: XML file or directory] [XML INPUT FORMAT: abstracts|pubmed|pmc|plos] [OUTNAME: name without file ending]"
+  echo "Usage: $0 [INPUT: XML file or directory] [XML INPUT FORMAT: pubmed|pmc|plos] [OUTNAME: name without file ending]"
   exit
 fi
 
