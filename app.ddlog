@@ -3,11 +3,11 @@
 # Currently, the mindbender has some troubles tracing sentence with multiple keys, so tables are created, e.g., *_view with view_key for view
 
 @source
-sentences_view(
+sentences_views(
   doc_id text,
   section_id text,
-  ref_doc_id text,
   sent_id int,
+  ref_doc_id text,
   @searchable
   words text[],
   lemmas text[],
@@ -16,13 +16,13 @@ sentences_view(
   dep_paths text[],
   dep_parents int[],
   @key
-  view_key text).
+  views_key text).
 
-sentences_view(doc_id, section_id, ref_doc_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, doc_id || "@" || section_id || "@" || sent_id) :-
+sentences_views(doc_id, section_id, ref_doc_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, doc_id || "@" || section_id || "@" || sent_id) :-
   sentences(doc_id, section_id, ref_doc_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
 
 @extraction
-gene_mentions_view(
+gene_mentions_views(
   id bigint,
   doc_id text,
   section_id text,
@@ -31,23 +31,25 @@ gene_mentions_view(
   @key
   mention_id text,
   @navigable
+  mapping_type text,
+  @navigable
   supertype text,
   @navigable
   subtype text,
   @navigable
-  entity text,
+  gene_name text,
   @searchable
   words text[],
   @navigable
   is_correct boolean,
-  @references(relation="sentences_view", column="view_key", alias="sent_gene")
-  view_key text).
+  @references(relation="sentences_views", column="views_key", alias="sent_gene")
+  views_key text).
 
-gene_mentions_view(id, doc_id, section_id, sent_id, gene_wordidxs, mention_id, supertype, subtype, entity, gene_words, is_correct, doc_id || "@" || section_id || "@" || sent_id) :-
-  gene_mentions(id, doc_id, section_id, sent_id, gene_wordidxs, mention_id, supertype, subtype, entity, gene_words, is_correct).
+gene_mentions_views(id, doc_id, section_id, sent_id, gene_wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct, doc_id || "@" || section_id || "@" || sent_id) :-
+gene_mentions(id, doc_id, section_id, sent_id, gene_wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct).
 
 @extraction
-pheno_mentions_view(
+pheno_mentions_views(
   id bigint,
   doc_id text,
   section_id text,
@@ -65,14 +67,14 @@ pheno_mentions_view(
   words text[],
   @navigable
   is_correct boolean,
-  @references(relation="sentences_view", column="view_key", alias="sent_pheno")
-  view_key text).
+  @references(relation="sentences_views", column="views_key", alias="sent_pheno")
+  views_key text).
 
-pheno_mentions_view(id, doc_id, section_id, sent_id, pheno_wordidxs, mention_id, supertype, subtype, entity, pheno_words, is_correct, doc_id || "@" || section_id || "@" || sent_id) :-
+pheno_mentions_views(id, doc_id, section_id, sent_id, pheno_wordidxs, mention_id, supertype, subtype, entity, pheno_words, is_correct, doc_id || "@" || section_id || "@" || sent_id) :-
   pheno_mentions(id, doc_id, section_id, sent_id, pheno_wordidxs, mention_id, supertype, subtype, entity, pheno_words, is_correct).
 
 @extraction
-genepheno_association_view(
+genepheno_association_views(
   id bigint,
   @key
   relation_id text,
@@ -81,7 +83,7 @@ genepheno_association_view(
   sent_id int,
   gene_mention_id text,
   @navigable
-  gene_entity text,
+  gene_name text,
   gene_wordidxs int[],
   pheno_mention_id text,
   @navigable
@@ -91,14 +93,14 @@ genepheno_association_view(
   is_correct boolean,
   supertype text,
   subtype text,
-  @references(relation="sentences_view", column="view_key", alias="genepheno_association_extraction")
-  view_key text).
+  @references(relation="sentences_views", column="views_key", alias="genepheno_association_extraction")
+  views_key text).
 
-genepheno_association_view(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, doc_id || "@" || section_id || "@" || sent_id) :-
+genepheno_association_views(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, doc_id || "@" || section_id || "@" || sent_id) :-
   genepheno_association(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype).
 
 @extraction
-genepheno_causation_view(
+genepheno_causation_views(
   id bigint,
   @key
   relation_id text,
@@ -107,7 +109,7 @@ genepheno_causation_view(
   sent_id int,
   gene_mention_id text,
   @navigable
-  gene_entity text,
+  gene_name text,
   gene_wordidxs int[],
   pheno_mention_id text,
   @navigable
@@ -117,11 +119,14 @@ genepheno_causation_view(
   is_correct boolean,
   supertype text,
   subtype text,
-  @references(relation="sentences_view", column="view_key", alias="genepheno_causation_extraction")
-  view_key text).
+  @references(relation="sentences_views", column="views_key", alias="genepheno_causation_extraction")
+  views_key text).
 
-genepheno_causation_view(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, doc_id || "@" || section_id || "@" || sent_id) :-
+genepheno_causation_views(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, doc_id || "@" || section_id || "@" || sent_id) :-
   genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype).
+
+
+
 
 
 
@@ -190,9 +195,9 @@ gene_mentions (
   id bigint,
   #@references(relation="sentences_input", column="doc_id")
   doc_id text,
-  #@references(relation="sentences_input", column="section_id")
+  ##@references(relation="sentences_input", column="section_id")
   section_id text,
-  #@references(relation="sentences_input", column="sent_id")
+  ##@references(relation="sentences_input", column="sent_id")
   sent_id int,
   wordidxs int[],
   #@key
