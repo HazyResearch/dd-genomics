@@ -38,7 +38,7 @@ FROM
     JOIN genepheno_holdout_labels l
       ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
   WHERe
-    COALESCE(gc.expectation, 0) > 0.9 
+    COALESCE(gc.expectation, 0) > 0.5 
     AND l.is_correct = 'f'
   GROUP BY labeler) fp
   FULL OUTER JOIN
@@ -52,7 +52,7 @@ FROM
     JOIN genepheno_holdout_labels l
       ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
   WHERe
-    COALESCE(gc.expectation, 0) > 0.9 
+    COALESCE(gc.expectation, 0) > 0.5 
     AND l.is_correct = 't'
   GROUP BY labeler) tp
   ON (fp.labeler = tp.labeler)
@@ -67,7 +67,7 @@ FROM
     JOIN genepheno_holdout_labels l
       ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
   WHERe
-    COALESCE(gc.expectation, 0) <= 0.9
+    COALESCE(gc.expectation, 0) <= 0.5
     AND l.is_correct = 't'
   GROUP BY labeler) fn
   ON (tp.labeler = fn.labeler)
@@ -82,7 +82,7 @@ FROM
     JOIN genepheno_holdout_labels l
       ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
   WHERe
-    COALESCE(gc.expectation, 0) <= 0.9
+    COALESCE(gc.expectation, 0) <= 0.5
     AND l.is_correct = 'f'
   GROUP BY labeler) tn
   ON (fn.labeler = tn.labeler)) a;

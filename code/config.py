@@ -216,10 +216,10 @@ GENE_PHENO = {
   ## Hard Filters (for candidate extraction)
   'HF' : {
     # Upper-bound the max min-dependency-path length between G and P
-    'max-dep-path-dist' : 7,
+    'max-dep-path-dist' : 10,
 
     # Only consider the closest GP pairs for duplicate GP pairs
-    'take-best-only-dups' : True,
+    'take-best-only-dups' : False,
 
     # Only consider the closest GP pairs by dep-path distance such that all G,P are covered
     'take-best-only' : False
@@ -244,7 +244,7 @@ GENE_PHENO = {
         'pos' : ['caused by mutations', 'homozygous', 'confirmed linkage'],
         'neg' : ['risk', 'variance', 'gwas', 'association study', 'possible association', 'to investigate', 'could reveal', 'to determine', 'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression'],
         'pos-rgx' : [r'mutations .*GENE.*(have been |were )(implicated?|found).*PHENO', r'mutations in.*GENE.*cause.*PHENO', r'genotype.*linked to.*PHENO', r'PHENO.*linkage to.*GENE'],
-        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*To determine', r'^\s*To evaluate', r'^\s*To investigate', '\d+ h ', r'^\s*To assess', 'unlikely.*GENE.*PHENO']
+        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*To determine', r'^\s*To evaluate', r'^\s*To investigate', '\d+ h ', r'^\s*To assess', 'unlikely.*GENE.*PHENO', '(mutation|deletion).*GENE.*described.*patients.*PHENO']
       },
 
       # Supervise as T/F based on phrases (exact or regex) only between the G and P mentions
@@ -284,13 +284,13 @@ GENE_PHENO = {
     ## Hard Filters (for candidate extraction)
     'HF' : {
       # Upper-bound the max min-dependency-path length between G and P
-      'max-dep-path-dist' : 7,
+      'max-dep-path-dist' : 10,
 
       # Only consider the closest GP pairs for duplicate GP pairs
-      'take-best-only-dups' : True,
+      'take-best-only-dups' : False,
 
       # Only consider the closest GP pairs by dep-path distance such that all G,P are covered
-      'take-best-only' : True
+      'take-best-only' : False
     },
 
     ## Supervision Rules
@@ -308,7 +308,7 @@ GENE_PHENO = {
       'phrases-in-sent' : {
         'pos' : ['caused by mutations', 'confirmed linkage'],
         'neg' : ['risk', 'variance', 'gwas', 'association study', 'possible association', 'to investigate', 'could reveal', 'we evaluated', 'to determine', 'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression'],
-        'pos-rgx' : [r'mutations .*GENE.*(have been |were )(implicated?|found).*PHENO', r'mutations in.*GENE.*cause.*PHENO', r'genotype.*linked to.*PHENO', r'PHENO.*linkage to.*GENE', r'.*GENE.*associated with.*PHENO'],
+        'pos-rgx' : [r'mutations .*GENE.*(have been |were )(implicated?|found).*PHENO', r'mutations in.*GENE.*cause.*PHENO', r'genotype.*linked to.*PHENO', r'PHENO.*linkage to.*GENE', r'.*GENE.*associated with.*PHENO', '(mutation|deletion).*GENE.*described.*patients.*PHENO'],
         'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*To determine', r'^\s*To evaluate', r'^\s*To investigate', r'^\s*To assess', '\d+ h ']
       },
 
@@ -356,7 +356,7 @@ GENE_VARIANT_PHENO = {
   ## Hard Filters (for candidate extraction)
   'HF' : {
     # Upper-bound the max min-dependency-path length between G and P
-    'max-dep-path-dist' : 7,
+    'max-dep-path-dist' : 10,
 
     # Only consider the closest GP pairs for duplicate GP pairs
     'take-best-only-dups' : False,

@@ -230,7 +230,6 @@ public class XMLDocParser {
             if (s != null) {
               sections.add(s);
             }
-
           } else if ("Metadata".equals(config.getDataSectionName(localElement))) {
             parseMetadata(md);
             md.pmid = docId;
@@ -238,6 +237,8 @@ public class XMLDocParser {
             // get sections that are in scope
             // avoid duplicate titles (due to pulling titles from references
             // section)
+          } else if ("MeSH".equals(config.getDataSectionName(localElement))) {
+            md.meshTerms.add(getFlatElementText(localElement));
           } else if (config.readable(localElement)) {
             String content = getFlatElementText(localElement);
             if (docId == null) {

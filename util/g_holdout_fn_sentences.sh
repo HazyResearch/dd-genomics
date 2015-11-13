@@ -15,6 +15,7 @@ cat <<EOF >> ${SQL_COMMAND_FILE}
 COPY (
 SELECT DISTINCT
   l.labeler GENE_FALSE_NEGATIVES,
+  g.expectation,
   g.gene_name,
   g.wordidxs,
   array_to_string(string_to_array(si.words, '|^|'), ' ') words,

@@ -48,6 +48,7 @@ public class PubmedTitlesAbstractsConfig extends XMLDocConfig {
     // <ISSN IssnType="Print">0363-5023</ISSN>
     dataSections.put(new XMLPattern("ISSN", "IssnType", "Electronic"), "ISSNElectronic");
     dataSections.put(new XMLPattern("ISSN", "IssnType", "Print"), "ISSNPrint");
+    dataSections.put(new XMLPattern("DescriptorName", false), "MeSH");
 
     String[] skipSections = {};
     addSkipSections(skipSections);

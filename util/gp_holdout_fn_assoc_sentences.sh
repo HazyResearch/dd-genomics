@@ -15,6 +15,7 @@ cat <<EOF >> ${SQL_COMMAND_FILE}
 COPY (
 SELECT DISTINCT
   l.labeler ASSOCIATION_FALSE_NEGATIVES,
+  gc.expectation,
   gc.gene_name,
   gc.gene_wordidxs,
   gc.pheno_wordidxs,
