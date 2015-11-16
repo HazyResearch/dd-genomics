@@ -16,7 +16,7 @@ fi
 #./load_sentences.sh ../../genomics_sentences_10k.tsv sentences
 
 #cd ..
-./hack_pipelines.py
+./hack_pipelines_for_raiders.py
 
 #this doesn't have to be included in the run.sh finally (since serialize will be in the pipeline of ddlog) but useful here to make it work with application.conf locally
 
