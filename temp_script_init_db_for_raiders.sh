@@ -10,7 +10,7 @@ else
   source ./env.sh
 fi
 
-deepdive initdb
+deepdive run initdb
 
 #Specific here for this local version
 deepdive sql < ../sentences_from_production.sql
