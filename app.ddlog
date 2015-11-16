@@ -3,23 +3,22 @@
 # Currently, the mindbender has some troubles tracing sentence with multiple keys, so tables are created, e.g., *_view with view_key for view
 
 @source
-sentences_views(
+sentences_input_views(
   doc_id text,
   section_id text,
   sent_id int,
-  ref_doc_id text,
   @searchable
-  words text[],
-  lemmas text[],
-  poses text[],
-  ners text[],
-  dep_paths text[],
-  dep_parents int[],
+  words text,
+  lemmas text,
+  poses text,
+  ners text,
+  dep_paths text,
+  dep_parents text,
   @key
   views_key text).
 
-sentences_views(doc_id, section_id, ref_doc_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, doc_id || "@" || section_id || "@" || sent_id) :-
-  sentences(doc_id, section_id, ref_doc_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
+sentences_input_views(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, doc_id || "@" || section_id || "@" || sent_id) :-
+  sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
 
 @extraction
 gene_mentions_views(
@@ -42,7 +41,7 @@ gene_mentions_views(
   words text[],
   @navigable
   is_correct boolean,
-  @references(relation="sentences_views", column="views_key", alias="sent_gene")
+  @references(relation="sentences_input_views", column="views_key", alias="sent_gene")
   views_key text).
 
 gene_mentions_views(id, doc_id, section_id, sent_id, gene_wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct, doc_id || "@" || section_id || "@" || sent_id) :-
@@ -67,7 +66,7 @@ pheno_mentions_views(
   words text[],
   @navigable
   is_correct boolean,
-  @references(relation="sentences_views", column="views_key", alias="sent_pheno")
+  @references(relation="sentences_input_views", column="views_key", alias="sent_pheno")
   views_key text).
 
 pheno_mentions_views(id, doc_id, section_id, sent_id, pheno_wordidxs, mention_id, supertype, subtype, entity, pheno_words, is_correct, doc_id || "@" || section_id || "@" || sent_id) :-
@@ -93,7 +92,7 @@ genepheno_association_views(
   is_correct boolean,
   supertype text,
   subtype text,
-  @references(relation="sentences_views", column="views_key", alias="genepheno_association_extraction")
+  @references(relation="sentences_input_views", column="views_key", alias="genepheno_association_extraction")
   views_key text).
 
 genepheno_association_views(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, doc_id || "@" || section_id || "@" || sent_id) :-
@@ -119,7 +118,7 @@ genepheno_causation_views(
   is_correct boolean,
   supertype text,
   subtype text,
-  @references(relation="sentences_views", column="views_key", alias="genepheno_causation_extraction")
+  @references(relation="sentences_input_views", column="views_key", alias="genepheno_causation_extraction")
   views_key text).
 
 genepheno_causation_views(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, doc_id || "@" || section_id || "@" || sent_id) :-

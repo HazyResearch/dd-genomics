@@ -63,7 +63,13 @@ full_pipeline_ddlog_part_after_serialize_genepheno_pairs_split:
       inf_istrue_genepheno_association_inference,
       inf_istrue_genepheno_causation_inference,
       inf_imply_genepheno_association_inference_gene_mentions_filtered_inference,
-      inf_imply_genepheno_causation_inference_gene_mentions_filtered_inference.
+      inf_imply_genepheno_causation_inference_gene_mentions_filtered_inference,
+      #adding extractor for the views
+      ext_sentences_input_views,
+      ext_gene_mentions_views,
+      ext_pheno_mentions_views,
+      ext_genepheno_association_views,
+      ext_genepheno_causation_views.
 
 
 
