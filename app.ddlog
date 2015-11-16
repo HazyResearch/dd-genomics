@@ -596,6 +596,7 @@ gene_holdout_labels (
 ##### Extractors #####
 
 #Extractor: serialize_sentences
+@distributed_by("doc_id")
 sentences_input(
  doc_id,
   section_id,
@@ -629,6 +630,7 @@ gene_mentions_temp_before_non_gene_acronyms_delete_candidates += gene_extract_ca
   gene_extract_candidates_view_temp (doc_id).
 
 #non_gene_acronyms_delete_candidates
+@distributed_by("doc_id")
 gene_mentions_non_gene_acronyms(
   id bigint,
   doc_id text,
@@ -699,6 +701,7 @@ variant_mentions_filtered(_, doc_id, section_id, sent_id, wordidxs, mention_id, 
 
 #pheno_filter_candidates
 #Create table pheno_mentions_filtered
+@distributed_by("doc_id")
 pheno_mentions_filtered( id bigint, doc_id text, section_id text, sent_id integer, wordidxs text, mention_id text, supertype text, subtype text, entity text, words text, is_correct boolean).
 
 pheno_mentions_filtered( id, doc_id, section_id, sent_id, array_to_string(wordidxs, "|^|"), mention_id, supertype, subtype, entity, array_to_string(words, "|^|"), is_correct) *:-
@@ -707,11 +710,13 @@ genepheno_relations(_,_,_,_,_,_,_,_,_,mention_id,_,_,_).
 
 
 #Create table pheno_mention_ids
+@distributed_by("doc_id")
 pheno_mention_ids( doc_id text).
 
 pheno_mention_ids(doc_id) *:- pheno_mentions_filtered(_, doc_id, _, _,_, _, _, _, _, _, _).
 
 #Create table sentences_input_with_pheno_mention
+@distributed_by("doc_id")
 sentences_input_with_pheno_mention(
   doc_id text,
   section_id text,
@@ -744,6 +749,7 @@ implementation "code/pheno_extract_features.py" handles tsv lines.
 
 #Create table genepheno_pairs
 #get_genepheno_pairs
+@distributed_by("doc_id")
 genepheno_pairs(
   doc_id text,
   section_id text,
@@ -777,6 +783,7 @@ genepheno_pairs(
 #serialize_genepheno_pairs_split ?
 
 #get_genevariant_pairs
+@distributed_by("doc_id")
 genevariant_pairs(
   doc_id text,
   gene_section_id text,
@@ -881,7 +888,7 @@ pheno_acronyms_extract_candidates_view_temp_2(doc_id, section_id, sent_id, word_
 
 #pheno_acronyms_aggregate_candidates
 #Creating table pheno_acronyms_aggregate
-
+@distributed_by("doc_id")
 pheno_acronyms_aggregate(
   doc_id text,
   pa_section_ids text,
@@ -892,11 +899,13 @@ pheno_acronyms_aggregate(
 pheno_acronyms_aggregate(doc_id, array_to_string(ARRAY_AGG(section_id), "|^|"), array_to_string(ARRAY_AGG(sent_id), "|^|"), array_to_string(ARRAY_AGG(abbrev), "|^|"), array_to_string(ARRAY_AGG(entity), "|^|")) *:-
 pheno_acronyms(id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs, mention_id, supertype, subtype, abbrev, definition, entity, "t").
 
+@distributed_by("doc_id")
 pheno_acronyms_ids(
   doc_id text).
 
 pheno_acronyms_ids(doc_id) *:- pheno_acronyms_aggregate(doc_id, pa_section_ids, pa_sent_ids, pa_abbrevs, pheno_entities).
 
+@distributed_by("doc_id")
 sentences_input_with_pheno_acronyms(
   doc_id text,
   section_id text,
@@ -1024,6 +1033,7 @@ ensembl_gene_sequences (  name, n_seq).
 
 #gene_filter_candidates
 #Create table gene_mentions_filtered
+@distributed_by("doc_id")
 gene_mentions_filtered( id bigint, doc_id text, section_id text, sent_id integer, wordidxs text, mention_id text, mapping_type text, supertype text, subtype text, gene_name text, words text, is_correct boolean).
 
 gene_mentions_filtered( id, doc_id, section_id, sent_id, array_to_string(wordidxs, "|^|"), mention_id, mapping_type, supertype, subtype, gene_name, array_to_string(words, "|^|"), is_correct) *:-
@@ -1033,11 +1043,14 @@ genepheno_relations(_,_,_,_,_,mention_id,_,_,_,_,_,_,_).
 
 #Create table gene_mention_ids
 
+@distributed_by("doc_id")
 gene_mention_ids( doc_id text).
 
 gene_mention_ids(doc_id) *:- gene_mentions_filtered(_, doc_id, _, _, _,_, _, _, _, _, _, _).
 
 #Create table sentences_input_with_gene_mention
+
+@distributed_by("doc_id")
 sentences_input_with_gene_mention(
   doc_id text,
   section_id text,
@@ -1055,6 +1068,7 @@ gene_mention_ids(doc_id).
 
 #variant_filter_candidates
 
+@distributed_by("doc_id")
 variant_mentions_filtered(
   id bigint,
   doc_id text,
