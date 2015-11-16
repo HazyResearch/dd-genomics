@@ -596,9 +596,8 @@ gene_holdout_labels (
 ##### Extractors #####
 
 #Extractor: serialize_sentences
-@distributed_by("doc_id")
 sentences_input(
- doc_id,
+  doc_id,
   section_id,
   sent_id,
   ARRAY_TO_STRING(words, "|^|"),
