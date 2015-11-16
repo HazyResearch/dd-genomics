@@ -145,6 +145,7 @@ sentences (
  ).
 
 #@source
+@distributed_by("doc_id")
 sentences_input (
   #@key
   doc_id text,
