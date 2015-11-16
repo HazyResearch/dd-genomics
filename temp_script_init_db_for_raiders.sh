@@ -10,11 +10,13 @@ else
   source ./env.sh
 fi
 
-#deepdive run initdb
+deepdive initdb
 
-#cd parser
-#./load_sentences.sh ../../genomics_sentences_10k.tsv sentences
+#Specific here for this local version
+deepdive sql < ../sentences_from_production.sql
 
+deepdive sql """DROP TABLE IF EXISTS sentences_input CASCADE;
+		ALTER TABLE sentences_input_10k_temp RENAME TO sentences_input;"""
 #cd ..
 ./hack_pipelines_for_raiders.py
 
