@@ -23,7 +23,8 @@ if [ ${OP} == "new" ]; then
     source_year_status TEXT,
     issn_global TEXT,
     issn_print TEXT,
-    issn_electronic TEXT
+    issn_electronic TEXT,
+    mesh_terms TEXT
   )"
   if [ "${DBTYPE}" == "pg" ]; then
     SQL="${SQL_1};"
@@ -40,7 +41,5 @@ psql -U $DBUSER -h $DBHOST -p $DBPORT $DBNAME -X --set ON_ERROR_STOP=1 -c "DROP 
 psql -U $DBUSER -h $DBHOST -p $DBPORT $DBNAME -X --set ON_ERROR_STOP=1 -c "CREATE INDEX doc_metadata_doc_id ON doc_metadata (doc_id);"
 psql -U $DBUSER -h $DBHOST -p $DBPORT $DBNAME -X --set ON_ERROR_STOP=1 -c "DROP INDEX IF EXISTS doc_metadata_source_year;" 
 psql -U $DBUSER -h $DBHOST -p $DBPORT $DBNAME -X --set ON_ERROR_STOP=1 -c "CREATE INDEX doc_metadata_source_year ON doc_metadata (source_year);"
-
-
 
 echo "Done."
