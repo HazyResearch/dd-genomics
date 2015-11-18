@@ -17,7 +17,7 @@ public class Metadata {
   public String toString() {
     return pmid + "\t" + journalName + "\t" + journalYear + "\t" + issnGlobal
         + "\t" + issnPrint + "\t" + issnElectronic + "\t"
-        + String.join(",", meshTerms);
+        + String.join("|^|", meshTerms);
   }
 
   public boolean isEmpty() {
