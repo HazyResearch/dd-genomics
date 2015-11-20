@@ -306,3 +306,6 @@ CREATE TABLE ensembl_gene_sequences (
 
 DROP TABLE IF EXISTS allowed_phenos CASCADE;
 CREATE TABLE allowed_phenos (hpo_id text) ;
+
+DROP TABLE IF EXISTS omim_allelic_variant_pmids CASCADE;
+CREATE TABLE omim_allelic_variant_pmids (pmid text) ;

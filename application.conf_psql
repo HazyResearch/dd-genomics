@@ -37,6 +37,9 @@ deepdive {
     hgvs_hpo: [
       load_hgvs_hpo
     ]
+    allelic_variants: [
+      load_omim_allelic_variant_pmids
+    ]
     charite: [
       load_charite,
       load_charite_canon
@@ -74,6 +77,9 @@ deepdive {
       get_genevariant_pairs,
       serialize_genevariant_pairs_split
     ]
+    variant3: [
+      variant_extract_candidates
+    ]
     pheno_acronyms_insert_candidates: [
       pheno_acronyms_extract_candidates,
       pheno_acronyms_aggregate_candidates,
@@ -89,9 +95,12 @@ deepdive {
       load_genes,
       load_genepheno_holdout_set,
       load_genepheno_holdout_labels,
+      load_gene_holdout_set
+      load_gene_holdout_labels
       load_hpo_abnormalities,
       load_charite,
       load_charite_canon,
+      load_omim_allelic_variant_pmids,
       load_hgvs_hpo,
       cleanup_doc_ids1,
       cleanup_doc_ids2,
@@ -112,12 +121,17 @@ deepdive {
       genepheno_extract_features,
       genepheno_causation_supervision,
       genepheno_association_supervision,
+      variant_extract_candidates,
+      genepheno_no_variant_negatives,
       gene_inference,
       # pheno_inference,
       genepheno_causation_to_gene,
       genepheno_association_to_gene,
       genepheno_association_inference,
       genepheno_causation_inference
+    ]
+    no_variant_negatives: [
+      genepheno_no_variant_negatives
     ]
     canonicalize: [
       canonicalize_genepheno_causation,
@@ -125,23 +139,25 @@ deepdive {
     ]
     half_pipeline_gp: [
       gene_extract_candidates, 
-      non_gene_acronyms_extract_candidates,
-      non_gene_acronyms_delete_candidates,
-      gene_extract_features, 
-      get_genepheno_pairs,
-      serialize_genepheno_pairs_split,
-      genepheno_extract_candidates,
-      gene_filter_candidates,
+      # non_gene_acronyms_extract_candidates,
+      # non_gene_acronyms_delete_candidates,
+      # gene_extract_features, 
+      # get_genepheno_pairs,
+      # serialize_genepheno_pairs_split,
+      # genepheno_extract_candidates,
+      # gene_filter_candidates,
       # pheno_filter_candidates,
-      genepheno_extract_features,
-      genepheno_causation_supervision,
-      genepheno_association_supervision,
-      gene_inference,
+      # genepheno_extract_features,
+      # genepheno_causation_supervision,
+      # genepheno_association_supervision,
+      # variant_extract_candidates,
+      # genepheno_no_variant_negatives,
+      # gene_inference,
       # pheno_inference,
-      genepheno_causation_to_gene,
-      genepheno_association_to_gene,
-      genepheno_association_inference,
-      genepheno_causation_inference
+      # genepheno_causation_to_gene,
+      # genepheno_association_to_gene,
+      # genepheno_association_inference,
+      # genepheno_causation_inference
     ]
     inference_gp: [
       gene_inference,
@@ -370,6 +386,16 @@ deepdive {
       after: ${APP_HOME}/util/uniq_table.sh ${DBNAME} charite_canon
     }
 
+    load_omim_allelic_variant_pmids: {
+      style: tsv_extractor
+      before: ${APP_HOME}/util/truncate_table.sh ${DBNAME} omim_allelic_variant_pmids
+      input: """ SELECT 1 a, 2 b, 3 c """
+      output_relation: omim_allelic_variant_pmids
+      udf: cat ${APP_HOME}/onto/manual/omim_allelic_variant_pmids.lst
+      parallelism: 1
+      after: ${APP_HOME}/util/uniq_table.sh ${DBNAME} omim_allelic_variant_pmids
+    }
+
     load_hgvs_hpo: {
       style: tsv_extractor
       before: ${APP_HOME}/util/truncate_table.sh ${DBNAME} hgvs_hpo
@@ -387,7 +413,7 @@ deepdive {
       output_relation: charite
       udf: cat ${APP_HOME}/onto/manual/harendra_phenotype_to_gene.map
       parallelism: 1
-      after: ${APP_HOME}/util/uniq_table.sh ${DBNAME} charite_canon
+      after: ${APP_HOME}/util/uniq_table.sh ${DBNAME} charite
     }
 
     gene_extract_candidates: {
@@ -407,9 +433,6 @@ deepdive {
           si.ners
         FROM 
           sentences_input si
-          JOIN 
-          (SELECT DISTINCT doc_id FROM pheno_mentions) os
-            ON (si.doc_id = os.doc_id)
       """
       output_relation: gene_mentions
       udf: ${APP_HOME}/code/gene_extract_candidates.py
@@ -428,11 +451,18 @@ deepdive {
            FROM non_gene_acronyms nga
            WHERE (is_correct = 't' OR is_correct is null)
              AND nga.doc_id = gm.doc_id)) ;
-        DELETE FROM gene_mentions gm
-        WHERE (gm.gene_name) IN
+        --DELETE FROM gene_mentions gm
+        --WHERE (gm.gene_name) IN
+        --  (SELECT abbrev
+        --   FROM non_gene_acronyms nga
+        --   WHERE (is_correct = 't' OR is_correct is null)
+        --     AND nga.doc_id = gm.doc_id);
+        UPDATE gene_mentions gm
+        SET is_correct = 'f', supertype = 'ABBREVIATION'
+        WHERE gene_name IN
           (SELECT abbrev
            FROM non_gene_acronyms nga
-           WHERE (is_correct = 't' OR is_correct is null)
+           WHERE (nga.is_correct = 't' OR nga.is_correct is null)
              AND nga.doc_id = gm.doc_id);
       """
       dependencies: [gene_extract_candidates, non_gene_acronyms_extract_candidates]
@@ -992,7 +1022,7 @@ deepdive {
           gv.gene_name 
         FROM 
           genevariant_pairs gv 
-          JOIN genevariant_supervise_true gst 
+          JOIN genevariant_coding_supervise_true gst 
             ON (gv.variant_mention_id = gst.mention_id) 
         WHERE gv.gene_name != gst.gene_names);
       """
@@ -1051,7 +1081,7 @@ deepdive {
           gv.gene_name 
         FROM 
           genevariant_pairs gv 
-          JOIN genevariant_supervise_true gst 
+          JOIN genevariant_protein_supervise_true gst 
             ON (gv.variant_mention_id = gst.mention_id) 
         WHERE gv.gene_name != gst.gene_names);
       """
@@ -1245,6 +1275,23 @@ deepdive {
       udf: ${APP_HOME}/code/genepheno_causation_supervision.py
       parallelism: ${PARALLELISM}
       dependencies: [genepheno_extract_candidates]
+    }
+
+    genepheno_no_variant_negatives: {
+      style: sql_extractor
+      sql: """
+        UPDATE genepheno_causation
+        SET is_correct = 'f', supertype = 'NO_VARIANT_IN_PAPER'
+        WHERE doc_id NOT IN
+          (SELECT DISTINCT doc_id FROM variant_mentions)
+          AND is_correct IS NULL;
+        UPDATE genepheno_association
+        SET is_correct = 'f', supertype = 'NO_VARIANT_IN_PAPER'
+        WHERE doc_id NOT IN
+          (SELECT DISTINCT doc_id FROM variant_mentions)
+          AND is_correct IS NULL;
+      """
+      dependencies: [genepheno_association_supervision, genepheno_causation_supervision, variant_extract_candidates]
     }
 
     extract_entity_level_relations: {
