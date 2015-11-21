@@ -309,3 +309,24 @@ CREATE TABLE allowed_phenos (hpo_id text) DISTRIBUTED BY (hpo_id);
 
 DROP TABLE IF EXISTS omim_allelic_variant_pmids CASCADE;
 CREATE TABLE omim_allelic_variant_pmids (pmid text) DISTRIBUTED BY (pmid);
+
+DROP TABLE IF EXISTS genepheno_relations CASCADE;
+CREATE TABLE genepheno_relations (
+  doc_id text,
+  section_id text,
+  sent_id integer,
+  words text,
+  lemmas text,
+  poses text,
+  dep_paths text,
+  dep_parents text,
+  gene_mention_ids text,
+  gene_names text[],
+  gene_wordidxs text,
+  gene_is_corrects boolean[],
+  pheno_mention_ids text,
+  pheno_entities text[],
+  pheno_wordidxs text,
+  pheno_is_corrects boolean[]
+) DISTRIBUTED BY (doc_id);
+
