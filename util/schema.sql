@@ -312,21 +312,18 @@ CREATE TABLE omim_allelic_variant_pmids (pmid text) DISTRIBUTED BY (pmid);
 
 DROP TABLE IF EXISTS genepheno_relations CASCADE;
 CREATE TABLE genepheno_relations (
-  doc_id text,
-  section_id text,
-  sent_id integer,
-  words text,
-  lemmas text,
-  poses text,
-  dep_paths text,
-  dep_parents text,
-  gene_mention_ids text,
-  gene_names text[],
-  gene_wordidxs text,
-  gene_is_corrects boolean[],
-  pheno_mention_ids text,
-  pheno_entities text[],
-  pheno_wordidxs text,
-  pheno_is_corrects boolean[]
+       id bigint,
+       relation_id text,
+       doc_id text,
+       section_id text,
+       sent_id int,
+       gene_mention_id text,
+       gene_name text,
+       gene_wordidxs int[],
+       gene_is_correct boolean,
+       pheno_mention_id text,
+       pheno_entity text,
+       pheno_wordidxs int[],
+       pheno_is_correct boolean
 ) DISTRIBUTED BY (doc_id);
 
