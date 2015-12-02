@@ -185,7 +185,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
       if dep_path_between:
         connectors = [i for i,x in enumerate(row.lemmas) if i in dep_path_between and x in opts[name]]
         if len(connectors) > 0:
-          return r._replace(is_correct=val, relation_supertype='DEP_LEMMA_CONNECT_%s' % name, relation_subtype=non_alnum.sub('_', ' '.join(connectors)))
+          return r._replace(is_correct=val, relation_supertype='DEP_LEMMA_CONNECT_%s' % name, relation_subtype=non_alnum.sub('_', ' '.join([str(x) for x in connectors])))
 
   if SR.get('dep-lemma-neighbors') and dep_dag:
     opts = SR['dep-lemma-neighbors']
