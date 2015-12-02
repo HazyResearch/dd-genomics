@@ -87,7 +87,7 @@ GENE = {
 
     'post-match' : {
       'pos' : ['_ mutation', 'mutation', '_ mutations', 'mutations', 'mutant', 'mutants', 'gene', 'exon', 'residue', 'residues', 'coding', 'isoform', 'isoforms', 'deletion', 'mRNA', 'homozyous'],
-      'neg' : ['+', 'pathway', 'patient', 'patients', 'risk factor', 'risk factors', 'inhibitor', 'inhibitors', 'cell', 'cells', 'is used'],
+      'neg' : ['+', 'pathway', 'patient', 'patients', 'risk factor', 'risk factors', 'inhibitor', 'inhibitors', 'cell', 'cells', 'is used', 'syndrome'],
       'pos-rgx' : [],
       # can't copy the lt-equal sign from anywhere now, it should be down there as well
       'neg-rgx' : [r'cell(s|\slines?)', '< \d+', '<= \d+', '≥ \d+', '> \d+', '>= \d+'] 
@@ -241,10 +241,10 @@ GENE_PHENO = {
 
       # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
       'phrases-in-sent' : {
-        'pos' : ['caused by mutations', 'homozygous', 'confirmed linkage'],
-        'neg' : ['risk', 'variance', 'gwas', 'association study', 'possible association', 'to investigate', 'could reveal', 'to determine', 'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression'],
-        'pos-rgx' : [r'mutations .*GENE.*(have been |were )(implicated?|found).*PHENO', r'mutations in.*GENE.*cause.*PHENO', r'genotype.*linked to.*PHENO', r'PHENO.*linkage to.*GENE'],
-        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*To determine', r'^\s*To evaluate', r'^\s*To investigate', '\d+ h ', r'^\s*To assess', 'unlikely.*GENE.*PHENO', '(mutation|deletion).*GENE.*described.*patients.*PHENO']
+        'pos' : ['caused by (mutation|deletion|duplication|truncat)', 'confirmed linkage'],
+        'neg' : ['risk', 'variance', 'gwas', 'association study', 'possible association', 'to investigate', 'could reveal', 'to determine', 'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression', 'to detect', 'to find out', 'inconclusive', 'further analysis'],
+        'pos-rgx' : [r'(mutat|delet|duplicat|truncat).*GENE.*(implicated?|found).*PHENO', r'(mutat|delet|duplicat|truncat).*GENE.*cause.*PHENO', r'PHENO.*linkage to.*GENE', '(mutat|delet|duplicat|truncat).*GENE.*described.*patients.*PHENO', r'.*patient.*GENE.*present with.*clinical.*PHENO.*', r'(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO', '(mutation|deletion).*GENE.*described.*patients.*PHENO'],
+        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*To determine', r'^\s*To evaluate', r'^\s*To investigate', '\d+ h ', r'^\s*To assess', r'^\s*here we define', r'^\s*whether', 'unlikely.*GENE.*PHENO', ]
       },
 
       # Supervise as T/F based on phrases (exact or regex) only between the G and P mentions
@@ -306,10 +306,10 @@ GENE_PHENO = {
 
       # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
       'phrases-in-sent' : {
-        'pos' : ['caused by mutations', 'confirmed linkage'],
-        'neg' : ['risk', 'variance', 'gwas', 'association study', 'possible association', 'to investigate', 'could reveal', 'we evaluated', 'to determine', 'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression'],
-        'pos-rgx' : [r'mutations .*GENE.*(have been |were )(implicated?|found).*PHENO', r'mutations in.*GENE.*cause.*PHENO', r'genotype.*linked to.*PHENO', r'PHENO.*linkage to.*GENE', r'.*GENE.*associated with.*PHENO', '(mutation|deletion).*GENE.*described.*patients.*PHENO'],
-        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*To determine', r'^\s*To evaluate', r'^\s*To investigate', r'^\s*To assess', '\d+ h ']
+        'pos' : ['caused by (mutation|deletion|duplication|truncat)', 'confirmed linkage'],
+        'neg' : ['to investigate', 'could reveal', 'we evaluated', 'to determine', 'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression', 'to detect', 'to find out', 'inconclusive', 'further analysis'],
+        'pos-rgx' : [r'(mutat|delet|duplicat|truncat).*GENE.*(implicated?|found).*PHENO', r'(mutat|delet|duplicat|truncat).*GENE.*cause.*PHENO', r'genotype.*linked to.*PHENO', r'PHENO.*linkage to.*GENE', r'.*GENE.*associated with.*PHENO', '(mutat|delet|duplicat|truncat).*GENE.*described.*patients.*PHENO', r'.*patient.*GENE.*present with.*clinical.*PHENO.*', '(variant|allele)?.*GENE.*(PHENO suscept|susceptibility to PHENO).*', '(single nucleotide polymorphisms|SNPs) in GENE.*(associated with|cause).*PHENO', '(mutation|deletion).*GENE.*described.*patients.*PHENO'],
+        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*To determine', r'^\s*To evaluate', r'^\s*To investigate', r'^\s*To assess', r'^\s*Here we define', '^\s*Whether', '\d+ h ', 'unlikely.*GENE.*PHENO', ]
       },
 
       # Supervise as T/F based on phrases (exact or regex) only between the G and P mentions
@@ -334,7 +334,7 @@ GENE_PHENO = {
       # Supervise GP pairs as T/F based on dependency-path neighbor lemmas of G and P
       'dep-lemma-neighbors' : {
         'max-dist' : 1,
-        'pos-g' : ['mutate', 'mutation', 'variant', 'allele'],
+        'pos-g' : ['mutate', 'mutation', 'variant', 'allele', 'duplication', 'deletion'],
         'pos-p' : [],
         'neg-g' : ['express', 'expression', 'coexpression', 'coexpress', 'co-expression', 'co-express', 'overexpress', 'overexpression', 'over-expression', 'over-express', 'somatic', 'infection', 'interacts', 'regulate', 'up-regulate', 'upregulate', 'down-regulate', 'downregulate', 'production'],
         'neg-p' : []

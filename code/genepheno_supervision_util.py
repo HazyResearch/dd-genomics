@@ -74,6 +74,7 @@ def read_supervision():
 # count_g_or_p_false_none = 0 
 # count_adjacent_false_none = 0 
 
+non_alnum = re.compile('[\W_]+')
 def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
   """
   Given a Row object with a sentence and several gene and pheno objects, create and 
@@ -137,7 +138,8 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
   if SR.get('adjacent-false'):
     if re.search(r'[a-z]{3,}', between_phrase, flags=re.I) is None:
       if random.random() < 0.5*superv_diff or random.random() < 0.01:
-        return r._replace(is_correct=False, relation_supertype='G_P_ADJACENT', relation_subtype=between_phrase)
+        st = non_alnum.sub('_', between_phrase)
+        return r._replace(is_correct=False, relation_supertype='G_P_ADJACENT', relation_subtype=st)
       else:
         # count_adjacent_false_none += 1
         return None
@@ -152,7 +154,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
         match = util.rgx_mult_search(phrase + ' ' + lemma_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
           # backslashes cause postgres errors in postgres 9
-          return r._replace(is_correct=val, relation_supertype='PHRASE_%s' % name)
+          return r._replace(is_correct=val, relation_supertype='PHRASE_%s' % name, relation_subtype = non_alnum.sub('_', match))
 
   if SR.get('phrases-in-between'):
     opts = SR['phrases-in-between']
@@ -161,8 +163,8 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
         match = util.rgx_mult_search(between_phrase + ' ' + between_phrase_lemmas, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
-          # backslashes cause postgres errors in postgres 9
-          return r._replace(is_correct=val, relation_supertype='PHRASE_BETWEEN_%s' % name)
+          
+          return r._replace(is_correct=val, relation_supertype='PHRASE_BETWEEN_%s' % name, relation_subtype=non_alnum.sub('_', match))
 
   if SR.get('primary-verb-modifiers') and dep_dag:
     opts = SR['primary-verb-modifiers']
@@ -175,7 +177,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
           d = dep_dag.path_len_sets(verbs_between, mod_words)
           if d and d < opts['max-dist'] + 1:
             subtype = 'ModWords: ' + ' '.join([str(m) for m in mod_words]) + ', VerbsBetween: ' + ' '.join([str(m) for m in verbs_between]) + ', d: ' + str(d)
-            return r._replace(is_correct=val, relation_supertype='PRIMARY_VB_MOD_%s' % name)
+            return r._replace(is_correct=val, relation_supertype='PRIMARY_VB_MOD_%s' % name, relation_subtype=non_alnum.sub('_', subtype))
 
   if SR.get('dep-lemma-connectors') and dep_dag:
     opts = SR['dep-lemma-connectors']
@@ -183,7 +185,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
       if dep_path_between:
         connectors = [i for i,x in enumerate(row.lemmas) if i in dep_path_between and x in opts[name]]
         if len(connectors) > 0:
-          return r._replace(is_correct=val, relation_supertype='DEP_LEMMA_CONNECT_%s' % name)
+          return r._replace(is_correct=val, relation_supertype='DEP_LEMMA_CONNECT_%s' % name, relation_subtype=non_alnum.sub('_', ' '.join(connectors)))
 
   if SR.get('dep-lemma-neighbors') and dep_dag:
     opts = SR['dep-lemma-neighbors']
@@ -193,7 +195,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
         d = dep_dag.path_len_sets(gene_wordidxs, lemmas)
         if d and d < opts['max-dist'] + 1:
           subtype = ' '.join([str(l) for l in lemmas]) + ', d: ' + str(d)
-          return r._replace(is_correct=val, relation_supertype='DEP_LEMMA_NB_%s_%s' % (name,entity))
+          return r._replace(is_correct=val, relation_supertype='DEP_LEMMA_NB_%s_%s' % (name,entity), relation_subtype=non_alnum.sub('_', subtype))
 
   if SR.get('charite-all-pos'):
     if (pheno_entity, gene_name) in charite_pairs:
