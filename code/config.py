@@ -227,129 +227,105 @@ GENE_PHENO = {
 
   'vals' : BOOL_VALS,
 
-  'causation': {
-    ## Supervision Rules
-    'SR' : {
-      # Whether to include GP pairs with no or long dep path links as neg. supervision (vs. skip)
-      'bad-dep-paths' : True,
+  'SR': {
+    # Whether to include GP pairs with no or long dep path links as neg. supervision (vs. skip)
+    'bad-dep-paths' : True,
 
-      # Subsample GP pairs where G and/or P is neg. example as neg. GP supervision
-      'g-or-p-false' : {'diff' : 0.5, 'rand' : 0.01},
+    # Subsample GP pairs where G and/or P is neg. example as neg. GP supervision
+    'g-or-p-false' : {'diff' : 0.5, 'rand' : 0.01},
 
-      # Supervise G adjacent to P as false
-      'adjacent-false' : True,
+    # Supervise G adjacent to P as false
+    'adjacent-false' : True,
 
-      # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
-      'phrases-in-sent' : {
-        'pos' : ['caused by (mutation|deletion|duplication|truncat)', 'confirmed linkage'],
-        'neg' : ['risk', 'variance', 'gwas', 'association study', 'possible association', 'to investigate', 'could reveal', 'to determine', 'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression', 'to detect', 'to find out', 'inconclusive', 'further analysis'],
-        'pos-rgx' : [r'(mutat|delet|duplicat|truncat).*GENE.*(implicated?|found).*PHENO', r'(mutat|delet|duplicat|truncat).*GENE.*cause.*PHENO', r'PHENO.*linkage to.*GENE', '(mutat|delet|duplicat|truncat).*GENE.*described.*patients.*PHENO', r'.*patient.*GENE.*present with.*clinical.*PHENO.*', r'(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO', '(mutation|deletion).*GENE.*described.*patients.*PHENO'],
-        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*To determine', r'^\s*To evaluate', r'^\s*To investigate', '\d+ h ', r'^\s*To assess', r'^\s*here we define', r'^\s*whether', 'unlikely.*GENE.*PHENO', ]
-      },
+    # Supervise as T/F based on phrases (exact or regex) only between the G and P mentions
+    'phrases-in-between' : False,
 
-      # Supervise as T/F based on phrases (exact or regex) only between the G and P mentions
-      'phrases-in-between' : False,
-
-      # Try to find the verb connecting the G and P, and supervise based on modifiers
-      # (e.g. negation, etc) of this verb
-      'primary-verb-modifiers' : {
-        'max-dist' : 1,
-        'pos' : [],
-        'neg' : ['might'],
-        'pos-dep-tag' : [],
-        'neg-dep-tag' : ['neg']
-      },
-
-      # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
-      'dep-lemma-connectors' : {
-        'pos' : ['cause'],
-        'neg' : ['associate', 'correlate', 'implicate']
-      },
-
-      # Supervise GP pairs as T/F based on dependency-path neighbor lemmas of G and P
-      'dep-lemma-neighbors' : {
-        'max-dist' : 1,
-        'pos-g' : ['cause', 'mutate', 'mutation', 'variant', 'allele'],
-        'pos-p' : ['mutation', 'mutate'],
-        'neg-g' : ['express', 'expression', 'coexpression', 'coexpress', 'co-expression', 'co-express', 'overexpress', 'overexpression', 'over-expression', 'over-express', 'somatic', 'infection', 'interacts', 'regulate', 'up-regulate', 'upregulate', 'down-regulate', 'downregulate', 'production', 'product', 'increased', 'increase', 'increas'],
-        'neg-p' : []
-      },
-
-      # Label T all GP pairs in Charite dataset (and that haven't already been labeled T/F)
-      'charite-all-pos' : True
-    }
-  },
-
-  'association': {
-    ## Hard Filters (for candidate extraction)
-    'HF' : {
-      # Upper-bound the max min-dependency-path length between G and P
-      'max-dep-path-dist' : 10,
-
-      # Only consider the closest GP pairs for duplicate GP pairs
-      'take-best-only-dups' : False,
-
-      # Only consider the closest GP pairs by dep-path distance such that all G,P are covered
-      'take-best-only' : False
+    # Try to find the verb connecting the G and P, and supervise based on modifiers
+    # (e.g. negation, etc) of this verb
+    'primary-verb-modifiers' : {
+      'max-dist' : 1,
+      'pos' : [],
+      'neg' : ['might'],
+      'pos-dep-tag' : [],
+      'neg-dep-tag' : ['neg']
     },
 
-    ## Supervision Rules
-    'SR' : {
-      # Whether to include GP pairs with no or long dep path links as neg. supervision (vs. skip)
-      'bad-dep-paths' : True,
+    # Supervise GP pairs as T/F based on dependency-path neighbor lemmas of G and P
+    'dep-lemma-neighbors' : {
+      'max-dist' : 1,
+      'pos-g' : ['cause', 'mutate', 'mutation', 'variant', 'allele'],
+      'pos-p' : ['mutation', 'mutate'],
+      'neg-g' : ['express', 'expression', 'coexpression', 'coexpress', 'co-expression', 'co-express', 'overexpress', 'overexpression', 'over-expression', 'over-express', 'somatic', 'infection', 'interacts', 'regulate', 'up-regulate', 'upregulate', 'down-regulate', 'downregulate', 'production', 'product', 'increased', 'increase', 'increas'],
+      'neg-p' : []
+    },
 
-      # Subsample GP pairs where G and/or P is neg. example as neg. GP supervision
-      'g-or-p-false' : {'diff' : 0.5, 'rand' : 0.01},
+    # Label T all GP pairs in Charite dataset (and that haven't already been labeled T/F)
+    'charite-all-pos' : True,
 
-      # Supervise G adjacent to P as false
-      'adjacent-false' : True,
+    # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
+    'dep-lemma-connectors' : {
+      'pos' : [],
+      'neg' : []
+    },
 
-      # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
-      'phrases-in-sent' : {
-        'pos' : ['caused by (mutation|deletion|duplication|truncat)', 'confirmed linkage'],
-        'neg' : ['to investigate', 'could reveal', 'we evaluated', 'to determine', 'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression', 'to detect', 'to find out', 'inconclusive', 'further analysis'],
-        'pos-rgx' : [r'(mutat|delet|duplicat|truncat).*GENE.*(implicated?|found).*PHENO', r'(mutat|delet|duplicat|truncat).*GENE.*cause.*PHENO', r'genotype.*linked to.*PHENO', r'PHENO.*linkage to.*GENE', r'.*GENE.*associated with.*PHENO', '(mutat|delet|duplicat|truncat).*GENE.*described.*patients.*PHENO', r'.*patient.*GENE.*present with.*clinical.*PHENO.*', '(variant|allele)?.*GENE.*(PHENO suscept|susceptibility to PHENO).*', '(single nucleotide polymorphisms|SNPs) in GENE.*(associated with|cause).*PHENO', '(mutation|deletion).*GENE.*described.*patients.*PHENO'],
-        'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*To determine', r'^\s*To evaluate', r'^\s*To investigate', r'^\s*To assess', r'^\s*Here we define', '^\s*Whether', '\d+ h ', 'unlikely.*GENE.*PHENO', ]
-      },
-
-      # Supervise as T/F based on phrases (exact or regex) only between the G and P mentions
-      'phrases-in-between' : False,
-
-      # Try to find the verb connecting the G and P, and supervise based on modifiers
-      # (e.g. negation, etc) of this verb
-      'primary-verb-modifiers' : {
-        'max-dist' : 1,
-        'pos' : [],
-        'neg' : [],
-        'pos-dep-tag' : [],
-        'neg-dep-tag' : []
-      },
-
-      # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
-      'dep-lemma-connectors' : {
-        'pos' : [],
-        'neg' : []
-      },
-
-      # Supervise GP pairs as T/F based on dependency-path neighbor lemmas of G and P
-      'dep-lemma-neighbors' : {
-        'max-dist' : 1,
-        'pos-g' : ['mutate', 'mutation', 'variant', 'allele', 'duplication', 'deletion'],
-        'pos-p' : [],
-        'neg-g' : ['express', 'expression', 'coexpression', 'coexpress', 'co-expression', 'co-express', 'overexpress', 'overexpression', 'over-expression', 'over-express', 'somatic', 'infection', 'interacts', 'regulate', 'up-regulate', 'upregulate', 'down-regulate', 'downregulate', 'production'],
-        'neg-p' : []
-      },
-
-      # Label T all GP pairs in Charite dataset (and that haven't already been labeled T/F)
-      'charite-all-pos' : True
-    }
-
+    'phrases-in-sent' : {
+      'pos' : ['caused by (mutation|deletion|duplication|truncat)', 'confirmed linkage'],
+      'neg' : ['possible association', 'to investigate', 'could reveal', 'to determine', 'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression', 'to detect', 'to find out', 'inconclusive', 'further analysis'],
+      'pos-rgx' : [r'(mutat|delet|duplicat|truncat).*GENE.*(implicated?|found).*PHENO', r'(mutat|delet|duplicat|truncat).*GENE.*cause.*PHENO', r'PHENO.*linkage to.*GENE', '(mutat|delet|duplicat|truncat).*GENE.*described.*patients.*PHENO', r'.*patient.*GENE.*present with.*clinical.*PHENO.*', r'(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO', '(mutation|deletion).*GENE.*described.*patients.*PHENO'],
+      'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', r'^\s*To determine', r'^\s*To evaluate', r'^\s*To investigate', '\d+ h ', r'^\s*To assess', r'^\s*here we define', r'^\s*whether', 'unlikely.*GENE.*PHENO', ]
+    },
   },
 
   ## Features
   'F' : {}
 }
 
+CAUSATION_SR = {
+    # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
+    'phrases-in-sent' : {
+      'pos' : [],
+      'neg' : ['risk', 'variance', 'gwas', 'association study', 'possible association', 'to investigate', 'could reveal', 'to determine', 'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression', 'to detect', 'to find out', 'inconclusive', 'further analysis'],
+      'pos-rgx' : [],
+      'neg-rgx' : [],
+    },
+    # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
+    'dep-lemma-connectors' : {
+      'pos' : ['cause'],
+      'neg' : ['associate', 'correlate', 'implicate']
+    },
+}
+
+ASSOCIATION_SR = {
+    # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
+    'phrases-in-sent' : {
+      'pos' : [],
+      'neg' : [],
+      'pos-rgx' : [r'genotype.*linked to.*PHENO', r'PHENO.*linkage to.*GENE', r'.*GENE.*associated with.*PHENO', '(variant|allele)?.*GENE.*(PHENO suscept|susceptibility to PHENO).*', '(single nucleotide polymorphisms|SNPs) in GENE.*(associated with|cause).*PHENO'],
+      'neg-rgx' : [],
+    }
+}
+
+def extend(map1, map2):
+  rv = {}
+  for item in map1:
+    value = map1[item]
+    if isinstance(value, dict):
+      if item in map2:
+        rv[item] = extend(map1[item], map2[item])
+      else:
+        rv[item] = map1[item]
+    else:
+      rv[item] = map1[item]
+      if item in map2:
+        for v in map2[item]:
+          if v not in rv[item]:
+            rv[item].append(v)
+  return rv
+
+GENE_PHENO_ASSOCIATION = GENE_PHENO
+GENE_PHENO_CAUSATION = GENE_PHENO
+GENE_PHENO_ASSOCIATION['SR'] = extend(GENE_PHENO_ASSOCIATION['SR'], ASSOCIATION_SR)
+GENE_PHENO_CAUSATION['SR'] = extend(GENE_PHENO_CAUSATION['SR'], CAUSATION_SR)
 
 ### GENE-VARIANT-PHENO
 GENE_VARIANT_PHENO = {
