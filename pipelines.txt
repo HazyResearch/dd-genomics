@@ -71,7 +71,12 @@ full_pipeline_ddlog_part_after_serialize_genepheno_pairs_split:
       ext_genepheno_association_views,
       ext_genepheno_causation_views.
 
-
+pipeline_views:
+      ext_sentences_input_views,
+      ext_gene_mentions_views,
+      ext_pheno_mentions_views,
+      ext_genepheno_association_views,
+      ext_genepheno_causation_views.
 
 
 #     test: test1, test2, #test3,    test4.
