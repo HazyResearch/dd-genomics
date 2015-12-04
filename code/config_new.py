@@ -269,6 +269,9 @@ GENE_PHENO = {
     },
 
     'phrases-in-sent' : {
+      'pos': [
+        ['[cand[1]] -nsubjpass-> cause -nmod-> mutation -nmod-> [cand[0]]']
+      ]
       'pos' : ['caused by (mutation|deletion|duplication|truncat)', 'confirmed linkage'],
       'neg' : ['possible association', 'to investigate', 'could reveal', 'to determine', 'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression', 'to detect', 'to find out', 'inconclusive', 'further analysis'],
       'pos-rgx' : [
