@@ -803,6 +803,12 @@ def default_featurize(mentions, sentence_index, doc, config):
                     label = '[obj:%s]' % lemma
             elif pattern == '[cand]':
                 label = '[cand]'
+            elif pattern == '[cand0]':
+                label = '[cand0]'
+            elif pattern == '[cand1]':
+                label = '[cand1]'
+            elif pattern == '[cand2]':
+                label = '[cand2]'
             elif pattern == '[cand:lemma]':
                 # A few more clustering
                 label = '[cand:%s]' % lemma
@@ -961,7 +967,7 @@ class Dependencies:
 
     def compute_min_paths(sentence, parents, children, index_sets, MAX_DIST=5):
         '''
-        Use Floyed algorithm to compute shortest paths in dependency tree
+        Use Floyd-Warshall algorithm to compute shortest paths in dependency tree
         '''
         # print('BEGIN ALGO')
         # print(parents)
