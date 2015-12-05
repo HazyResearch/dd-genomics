@@ -87,14 +87,14 @@ class Config(object):
     '''
 
 
-    def __init__(self, module = None):
+    def __init__(self, module=None):
 
         self._frozen = False
 
         # For featurization
-        self.dicts = default_dicts.copy()
-        self.feature_patterns = default_feature_patterns.copy()
-        self.MAX_DIST = 5 # for computing arbitrary dep paths between two words
+        self.dicts = default_dicts
+        self.feature_patterns = default_feature_patterns[:]
+        self.MAX_DIST = 5  # for computing arbitrary dep paths between two words
         self.NGRAM_WILDCARD = True
         self.PRINT_SUPV_RULE = False
 
@@ -256,7 +256,7 @@ class Config(object):
 
         The specified "func" should take two inputs:
           - sentence_index: built from latticelib.build_indexes
-          - doc: built from latticelib.build_doc_from_nlp_line
+          - sentence: built from latticelib.build_doc_from_nlp_line
 
         "func" should return a list of namedtuple latticelib.Mention.
 
@@ -269,7 +269,7 @@ class Config(object):
 
         The specified "func" should take two inputs:
           - sentence_index: built from latticelib.build_indexes
-          - doc: built from latticelib.build_doc_from_nlp_line
+          - sentence: built from latticelib.build_doc_from_nlp_line
 
         "func" should return a list of namedtuple latticelib.Mention.
 
@@ -282,7 +282,7 @@ class Config(object):
 
         The specified "func" should take two inputs:
           - sentence_index: built from latticelib.build_indexes
-          - doc: built from latticelib.build_doc_from_nlp_line
+          - sentence: built from latticelib.build_doc_from_nlp_line
 
         "func" should return a list of namedtuple latticelib.Mention.
 
@@ -296,7 +296,7 @@ class Config(object):
 
         The specified "func" should take two inputs:
           - sentence_index: built from latticelib.build_indexes
-          - doc: built from latticelib.build_doc_from_nlp_line
+          - sentence: built from latticelib.build_doc_from_nlp_line
 
         "func" should return a list of namedtuple latticelib.Mention.
 
@@ -344,23 +344,19 @@ class Config(object):
         self._frozen = True
 
 
-    def run(self):
+    def run(self, row_parser):
         '''
         Run the pipeline.
         '''
         self._freeze()
         for line in self.input_stream:
-            try:
-                doc = build_doc_from_nlp_line(line, self.input_columns)
-            except Exception as e:
-                # print(e.message)
-                raise e
+            row = row_parser.parse_tsv_row(line)
 
-            sentence_index = create_sentence_index(doc)
-            mentions = self.extract_candidates(sentence_index, doc, self)
+            sentence_index = create_sentence_index(row)
+            mentions = self.extract_candidates(sentence_index, sentence, row, self)
             for featurizer in self.featurizers:
-                mentions = featurizer(mentions, sentence_index, doc, self)
-            mentions = self.supervise(mentions, sentence_index, doc, self)
+                mentions = featurizer(mentions, sentence_index, sentence, row, self)
+            mentions = self.supervise(mentions, sentence_index, sentence, row, self)
 
             # convert sentence wordidxs to document-based wordidxs for mindtagger
             sent_token_offsets = []
@@ -374,7 +370,7 @@ class Config(object):
                     m.wordidxs[i] = m.wordidxs[i] + sent_token_offsets[m.sent_id]
 
             for mention in mentions:
-                print(tsv_dump_mention(mention))
+                print tsv_dump_mention(mention)
 
 def _get_column(parts, columns, key, required=False, is_json=True, escape=False):
     if len(parts) != len(columns):
@@ -392,97 +388,31 @@ def _get_column(parts, columns, key, required=False, is_json=True, escape=False)
             raise ValueError('Required field %s does not exist in input!' % key)
         else:
             return []
-
-def build_doc_from_nlp_line(line, columns = default_input_columns):
+def create_sentence_index(row):
     '''
-    Converting a row from nlp table to the legacy format document.
-
-    Columns: an array specifying the header of the input columns.
-
-    Supported columns are:
-    - doc_id
-    - text
-    - words
-    - lemmas
-    - poses
-    - ners
-    - sent_token_offsets
-    - dependencies
+    Create sentence indexes from a sentence
     '''
-
-    t = line.rstrip('\n').split('\t')
-    # convert deps into dep_paths and dep_parents
-    doc_id = _get_column(t, columns, 'doc_id', is_json=False)
-    doc_text = _get_column(t, columns, 'text', is_json=False, escape=True)
-    doc_tokens = _get_column(t, columns, 'words')
-    doc_lemmas = _get_column(t, columns, 'lemmas')
-    doc_poses = _get_column(t, columns, 'poses')
-    doc_ners = _get_column(t, columns, 'ners')
-    doc_sent_tok_offsets = _get_column(t, columns, 'sent_token_offsets')
-    num_sents = len(doc_sent_tok_offsets)
-    doc_deps = _get_column(t, columns, 'dependencies')
-    doc_dep_paths = []
-    doc_dep_parents = []
-    doc_sent_tokens = []
-    doc_sent_lemmas = []
-    doc_sent_poses = []
-    doc_sent_ners = []
-    for i in range(0, num_sents):
-        tok_begin = doc_sent_tok_offsets[i][0]
-        tok_end = doc_sent_tok_offsets[i][1]
-        num_toks = tok_end - tok_begin
-        dep_paths = ['']*num_toks
-        dep_parents = [0]*num_toks
-        for d in doc_deps[i]:
-            dep_paths[d['to']] = d['name']
-            dep_parents[d['to']] = d['from'] + 1
-        doc_dep_paths.append(dep_paths)
-        doc_dep_parents.append(dep_parents)
-        doc_sent_tokens.append(doc_tokens[tok_begin:tok_end])
-        doc_sent_lemmas.append(doc_lemmas[tok_begin:tok_end])
-        doc_sent_poses.append(doc_poses[tok_begin:tok_end])
-        doc_sent_ners.append(doc_ners[tok_begin:tok_end])
-    doc = Document(
-        doc_id = doc_id,
-        text = doc_text,
-        words = doc_sent_tokens,
-        lemmas = doc_sent_lemmas,
-        poses = doc_sent_poses,
-        ners=doc_sent_ners,
-        dep_paths = doc_dep_paths,
-        dep_parents = doc_dep_parents)
-
-    return doc
-
-
-def create_sentence_index(doc):
-    '''
-    Create sentence indexes from a doc
-    '''
-    index = []
-    for sent_num in range(0, len(doc.words)):
-        sentence = {
-            'text': ' '.join(doc.words[sent_num]),
-            'words' : doc.words[sent_num],
-            'lemmas' : doc.lemmas[sent_num],
-            'poses' : doc.poses[sent_num],
-            'ners': doc.ners[sent_num],
-            'dep_paths' : doc.dep_paths[sent_num],
-            'dep_parents' : [ p-1 for p in doc.dep_parents[sent_num]]
-        }
-        parents, children = Dependencies.build_indexes(sentence)
-        index.append({
-            'sentence': sentence,
-            'parents': parents,
-            'children': children
-        })
+    sentence = {
+        'text': ' '.join(row.words),
+        'words' : row.words,
+        'lemmas' : row.lemmas,
+        'poses' : row.poses,
+        'ners': row.ners,
+        'dep_paths' : row.dep_paths,
+        'dep_parents' : [ p - 1 for p in row.dep_parents ]
+    }
+    dependencies = Dependencies()
+    parents, children = dependencies.build_indexes(sentence)
+    index = {
+        'sentence': sentence,
+        'parents': parents,
+        'children': children
+    }
     return index
 
-
-
-def default_extract_candidates(sentence_index, doc, config):
+def default_extract_candidates(sentence_index, sentence, config):
     '''
-    Extract candidates from a specified sentence index, doc and config.
+    Extract candidates from a specified sentence index, sentence and config.
     '''
     mentions = []
     sent_token_offset = 0
@@ -490,51 +420,49 @@ def default_extract_candidates(sentence_index, doc, config):
     if not config._frozen:
         config._freeze()
 
-    for sent_num in range(0, len(sentence_index)):
-        sentence = sentence_index[sent_num]['sentence']
-        parents = sentence_index[sent_num]['parents']
-        children = sentence_index[sent_num]['children']
+    sentence = sentence_index['sentence']
+    parents = sentence_index['parents']
+    children = sentence_index['children']
 
-        # match dependency patterns
+    # match dependency patterns
 
-        # Do not generate duplicated mentions (with exact mid)
-        matched_idxs = set()
-        for p in config.candidate_patterns:
-            matches = []
-            Dependencies.match(sentence, p, parents, children, matches, config.dicts)
-            for m in matches:
-                # fix the gap if any
-                if len(m) == 2 and max(m) -  min(m) > 1:
-                    m = list(range(min(m), max(m) + 1))
-                mention_id = doc.doc_id + '_' + str(sent_num) + '_' + '_'.join([str(i) for i in m])
+    # Do not generate duplicated mentions (with exact mid)
+    matched_idxs = set()
+    for p in config.candidate_patterns:
+        matches = []
+        Dependencies.match(sentence, p, parents, children, matches, config.dicts)
+        for m in matches:
+            # fix the gap if any
+            if len(m) == 2 and max(m) - min(m) > 1:
+                m = list(range(min(m), max(m) + 1))
+            mention_id = sentence.doc_id + '_' + str(sent_num) + '_' + '_'.join([str(i) for i in m])
 
-                mention = Mention(
-                    doc_id = doc.doc_id,
-                    sent_id = sent_num,
-                    wordidxs = m,
-                    mention_id = mention_id,
-                    type = '',
-                    entity = '',
-                    words = [ sentence['words'][i] for i in m ],
-                    is_correct = None,
-                    features = [],
-                    misc = {}
-                )
-                if 'CAND_PATTERN' in config.feature_patterns:
-                    mention.features.append('P:' + ''.join(p))
+            mention = Mention(
+                doc_id=sentence.doc_id,
+                sent_id=sent_num,
+                wordidxs=m,
+                mention_id=mention_id,
+                type='',
+                entity='',
+                words=[ sentence['words'][i] for i in m ],
+                is_correct=None,
+                features=[],
+                misc={}
+            )
+            if 'CAND_PATTERN' in config.feature_patterns:
+                mention.features.append('P:' + ''.join(p))
 
-                if '_'.join([str(i) for i in m]) not in matched_idxs:
-                    mentions.append(mention)
-                    matched_idxs.add('_'.join([str(i) for i in m]))
+            if '_'.join([str(i) for i in m]) not in matched_idxs:
+                mentions.append(mention)
+                matched_idxs.add('_'.join([str(i) for i in m]))
 
-        sent_token_offset = sent_token_offset + len(sentence['words'])
+    sent_token_offset = sent_token_offset + len(sentence['words'])
 
     return mentions
 
-
-def default_supervise(mentions, sentence_index, doc, config):
+def default_supervise(mentions, sentence_index, sentence, config):
     '''
-    Perform supervision to all mentions using the specified sentence_index, doc, and config.
+    Perform supervision to all mentions using the specified sentence_index, sentence, and config.
     '''
     if not config._frozen:
         config._freeze()
@@ -581,10 +509,10 @@ def default_supervise(mentions, sentence_index, doc, config):
         #     if p in sentence['text']:
         #         num_pos = num_pos + 1
         # skip the sentence if a certain pharase appears
-        # print('neg_phrases = %s' % (' '.join(config.neg_phrases)), file=sys.stderr)
-        # print('sent text=%s' % sentence['text'], file=sys.stderr)
-        # for sentence in doc.text.split('\n'):
-            # print('doc text = %s' % sentence, file=sys.stderr)
+        # print >>sys.stderr, 'neg_phrases = %s' % (' '.join(config.neg_phrases))
+        # print >>sys.stderr, 'sent text=%s' % sentence['text']
+        # for sentence in sentence.text.split('\n'):
+            # print >>sys.stderr, 'sentence text = %s' % sentence
         if any(p in sentence['text'] for p in config.neg_phrases):
             continue
         # for p in config.neg_phrases:
@@ -647,12 +575,11 @@ def default_supervise(mentions, sentence_index, doc, config):
                 if config.PRINT_SUPV_RULE:
                     set_misc(m, 'rule', None)
 
-            n_mentions.append(m._replace(is_correct = l))
+            n_mentions.append(m._replace(is_correct=l))
 
     return n_mentions
 
-
-def default_featurize(mentions, sentence_index, doc, config):
+def default_featurize(mentions, sentence_index, sentence, config):
     '''
     The default featurizer. Generates dependency features based on
     config.feature_patterns.
@@ -668,15 +595,15 @@ def default_featurize(mentions, sentence_index, doc, config):
     def _get_actual_dep_from_match(parents, pattern, j, ma):
         # e.g. pattern: ['__', '<-__-', '__']
         # determine the edge
-        edge_pattern = pattern[2*j + 1]
+        edge_pattern = pattern[2 * j + 1]
         if edge_pattern[:2] == '<-':
             dep = '<-' + parents[ma[j]][0][0] + '-'
-        elif edge_pattern[len(edge_pattern)-2:] == '->':
-            dep = '-' + parents[ma[j+1]][0][0] + '->'
+        elif edge_pattern[len(edge_pattern) - 2:] == '->':
+            dep = '-' + parents[ma[j + 1]][0][0] + '->'
         elif edge_pattern == '_':
             dep = '_'
         else:
-            print('ERROR: Unknown edge pattern', file=sys.stderr)
+            print >> sys.stderr, 'ERROR: Unknown edge pattern'
         return dep
 
     def _featurize_fixed_length_dependency(sentence, mention, patterns, parents, children, dicts):
@@ -685,17 +612,17 @@ def default_featurize(mentions, sentence_index, doc, config):
             matches = []
             Dependencies.match(sentence, pattern, parents, children, matches, config.dicts)
             for ma in matches:
-                # print('MATCH:', ma)
+                # print 'MATCH:', ma
                 if _intersects(mention.wordidxs, ma) and _acyclic(ma):
                     # first version replaces every wildcard __ with a lemma
                     feature = sentence['lemmas'][ma[0]].lower() + ' ' + _get_actual_dep_from_match(parents, pattern, 0, ma)
                     j = 1
                     while j < len(ma):
                         feature = feature + ' ' + sentence['lemmas'][ma[j]].lower()
-                        if 2*j + 1 < len(pattern):
+                        if 2 * j + 1 < len(pattern):
                            dep = _get_actual_dep_from_match(parents, pattern, j, ma)
                            feature = feature + ' ' + dep
-                        j = j+1
+                        j = j + 1
                     yield feature
 
                     # also add versions where we erase exactly one lemma (this is only generated if specified)
@@ -751,7 +678,7 @@ def default_featurize(mentions, sentence_index, doc, config):
                     # Find all indexes that match a specific dictionary
                     dic_name = s[4:]
                     if dic_name not in dicts:
-                        print('ERROR: dictionary %s not defined' % dic_name, file=sys.stderr)
+                        print >> sys.stderr, 'ERROR: dictionary %s not defined' % dic_name
                         continue
                     matches[pattern] = [i for i in range(len(lemmas)) \
                         if lemmas[i] in dicts[dic_name] ]
@@ -831,7 +758,7 @@ def default_featurize(mentions, sentence_index, doc, config):
                     k1_lookup = '[cand]'
                 else:
                     k1_lookup = k1
-                k2 = pattern[i+1]
+                k2 = pattern[i + 1]
                 if (k1_lookup, k2) not in min_paths:
                     feature_complete = False
                     break
@@ -842,7 +769,7 @@ def default_featurize(mentions, sentence_index, doc, config):
 
                 feature += '%s %s ' % (label1, path)
 
-                if i + 1 == len(pattern) - 1: # last pattern
+                if i + 1 == len(pattern) - 1:  # last pattern
 
                     label2 = _get_node_label(k2, lemmas[end], poses[end])
                     feature += label2
@@ -907,7 +834,6 @@ def _intersects(a1, a2):
 def _acyclic(a):
     return len(a) == len(set(a))
 
-
 def tsv_dump_mention(m):
     is_correct_str = "\\N"
     if m.is_correct is not None:
@@ -924,7 +850,7 @@ def tsv_dump_mention(m):
                     list_to_tsv_array(m.wordidxs), m.mention_id, m.type,
                     m.entity, list_to_tsv_array(m.words, quote=True),
                     is_correct_str, list_to_tsv_array(list(m.features), True)]
-                    + [tsv_escape(m.misc[k]) for k in m.misc]) # TODO
+                    + [tsv_escape(m.misc[k]) for k in m.misc])  # TODO
     return tsv_line
 
 def tsv_escape(value, boolean=False):
@@ -965,12 +891,12 @@ def list_to_tsv_array(a_list, quote=False):
 
 class Dependencies:
 
-    def compute_min_paths(sentence, parents, children, index_sets, MAX_DIST=5):
+    def compute_min_paths(self, sentence, parents, children, index_sets, MAX_DIST=5):
         '''
         Use Floyd-Warshall algorithm to compute shortest paths in dependency tree
         '''
-        # print('BEGIN ALGO')
-        # print(parents)
+        # print 'BEGIN ALGO'
+        # print parents
         lemmas = sentence['lemmas']
 
         # Find meaningful nodes
@@ -990,7 +916,7 @@ class Dependencies:
             if clusters[i] is None:
                 clusters[i] = lemmas[i]
 
-        # print(clusters)
+        # print clusters
         INF = 999999
         dist = [INF] * (N * N)
         path = [None] * (N * N)
@@ -1016,9 +942,9 @@ class Dependencies:
                     if dist[i * N + j] > dist[i * N + k] + dist[k * N + j]:
                         dist[i * N + j] = dist[i * N + k] + dist[k * N + j]
                         path[i * N + j] = path[i * N + k] + ' %s ' % clusters[k] + path[k * N + j]
-                        # print('%d,%d (%d): Update %s -> %s to: %s' % (i, j, dist[i*N+j], clusters[i], clusters[j], path[i*N+j]))
+                        # print '%d,%d (%d): Update %s -> %s to: %s' % (i, j, dist[i*N+j], clusters[i], clusters[j], path[i*N+j])
 
-        # print(path)
+        # print path
 
         # Return results: dependency chain
         result = {}
@@ -1041,12 +967,11 @@ class Dependencies:
         # print (result)
         return result
 
-
-    def min_path_between(sentence, parents, children, indexes_1, indexes_2):
+    def min_path_between(self, sentence, parents, children, indexes_1, indexes_2):
         # TODO BFS / SPFA / Floyed?
         return ''
 
-    def build_indexes(sentence):
+    def build_indexes(self, sentence):
         l = len(sentence['dep_paths'])
         parents = []
         children = []
@@ -1060,21 +985,21 @@ class Dependencies:
             parents[i].append([t, p])
         return [parents, children]
 
-    def match(sentence, path_arr, parents, children, matches, dicts = {}):
+    def match(self, sentence, path_arr, parents, children, matches, dicts={}):
         for i in range(0, len(sentence['words'])):
             Dependencies.match_i(sentence, i, path_arr, parents, children, matches, [], dicts)
 
-    def token_match(sentence, i, pw, dicts):
-        #w = sentence['words'][i].lower()
+    def token_match(self, sentence, i, pw, dicts):
+        # w = sentence['words'][i].lower()
         w = sentence['lemmas'][i].lower()
         t = pw.split('|')
-        #print(dicts, file=sys.stderr)
-        #print('.... checking ' + pw)
+        # print >>sys.stderr, dicts
+        # print '.... checking ' + pw
         for s in t:
             pair = s.split(':')
             if pair[0] == 'dic':
                 if not pair[1] in dicts:
-                    print('ERROR: Dictionary ' + pair[1] + ' not found', file=sys.stderr)
+                    print >> sys.stderr, 'ERROR: Dictionary ' + pair[1] + ' not found'
                     return False
                 if not w in dicts[pair[1]]:
                     return False
@@ -1085,12 +1010,11 @@ class Dependencies:
                 if not re.match(pair[1], w):
                     return False
             else:
-                print('ERROR: Predicate ' + pair[0] + ' unknown', file=sys.stderr)
+                print >> sys.stderr, 'ERROR: Predicate ' + pair[0] + ' unknown'
                 return False
         return True
 
-
-    def match_i(sentence, i, path_arr, parents, children, matches, matched_prefix = [], dicts = {}):
+    def match_i(self, sentence, i, path_arr, parents, children, matches, matched_prefix=[], dicts={}):
         if len(path_arr) == 0:
            # nothing to match anymore
            matches.append(matched_prefix)
@@ -1123,17 +1047,17 @@ class Dependencies:
             for p in parents[i]:
                 if p[0] == dep_type or dep_type == '__':
                     Dependencies.match_i(sentence, p[1], path_arr[2:], parents, children, matches, list(matched_prefix), dicts)
-        elif pd[len(pd)-2:] == '->':
+        elif pd[len(pd) - 2:] == '->':
             # left is parent
             dep_type = pd[1:-2]
             for c in children[i]:
                 if c[0] == dep_type or dep_type == '__':
                     Dependencies.match_i(sentence, c[1], path_arr[2:], parents, children, matches, list(matched_prefix), dicts)
         elif pd == '_':
-            if i+1 < len(sentence['lemmas']):
-                Dependencies.match_i(sentence, i+1, path_arr[2:], parents, children, matches, list(matched_prefix), dicts)
+            if i + 1 < len(sentence['lemmas']):
+                Dependencies.match_i(sentence, i + 1, path_arr[2:], parents, children, matches, list(matched_prefix), dicts)
 
-    def enclosing_range(wordidxs):
+    def enclosing_range(self, wordidxs):
         m = wordidxs
         if len(m) == 1:
             m_from = m[0]
@@ -1141,8 +1065,8 @@ class Dependencies:
         else:
             if m[0] < m[1]:
                 m_from = m[0]
-                m_to = m[len(m)-1] + 1
+                m_to = m[len(m) - 1] + 1
             else:
-                m_from = m[len(m)-1]
-                m_to = m[0]+1
+                m_from = m[len(m) - 1]
+                m_to = m[0] + 1
         return [ m_from, m_to ]
