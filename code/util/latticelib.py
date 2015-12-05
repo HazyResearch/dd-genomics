@@ -18,7 +18,8 @@
 #
 ######################################################################################
 
-import sys, os, re, json, collections
+import sys, re, json, collections
+import extractor_util
 
 Document = collections.namedtuple('Document',
                                   ['doc_id', 'text', 'words', 'lemmas', 'poses',
@@ -344,7 +345,7 @@ class Config(object):
         self._frozen = True
 
 
-    def run(self, row_parser):
+    def run(self, row_parser, wordidx_idxs):
         '''
         Run the pipeline.
         '''
@@ -353,24 +354,13 @@ class Config(object):
             row = row_parser.parse_tsv_row(line)
 
             sentence_index = create_sentence_index(row)
-            mentions = self.extract_candidates(sentence_index, sentence, row, self)
+            sentence = sentence_index['sentence']
+            mention = self.extract_candidates(sentence_index, sentence, row, self)
+            wordidxs = [mention[idx] for idx in wordidx_idxs]
             for featurizer in self.featurizers:
-                mentions = featurizer(mentions, sentence_index, sentence, row, self)
-            mentions = self.supervise(mentions, sentence_index, sentence, row, self)
-
-            # convert sentence wordidxs to document-based wordidxs for mindtagger
-            sent_token_offsets = []
-            cur_offset = 0
-            for sent_num in range(0, len(sentence_index)):
-                sent_token_offsets.append(cur_offset)
-                sentence = sentence_index[sent_num]['sentence']
-                cur_offset = cur_offset + len(sentence['words'])
-            for m in mentions:
-                for i in range(0, len(m.wordidxs)):
-                    m.wordidxs[i] = m.wordidxs[i] + sent_token_offsets[m.sent_id]
-
-            for mention in mentions:
-                print tsv_dump_mention(mention)
+                mention = featurizer(mention, wordidxs, sentence_index, sentence, self)
+            mention = self.supervise(mention, wordidxs, sentence_index, sentence, self)
+            extractor_util.print_tsv_output(mention)
 
 def _get_column(parts, columns, key, required=False, is_json=True, escape=False):
     if len(parts) != len(columns):
@@ -410,57 +400,14 @@ def create_sentence_index(row):
     }
     return index
 
-def default_extract_candidates(sentence_index, sentence, config):
-    '''
-    Extract candidates from a specified sentence index, sentence and config.
-    '''
-    mentions = []
-    sent_token_offset = 0
-
-    if not config._frozen:
-        config._freeze()
-
-    sentence = sentence_index['sentence']
-    parents = sentence_index['parents']
-    children = sentence_index['children']
-
-    # match dependency patterns
-
-    # Do not generate duplicated mentions (with exact mid)
-    matched_idxs = set()
-    for p in config.candidate_patterns:
-        matches = []
-        Dependencies.match(sentence, p, parents, children, matches, config.dicts)
-        for m in matches:
-            # fix the gap if any
-            if len(m) == 2 and max(m) - min(m) > 1:
-                m = list(range(min(m), max(m) + 1))
-            mention_id = sentence.doc_id + '_' + str(sent_num) + '_' + '_'.join([str(i) for i in m])
-
-            mention = Mention(
-                doc_id=sentence.doc_id,
-                sent_id=sent_num,
-                wordidxs=m,
-                mention_id=mention_id,
-                type='',
-                entity='',
-                words=[ sentence['words'][i] for i in m ],
-                is_correct=None,
-                features=[],
-                misc={}
-            )
-            if 'CAND_PATTERN' in config.feature_patterns:
-                mention.features.append('P:' + ''.join(p))
-
-            if '_'.join([str(i) for i in m]) not in matched_idxs:
-                mentions.append(mention)
-                matched_idxs.add('_'.join([str(i) for i in m]))
-
-    sent_token_offset = sent_token_offset + len(sentence['words'])
+def default_extract_candidates(sentence_index, sentence, row, config):
+    assert False, "Don't use this method. I left it in only to remind us of the CAND_PATTERN"
+    if 'CAND_PATTERN' in config.feature_patterns:
+        mention.features.append('P:' + ''.join(p))
 
     return mentions
 
-def default_supervise(mentions, sentence_index, sentence, config):
+def default_supervise(m, wordidxs, sentence_index, sentence, config):
     '''
     Perform supervision to all mentions using the specified sentence_index, sentence, and config.
     '''
@@ -470,18 +417,13 @@ def default_supervise(mentions, sentence_index, sentence, config):
     # does it match one of our dicts ?
     num_pos = 0
     num_neg = 0
-    n_mentions = []
 
-    # mentions by sent_id
-    sent_mentions = {}
-    for m in mentions:
-        l = sent_mentions.get(m.sent_id, [])
-        l.append(m)
-        sent_mentions[m.sent_id] = l
-
+    sentence = sentence_index['sentence']
+    parents = sentence_index['parents']
+    children = sentence_index['children']
 
     # Return matches (wordidxs) or empty array
-    def match_pattern(pattern, mentions):
+    def match_pattern(pattern):
         pattern = ' '.join(pattern)
         # TODO: separate pattern match and feature match
         tot_matches = set()
@@ -491,95 +433,66 @@ def default_supervise(mentions, sentence_index, sentence, config):
             for m in matches:
                 tot_matches.update(m)
 
-        for m in mentions:
-            if pattern in m.features:
-                tot_matches.update(m.wordidxs)
+        if pattern in m.features:
+            tot_matches.update(wordidxs)
 
         return list(tot_matches)
 
-    for sent_num in range(0, len(sentence_index)):
-        sentence = sentence_index[sent_num]['sentence']
-        parents = sentence_index[sent_num]['parents']
-        children = sentence_index[sent_num]['children']
-        sm = sent_mentions.get(sent_num, [])
-        if len(sm) == 0:
-            continue
+    if any(p in sentence['text'] for p in config.neg_phrases):
+        return m
 
-        # for p in config.pos_phrases:
-        #     if p in sentence['text']:
-        #         num_pos = num_pos + 1
-        # skip the sentence if a certain pharase appears
-        # print >>sys.stderr, 'neg_phrases = %s' % (' '.join(config.neg_phrases))
-        # print >>sys.stderr, 'sent text=%s' % sentence['text']
-        # for sentence in sentence.text.split('\n'):
-            # print >>sys.stderr, 'sentence text = %s' % sentence
-        if any(p in sentence['text'] for p in config.neg_phrases):
-            continue
-        # for p in config.neg_phrases:
-        #     if p in sentence['text']:
-        #         num_neg = num_neg + 1
+    labeling = {}
+    labeling[id(m)] = None
 
+    for p in config.pos_patterns:
+        matches = match_pattern(p, m)
+        num_pos = num_pos + len(matches)
+        if _intersects(matches, wordidxs):
+            labeling[id(m)] = True
+            if config.PRINT_SUPV_RULE:
+                set_misc(m, 'rule', ' '.join(p))
 
-        labeling = {}
-        for m in sm:
-            labeling[id(m)] = None
+    for p in config.strong_pos_patterns:
+        matches = match_pattern(p, m)
+        num_pos = num_pos + len(matches)
+        if _intersects(matches, wordidxs):
+            labeling[id(m)] = 'strong_pos'
+            if config.PRINT_SUPV_RULE:
+                set_misc(m, 'rule', ' '.join(p))
 
-        for p in config.pos_patterns:
-            matches = match_pattern(p, sm)
-            num_pos = num_pos + len(matches)
-            for m in sm:
-                if _intersects(matches, m.wordidxs):
-                    labeling[id(m)] = True
-                    if config.PRINT_SUPV_RULE:
-                        set_misc(m, 'rule', ' '.join(p))
+    for p in config.neg_patterns:
+        matches = match_pattern(p, m)
+        num_neg = num_neg + len(matches)
+        if _intersects(matches, wordidxs):
+            if labeling[id(m)] == True:
+                labeling[id(m)] = 'ambiguous'
+            elif labeling[id(m)] is None:
+                labeling[id(m)] = False
+            if config.PRINT_SUPV_RULE:
+                set_misc(m, 'rule', ' '.join(p))
 
-        for p in config.strong_pos_patterns:
-            matches = match_pattern(p, sm)
-            num_pos = num_pos + len(matches)
-            for m in sm:
-                if _intersects(matches, m.wordidxs):
-                    labeling[id(m)] = 'strong_pos'
-                    if config.PRINT_SUPV_RULE:
-                        set_misc(m, 'rule', ' '.join(p))
+    for p in config.strong_neg_patterns:
+        matches = match_pattern(p, m)
+        num_pos = num_pos + len(matches)
+        if _intersects(matches, wordidxs):
+            labeling[id(m)] = 'strong_neg'
+            if config.PRINT_SUPV_RULE:
+                set_misc(m, 'rule', ' '.join(p))
 
-        for p in config.neg_patterns:
-            matches = match_pattern(p, sm)
-            num_neg = num_neg + len(matches)
-            for m in sm:
-                if _intersects(matches, m.wordidxs):
-                    if labeling[id(m)] == True:
-                        labeling[id(m)] = 'ambiguous'
-                    elif labeling[id(m)] is None:
-                        labeling[id(m)] = False
-                    if config.PRINT_SUPV_RULE:
-                        set_misc(m, 'rule', ' '.join(p))
+    l = labeling[id(m)]
+    if l == 'ambiguous':
+        l = None
+    elif l == 'strong_pos':
+        l = True
+    elif l == 'strong_neg':
+        l = False
+    if l is None:
+        if config.PRINT_SUPV_RULE:
+            set_misc(m, 'rule', None)
 
-        for p in config.strong_neg_patterns:
-            matches = match_pattern(p, sm)
-            num_pos = num_pos + len(matches)
-            for m in sm:
-                if _intersects(matches, m.wordidxs):
-                    labeling[id(m)] = 'strong_neg'
-                    if config.PRINT_SUPV_RULE:
-                        set_misc(m, 'rule', ' '.join(p))
+    return m._replace(is_correct=l)
 
-        for m in sm:
-            l = labeling[id(m)]
-            if l == 'ambiguous':
-                l = None
-            elif l == 'strong_pos':
-                l = True
-            elif l == 'strong_neg':
-                l = False
-            if l is None:
-                if config.PRINT_SUPV_RULE:
-                    set_misc(m, 'rule', None)
-
-            n_mentions.append(m._replace(is_correct=l))
-
-    return n_mentions
-
-def default_featurize(mentions, sentence_index, sentence, config):
+def default_featurize(mention, wordidxs, sentence_index, sentence, config):
     '''
     The default featurizer. Generates dependency features based on
     config.feature_patterns.
@@ -606,22 +519,22 @@ def default_featurize(mentions, sentence_index, sentence, config):
             print >> sys.stderr, 'ERROR: Unknown edge pattern'
         return dep
 
-    def _featurize_fixed_length_dependency(sentence, mention, patterns, parents, children, dicts):
+    def _featurize_fixed_length_dependency(patterns, parents, children, dicts):
         # TODO optimize?
         for pattern in patterns:
             matches = []
             Dependencies.match(sentence, pattern, parents, children, matches, config.dicts)
             for ma in matches:
                 # print 'MATCH:', ma
-                if _intersects(mention.wordidxs, ma) and _acyclic(ma):
+                if _intersects(wordidxs, ma) and _acyclic(ma):
                     # first version replaces every wildcard __ with a lemma
                     feature = sentence['lemmas'][ma[0]].lower() + ' ' + _get_actual_dep_from_match(parents, pattern, 0, ma)
                     j = 1
                     while j < len(ma):
                         feature = feature + ' ' + sentence['lemmas'][ma[j]].lower()
                         if 2 * j + 1 < len(pattern):
-                           dep = _get_actual_dep_from_match(parents, pattern, j, ma)
-                           feature = feature + ' ' + dep
+                            dep = _get_actual_dep_from_match(parents, pattern, j, ma)
+                            feature = feature + ' ' + dep
                         j = j + 1
                     yield feature
 
@@ -635,7 +548,7 @@ def default_featurize(mentions, sentence_index, sentence, config):
                                 yield ' '.join(fs)
                             k = k + 2
 
-    def _find_matches(sentence, mention, tomatch, dicts, parents):
+    def _find_matches(tomatch, dicts, parents):
         # TODO compile regex
         '''
         supported tomatch:
@@ -657,7 +570,7 @@ def default_featurize(mentions, sentence_index, sentence, config):
             if pattern.startswith('[') and pattern.endswith(']'):
                 s = pattern[1:-1]
                 if s == 'cand' or s == 'cand:lemma':
-                    matches[pattern] = mention.wordidxs
+                    matches[pattern] = wordidxs
                 elif s == 'subj':
                     # Find all subjects
                     matches[pattern] = [i for i in range(len(parents)) \
@@ -690,8 +603,7 @@ def default_featurize(mentions, sentence_index, sentence, config):
 
         return matches
 
-
-    def _featurize_dep_graph(sentence, mention, patterns, parents, children, dicts):
+    def _featurize_dep_graph(patterns, parents, children, dicts):
 
         lemmas = [l.lower() for l in sentence['lemmas']]
         poses = sentence['poses']
@@ -777,53 +689,51 @@ def default_featurize(mentions, sentence_index, sentence, config):
             if feature_complete:
                 yield feature
 
-
-    def _featurize_others(sentence, mention, patterns, parents, children, dicts):
+    def _featurize_others(patterns, parents, children, dicts):
         if False: yield 'f'
 
-    for mention in mentions:
-        sentence = sentence_index[mention.sent_id]['sentence']
-        parents = sentence_index[mention.sent_id]['parents']
-        children = sentence_index[mention.sent_id]['children']
+    sentence = sentence_index['sentence']
+    parents = sentence_index['parents']
+    children = sentence_index['children']
 
-        # use a set to deduplicate features
-        feature_set = set()
+    # use a set to deduplicate features
+    feature_set = set()
 
-        # general, broad-coverage patterns
-        if 'NEGATED' in config.feature_patterns:
-            for i in mention.wordidxs:
-                for c in children[i]:
-                    path, child = c
-                    if path == 'neg':
-                        feature_set.add('NEGATED')
-        if 'PLURAL' in config.feature_patterns:
-            for i in mention.wordidxs:
-                if sentence['poses'][i] == 'NNS':
-                    feature_set.add('PLURAL')
-        if 'MOD_PLURAL' in config.feature_patterns:
-            for i in mention.wordidxs:
-                for p in parents[i]:
-                    path, parent = p
-                    if sentence['poses'][parent] == 'NNS':
-                        feature_set.add('MOD_PLURAL')
+    # general, broad-coverage patterns
+    if 'NEGATED' in config.feature_patterns:
+        for i in wordidxs:
+            for c in children[i]:
+                path, child = c
+                if path == 'neg':
+                    feature_set.add('NEGATED')
+    if 'PLURAL' in config.feature_patterns:
+        for i in wordidxs:
+            if sentence['poses'][i] == 'NNS':
+                feature_set.add('PLURAL')
+    if 'MOD_PLURAL' in config.feature_patterns:
+        for i in wordidxs:
+            for p in parents[i]:
+                path, parent = p
+                if sentence['poses'][parent] == 'NNS':
+                    feature_set.add('MOD_PLURAL')
 
-        patterns = [ pattern for pattern in config.feature_patterns if '_' in pattern]
-        for f in _featurize_fixed_length_dependency(sentence, mention, patterns, parents, children, config.dicts):
-            feature_set.add(f)
+    patterns = [ pattern for pattern in config.feature_patterns if '_' in pattern]
+    for f in _featurize_fixed_length_dependency(sentence, mention, patterns, parents, children, config.dicts):
+        feature_set.add(f)
 
-        patterns = [ pattern for pattern in config.feature_patterns if '*' in pattern]
-        for f in _featurize_dep_graph(sentence, mention, patterns, parents, children, config.dicts):
-            feature_set.add(f)
+    patterns = [ pattern for pattern in config.feature_patterns if '*' in pattern]
+    for f in _featurize_dep_graph(sentence, mention, patterns, parents, children, config.dicts):
+        feature_set.add(f)
 
 
-        patterns = [ pattern for pattern in config.feature_patterns if '_' not in pattern and '*' not in pattern]
-        for f in _featurize_others(sentence, mention, patterns, parents, children, config.dicts):
-            feature_set.add(f)
+    patterns = [ pattern for pattern in config.feature_patterns if '_' not in pattern and '*' not in pattern]
+    for f in _featurize_others(sentence, mention, patterns, parents, children, config.dicts):
+        feature_set.add(f)
 
-        for f in feature_set:
-            mention.features.append(f)
+    for f in feature_set:
+        mention.features.append(f)
 
-    return mentions
+    return mention
 
 def _intersects(a1, a2):
     for i in a1:
@@ -833,25 +743,6 @@ def _intersects(a1, a2):
 
 def _acyclic(a):
     return len(a) == len(set(a))
-
-def tsv_dump_mention(m):
-    is_correct_str = "\\N"
-    if m.is_correct is not None:
-        is_correct_str = m.is_correct.__repr__()
-    if m.misc is None:
-        tsv_line = "\t".join(
-            ["\\N", m.doc_id, str(m.sent_id),
-                    list_to_tsv_array(m.wordidxs), m.mention_id, m.type,
-                    m.entity, list_to_tsv_array(m.words, quote=True),
-                    is_correct_str, list_to_tsv_array(list(m.features), True)])
-    else:
-        tsv_line = "\t".join(
-            ["\\N", m.doc_id, str(m.sent_id),
-                    list_to_tsv_array(m.wordidxs), m.mention_id, m.type,
-                    m.entity, list_to_tsv_array(m.words, quote=True),
-                    is_correct_str, list_to_tsv_array(list(m.features), True)]
-                    + [tsv_escape(m.misc[k]) for k in m.misc])  # TODO
-    return tsv_line
 
 def tsv_escape(value, boolean=False):
     if value is None:
@@ -1016,9 +907,9 @@ class Dependencies:
 
     def match_i(self, sentence, i, path_arr, parents, children, matches, matched_prefix=[], dicts={}):
         if len(path_arr) == 0:
-           # nothing to match anymore
-           matches.append(matched_prefix)
-           return
+            # nothing to match anymore
+            matches.append(matched_prefix)
+            return
 
         pw = path_arr[0]
         # __ is a wildcard matching every word
@@ -1032,7 +923,7 @@ class Dependencies:
             matched = True
 
         if not matched:
-           return
+            return
 
         matched_prefix.append(i)
         if len(path_arr) == 1:
