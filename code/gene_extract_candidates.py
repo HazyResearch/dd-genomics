@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 import collections
-import extractor_util as util
-import data_util as dutil
+from util import extractor_util as util
+from util import data_util as dutil
 import random
 import re
 import os
 import sys
 import string
 import config
-import dep_util as deps
+from util import dep_util as deps
 
 CACHE = dict()  # Cache results of disk I/O
 
