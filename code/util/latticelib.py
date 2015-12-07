@@ -352,13 +352,20 @@ class Config(object):
         self._freeze()
         for line in self.input_stream:
             row = row_parser.parse_tsv_row(line)
+            print >>sys.stderr, 'row: %s' % str(row)
 
             sentence_index = create_sentence_index(row)
+            print >>sys.stderr, 'sentence_index: %s' % str(sentence_index)
             sentence = sentence_index['sentence']
+            print >>sys.stderr, 'sentence: %s' % str(sentence)
             mention = self.extract_candidates(sentence_index, sentence, row, self)
-            wordidxs = [mention[idx] for idx in wordidx_idxs]
+            print >>sys.stderr, 'mention: %s' % str(mention)
+            sub_wordidxs = [mention[idx] for idx in wordidx_idxs]
+            wordidxs = [item for sublist in sub_wordidxs for item in sublist] # flatten the list
+            print >>sys.stderr, 'wordidxs: %s' % str(wordidxs)
             for featurizer in self.featurizers:
-                mention = featurizer(mention, wordidxs, sentence_index, sentence, self)
+                mention = featurizer(mention, wordidxs, sub_wordidxs, sentence_index, sentence, self)
+            print >>sys.stderr, 'mention featurized: %s' % str(mention)
             mention = self.supervise(mention, wordidxs, sentence_index, sentence, self)
             extractor_util.print_tsv_output(mention)
 
@@ -421,31 +428,43 @@ def default_supervise(m, wordidxs, sentence_index, sentence, config):
     sentence = sentence_index['sentence']
     parents = sentence_index['parents']
     children = sentence_index['children']
+    
+    dependencies = Dependencies()
 
     # Return matches (wordidxs) or empty array
-    def match_pattern(pattern):
+    def match_pattern(pattern, m):
         pattern = ' '.join(pattern)
         # TODO: separate pattern match and feature match
         tot_matches = set()
+        print >>sys.stderr, 'pattern: %s' % str(pattern)
         if '_' in pattern or not any('[subj' in p or '[cand' in p or '[obj' in p for p in pattern):
+            print >>sys.stderr, '_' in pattern
+            print >>sys.stderr, not any('[subj' in p or '[cand' in p or '[obj' in p for p in pattern)
+            print >>sys.stderr, 'First pattern condition holds'
             matches = []
-            Dependencies.match(sentence, pattern, parents, children, matches, config.dicts)
+            dependencies.match(sentence, pattern, parents, children, matches, config.dicts)
             for m in matches:
                 tot_matches.update(m)
 
         if pattern in m.features:
+            print >>sys.stderr, 'Second pattern condition holds'
             tot_matches.update(wordidxs)
 
         return list(tot_matches)
 
     if any(p in sentence['text'] for p in config.neg_phrases):
+        print >>sys.stderr, 'Returning mention because it contains a neg_phrase'
         return m
 
     labeling = {}
     labeling[id(m)] = None
 
     for p in config.pos_patterns:
+        print >>sys.stderr, 'matching pattern %s' % str(p)
         matches = match_pattern(p, m)
+        if len(matches) > 0:
+            print >>sys.stderr, 'Have matches'
+        print >>sys.stderr, 'matches: %s' % (str(matches))
         num_pos = num_pos + len(matches)
         if _intersects(matches, wordidxs):
             labeling[id(m)] = True
@@ -453,7 +472,11 @@ def default_supervise(m, wordidxs, sentence_index, sentence, config):
                 set_misc(m, 'rule', ' '.join(p))
 
     for p in config.strong_pos_patterns:
+        print >>sys.stderr, 'matching pattern %s' % str(p)
         matches = match_pattern(p, m)
+        if len(matches) > 0:
+            print >>sys.stderr, 'Have matches'
+        print >>sys.stderr, 'matches: %s' % (str(matches))
         num_pos = num_pos + len(matches)
         if _intersects(matches, wordidxs):
             labeling[id(m)] = 'strong_pos'
@@ -461,7 +484,11 @@ def default_supervise(m, wordidxs, sentence_index, sentence, config):
                 set_misc(m, 'rule', ' '.join(p))
 
     for p in config.neg_patterns:
+        print >>sys.stderr, 'matching pattern %s' % str(p)
         matches = match_pattern(p, m)
+        if len(matches) > 0:
+            print >>sys.stderr, 'Have matches'
+        print >>sys.stderr, 'matches: %s' % (str(matches))
         num_neg = num_neg + len(matches)
         if _intersects(matches, wordidxs):
             if labeling[id(m)] == True:
@@ -472,7 +499,11 @@ def default_supervise(m, wordidxs, sentence_index, sentence, config):
                 set_misc(m, 'rule', ' '.join(p))
 
     for p in config.strong_neg_patterns:
+        print >>sys.stderr, 'matching pattern %s' % str(p)
         matches = match_pattern(p, m)
+        if len(matches) > 0:
+            print >>sys.stderr, 'Have matches'
+        print >>sys.stderr, 'matches: %s' % (str(matches))
         num_pos = num_pos + len(matches)
         if _intersects(matches, wordidxs):
             labeling[id(m)] = 'strong_neg'
@@ -492,7 +523,7 @@ def default_supervise(m, wordidxs, sentence_index, sentence, config):
 
     return m._replace(is_correct=l)
 
-def default_featurize(mention, wordidxs, sentence_index, sentence, config):
+def default_featurize(mention, wordidxs, sub_wordidxs, sentence_index, sentence, config):
     '''
     The default featurizer. Generates dependency features based on
     config.feature_patterns.
@@ -503,6 +534,8 @@ def default_featurize(mention, wordidxs, sentence_index, sentence, config):
     '''
     if not config._frozen:
         config._freeze()
+        
+    dependencies = Dependencies()
 
     # generate features based on feature patterns
     def _get_actual_dep_from_match(parents, pattern, j, ma):
@@ -523,7 +556,7 @@ def default_featurize(mention, wordidxs, sentence_index, sentence, config):
         # TODO optimize?
         for pattern in patterns:
             matches = []
-            Dependencies.match(sentence, pattern, parents, children, matches, config.dicts)
+            dependencies.match(sentence, pattern, parents, children, matches, config.dicts)
             for ma in matches:
                 # print 'MATCH:', ma
                 if _intersects(wordidxs, ma) and _acyclic(ma):
@@ -571,6 +604,10 @@ def default_featurize(mention, wordidxs, sentence_index, sentence, config):
                 s = pattern[1:-1]
                 if s == 'cand' or s == 'cand:lemma':
                     matches[pattern] = wordidxs
+                elif s == 'cand0' or s == 'cand0:lemma':
+                    matches[pattern] = sub_wordidxs[0]
+                elif s == 'cand1' or s == 'cand1:lemma':
+                    matches[pattern] = sub_wordidxs[1]
                 elif s == 'subj':
                     # Find all subjects
                     matches[pattern] = [i for i in range(len(parents)) \
@@ -616,14 +653,14 @@ def default_featurize(mention, wordidxs, sentence_index, sentence, config):
             tomatch_set.update(tomatch)
 
         # e.g.: {'[dic:young]': [3], '[dic:count]': [], 'cute': [], '[obj]': [], '[dic:girl]': [0], '[dic:negation]': [], '[subj]': [], '[cand]': [3], '[dic:i]': [], '[dic:intensifiers]': [5]}
-        matches = _find_matches(sentence, mention, tomatch_set, dicts, parents)
+        matches = _find_matches(tomatch_set, dicts, parents)
 
         patterns_found = [pattern for pattern in tomatch_patterns if not any(len(matches[p]) == 0 for p in pattern)]
         # do not compute min path at all, if no pattern found
         if len(patterns_found) == 0:
             return
 
-        min_paths = Dependencies.compute_min_paths(sentence, parents, children, matches, config.MAX_DIST)
+        min_paths = dependencies.compute_min_paths(sentence, parents, children, matches, config.MAX_DIST)
 
         def _get_node_label(pattern, lemma, pos):
             label = lemma
@@ -646,8 +683,6 @@ def default_featurize(mention, wordidxs, sentence_index, sentence, config):
                 label = '[cand0]'
             elif pattern == '[cand1]':
                 label = '[cand1]'
-            elif pattern == '[cand2]':
-                label = '[cand2]'
             elif pattern == '[cand:lemma]':
                 # A few more clustering
                 label = '[cand:%s]' % lemma
@@ -718,16 +753,16 @@ def default_featurize(mention, wordidxs, sentence_index, sentence, config):
                     feature_set.add('MOD_PLURAL')
 
     patterns = [ pattern for pattern in config.feature_patterns if '_' in pattern]
-    for f in _featurize_fixed_length_dependency(sentence, mention, patterns, parents, children, config.dicts):
+    for f in _featurize_fixed_length_dependency(patterns, parents, children, config.dicts):
         feature_set.add(f)
 
     patterns = [ pattern for pattern in config.feature_patterns if '*' in pattern]
-    for f in _featurize_dep_graph(sentence, mention, patterns, parents, children, config.dicts):
+    for f in _featurize_dep_graph(patterns, parents, children, config.dicts):
         feature_set.add(f)
 
 
     patterns = [ pattern for pattern in config.feature_patterns if '_' not in pattern and '*' not in pattern]
-    for f in _featurize_others(sentence, mention, patterns, parents, children, config.dicts):
+    for f in _featurize_others(patterns, parents, children, config.dicts):
         feature_set.add(f)
 
     for f in feature_set:
@@ -878,16 +913,15 @@ class Dependencies:
 
     def match(self, sentence, path_arr, parents, children, matches, dicts={}):
         for i in range(0, len(sentence['words'])):
-            Dependencies.match_i(sentence, i, path_arr, parents, children, matches, [], dicts)
+            self.match_i(sentence, i, path_arr, parents, children, matches, [], dicts)
 
     def token_match(self, sentence, i, pw, dicts):
         # w = sentence['words'][i].lower()
         w = sentence['lemmas'][i].lower()
         t = pw.split('|')
-        # print >>sys.stderr, dicts
-        # print '.... checking ' + pw
         for s in t:
             pair = s.split(':')
+            print >>sys.stderr, 'token matching %s to %s' % (str(pair), str(w))
             if pair[0] == 'dic':
                 if not pair[1] in dicts:
                     print >> sys.stderr, 'ERROR: Dictionary ' + pair[1] + ' not found'
@@ -906,47 +940,58 @@ class Dependencies:
         return True
 
     def match_i(self, sentence, i, path_arr, parents, children, matches, matched_prefix=[], dicts={}):
+        print >>sys.stderr, 'path_arr: %s' % str(path_arr)
         if len(path_arr) == 0:
+            print >>sys.stderr, 'nothing to match anymore'
             # nothing to match anymore
             matches.append(matched_prefix)
             return
 
         pw = path_arr[0]
+        print >>sys.stderr, 'starting pw: %s' % str(pw)
         # __ is a wildcard matching every word
 
         matched = False
         if pw == '__':
             matched = True
-        elif pw.startswith('[') and pw.endswith(']') and Dependencies.token_match(sentence, i, pw[1:-1], dicts):
+        elif pw.startswith('[') and pw.endswith(']') and self.token_match(sentence, i, pw[1:-1], dicts):
             matched = True
         elif sentence['lemmas'][i].lower() == pw:
             matched = True
+            
+        print >>sys.stderr, 'matched pw (%s) : %s' % (str(pw), str(matched))
 
         if not matched:
             return
 
         matched_prefix.append(i)
+        print >>sys.stderr, 'matched prefix 1: %s' % str(matched_prefix)
         if len(path_arr) == 1:
             matches.append(matched_prefix)
+            print >>sys.stderr, 'matched prefix 2: %s' % str(matched_prefix)
             return
 
         # match dep
         pd = path_arr[1]
+        print >>sys.stderr, 'pd: %s' % str(pd)
         if pd[:2] == '<-':
+            print >>sys.stderr, 'pd cond 1'
             # left is child
             dep_type = pd[2:-1]
             for p in parents[i]:
                 if p[0] == dep_type or dep_type == '__':
-                    Dependencies.match_i(sentence, p[1], path_arr[2:], parents, children, matches, list(matched_prefix), dicts)
+                    self.match_i(sentence, p[1], path_arr[2:], parents, children, matches, list(matched_prefix), dicts)
         elif pd[len(pd) - 2:] == '->':
+            print >>sys.stderr, 'pd cond 2'
             # left is parent
             dep_type = pd[1:-2]
             for c in children[i]:
                 if c[0] == dep_type or dep_type == '__':
-                    Dependencies.match_i(sentence, c[1], path_arr[2:], parents, children, matches, list(matched_prefix), dicts)
+                    self.match_i(sentence, c[1], path_arr[2:], parents, children, matches, list(matched_prefix), dicts)
         elif pd == '_':
+            print >>sys.stderr, 'pd cond 3'
             if i + 1 < len(sentence['lemmas']):
-                Dependencies.match_i(sentence, i + 1, path_arr[2:], parents, children, matches, list(matched_prefix), dicts)
+                self.match_i(sentence, i + 1, path_arr[2:], parents, children, matches, list(matched_prefix), dicts)
 
     def enclosing_range(self, wordidxs):
         m = wordidxs

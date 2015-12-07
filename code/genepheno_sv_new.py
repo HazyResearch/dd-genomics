@@ -44,7 +44,9 @@ Relation = collections.namedtuple('Relation', [
             'pheno_wordidxs',
             'is_correct',
             'relation_supertype',
-            'relation_subtype'])
+            'relation_subtype',
+            'features',
+            'misc'])
 
 HPO_DAG = dutil.read_hpo_dag()
 
@@ -102,19 +104,19 @@ genepheno_dicts = {
 }
 
 pos_patterns = {
-    '[rel[1]] -nsubjpass-> cause -nmod-> mutation -nmod-> [rel[0]]',
+    '[cand1] -nsubjpass-> cause',
 }
 
 neg_patterns = {
-    'possible _ association',
+    'association',
 }
 
 strong_pos_patterns = {
-    '[rel[1]] -nsubjpass-> cause -nmod-> mutation -nmod-> [rel[0]]',
+    '[cand1] -nsubjpass-> cause',
 }
 
 strong_neg_patterns = {
-    'possible _ association',
+    'association',
 }
 
 def read_candidate(sentence_index, sentence, row, config):
@@ -127,7 +129,7 @@ def read_candidate(sentence_index, sentence, row, config):
 
   relation_id = '%s_%s' % (gene_mention_id, pheno_mention_id)
   r = Relation(None, relation_id, row.doc_id, row.section_id, row.sent_id, gene_mention_id, gene_name, \
-               gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, None, None, None)
+               gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, None, None, None, [], {})
   return r
 
 if __name__ == '__main__':
