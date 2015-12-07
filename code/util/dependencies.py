@@ -81,9 +81,9 @@ def token_match(sentence, i, pw, dicts):
 def match_i(sentence, i, path_arr, parents, children, matches, matched_prefix = [], dicts = {}):
     #w = sentence['lemmas'][i].lower()
     if len(path_arr) == 0:
-       # nothing to match anymore
-       matches.append(matched_prefix)
-       return
+        # nothing to match anymore
+        matches.append(matched_prefix)
+        return
 
     pw = path_arr[0]
     # __ is a wildcard matching every word
@@ -97,7 +97,7 @@ def match_i(sentence, i, path_arr, parents, children, matches, matched_prefix = 
         matched = True
 
     if not matched:
-       return
+        return
 
     #if pw != '__' and w != pw:
     #    return
