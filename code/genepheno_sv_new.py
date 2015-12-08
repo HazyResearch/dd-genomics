@@ -104,7 +104,7 @@ genepheno_dicts = {
 }
 
 pos_patterns = {
-    '[cand1] -nsubjpass-> cause',
+    '[cand] -nsubjpass-> cause',
 }
 
 neg_patterns = {
