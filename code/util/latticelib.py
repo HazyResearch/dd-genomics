@@ -433,18 +433,18 @@ def default_supervise(m, wordidxs, sentence_index, sentence, config):
 
     # Return matches (wordidxs) or empty array
     def match_pattern(pattern, m):
-        pattern = ' '.join(pattern)
+        # pattern = ' '.join(pattern)
         # TODO: separate pattern match and feature match
         tot_matches = set()
         print >>sys.stderr, 'pattern: %s' % str(pattern)
-        if '_' in pattern or not any('[subj' in p or '[cand' in p or '[obj' in p for p in pattern):
-            print >>sys.stderr, '_' in pattern
-            print >>sys.stderr, not any('[subj' in p or '[cand' in p or '[obj' in p for p in pattern)
-            print >>sys.stderr, 'First pattern condition holds'
-            matches = []
-            dependencies.match(sentence, pattern, parents, children, matches, config.dicts)
-            for m in matches:
-                tot_matches.update(m)
+        # if '_' in pattern or not any('[subj' in p or '[cand' in p or '[obj' in p for p in pattern):
+        print >>sys.stderr, '_' in pattern
+        print >>sys.stderr, not any('[subj' in p or '[cand' in p or '[obj' in p for p in pattern)
+        print >>sys.stderr, 'First pattern condition holds'
+        matches = []
+        dependencies.match(sentence, pattern, parents, children, matches, config.dicts)
+        for m in matches:
+            tot_matches.update(m)
 
         if pattern in m.features:
             print >>sys.stderr, 'Second pattern condition holds'
