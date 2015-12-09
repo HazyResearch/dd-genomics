@@ -39,7 +39,8 @@ full_pipeline_ddlog_part_before_serialize_genepheno_pairs_split:
       ext_pheno_acronyms_aggregate,
       ext_pheno_acronyms_ids,
       ext_sentences_input_with_pheno_acronyms,
-      ext_pheno_mentions_by_pheno_acronyms_insert_candidates.
+      ext_pheno_mentions_before_union_2_by_pheno_acronyms_insert_candidates,
+      ext_pheno_mentions_before_union_1.
 
 
 full_pipeline_cut_for_bug_in_dependencies:
@@ -71,7 +72,12 @@ full_pipeline_ddlog_part_after_serialize_genepheno_pairs_split:
       ext_genepheno_association_views,
       ext_genepheno_causation_views.
 
-
+pipeline_views:
+      ext_sentences_input_views,
+      ext_gene_mentions_views,
+      ext_pheno_mentions_views,
+      ext_genepheno_association_views,
+      ext_genepheno_causation_views.
 
 
 #     test: test1, test2, #test3,    test4.
