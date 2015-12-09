@@ -306,3 +306,24 @@ CREATE TABLE ensembl_gene_sequences (
 
 DROP TABLE IF EXISTS allowed_phenos CASCADE;
 CREATE TABLE allowed_phenos (hpo_id text) DISTRIBUTED BY (hpo_id);
+
+DROP TABLE IF EXISTS omim_allelic_variant_pmids CASCADE;
+CREATE TABLE omim_allelic_variant_pmids (pmid text) DISTRIBUTED BY (pmid);
+
+DROP TABLE IF EXISTS genepheno_relations CASCADE;
+CREATE TABLE genepheno_relations (
+       id bigint,
+       relation_id text,
+       doc_id text,
+       section_id text,
+       sent_id int,
+       gene_mention_id text,
+       gene_name text,
+       gene_wordidxs int[],
+       gene_is_correct boolean,
+       pheno_mention_id text,
+       pheno_entity text,
+       pheno_wordidxs int[],
+       pheno_is_correct boolean
+) DISTRIBUTED BY (doc_id);
+
