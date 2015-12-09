@@ -32,6 +32,7 @@ CREATE TABLE sentences_input (
   doc_id text,
   section_id text,
   sent_id int,
+  ref_doc_id text,
   words text,
   lemmas text,
   poses text,
