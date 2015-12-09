@@ -694,9 +694,9 @@ function gene_extract_features over rows like gene_extract_features_input
   returns rows like gene_features
   implementation "code/gene_extract_features.py" handles tsv lines.
 
-gene_features += gene_extract_features(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, mention_id, supertype, ARRAY_TO_STRING(gene_wordidxs, "|^|")) :-
-  sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents),
-  gene_mentions(_, doc_id, section_id, sent_id, gene_wordidxs, mention_id, supertype, _, _, _, _).
+gene_features += gene_extract_features(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, mention_id, supertype, gene_wordidxs) :-
+  sentences_input_with_gene_mention(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents),
+  gene_mentions_filtered(_, doc_id, section_id, sent_id, gene_wordidxs, mention_id, _, supertype, _, _, _, _).
 
 #variant_extract_candidates
 function variant_extract_candidates over rows like variant_extract_candidates_input
