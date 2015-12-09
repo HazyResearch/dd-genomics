@@ -5,8 +5,8 @@ from util import extractor_util as eutil
 from util import data_util as dutil
 import re
 import sys
-from util import latticelib
 import config
+from util import clf_util
 
 # This defines the Row object that we read in to the extractor
 parser = eutil.RowParser([
@@ -112,14 +112,14 @@ neg_patterns = {
 }
 
 strong_pos_patterns = {
-    '[cand1] -nsubjpass-> cause',
+    '[cand[1]] -nsubjpass-> cause',
 }
 
 strong_neg_patterns = {
     'association',
 }
 
-def read_candidate(sentence_index, sentence, row, config):
+def read_candidate(row):
   gene_mention_id = row.gene_mention_id
   gene_name = row.gene_name
   gene_wordidxs = row.gene_wordidxs
@@ -135,22 +135,10 @@ def read_candidate(sentence_index, sentence, row, config):
 if __name__ == '__main__':
   supervision_rules = config.GENE_PHENO_ASSOCIATION['SR']
   hard_filters = config.GENE_PHENO_ASSOCIATION['HF']
-
-  # Configure the extractor
-  config = latticelib.Config()
-
-  config.add_dicts(genepheno_dicts)
-  config.set_pos_patterns(pos_patterns)
-  config.set_neg_patterns(neg_patterns)
-  config.set_strong_pos_patterns(strong_pos_patterns)
-  config.set_strong_neg_patterns(strong_neg_patterns)
-  config.set_candidate_generator(read_candidate)
-  config.set_pos_supervision_phrases([])
-  config.set_neg_supervision_phrases([])
-  # config.set_feature_patterns(feature_patterns)
-  # config.add_featurizer(ddlib_featurizer)
-  config.NGRAM_WILDCARD = False
-  config.PRINT_SUPV_RULE = True
-
-  config.run(parser, [7,10])
-
+  for line in sys.stdin:
+      row = parser.parse_tsv_row(line)
+      relation = read_candidate(row)
+      sentence_index = clf_util.create_sentence_index(row)
+      relation = clf_util.featurize(relation, sentence_index)
+      relation = clf_util.supervise(relation, sentence_index)      
+      eutil.print_tsv_output(relation)
