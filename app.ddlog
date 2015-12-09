@@ -132,6 +132,7 @@ genepheno_causation_views(id, relation_id, doc_id, section_id, sent_id, gene_men
 #### Declaration tables #####
 @distributed_by("doc_id")
 sentences (
+  @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
@@ -265,6 +266,37 @@ pheno_mentions (
   entity text,
   words text[],
   #@navigable
+  is_correct boolean
+).
+
+#Two temporary tables created to avoid that two processus are outputing to the same table (here mostly because processses truncates the table just before putting stuff into it)
+#We then union the two temporary tables
+
+pheno_mentions_before_union_1 (
+  id bigint,
+  doc_id text,
+  section_id text,
+  sent_id int,
+  wordidxs int[],
+  mention_id text,
+  supertype text,
+  subtype text,
+  entity text,
+  words text[],
+  is_correct boolean
+).
+
+pheno_mentions_before_union_2 (
+  id bigint,
+  doc_id text,
+  section_id text,
+  sent_id int,
+  wordidxs int[],
+  mention_id text,
+  supertype text,
+  subtype text,
+  entity text,
+  words text[],
   is_correct boolean
 ).
 
@@ -683,8 +715,8 @@ function pheno_extract_candidates over rows like pheno_extract_candidates_input
 pheno_mentions_without_acronyms += pheno_extract_candidates(doc_id, section_id, sent_id, words, lemmas, poses, ners) :-
 sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, _, _).
 
-#And we also fill out pheno_mentions with the same values so oheno_mentions will be the union of this extractor and of pheno_acronyms_insert_candidates.
-pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct) :-
+#And we also fill out pheno_mentions_before_union_1 with the same values so pheno_mentions will be the union of this extractor and of pheno_acronyms_insert_candidates.
+pheno_mentions_before_union_1(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct) :-
 pheno_mentions_without_acronyms(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
 
 
@@ -927,10 +959,17 @@ function pheno_acronyms_insert_candidates over rows like pheno_acronyms_insert_c
 returns rows like pheno_mentions
 implementation "code/pheno_acronyms_to_mentions.py" handles tsv lines.
 
-pheno_mentions += pheno_acronyms_insert_candidates(doc_id, section_id, sent_id, words, lemmas, poses, ners, pa_abbrevs, pheno_entities, pa_section_ids, pa_sent_ids) :-
+pheno_mentions_before_union_2 += pheno_acronyms_insert_candidates(doc_id, section_id, sent_id, words, lemmas, poses, ners, pa_abbrevs, pheno_entities, pa_section_ids, pa_sent_ids) :-
 sentences_input_with_pheno_acronyms(doc_id,section_id,sent_id,words,lemmas,poses,ners,dep_paths,dep_parents), 
 pheno_acronyms_aggregate(doc_id, pa_section_ids, pa_sent_ids, pa_abbrevs, pheno_entities).
 
+#We finally union the two temporary tables pheno_mentions_before_union_1 and 2 in the final table pheno_mentions.
+#Hopefully, when the truncating tables done by deepdive will be better dealt for multi processes outputting in the same table, this won't be needed anymore
+
+pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct) *:-
+pheno_mentions_before_union_1(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct);
+#pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct) *:-
+pheno_mentions_before_union_2(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
 
 #pheno_acronyms_extract_features
 
@@ -989,9 +1028,9 @@ function genevariant_extract_candidates over rows like genevariant_extract_candi
 returns rows like genevariant_relations
 implementation "code/genevariant_extract_candidates.py" handles tsv lines.
 
-genevariant_relations += genevariant_extract_candidates ( doc_id, variant_section_id, variant_sent_id, variant_entity, variant_wordidxs, variant_type, variant_ivsnum, variant_pos, variant_posplus, variant_frompos, variant_topos, variant_seq, variant_fromseq, variant_toseq, variant_is_correct, array_to_string(ARRAY_AGG(gene_section_id), "|^|"), array_to_string(ARRAY_AGG(gene_sent_id), "|^|"), array_to_string(ARRAY_AGG(gene_wordidxs), "|^|"), array_to_string(ARRAY_AGG(gene_name), "|^|"), array_to_string(ARRAY_AGG(gene_is_correct), "|^|"), array_to_string(ARRAY_AGG(ensembl_ids), "|^|"), array_to_string(ARRAY_AGG(ensembl_transcripts), "|^|"), array_to_string(ARRAY_AGG(chroms), "|^|"), array_to_string(ARRAY_AGG(strands), "|^|"), array_to_string(ARRAY_AGG(txstarts), "|^|"), array_to_string(ARRAY_AGG(txends), "|^|"), array_to_string(ARRAY_AGG(exonstarts), "|^|"), array_to_string(ARRAY_AGG(exonends), "|^|")) :-
-genevariant_pairs( doc_id, gene_section_id, gene_sent_id, variant_section_id, variant_sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, variant_mention_id, variant_entity, variant_wordidxs, variant_type, variant_ivsnum, variant_pos , variant_posplus, variant_frompos, variant_topos, variant_seq, variant_fromseq, variant_toseq, variant_is_correct),
-gene_to_transcripts(gene_name, ensembl_ids, ensembl_transcripts, chroms, strands, txstarts, txends, exonstarts, exonends).
+#genevariant_relations += genevariant_extract_candidates ( doc_id, variant_section_id, variant_sent_id, variant_entity, variant_wordidxs, variant_type, variant_ivsnum, variant_pos, variant_posplus, variant_frompos, variant_topos, variant_seq, variant_fromseq, variant_toseq, variant_is_correct, array_to_string(ARRAY_AGG(gene_section_id), "|^|"), array_to_string(ARRAY_AGG(gene_sent_id), "|^|"), array_to_string(ARRAY_AGG(gene_wordidxs), "|^|"), array_to_string(ARRAY_AGG(gene_name), "|^|"), array_to_string(ARRAY_AGG(gene_is_correct), "|^|"), array_to_string(ARRAY_AGG(ensembl_ids), "|^|"), array_to_string(ARRAY_AGG(ensembl_transcripts), "|^|"), array_to_string(ARRAY_AGG(chroms), "|^|"), array_to_string(ARRAY_AGG(strands), "|^|"), array_to_string(ARRAY_AGG(txstarts), "|^|"), array_to_string(ARRAY_AGG(txends), "|^|"), array_to_string(ARRAY_AGG(exonstarts), "|^|"), array_to_string(ARRAY_AGG(exonends), "|^|")) :-
+#genevariant_pairs( doc_id, gene_section_id, gene_sent_id, variant_section_id, variant_sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, variant_mention_id, variant_entity, variant_wordidxs, variant_type, variant_ivsnum, variant_pos , variant_posplus, variant_frompos, variant_topos, variant_seq, variant_fromseq, variant_toseq, variant_is_correct),
+#gene_to_transcripts(gene_name, ensembl_ids, ensembl_transcripts, chroms, strands, txstarts, txends, exonstarts, exonends).
 
 #genevariant_supervise_matching_coding_genes
 genevariant_coding_supervise_true( 
@@ -1003,20 +1042,13 @@ genevariant_coding_supervise_true(
           toseq text,
           gene_names text[]).
 
-genevariant_coding_supervise_true(
-          doc_id,
-          mention_id,
-          entity,
-          pos,
-          fromseq,
-          toseq,
-          ARRAY_AGG(gene_name)) *:-
+#genevariant_coding_supervise_true(doc_id,mention_id,entity,pos,fromseq,toseq,ARRAY_AGG(gene_name)) *:-
 #variant_mentions (id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, variant_type, ivsnum, pos, posplus, frompos, topos, seq, fromseq, toseq, words, is_correct), 
-variant_mentions (_, doc_id, _, _, _, mention_id, _, _, entity, variant_type,_, pos, posplus, _, _, _, fromseq, toseq, _, _), 
-gene_mentions(gene_id, doc_id, _, _, gene_wordidxs, gene_mention_id, gene_mapping_type, gene_supertype, gene_subtype, gene_name, gene_words, gene_is_correct),
-genes(ensembl_id, canonical_name, gene_name, name_type),
-ensgene( bin, name, chrom, strand, txstart, txend, cdsstart, cdsend, exoncount, exonstarts, exonends, score, ensembl_id, cdsstartstat, cdsendstat, exonframes),
-ensembl_gene_sequences (  name, n_seq).
+#variant_mentions (_, doc_id, _, _, _, mention_id, _, _, entity, variant_type,_, pos, posplus, _, _, _, fromseq, toseq, _, _), 
+#gene_mentions(gene_id, doc_id, _, _, gene_wordidxs, gene_mention_id, gene_mapping_type, gene_supertype, gene_subtype, gene_name, gene_words, gene_is_correct),
+#genes(ensembl_id, canonical_name, gene_name, name_type),
+#ensgene( bin, name, chrom, strand, txstart, txend, cdsstart, cdsend, exoncount, exonstarts, exonends, score, ensembl_id, cdsstartstat, cdsendstat, exonframes),
+#ensembl_gene_sequences (  name, n_seq).
 #[ARRAY_LENGTH(ARRAY_AGG(gene_name), 1) = 1].
 #, [pos IS NOT NULL; fromseq IS NOT NULL; variant_type LIKE "coding%", fromseq != "U", posplus IS NULL].
 
@@ -1093,8 +1125,8 @@ variant_mentions_filtered(
 
 #Need to add genevariant, but check the true definition or use of genevariant_relations first.
 
-variant_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, variant_type, ivsnum, pos, posplus, frompos, topos, seq, fromseq, toseq, words, is_correct) *:-
-variant_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, variant_type, ivsnum, pos, posplus, frompos, topos, seq, fromseq, toseq, words, is_correct).
+#variant_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, variant_type, ivsnum, pos, posplus, frompos, topos, seq, fromseq, toseq, words, is_correct) *:-
+#variant_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, variant_type, ivsnum, pos, posplus, frompos, topos, seq, fromseq, toseq, words, is_correct).
 #genevariant_relations ( _, _, _, _, _, _, _, mention_id, _, _, _, _, _, _, _, _, _, _).
 
 #Pheno_filter_candidates
@@ -1142,11 +1174,11 @@ sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_pat
 ##### Declare Variable Relations #####
 
 gene_mentions_filtered_inference?(mention_id text).
-pheno_mentions_filtered_inference?(mention_id text).
+#pheno_mentions_filtered_inference?(mention_id text).
 genepheno_association_inference?(relation_id text).
 genepheno_causation_inference?(relation_id text).
-non_gene_acronyms_inference?(mention_id text).
-genevariant_relations_inference?(relation_id text).
+#non_gene_acronyms_inference?(mention_id text).
+#genevariant_relations_inference?(relation_id text).
 
 
 #### Supervision Rule #####
@@ -1163,11 +1195,11 @@ genepheno_association_inference(relation_id) :- genepheno_association(id, relati
 @label(is_correct)
 genepheno_causation_inference(relation_id) :- genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype).
 
-@label(is_correct)
-non_gene_acronyms_inference(mention_id) :- non_gene_acronyms(id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs, mention_id, supertype, subtype, abbrev, definition, is_correct).
+#@label(is_correct)
+#non_gene_acronyms_inference(mention_id) :- non_gene_acronyms(id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs, mention_id, supertype, subtype, abbrev, definition, is_correct).
 
-@label(is_correct)
-genevariant_relations_inference(relation_id) :- genevariant_relations ( id, relation_id, doc_id, section1_id, sent1_id, section2_id, sent2_id, variant_mention_id, variant_entity, variant_wordidxs, variant_is_correct, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, is_correct, supertype, subtype).
+#@label(is_correct)
+#genevariant_relations_inference(relation_id) :- genevariant_relations ( id, relation_id, doc_id, section1_id, sent1_id, section2_id, sent2_id, variant_mention_id, variant_entity, variant_wordidxs, variant_is_correct, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, is_correct, supertype, subtype).
 
 
 ### INFERENCE RULES ###
@@ -1185,9 +1217,9 @@ gene_mentions_filtered_inference(mention_id) :-
 #  pheno_features(_, _, mention_id, feature).
 
 #non_gene_acronyms_inference
-@weight(feature)
-non_gene_acronyms_inference(mention_id) :- non_gene_acronyms(id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs, mention_id, supertype, subtype, abbrev, definition, is_correct), 
-non_gene_acronyms_features (_, _, mention_id, feature).
+#@weight(feature)
+#non_gene_acronyms_inference(mention_id) :- non_gene_acronyms(id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs, mention_id, supertype, subtype, abbrev, definition, is_correct), 
+#non_gene_acronyms_features (_, _, mention_id, feature).
 
 #genepheno_association_inference
 @weight(feature)
@@ -1200,6 +1232,10 @@ genepheno_association_inference(relation_id) :-
 genepheno_causation_inference(relation_id) :-
   genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype),
   genepheno_features(_, _, relation_id, feature).
+
+
+#New rule to link the different gene_mentions in a document
+
 
 
 #genepheno_association_to_gene
@@ -1237,9 +1273,9 @@ gene_mentions_filtered(_, doc_id, section_id, _, _, gene_mention_id, _, _, _, _,
 
 #TO FINISH:
 #genevariant_inference
-@weight(feature)
-genevariant_relations_inference(relation_id) :-
-genevariant_relations (_, relation_id, _, _, sent1_id, section2_id, sent2_id, variant_mention_id, variant_entity, variant_wordidxs, variant_is_correct, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, is_correct, supertype, subtype), 
-genevariant_features ( _, _, relation_id, feature).
+#@weight(feature)
+#genevariant_relations_inference(relation_id) :-
+#genevariant_relations (_, relation_id, _, _, sent1_id, section2_id, sent2_id, variant_mention_id, variant_entity, variant_wordidxs, variant_is_correct, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, is_correct, supertype, subtype), 
+#genevariant_features ( _, _, relation_id, feature).
 
 #+ sampler ?
