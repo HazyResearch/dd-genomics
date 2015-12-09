@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#! /usr/bin/python -m trace --trace --file /dev/stderr
 
 ######################################################################################
 #  LATTICE - Util functions for working with dependencies
@@ -35,11 +35,13 @@ def build_indexes(sentence):
         parents[i].append([t, p])
     return [parents, children]
 
-def match(sentence, path_arr, cands, parents, children, matches, dicts = {}):
+def match(sentence, path_arr, mention_parts, parents, children, dicts = {}):
+    matches = []
     for i in range(0, len(sentence['words'])):
-        match_i(sentence, i, path_arr, cands, parents, children, matches, [], dicts)
+        match_i(sentence, i, path_arr, mention_parts, parents, children, matches, [], dicts)
+    return matches
 
-def token_match(sentence, i, pw, cands, dicts):
+def token_match(sentence, i, pw, mention_parts, dicts):
     #w = sentence['words'][i].lower()
     w = sentence['lemmas'][i].lower()
     t = pw.split('|')
@@ -51,7 +53,7 @@ def token_match(sentence, i, pw, cands, dicts):
         m = p.match(pair[0])
         if m:
             cand_num = int(m.group(1))
-            cand_wordidxs = cands[cand_num]
+            cand_wordidxs = mention_parts[cand_num]
             if i in cand_wordidxs:
                 return True
         elif pair[0] == 'dic':
@@ -72,12 +74,13 @@ def token_match(sentence, i, pw, cands, dicts):
     return True 
       
 
-def match_i(sentence, i, path_arr, cands, parents, children, matches, matched_prefix = [], dicts = {}):
+def match_i(sentence, i, path_arr, mention_parts, parents, children, matches, matched_prefix = [], dicts = {}):
+    assert len(path_arr) > 0, str(path_arr)
     #w = sentence['lemmas'][i].lower()
-    if len(path_arr) == 0:
+    #if len(path_arr) == 0:
         # nothing to match anymore
-        matches.append(matched_prefix)
-        return
+        #matches.append(matched_prefix)
+        #return True
 
     pw = path_arr[0]
     # __ is a wildcard matching every word
@@ -85,13 +88,13 @@ def match_i(sentence, i, path_arr, cands, parents, children, matches, matched_pr
     matched = False
     if pw == '__':
         matched = True
-    elif pw.startswith('[') and pw.endswith(']') and token_match(sentence, i, pw[1:-1], cands, dicts):
+    elif pw.startswith('[') and pw.endswith(']') and token_match(sentence, i, pw[1:-1], mention_parts, dicts):
         matched = True
     elif sentence['lemmas'][i].lower() == pw:
         matched = True
 
     if not matched:
-        return
+        return False
 
     #if pw != '__' and w != pw:
     #    return
@@ -99,27 +102,33 @@ def match_i(sentence, i, path_arr, cands, parents, children, matches, matched_pr
     matched_prefix.append(i)
     if len(path_arr) == 1:
         matches.append(matched_prefix)
-        return
+        return True
 
     # match dep
     pd = path_arr[1]
+    found = False
     if pd[:2] == '<-':
         # left is child
         dep_type = pd[2:-1]
         for p in parents[i]:
             #print(w + '\t<-' + p[0] + '-\t' + str(p[1]) + '\t' + sentence.words[p[1]].lemma, file=sys.stderr) 
             if p[0] == dep_type or dep_type == '__':
-                match_i(sentence, p[1], path_arr[2:], cands, parents, children, matches, list(matched_prefix), dicts)
+                if match_i(sentence, p[1], path_arr[2:], mention_parts, parents, children, matches, list(matched_prefix), dicts):
+                    found = True
     elif pd[len(pd)-2:] == '->':
         # left is parent
         dep_type = pd[1:-2]
         for c in children[i]:
             #print(w + '\t-' + c[0] + '->\t' + str(c[1]) + '\t' + sentence.words[c[1]].lemma, file=sys.stderr) 
             if c[0] == dep_type or dep_type == '__':
-                match_i(sentence, c[1], path_arr[2:], cands, parents, children, matches, list(matched_prefix), dicts)
+                if match_i(sentence, c[1], path_arr[2:], mention_parts, parents, children, matches, list(matched_prefix), dicts):
+                    found = True
     elif pd == '_':
         if i+1 < len(sentence['lemmas']):
-            match_i(sentence, i+1, path_arr[2:], cands, parents, children, matches, list(matched_prefix), dicts)     
+            if match_i(sentence, i+1, path_arr[2:], mention_parts, parents, children, matches, list(matched_prefix), dicts):
+                found = True
+    
+    return found
     
 def enclosing_range(wordidxs):
     m = wordidxs
