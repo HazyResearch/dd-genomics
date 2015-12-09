@@ -30,40 +30,45 @@ def create_sentence_index(row):
         'children': children }
     return index
 
-def supervise(m, cands, sentence_index, doc, pos_phrases, neg_phrases, pos_dep_patterns, neg_dep_patterns, dicts):
+def supervise(m, mention_parts, sentence_index, pos_phrases, neg_phrases, pos_patterns, neg_patterns, dicts):
     labeling = None
     sentence = sentence_index['sentence']
     parents = sentence_index['parents']
     children = sentence_index['children']
+    
+    pos_patterns = [ p.split(' ') for p in pos_patterns ]
+    neg_patterns = [ p.split(' ') for p in neg_patterns ]
+
+    for p in neg_phrases:
+        start = index_of_sublist(p, sentence['words'])
+        if start is not None:
+            labeling = False
 
     for p in pos_phrases:
         start = index_of_sublist(p, sentence['words'])
         if start is not None:
-            match_indices = range(start, start + len(p))
-            if intersects(match_indices, m.wordidxs):
+            labeling = True
+
+    for p in neg_patterns:
+        if dependencies.match(sentence, p, mention_parts, parents, children, dicts):
+            labeling = False
+
+    if labeling is None:
+        for p in pos_patterns:
+            matches = dependencies.match(sentence, p, mention_parts, parents, children, dicts)
+            if matches:
+                print >>sys.stderr, 'pos matches: %s in %s' % (str(matches), str(sentence['words'])) 
                 labeling = True
-
-    for p in neg_dep_patterns:
-        matches = []
-        dependencies.match(sentence, p, cands, parents, children, matches, dicts)
-        for ma in matches:
-            if intersects(ma, m.wordidxs):
-                labeling = False
-
-    for p in pos_dep_patterns:
-        matches = []
-        dependencies.match(sentence, p, cands, parents, children, matches, dicts)
-        for ma in matches:
-            if intersects(ma, m.wordidxs):
-                if labeling is None:
-                    labeling = True
 
     return m._replace(is_correct=labeling)
 
-def featurize(m, cands, sentence_index, feature_patterns, bad_features, dicts):
+def featurize(m, mention_parts, sentence_index, 
+              feature_patterns, bad_features, dicts):
+    feature_patterns = [ p.split(' ') for p in feature_patterns ]
     sentence = sentence_index['sentence']
     parents = sentence_index['parents']
     children = sentence_index['children']
+    flat_mention_parts = [i for sublist in mention_parts for i in sublist]
 
     feature_set = set()
 
@@ -81,7 +86,7 @@ def featurize(m, cands, sentence_index, feature_patterns, bad_features, dicts):
     #    m.features.append(feature)
 
     feature_prefix = ''
-    for i in m.wordidxs:
+    for i in flat_mention_parts:
         for c in children[i]:
             path, child = c
             if path == 'neg':
@@ -135,10 +140,9 @@ def featurize(m, cands, sentence_index, feature_patterns, bad_features, dicts):
 
     # pattern = '__ <-prep_like- __ -nsubj-> __'.split(' ')
     for pattern in feature_patterns:
-        matches = []
-        dependencies.match(sentence, pattern, cands, parents, children, matches, dicts)
+        matches = dependencies.match(sentence, pattern, mention_parts, parents, children, dicts)
         for ma in matches:
-            if intersects(m.wordidxs, ma) and acyclic(ma):
+            if acyclic(ma):
                 # feature = '__' + pattern[1]
                 feature = sentence['lemmas'][ma[0]] + ' ' + get_actual_dep_from_match(pattern, 0, ma)
                 j = 1

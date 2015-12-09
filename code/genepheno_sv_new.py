@@ -77,47 +77,22 @@ def read_supervision():
 
 non_alnum = re.compile('[\W_]+')
 
-def supervise(supervision_rules, hard_filters):
-  # generate the mentions, while trying to keep the supervision approx. balanced
-  # print out right away so we don't bloat memory...
-  pos_count = 0
-  neg_count = 0
-  # load in static data
-  CHARITE_PAIRS = read_supervision()
-  for line in sys.stdin:
-    row = parser.parse_tsv_row(line)
-
-    relation = create_supervised_relation(row, superv_diff=pos_count - neg_count, SR=supervision_rules, HF=hard_filters, charite_pairs=CHARITE_PAIRS)
-
-    if relation:
-      if relation.is_correct == True:
-        pos_count += 1
-      elif relation.is_correct == False:
-        neg_count += 1
-      eutil.print_tsv_output(relation)
-  # sys.stderr.write('count_g_or_p_false_none: %s\n' % count_g_or_p_false_none)
-  # sys.stderr.write('count_adjacent_false_none: %s\n' % count_adjacent_false_none)
-
 genepheno_dicts = {
+    # dicts have to be ONE-WORD!!!
     'mutation' : ['mutation', 'allele', 'variant'],
     'serum' : ['serum', 'level', 'elevated', 'plasma'],
 }
 
 pos_patterns = {
-    '[cand] -nsubjpass-> cause',
+    # '[cand[1]] -nsubjpass-> cause -nmod-> mutation -nmod-> [cand[0]]',
+    '[cand[1]] -nsubjpass-> cause -nmod-> mutation',
 }
 
 neg_patterns = {
     'association',
 }
 
-strong_pos_patterns = {
-    '[cand[1]] -nsubjpass-> cause',
-}
-
-strong_neg_patterns = {
-    'association',
-}
+feature_patterns = ['[cand[1]] __ _ __ _ __ _ __ [cand[0]]']
 
 def read_candidate(row):
   gene_mention_id = row.gene_mention_id
@@ -137,8 +112,9 @@ if __name__ == '__main__':
   hard_filters = config.GENE_PHENO_ASSOCIATION['HF']
   for line in sys.stdin:
       row = parser.parse_tsv_row(line)
+      cand = [row.gene_wordidxs, row.pheno_wordidxs]
       relation = read_candidate(row)
       sentence_index = clf_util.create_sentence_index(row)
-      relation = clf_util.featurize(relation, sentence_index)
-      relation = clf_util.supervise(relation, sentence_index)      
+      relation = clf_util.featurize(relation, cand, sentence_index, feature_patterns, [], genepheno_dicts)
+      relation = clf_util.supervise(relation, cand, sentence_index, [], [], pos_patterns, neg_patterns, genepheno_dicts)      
       eutil.print_tsv_output(relation)
