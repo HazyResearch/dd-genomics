@@ -1,0 +1,1 @@
+/Users/thomaspalomares/Desktop/Stanford/RA/dd-genomics/code/load_ensembl_table.sh
