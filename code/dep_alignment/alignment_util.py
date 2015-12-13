@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+def create_canonical_sentence():
+
 class MatchCell:
   
   def __init__(self, size):
