@@ -7,7 +7,7 @@ sys.path.append('/Users/jbirgmei/Stanford/Bejerano/stanford-corenlp-python')
 import jsonrpc
 from simplejson import loads
 import numpy as np
-from sw_util import AlignmentMixin, MatchCell
+from alignment_util import AlignmentMixin, MatchCell
 
 class DepAlignment(AlignmentMixin):
 

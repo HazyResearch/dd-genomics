@@ -1,6 +1,31 @@
 #! /usr/bin/env python
 
-def create_canonical_sentence():
+def rc_to_mc(mixin, sent, cands, node, children, rv=[]):
+  mc = MatchCell(1)
+  rv.append(mc)
+  index = len(rv)
+  for i, cand in enumerate(cands):
+    if node == cand:
+      mc.cands = [i]
+      break
+  mc.lemmas = [mixin.get_lemma(sent, node)]
+  mc.words = [mixin.get_word(sent, node)]
+  mc.match_type = 'single_match'
+  mc.pos_tags = [mixin.get_pos_tag(sent, node)]
+  for c in children[node]:
+    if c == 0:
+      continue
+    c_index, _ = rc_to_mc(mixin, sent, cands, c, children, rv)
+    mc.children.append(c_index)
+  if not mc.children:
+    mc.children.append(0)
+  return index, rv
+
+def sent_to_mc(sent, cands):
+  m = AlignmentMixin()
+  root = m.find_root(sent['dependencies'])
+  children = m.find_children(sent)
+  return rc_to_mc(m, sent, cands, root, children)
 
 class MatchCell:
   
@@ -34,7 +59,7 @@ class AlignmentMixin:
 
   def find_children(self, sent):
     dep = sent['dependencies']
-    rv = [ set() for i in xrange(len(sent['words'])) ]
+    rv = [ set() for i in xrange(len(sent['words']) + 1)]
     for d in dep:
       d1split = d[1].split('-')
       from_index = int(d1split[len(d1split) - 1])
