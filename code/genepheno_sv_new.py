@@ -7,6 +7,7 @@ import re
 import sys
 import config
 from util import clf_util
+from dep_alignment.alignment_util import row_to_canonical_mc
 
 # This defines the Row object that we read in to the extractor
 parser = eutil.RowParser([
@@ -112,6 +113,8 @@ if __name__ == '__main__':
   hard_filters = config.GENE_PHENO_ASSOCIATION['HF']
   for line in sys.stdin:
       row = parser.parse_tsv_row(line)
+      row_to_canonical_mc(row, [row.gene_wordidxs, row.pheno_wordidxs])
+      continue
       cand = [row.gene_wordidxs, row.pheno_wordidxs]
       relation = read_candidate(row)
       sentence_index = clf_util.create_sentence_index(row)
