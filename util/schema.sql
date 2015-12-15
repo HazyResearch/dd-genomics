@@ -229,7 +229,26 @@ CREATE TABLE genepheno_holdout_labels (
   is_correct text,
   type text,
   labeler text
-);
+) DISTRIBUTED BY (doc_id);
+
+DROP TABLE IF EXISTS all_genepheno_holdout_sets;
+CREATE TABLE all_genepheno_holdout_sets (
+        doc_id text,
+        section_id text,
+        sent_id int,
+        gene_wordidxs int[],
+        pheno_wordidxs int[]
+) DISTRIBUTED BY (doc_id);
+
+DROP TABLE IF EXISTS all_genepheno_holdout_labels;
+CREATE TABLE all_genepheno_holdout_labels (
+  doc_id text,
+  section_id text,
+  sent_id int,
+  is_correct text,
+  type text,
+  labeler text
+) DISTRIBUTED BY (doc_id);
 
 DROP TABLE IF EXISTS gene_holdout_set;
 CREATE TABLE gene_holdout_set (
