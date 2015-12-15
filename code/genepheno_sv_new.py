@@ -7,7 +7,9 @@ import re
 import sys
 import config
 from util import clf_util
-from dep_alignment.alignment_util import row_to_canonical_mc
+from dep_alignment.alignment_util import row_to_canonical_match_tree, DepParentsCycleException, OverlappingCandidatesException, RootException
+from dep_alignment.multi_dep_alignment import MultiDepAlignment
+import os
 
 # This defines the Row object that we read in to the extractor
 parser = eutil.RowParser([
@@ -30,6 +32,14 @@ parser = eutil.RowParser([
             ('dep_parents', 'int[]'),
             ('ners', 'text')])
 
+ds_parser = eutil.RowParser([
+            ('words', 'text[]'),
+            ('lemmas', 'text[]'),
+            ('poses', 'text[]'),
+            ('dep_paths', 'text[]'),
+            ('dep_parents', 'int[]'),
+            ('gene_wordidxs', 'int[]'),
+            ('pheno_wordidxs', 'int[]')])
 # This defines the output Relation object
 Relation = collections.namedtuple('Relation', [
             'dd_id',
@@ -47,7 +57,7 @@ Relation = collections.namedtuple('Relation', [
             'relation_supertype',
             'relation_subtype',
             'features',
-            'misc'])
+            'score'])
 
 HPO_DAG = dutil.read_hpo_dag()
 
@@ -105,19 +115,39 @@ def read_candidate(row):
 
   relation_id = '%s_%s' % (gene_mention_id, pheno_mention_id)
   r = Relation(None, relation_id, row.doc_id, row.section_id, row.sent_id, gene_mention_id, gene_name, \
-               gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, None, None, None, [], {})
+               gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, None, None, None, [], None)
   return r
 
+
+
 if __name__ == '__main__':
-  supervision_rules = config.GENE_PHENO_ASSOCIATION['SR']
-  hard_filters = config.GENE_PHENO_ASSOCIATION['HF']
-  for line in sys.stdin:
+  # supervision_rules = config.GENE_PHENO_ASSOCIATION['SR']
+  # hard_filters = config.GENE_PHENO_ASSOCIATION['HF']
+  app_home = os.environ['APP_HOME']
+  match_trees = []
+  with open(app_home + '/true_causation_sentences.tsv') as f:
+    for line in f:
+      row = ds_parser.parse_tsv_row(line)
+      match_trees.append(row_to_canonical_match_tree(row, [row.gene_wordidxs, row.pheno_wordidxs]))
+  mt_root1, match_tree1 = match_trees[0]
+  with open(app_home + '/match_paths.txt', 'a') as f:
+    for line in sys.stdin:
       row = parser.parse_tsv_row(line)
-      row_to_canonical_mc(row, [row.gene_wordidxs, row.pheno_wordidxs])
-      continue
-      cand = [row.gene_wordidxs, row.pheno_wordidxs]
-      relation = read_candidate(row)
-      sentence_index = clf_util.create_sentence_index(row)
-      relation = clf_util.featurize(relation, cand, sentence_index, feature_patterns, [], genepheno_dicts)
-      relation = clf_util.supervise(relation, cand, sentence_index, [], [], pos_patterns, neg_patterns, genepheno_dicts)      
-      eutil.print_tsv_output(relation)
+      try:
+        mt_root2, match_tree2 = row_to_canonical_match_tree(row, [row.gene_wordidxs, row.pheno_wordidxs])
+      except (DepParentsCycleException, OverlappingCandidatesException, RootException):
+        continue
+      mda = MultiDepAlignment(mt_root1, match_tree1, mt_root2, match_tree2, 2, [])
+      print >> f, "doc_id: %s , section_id: %s , sent_id: %s , gene_wordidxs: %s , pheno_wordidxs: %s" \
+        % (str(row.doc_id), str(row.section_id), str(row.sent_id), str(row.gene_wordidxs), str(row.pheno_wordidxs))
+      mda.print_match_path(f)
+      score = mda.overall_score()
+      # print >>sys.stderr, score
+      r = read_candidate(row)
+      eutil.print_tsv_output(r._replace(score=int(score)))
+      # cand = [row.gene_wordidxs, row.pheno_wordidxs]
+      # relation = read_candidate(row)
+      # sentence_index = clf_util.create_sentence_index(row)
+      # relation = clf_util.featurize(relation, cand, sentence_index, feature_patterns, [], genepheno_dicts)
+      # relation = clf_util.supervise(relation, cand, sentence_index, [], [], pos_patterns, neg_patterns, genepheno_dicts)
+      # eutil.print_tsv_output(relation)
