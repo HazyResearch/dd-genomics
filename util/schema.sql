@@ -133,6 +133,27 @@ CREATE TABLE genepheno_causation (
         subtype text
 ) DISTRIBUTED BY (doc_id);
 
+-- Gene / Phenotype association mentions
+DROP TABLE IF EXISTS genepheno_sv_new CASCADE;
+CREATE TABLE genepheno_sv_new (
+	id bigint,
+	relation_id text,
+	doc_id text,
+        section_id text,
+	sent_id int,
+        gene_mention_id text,
+        gene_name text,
+        gene_wordidxs int[],
+	pheno_mention_id text,
+        pheno_entity text,
+        pheno_wordidxs int[],
+	is_correct boolean,
+        supertype text,
+        subtype text,
+        features text,
+        score int
+) DISTRIBUTED BY (doc_id);
+
 -- G/P relation mentions features
 DROP TABLE IF EXISTS genepheno_features CASCADE;
 CREATE TABLE genepheno_features (

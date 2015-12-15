@@ -2,7 +2,7 @@
 
 import sys
 
-def rc_to_mc(mixin, sent, cands, node, children, rv=[]):
+def rc_to_match_tree(mixin, sent, cands, node, children, rv=[]):
   mc = MatchCell(1)
   rv.append(mc)
   index = len(rv)
@@ -17,17 +17,17 @@ def rc_to_mc(mixin, sent, cands, node, children, rv=[]):
   for c in children[node]:
     if c == 0:
       continue
-    c_index, _ = rc_to_mc(mixin, sent, cands, c, children, rv)
+    c_index, _ = rc_to_match_tree(mixin, sent, cands, c, children, rv)
     mc.children.append(c_index)
   if not mc.children:
     mc.children.append(0)
   return index, rv
 
-def sent_to_mc(sent, cands):
+def sent_to_match_tree(sent, cands):
   m = AlignmentMixin()
   root = m.find_root(sent['dependencies'])
   children = m.find_children(sent)
-  return rc_to_mc(m, sent, cands, root, children)
+  return rc_to_match_tree(m, sent, cands, root, children)
 
 class OverlappingCandidatesException(Exception):
   pass
@@ -92,7 +92,7 @@ def canonicalize_row(words, lemmas, poses, dep_paths, dep_parents, cands):
       new_dep_paths.append([''])
   return new_words, new_lemmas, new_poses, new_dep_paths, new_dep_parents, new_cands
 
-def parts_to_mc(words, lemmas, poses, children, node, cands, rv=[]):
+def parts_to_match_tree(words, lemmas, poses, children, node, cands, rv=[]):
   mc = MatchCell(1)
   rv.append(mc)
   index = len(rv)
@@ -107,7 +107,7 @@ def parts_to_mc(words, lemmas, poses, children, node, cands, rv=[]):
   for c in children[node]:
     if c == 0:
       continue
-    c_index, _ = parts_to_mc(words, lemmas, poses, children, c, cands, rv)
+    c_index, _ = parts_to_match_tree(words, lemmas, poses, children, c, cands, rv)
     mc.children.append(c_index)
   if not mc.children:
     mc.children.append(0)
@@ -174,7 +174,7 @@ def acyclic(children):
       return False
   return True
 
-def row_to_canonical_mc(row, in_cands):
+def row_to_canonical_match_tree(row, in_cands):
   words, lemmas, poses, dep_paths, dep_parents = row.words, row.lemmas, row.poses, row.dep_paths, row.dep_parents
   words, lemmas, poses, dep_paths, dep_parents, cands = canonicalize_row(words, lemmas, poses, dep_paths, dep_parents, in_cands)
   # we are converting from 0 to 1-based now
@@ -183,7 +183,7 @@ def row_to_canonical_mc(row, in_cands):
   if not acyclic(children):
     raise DepParentsCycleException()
   root = parents_find_root(dep_parents) # takes 0-based, returns 1-based
-  return parts_to_mc(words, lemmas, poses, children, root, cands)
+  return parts_to_match_tree(words, lemmas, poses, children, root, cands)
 
 class MatchCell:
 

@@ -2,6 +2,7 @@
 
 import numpy as np
 from alignment_util import AlignmentMixin, MatchCell
+import sys
 
 class MultiDepAlignment(AlignmentMixin):
 
@@ -220,7 +221,7 @@ class MultiDepAlignment(AlignmentMixin):
     else:
       assert False
       
-  def print_match_path(self, mt_node1=None, mt_node2=None, indent=0):
+  def print_match_path(self, stream=sys.stdout, mt_node1=None, mt_node2=None, indent=0):
     if mt_node1 == None:
       mt_node1 = self.mt_root1
     if mt_node2 == None:
@@ -239,15 +240,18 @@ class MultiDepAlignment(AlignmentMixin):
       mt_words2 = '.' * mc2.size
       
     if instr.endswith('match'):
-      print " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, instr, str(mt_words1 + mt_words2), self.score_matrix[mt_node1, mt_node2])
+      print >>stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, instr, str(mt_words1 + mt_words2), self.score_matrix[mt_node1, mt_node2])
     elif instr.endswith('skip1'):
-      print " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, instr, str(mt_words1), self.score_matrix[mt_node1, mt_node2])
+      print >>stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, instr, str(mt_words1), self.score_matrix[mt_node1, mt_node2])
     elif instr.endswith('skip2'):
-      print " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, instr, str(mt_words2), self.score_matrix[mt_node1, mt_node2])
+      print >>stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, instr, str(mt_words2), self.score_matrix[mt_node1, mt_node2])
     elif instr == 'end':
       pass
     else:
       assert False, instr
     for o1, o2 in succ:
       assert (o1, o2) != (mt_node1, mt_node2), str(succ)
-      self.print_match_path(o1, o2, indent+4)
+      self.print_match_path(stream, o1, o2, indent+4)
+  
+  def overall_score(self):
+    return self.score_matrix[self.mt_root1, self.mt_root2]
