@@ -3,6 +3,7 @@
 import numpy as np
 from alignment_util import AlignmentMixin, MatchCell
 import sys
+import copy
 
 class MultiDepAlignment(AlignmentMixin):
 
@@ -105,6 +106,73 @@ class MultiDepAlignment(AlignmentMixin):
         sum_score += self.mismatch_score
     return sum_score, match_type + '_match'
   
+  def _balance_lists(self, lists1, lists2):
+    fake_guy_number = 0
+    while len(lists1) < len(lists2):
+      new_guy = 'fake_' + str(fake_guy_number)
+      fake_guy_number += 1
+      lists1[new_guy] = []
+      for girl in lists2:
+        lists1[new_guy].append((0, girl))
+        lists2[girl].append((-1000, new_guy))
+  
+  def _sort_lists(self, lists):
+    for guy in lists:
+      sorted_list = sorted(lists[guy])[::-1] # sort in reverse score order
+      lists[guy] = sorted_list
+  
+  def _stable_marriage(self, men_pref_lists, women_pref_lists):
+    self._balance_lists(men_pref_lists, women_pref_lists)
+    self._balance_lists(women_pref_lists, men_pref_lists)
+    assert len(women_pref_lists) == len(men_pref_lists)
+    self._sort_lists(men_pref_lists)
+    self._sort_lists(women_pref_lists)
+    proposal_order = copy.deepcopy(men_pref_lists)
+    unmatched_guys = set([guy for guy in men_pref_lists])
+    matching = {}
+    while unmatched_guys:
+      guy = iter(unmatched_guys).next()
+      girl = proposal_order[guy][0][1]
+      proposal_order[guy] = proposal_order[guy][1:]
+      if girl not in matching:
+        unmatched_guys -= set([guy])
+        matching[girl] = guy
+      else:
+        current_guy = matching[girl]
+        prefer_new_guy = None
+        for (_, m) in women_pref_lists[girl]:
+          if m == current_guy:
+            prefer_new_guy = False
+            break
+          if m == guy:
+            prefer_new_guy = True
+            break
+        assert prefer_new_guy is not None, (current_guy, guy, women_pref_lists[girl])
+        if prefer_new_guy:
+          unmatched_guys.add(current_guy)
+          unmatched_guys -= set([guy])
+          matching[girl] = guy
+        else:
+          pass
+  
+    rv = []
+    assert len(matching) == len(women_pref_lists)
+    matched_guys = set()
+    for girl in matching:
+      guy = matching[girl]
+      assert guy not in matched_guys, (guy, matched_guys)
+      matched_guys.add(guy)
+      if isinstance(guy, int) and isinstance(girl, int):
+        rv.append((guy, girl))
+      elif isinstance(guy, int) and not isinstance(girl, int):
+        rv.append((guy, None))
+      elif not isinstance(guy, int) and isinstance(girl, int):
+        rv.append((None, girl))
+      else:
+        assert False
+        
+    return rv
+  
   def _match(self, mt_node1, mt_node2):
     if mt_node1 == 0 and mt_node2 == 0:
       return 0, 'end', []
@@ -121,28 +189,33 @@ class MultiDepAlignment(AlignmentMixin):
     c2 = set(mc2.children)
     assert mt_node2 not in c2, (mt_node2, c2)
   
+    men_pref_lists = {}
+    women_pref_lists = {}
+    for i in c1:
+      men_pref_lists[i] = []
+    for j in c2:
+      women_pref_lists[j] = []
     for i in c1:
       for j in c2:
         self._h(i, j)
-        score_list.append((self.score_matrix[i, j], i, j))
-    score_list = sorted(score_list)[::-1]
-  
-    outgoing = []
+        men_pref_lists[i].append((self.score_matrix[i, j], j))
+        women_pref_lists[j].append((self.score_matrix[i, j], i))
+    outgoing = self._stable_marriage(men_pref_lists, women_pref_lists)
     sum_score = 0
-    while c1 or c2:
-      head_score = score_list[0]
-      score_list = score_list[1:]
-      x1 = head_score[1]
-      x2 = head_score[2]
-      if x1 in c1 or x2 in c2:
-        outgoing.append((x1, x2))
-        c1 -= set([x1])
-        c2 -= set([x2])
-        sum_score += head_score[0]
+    for (i,j) in outgoing:
+      # assert False, 'TODO test this! should we use the skip score for unassigned branches?'
+      if i is not None and j is not None:
+        sum_score += self.score_matrix[i, j]
+      elif i is not None or j is not None:
+        sum_score += self.skip_score
+      else:
+        assert False, (i, j)
     
     direct_match_score, match_type = self._match_score(mt_node1, mt_node2)
-    assert len(outgoing) >= len(mc1.children)
-    assert len(outgoing) >= len(mc2.children)
+    assert len([a[0] for a in outgoing if a[0] is not None]) == len(set([a[0] for a in outgoing if a[0] is not None]))
+    assert len([a[1] for a in outgoing if a[1] is not None]) == len(set([a[1] for a in outgoing if a[1] is not None]))
+    assert len(outgoing) >= min(len(mc1.children), len(mc2.children))
+    # assert len(outgoing) >= len(mc2.children)
     for o1, o2 in outgoing:
       assert mt_node1 != o1, (mt_node1, o1, match_type, mc1.children)
       assert mt_node2 != o2, (mt_node2, o2, match_type, mc2.children)
