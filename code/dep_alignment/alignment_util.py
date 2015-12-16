@@ -2,7 +2,10 @@
 
 import sys
 
-def rc_to_match_tree(mixin, sent, cands, node, children, rv=[]):
+def rc_to_match_tree(mixin, sent, cands, node, children, rv=None):
+  if rv is None:
+    rv = []
+  assert False, 'TODO this method unfolds DAGS into trees, don"t use it'
   mc = MatchCell(1)
   rv.append(mc)
   index = len(rv)
@@ -40,6 +43,7 @@ def canonicalize_row(words, lemmas, poses, dep_paths, dep_parents, cands):
       if len(set(cand_series1).intersection(set(cand_series2))) != 0:
         raise OverlappingCandidatesException
 
+  assert len(words) < 200, words
   new_indices = [i for i in xrange(len(words))]
   new_words = [None for _ in xrange(len(words))]
   new_lemmas = [None for _ in xrange(len(words))]
@@ -60,7 +64,6 @@ def canonicalize_row(words, lemmas, poses, dep_paths, dep_parents, cands):
     new_poses[first_cand_index] = 'NN'
     new_cands.append(first_cand_index)
   
-  all_cand_words = set([i for cand_series in cands for i in cand_series])
   for i in xrange(len(words)):
     if new_indices[i] in new_cands:
       continue
@@ -71,6 +74,7 @@ def canonicalize_row(words, lemmas, poses, dep_paths, dep_parents, cands):
   new_words = [w for w in new_words if w is not None]
   new_lemmas = [l for l in new_lemmas if l is not None]
   new_poses = [p for p in new_poses if p is not None]
+  assert len(new_words) <= len(words) + 1
     
   new_dep_parents_paths = [set() for _ in xrange(len(new_words))]
   for i, parent in enumerate(dep_parents):
@@ -92,7 +96,14 @@ def canonicalize_row(words, lemmas, poses, dep_paths, dep_parents, cands):
       new_dep_paths.append([''])
   return new_words, new_lemmas, new_poses, new_dep_paths, new_dep_parents, new_cands
 
-def parts_to_match_tree(words, lemmas, poses, children, node, cands, rv=[]):
+def parts_to_match_tree(words, lemmas, poses, children, node, cands, rv=None, folded=None):
+  if rv is None:
+    rv = []
+  if folded is None:
+    folded = {}
+  if node in folded:
+    assert node != 0
+    return folded[node], rv
   mc = MatchCell(1)
   rv.append(mc)
   index = len(rv)
@@ -104,11 +115,15 @@ def parts_to_match_tree(words, lemmas, poses, children, node, cands, rv=[]):
   mc.words = [words[node-1]]
   mc.match_type = 'single_match'
   mc.pos_tags = [poses[node-1]]
+  assert node not in folded, (node, folded)
+  folded[node] = index
   for c in children[node]:
+    assert c != node
     if c == 0:
       continue
-    c_index, _ = parts_to_match_tree(words, lemmas, poses, children, c, cands, rv)
-    mc.children.append(c_index)
+    c_index, _ = parts_to_match_tree(words, lemmas, poses, children, c, cands, rv, folded)
+    if c_index not in mc.children:
+      mc.children.append(c_index)
   if not mc.children:
     mc.children.append(0)
   return index, rv

@@ -9,10 +9,12 @@ class MultiDepAlignment(AlignmentMixin):
   word_match_score = 5
   dict_match_score = 5
   lemma_match_score = 5
-  pos_tag_match_score = 1
+  pos_tag_match_score = 0
   skip_score = -3
   mismatch_score = -5
   cand_match_score = 15
+  
+  short_words = set([',', '.', '-lrb-', '-rrb-', 'is', 'the', 'of', 'for', 'with', 'on', 'to', 'from', 'in'])
   
   def __init__(self, mt_root1, match_tree1, mt_root2, match_tree2, num_cands, dicts):
     self.match_tree1 = match_tree1
@@ -74,6 +76,10 @@ class MultiDepAlignment(AlignmentMixin):
             broken = True 
             break
         if broken:
+          continue
+        if mc1.pos_tags[i] == mc1.pos_tags[j] \
+            and mc1.lemmas[i] in self.short_words and mc2.lemmas[i] in self.short_words:
+          match_type += '[short_word%d,%d]' % (i, j)
           continue
         if mc1.pos_tags[i] == mc1.pos_tags[j] and mc1.words[i] == mc2.words[j]:
           match_type += '[word%d,%d];' % (i, j) 

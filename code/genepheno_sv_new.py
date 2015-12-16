@@ -7,9 +7,10 @@ import re
 import sys
 import config
 from util import clf_util
-from dep_alignment.alignment_util import row_to_canonical_match_tree, DepParentsCycleException, OverlappingCandidatesException, RootException
+from dep_alignment.alignment_util import row_to_canonical_match_tree, DepParentsCycleException, OverlappingCandidatesException, RootException, canonicalize_row
 from dep_alignment.multi_dep_alignment import MultiDepAlignment
 import os
+import random
 
 # This defines the Row object that we read in to the extractor
 parser = eutil.RowParser([
@@ -118,8 +119,6 @@ def read_candidate(row):
                gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, None, None, None, [], None)
   return r
 
-
-
 if __name__ == '__main__':
   # supervision_rules = config.GENE_PHENO_ASSOCIATION['SR']
   # hard_filters = config.GENE_PHENO_ASSOCIATION['HF']
@@ -130,16 +129,23 @@ if __name__ == '__main__':
       row = ds_parser.parse_tsv_row(line)
       match_trees.append(row_to_canonical_match_tree(row, [row.gene_wordidxs, row.pheno_wordidxs]))
   mt_root1, match_tree1 = match_trees[0]
-  with open(app_home + '/match_paths.txt', 'a') as f:
+  with open(app_home + '/match_paths%d.txt' % random.randint(0, 100000), 'a') as f:
     for line in sys.stdin:
+      # print >>sys.stderr, line
       row = parser.parse_tsv_row(line)
       try:
+        # def canonicalize_row(words, lemmas, poses, dep_paths, dep_parents, cands):
         mt_root2, match_tree2 = row_to_canonical_match_tree(row, [row.gene_wordidxs, row.pheno_wordidxs])
+        assert len(match_tree2) <= len(row.words) + 1, (len(row.words), len(match_tree2), row.words, match_tree2) 
       except (DepParentsCycleException, OverlappingCandidatesException, RootException):
         continue
       mda = MultiDepAlignment(mt_root1, match_tree1, mt_root2, match_tree2, 2, [])
-      print >> f, "doc_id: %s , section_id: %s , sent_id: %s , gene_wordidxs: %s , pheno_wordidxs: %s" \
-        % (str(row.doc_id), str(row.section_id), str(row.sent_id), str(row.gene_wordidxs), str(row.pheno_wordidxs))
+     # print >> f, "doc_id: %s , section_id: %s , sent_id: %s , \
+     #   gene_wordidxs: %s , pheno_wordidxs: %s , canonical sentence: %s\n, match_tree1: %s\n, match_tree2: %s" \
+     #   % (str(row.doc_id), str(row.section_id), str(row.sent_id), \
+     #      str(row.gene_wordidxs), str(row.pheno_wordidxs), str(' '.join(row.words)), \
+     #      '\n'.join([str((m.words, m.children)) for m in match_tree1]), \
+     #      '\n'.join([str((m.words, m.children)) for m in match_tree2]))
       mda.print_match_path(f)
       score = mda.overall_score()
       # print >>sys.stderr, score
