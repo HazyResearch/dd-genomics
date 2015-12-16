@@ -173,7 +173,9 @@ class DepAlignment(AlignmentMixin):
     else:
       assert False
 
-  def get_match_tree(self, match_tree=[], node1=None, node2=None):
+  def get_match_tree(self, match_tree=None, node1=None, node2=None):
+    if match_tree is None:
+      match_tree = []
     if node1 == None:
       node1 = self.root1
     if node2 == None:
