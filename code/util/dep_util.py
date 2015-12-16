@@ -32,7 +32,9 @@ class DepPathDAG:
       l += 1
     return l
 
-  def min_path(self, i, j, path=[]):
+  def min_path(self, i, j, path=None):
+    if path is None:
+      path = []
     if self.max_path_len and len(path) > self.max_path_len:
       return None
     min_path_len = MAX_PATH_LEN
