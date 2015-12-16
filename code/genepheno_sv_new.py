@@ -58,7 +58,7 @@ Relation = collections.namedtuple('Relation', [
             'relation_supertype',
             'relation_subtype',
             'features',
-            'score'])
+            'scores'])
 
 HPO_DAG = dutil.read_hpo_dag()
 
@@ -128,32 +128,30 @@ if __name__ == '__main__':
     for line in f:
       row = ds_parser.parse_tsv_row(line)
       match_trees.append(row_to_canonical_match_tree(row, [row.gene_wordidxs, row.pheno_wordidxs]))
-  mt_root1, match_tree1 = match_trees[0]
-  with open(app_home + '/match_paths%d.txt' % random.randint(0, 100000), 'a') as f:
-    for line in sys.stdin:
-      # print >>sys.stderr, line
-      row = parser.parse_tsv_row(line)
-      try:
-        # def canonicalize_row(words, lemmas, poses, dep_paths, dep_parents, cands):
-        mt_root2, match_tree2 = row_to_canonical_match_tree(row, [row.gene_wordidxs, row.pheno_wordidxs])
-        assert len(match_tree2) <= len(row.words) + 1, (len(row.words), len(match_tree2), row.words, match_tree2) 
-      except (DepParentsCycleException, OverlappingCandidatesException, RootException):
-        continue
+  # mt_root1, match_tree1 = match_trees[0]
+  #with open(app_home + '/match_paths%d.txt' % random.randint(0, 100000), 'a') as f:
+  for line in sys.stdin:
+    # print >>sys.stderr, line
+    row = parser.parse_tsv_row(line)
+    if row.gene_is_correct == False or row.pheno_is_correct == False:
+      continue
+    try:
+      # def canonicalize_row(words, lemmas, poses, dep_paths, dep_parents, cands):
+      mt_root2, match_tree2 = row_to_canonical_match_tree(row, [row.gene_wordidxs, row.pheno_wordidxs])
+      assert len(match_tree2) <= len(row.words) + 1, (len(row.words), len(match_tree2), row.words, match_tree2) 
+    except (DepParentsCycleException, OverlappingCandidatesException, RootException):
+      continue
+    scores = []
+    for (mt_root1, match_tree1) in match_trees:
       mda = MultiDepAlignment(mt_root1, match_tree1, mt_root2, match_tree2, 2, [])
-     # print >> f, "doc_id: %s , section_id: %s , sent_id: %s , \
-     #   gene_wordidxs: %s , pheno_wordidxs: %s , canonical sentence: %s\n, match_tree1: %s\n, match_tree2: %s" \
-     #   % (str(row.doc_id), str(row.section_id), str(row.sent_id), \
-     #      str(row.gene_wordidxs), str(row.pheno_wordidxs), str(' '.join(row.words)), \
-     #      '\n'.join([str((m.words, m.children)) for m in match_tree1]), \
-     #      '\n'.join([str((m.words, m.children)) for m in match_tree2]))
-      mda.print_match_path(f)
+      # mda.print_match_path(f)
       score = mda.overall_score()
-      # print >>sys.stderr, score
       r = read_candidate(row)
-      eutil.print_tsv_output(r._replace(score=int(score)))
-      # cand = [row.gene_wordidxs, row.pheno_wordidxs]
-      # relation = read_candidate(row)
-      # sentence_index = clf_util.create_sentence_index(row)
-      # relation = clf_util.featurize(relation, cand, sentence_index, feature_patterns, [], genepheno_dicts)
-      # relation = clf_util.supervise(relation, cand, sentence_index, [], [], pos_patterns, neg_patterns, genepheno_dicts)
-      # eutil.print_tsv_output(relation)
+      scores.append(int(score))
+    eutil.print_tsv_output(r._replace(scores=scores))
+    # cand = [row.gene_wordidxs, row.pheno_wordidxs]
+    # relation = read_candidate(row)
+    # sentence_index = clf_util.create_sentence_index(row)
+    # relation = clf_util.featurize(relation, cand, sentence_index, feature_patterns, [], genepheno_dicts)
+    # relation = clf_util.supervise(relation, cand, sentence_index, [], [], pos_patterns, neg_patterns, genepheno_dicts)
+    # eutil.print_tsv_output(relation)
