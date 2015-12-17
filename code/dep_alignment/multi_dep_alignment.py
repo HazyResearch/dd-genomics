@@ -332,5 +332,48 @@ class MultiDepAlignment(AlignmentMixin):
       assert (o1, o2) != (mt_node1, mt_node2), str(succ)
       self.print_match_path(stream, o1, o2, indent+4)
   
+  def get_match_tree(self, match_tree=None, folded=None, node1=None, node2=None):    
+    if node1 == None:
+      node1 = self.mt_root1
+    if node2 == None:
+      node2 = self.mt_root2
+    
+    if folded is not None and (node1, node2) in folded:
+      return folded[(node1, node2)], match_tree[folded[(node1, node2)] - 1]
+  
+    mc1 = self.match_tree1[node1 - 1]
+    mc2 = self.match_tree2[node2 - 1]
+    size1 = mc1.size
+    size2 = mc2.size
+    
+    if match_tree is None:
+      match_tree = []
+    if folded is None:
+      assert len(match_tree) == 0
+      folded = {}
+      folded[(0, 0)] = 0
+
+    mc = MatchCell(size1 + size2)
+    mc.cands[0:size1] = mc1.cands
+    mc.cands[size1:size1+size2] = mc2.cands
+    mc.pos_tags[0:size1] = mc1.pos_tags
+    mc.pos_tags[size1:size1+size2] = mc2.pos_tags
+    mc.words[0:size1] = mc1.words
+    mc.words[size1:size1+size2] = mc2.words
+    mc.lemmas[0:size1] = mc1.lemmas
+    mc.lemmas[size1:size1+size2] = mc2.lemmas
+    
+    instr, succ = self.path_matrix[node1][node2]
+    mc.match_type = instr
+    match_tree.append(mc)
+    index = len(match_tree)
+    folded[(node1, node2)] = index
+
+    for o1, o2 in succ:
+      child_root, _ = self.get_match_tree(match_tree, folded, o1, o2)
+      mc.children.append(child_root)
+    assert mc.children
+    return index, match_tree
+  
   def overall_score(self):
     return self.score_matrix[self.mt_root1, self.mt_root2]
