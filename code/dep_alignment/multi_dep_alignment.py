@@ -10,12 +10,12 @@ class MultiDepAlignment(AlignmentMixin):
   word_match_score = 5
   dict_match_score = 5
   lemma_match_score = 5
-  pos_tag_match_score = 0
+  pos_tag_match_score = -4
   skip_score = -3
   mismatch_score = -5
   cand_match_score = 15
   
-  short_words = set([',', '.', '-lrb-', '-rrb-', 'is', 'the', 'of', 'for', 'with', 'on', 'to', 'from', 'in'])
+  short_words = set([',', '.', '-lrb-', '-rrb-', 'is', 'the', 'of', 'for', 'with', 'on', 'to', 'from', 'in', 'a', 'an', 'at', 'and', 'by', 'be', 'we'])
   
   def __init__(self, mt_root1, match_tree1, mt_root2, match_tree2, num_cands, dicts):
     self.match_tree1 = match_tree1
@@ -332,7 +332,7 @@ class MultiDepAlignment(AlignmentMixin):
       assert (o1, o2) != (mt_node1, mt_node2), str(succ)
       self.print_match_path(stream, o1, o2, indent+4)
   
-  def get_match_tree(self, match_tree=None, folded=None, node1=None, node2=None):    
+  def get_match_tree(self, match_tree=None, folded=None, node1=None, node2=None):
     if node1 == None:
       node1 = self.mt_root1
     if node2 == None:
@@ -341,8 +341,8 @@ class MultiDepAlignment(AlignmentMixin):
     if folded is not None and (node1, node2) in folded:
       return folded[(node1, node2)], match_tree[folded[(node1, node2)] - 1]
   
-    mc1 = self.match_tree1[node1 - 1]
-    mc2 = self.match_tree2[node2 - 1]
+    mc1 = self.get_match_cell1(node1)
+    mc2 = self.get_match_cell2(node2)
     size1 = mc1.size
     size2 = mc2.size
     
@@ -375,5 +375,55 @@ class MultiDepAlignment(AlignmentMixin):
     assert mc.children
     return index, match_tree
   
+  def print_matched_lemmas(self, stream=sys.stdout, node1=None, node2=None, folded=None):
+    if node1 is None:
+      node1 = self.mt_root1
+    if node2 is None:
+      node2 = self.mt_root2
+    if folded is None:
+      folded = set()
+    
+    if (node1, node2) in folded or node1 == 0 or node2 == 0:
+      return
+    folded.add((node1, node2))
+    
+    mc1 = self.get_match_cell1(node1)
+    mc2 = self.get_match_cell2(node2)
+    instr, succ = self.path_matrix[node1][node2]
+    if instr.endswith('_match'):
+      print >>stream, "%s\t%s" % ('\t'.join(mc1.lemmas), '\t'.join(mc2.lemmas))
+    
+    for (o1, o2) in succ:
+      self.print_matched_lemmas(stream, o1, o2, folded)
+  
   def overall_score(self):
     return self.score_matrix[self.mt_root1, self.mt_root2]
+  
+  def rescore(self, unscore_list, folded=None, node1=None, node2=None):
+    if node1 is None:
+      node1 = self.mt_root1
+    if node2 is None:
+      node2 = self.mt_root2
+    if folded is None:
+      folded = set()
+    
+    if (node1, node2) in folded or node1 == 0 or node2 == 0:
+      return 0
+    folded.add((node1, node2))
+    
+    mc1 = self.get_match_cell1(node1)
+    mc2 = self.get_match_cell2(node2)
+    words1 = mc1.words
+    words2 = mc2.words
+    instr, succ = self.path_matrix[node1][node2]
+    rv = 0
+    if instr.endswith('_match'):
+      for s1, s2, penalty in unscore_list:
+        if s1 in words1 and s2 in words2:
+          rv += penalty
+    
+    for (o1, o2) in succ:
+      rv += self.rescore(unscore_list, folded, o1, o2)
+    
+    return rv
+      

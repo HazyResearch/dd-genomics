@@ -151,7 +151,8 @@ CREATE TABLE genepheno_sv_new (
         supertype text,
         subtype text,
         features text,
-        scores int[]
+        matching_scores int[],
+        rescores int[]
 ) DISTRIBUTED BY (doc_id);
 
 -- G/P relation mentions features
