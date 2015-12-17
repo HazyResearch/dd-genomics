@@ -11,6 +11,7 @@ from dep_alignment.alignment_util import row_to_canonical_match_tree, DepParents
 from dep_alignment.multi_dep_alignment import MultiDepAlignment
 import os
 import random
+import time
 
 # This defines the Row object that we read in to the extractor
 parser = eutil.RowParser([
@@ -130,7 +131,10 @@ if __name__ == '__main__':
       match_trees.append(row_to_canonical_match_tree(row, [row.gene_wordidxs, row.pheno_wordidxs]))
   # mt_root1, match_tree1 = match_trees[0]
   #with open(app_home + '/match_paths%d.txt' % random.randint(0, 100000), 'a') as f:
+  lc = 0
+  start_time = time.time()
   for line in sys.stdin:
+    lc += 1
     # print >>sys.stderr, line
     row = parser.parse_tsv_row(line)
     if row.gene_is_correct == False or row.pheno_is_correct == False:
@@ -149,6 +153,8 @@ if __name__ == '__main__':
       r = read_candidate(row)
       scores.append(int(score))
     eutil.print_tsv_output(r._replace(scores=scores))
+  end_time = time.time()
+  print "Number of lines: %d, Time per line per tree: %f" % (lc, (end_time - start_time) / (float(lc) * len(match_trees)))
     # cand = [row.gene_wordidxs, row.pheno_wordidxs]
     # relation = read_candidate(row)
     # sentence_index = clf_util.create_sentence_index(row)
