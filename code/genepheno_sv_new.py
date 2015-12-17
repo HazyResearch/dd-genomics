@@ -59,7 +59,8 @@ Relation = collections.namedtuple('Relation', [
             'relation_supertype',
             'relation_subtype',
             'features',
-            'scores'])
+            'matching_scores',
+            'rescores'])
 
 HPO_DAG = dutil.read_hpo_dag()
 
@@ -117,7 +118,7 @@ def read_candidate(row):
 
   relation_id = '%s_%s' % (gene_mention_id, pheno_mention_id)
   r = Relation(None, relation_id, row.doc_id, row.section_id, row.sent_id, gene_mention_id, gene_name, \
-               gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, None, None, None, [], None)
+               gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, None, None, None, [], None, None)
   return r
 
 if __name__ == '__main__':
@@ -145,16 +146,26 @@ if __name__ == '__main__':
       assert len(match_tree2) <= len(row.words) + 1, (len(row.words), len(match_tree2), row.words, match_tree2) 
     except (DepParentsCycleException, OverlappingCandidatesException, RootException):
       continue
-    scores = []
+    matching_scores = []
+    rescores = []
     for (mt_root1, match_tree1) in match_trees:
-      mda = MultiDepAlignment(mt_root1, match_tree1, mt_root2, match_tree2, 2, [])
+      mda = MultiDepAlignment(mt_root1, match_tree1, mt_root2, match_tree2, 2, \
+                              [set(['disease', 'disorder']), \
+                               set(['mutation', 'variant', 'allele', 'polymorphism']), \
+                               set(['case', 'patient']), \
+                               set(['identify', 'report', 'find', 'detect']), \
+                               set(['cause', 'associate', 'link'])])
+      # mda.print_matched_lemmas(f)
       # mda.print_match_path(f)
-      score = mda.overall_score()
+      score1 = mda.overall_score()
+      score2 = mda.rescore([(set(['cause']), set(['associate', 'link']), -10)])
       r = read_candidate(row)
-      scores.append(int(score))
-    eutil.print_tsv_output(r._replace(scores=scores))
+      matching_scores.append(int(score1))
+      rescores.append(int(score2))
+    eutil.print_tsv_output(r._replace(matching_scores=matching_scores, rescores=rescores))
   end_time = time.time()
-  print "Number of lines: %d, Time per line per tree: %f" % (lc, (end_time - start_time) / (float(lc) * len(match_trees)))
+  if lc != 0:
+    print >>sys.stderr, "Number of lines: %d, Time per line: %f seconds" % (lc, (end_time - start_time) / (float(lc)))
     # cand = [row.gene_wordidxs, row.pheno_wordidxs]
     # relation = read_candidate(row)
     # sentence_index = clf_util.create_sentence_index(row)
