@@ -59,21 +59,21 @@ class MultiDepAlignment(AlignmentMixin):
     for i in xrange(len(mc1.words)):
       for j in xrange(len(mc2.words)):
         if mc1.words[i] is None and mc2.words[j] is None:
-          match_type += '[gaps%d,%d];' % (i, j)
+          match_type += '[gaps%d,%d]' % (i, j)
           continue
         if mc1.words[i] is None and mc2.words[j] is not None:
           sum_score += self.skip_score
-          match_type += '[gap1%d,%d];' % (i, j)
+          match_type += '[gap1%d,%d]' % (i, j)
           continue
         if mc1.words[i] is not None and mc2.words[j] is None:
           sum_score += self.skip_score
-          match_type += '[gap2%d,%d];' % (i, j)
+          match_type += '[gap2%d,%d]' % (i, j)
           continue
         broken = False
         for k in xrange(self.num_cands):
           if mc1.cands[i] == k and mc2.cands[j] == k:
             sum_score += self.cand_match_score
-            match_type += '[cand%d,%d_%d];' % (i, j, k)
+            match_type += '[cand%d,%d_%d]' % (i, j, k)
             broken = True 
             break
         if broken:
@@ -83,26 +83,26 @@ class MultiDepAlignment(AlignmentMixin):
           match_type += '[short_word%d,%d]' % (i, j)
           continue
         if mc1.pos_tags[i] == mc2.pos_tags[j] and mc1.words[i] == mc2.words[j]:
-          match_type += '[word%d,%d];' % (i, j) 
+          match_type += '[word%d,%d]' % (i, j) 
           sum_score += self.word_match_score
           continue
         if mc1.pos_tags[i] == mc2.pos_tags[j] and mc1.lemmas[i] == mc2.lemmas[j]:
-          match_type += '[lemma%d,%d];' % (i, j) 
+          match_type += '[lemma%d,%d]' % (i, j) 
           sum_score += self.lemma_match_score
           continue
         if self.in_dicts(mc1.words[i], mc2.words[j], self.dicts):
-          match_type += '[word_dict%d,%d];' % (i, j) 
+          match_type += '[word_dict%d,%d]' % (i, j) 
           sum_score += self.dict_match_score
           continue
         if self.in_dicts(mc1.lemmas[i], mc2.lemmas[j], self.dicts):
-          match_type += '[lemma_dict%d,%d];' % (i, j) 
+          match_type += '[lemma_dict%d,%d]' % (i, j) 
           sum_score += self.dict_match_score
           continue
         if mc1.pos_tags[i] == mc2.pos_tags[j]:
-          match_type += '[pos_tags%d,%d];' % (i, j) 
+          match_type += '[pos_tags%d,%d]' % (i, j) 
           sum_score += self.pos_tag_match_score
           continue
-        match_type += '[mis%d,%d];' % (i, j) 
+        match_type += '[mis%d,%d]' % (i, j) 
         sum_score += self.mismatch_score
     return sum_score, match_type + '_match'
   
