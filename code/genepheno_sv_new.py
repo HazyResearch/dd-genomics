@@ -151,12 +151,10 @@ if __name__ == '__main__':
   # with open(app_home + '/match_paths%d.txt' % random.randint(0, 100000), 'a') as f:
   for line in sys.stdin:
     lc += 1
-    # print >>sys.stderr, line
     row = parser.parse_tsv_row(line)
     if row.gene_is_correct == False or row.pheno_is_correct == False:
       continue
     try:
-      # def canonicalize_row(words, lemmas, poses, dep_paths, dep_parents, cands):
       mt_root2, match_tree2 = row_to_canonical_match_tree(row, [row.gene_wordidxs, row.pheno_wordidxs])
       assert len(match_tree2) <= len(row.words) + 1, (len(row.words), len(match_tree2), row.words, match_tree2) 
     except (DepParentsCycleException, OverlappingCandidatesException, RootException):
@@ -178,14 +176,7 @@ if __name__ == '__main__':
     matching_scores.append(int(score1))
     rescores.append(int(score1 + score2))
     # end for
-    # print >>f, rescores
     eutil.print_tsv_output(r._replace(matching_scores=matching_scores, rescores=rescores))
   end_time = time.time()
   if lc != 0:
     print >>sys.stderr, "Number of lines: %d, Time per line: %f seconds" % (lc, (end_time - start_time) / (float(lc)))
-    # cand = [row.gene_wordidxs, row.pheno_wordidxs]
-    # relation = read_candidate(row)
-    # sentence_index = clf_util.create_sentence_index(row)
-    # relation = clf_util.featurize(relation, cand, sentence_index, feature_patterns, [], genepheno_dicts)
-    # relation = clf_util.supervise(relation, cand, sentence_index, [], [], pos_patterns, neg_patterns, genepheno_dicts)
-    # eutil.print_tsv_output(relation)

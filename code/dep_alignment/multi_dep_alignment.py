@@ -225,7 +225,6 @@ class MultiDepAlignment(AlignmentMixin):
     # assert len([a[0] for a in outgoing if a[0] is not None]) == len(set([a[0] for a in outgoing if a[0] is not None]))
     # assert len([a[1] for a in outgoing if a[1] is not None]) == len(set([a[1] for a in outgoing if a[1] is not None]))
     assert len(outgoing) >= min(len(mc1.children), len(mc2.children))
-    # assert len(outgoing) >= len(mc2.children)
     for o1, o2 in outgoing:
       assert o1 is not None
       assert o2 is not None
@@ -266,9 +265,7 @@ class MultiDepAlignment(AlignmentMixin):
     mc2 = self.get_match_cell2(mt_node2)
   
     for j in mc2.children:
-      # print >>sys.stderr, "%d -> %s" % (mt_node2, str(mc2.children))
       assert j != mt_node2
-      # print >>sys.stderr, j
       self._h(mt_node1, j, forbidden1, forbidden2)
       score_list.append((self.score_matrix[mt_node1, j], j))
     score_list = sorted(score_list)[::-1]
@@ -291,7 +288,6 @@ class MultiDepAlignment(AlignmentMixin):
     forbidden1.add(mt_node1)
     forbidden2 = forbidden2.copy()
     forbidden2.add(mt_node2)
-    # print >>sys.stderr, (mt_node1, mt_node2)
     if self.score_matrix[mt_node1, mt_node2] != np.inf:
       return self.score_matrix[mt_node1, mt_node2]
   
@@ -355,7 +351,6 @@ class MultiDepAlignment(AlignmentMixin):
       self.print_match_path(stream, o1, o2, indent+4)
   
   def get_match_tree(self, match_tree=None, folded=None, node1=None, node2=None, forbidden=None):
-    # print >>sys.stderr, "get_match_tree: %s, %s" % (str(node1), str(node2))
     if node1 == None:
       node1 = self.mt_root1
     if node2 == None:
@@ -400,21 +395,12 @@ class MultiDepAlignment(AlignmentMixin):
       forbidden = []
     forbidden = [i for i in forbidden]
     forbidden.append((node1, node2))
-    
-    # print >>sys.stderr, "instr: %s" % instr
 
     for o1, o2 in succ:
       assert not instr.endswith('_match') or o1 in mc1.children, (o1, mc1.children)
       assert not instr.endswith('_match') or o2 in mc2.children, (o2, mc2.children)
       assert not instr.endswith('_skip2') or o1 == node1
       assert not instr.endswith('_skip1') or o2 == node2
-      # if (o1, o2) in forbidden:
-        # for i in xrange(0, len(self.path_matrix)):
-        #   print >>sys.stderr, '  '.join([str(succ) for (instr, succ) in self.path_matrix[i]])
-        # for i, mc in enumerate(self.match_tree1):
-        #   print >>sys.stderr, str(i+1) + ": " + str(mc)
-        # for i, mc in enumerate(self.match_tree2):
-        #   print >>sys.stderr, str(i+1) + ": " + str(mc)
       assert (o1, o2) not in forbidden, (o1, o2, forbidden)
       child_root, _ = self.get_match_tree(match_tree, folded, o1, o2, forbidden)
       assert child_root >= 0
