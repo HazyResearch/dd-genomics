@@ -135,8 +135,8 @@ if __name__ == '__main__':
         continue
   mt_root1, match_tree1 = match_trees[0]
   for mt_root0, match_tree0 in match_trees[1:]:
-    for i, mc in enumerate(match_tree1):
-      print >>sys.stderr, str(i+1) + ": " + str(mc)
+    # for i, mc in enumerate(match_tree1):
+    #   print >>sys.stderr, str(i+1) + ": " + str(mc)
     mda = MultiDepAlignment(mt_root0, match_tree0, mt_root1, match_tree1, 2, \
                                 [set(['disease', 'disorder']), \
                                  set(['mutation', 'variant', 'allele', 'polymorphism']), \
@@ -148,37 +148,38 @@ if __name__ == '__main__':
   # mt_root1, match_tree1 = match_trees[0]
   lc = 0
   start_time = time.time()
-  with open(app_home + '/match_paths%d.txt' % random.randint(0, 100000), 'a') as f:
-    for line in sys.stdin:
-      lc += 1
-      # print >>sys.stderr, line
-      row = parser.parse_tsv_row(line)
-      if row.gene_is_correct == False or row.pheno_is_correct == False:
-        continue
-      try:
-        # def canonicalize_row(words, lemmas, poses, dep_paths, dep_parents, cands):
-        mt_root2, match_tree2 = row_to_canonical_match_tree(row, [row.gene_wordidxs, row.pheno_wordidxs])
-        assert len(match_tree2) <= len(row.words) + 1, (len(row.words), len(match_tree2), row.words, match_tree2) 
-      except (DepParentsCycleException, OverlappingCandidatesException, RootException):
-        continue
-      matching_scores = []
-      rescores = []
-      for (mt_root1, match_tree1) in match_trees:
-        mda = MultiDepAlignment(mt_root1, match_tree1, mt_root2, match_tree2, 2, \
-                                [set(['disease', 'disorder']), \
-                                 set(['mutation', 'variant', 'allele', 'polymorphism']), \
-                                 set(['case', 'patient']), \
-                                 set(['identify', 'report', 'find', 'detect']), \
-                                 set(['cause', 'associate', 'link', 'lead'])])
-        # mda.print_matched_lemmas(f)
-        # mda.print_match_path(f)
-        score1 = mda.overall_score()
-        score2 = mda.rescore([(set(['cause', 'identify']), set(['associate', 'link']), -10)])
-        r = read_candidate(row)
-        matching_scores.append(int(score1))
-        rescores.append(int(score1 + score2))
-        # print >>f, rescores
-      eutil.print_tsv_output(r._replace(matching_scores=matching_scores, rescores=rescores))
+  # with open(app_home + '/match_paths%d.txt' % random.randint(0, 100000), 'a') as f:
+  for line in sys.stdin:
+    lc += 1
+    # print >>sys.stderr, line
+    row = parser.parse_tsv_row(line)
+    if row.gene_is_correct == False or row.pheno_is_correct == False:
+      continue
+    try:
+      # def canonicalize_row(words, lemmas, poses, dep_paths, dep_parents, cands):
+      mt_root2, match_tree2 = row_to_canonical_match_tree(row, [row.gene_wordidxs, row.pheno_wordidxs])
+      assert len(match_tree2) <= len(row.words) + 1, (len(row.words), len(match_tree2), row.words, match_tree2) 
+    except (DepParentsCycleException, OverlappingCandidatesException, RootException):
+      continue
+    matching_scores = []
+    rescores = []
+    # for (mt_root1, match_tree1) in match_trees:
+    mda = MultiDepAlignment(mt_root1, match_tree1, mt_root2, match_tree2, 2, \
+                            [set(['disease', 'disorder']), \
+                             set(['mutation', 'variant', 'allele', 'polymorphism']), \
+                             set(['case', 'patient']), \
+                             set(['identify', 'report', 'find', 'detect']), \
+                             set(['cause', 'associate', 'link', 'lead'])])
+    # mda.print_matched_lemmas(f)
+    # mda.print_match_path(f)
+    score1 = mda.overall_score()
+    score2 = mda.rescore([(set(['cause', 'lead']), set(['associate', 'link']), -20)])
+    r = read_candidate(row)
+    matching_scores.append(int(score1))
+    rescores.append(int(score1 + score2))
+    # end for
+    # print >>f, rescores
+    eutil.print_tsv_output(r._replace(matching_scores=matching_scores, rescores=rescores))
   end_time = time.time()
   if lc != 0:
     print >>sys.stderr, "Number of lines: %d, Time per line: %f seconds" % (lc, (end_time - start_time) / (float(lc)))
