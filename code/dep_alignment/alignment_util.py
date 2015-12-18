@@ -1,11 +1,9 @@
 #! /usr/bin/env python
 
-import sys
-
 def rc_to_match_tree(mixin, sent, cands, node, children, rv=None):
   if rv is None:
     rv = []
-  assert False, 'TODO this method unfolds DAGS into trees, don"t use it'
+  assert False, "TODO this method unfolds DAGS into trees, don't use it or fix it first"
   mc = MatchCell(1)
   rv.append(mc)
   index = len(rv)
