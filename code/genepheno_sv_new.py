@@ -2,8 +2,6 @@
 
 import collections
 from util import extractor_util as eutil
-from util import data_util as dutil
-import re
 import sys
 from dep_alignment.alignment_util import row_to_canonical_match_tree, DepParentsCycleException, OverlappingCandidatesException, RootException
 from dep_alignment.multi_dep_alignment import MultiDepAlignment
@@ -120,13 +118,13 @@ if __name__ == '__main__':
                                set(['mutation', 'variant', 'allele', 'polymorphism']), \
                                set(['case', 'patient']), \
                                set(['identify', 'report', 'find', 'detect']), \
-                               set(['cause', 'associate', 'link', 'lead']),
+                               set(['cause', 'associate', 'link', 'lead', 'result']),
                                set(['mutation', 'inhibition'])])
       # mda.print_matched_lemmas(match_path_file)
       print >>match_path_file, ' '.join(row.words)
       mda.print_match_path(match_path_file)
       score1 = mda.overall_score()
-      score2 = mda.rescore([(set(['cause', 'lead']), set(['associate', 'link']), -50), 
+      score2 = mda.rescore([(set(['cause', 'lead', 'result']), set(['associate', 'link']), -50),
                             (set(['mutation']), set(['inhibition']), -50)])
       r = read_candidate(row)
       matching_scores.append(int(score1))
@@ -135,4 +133,4 @@ if __name__ == '__main__':
       eutil.print_tsv_output(r._replace(matching_scores=matching_scores, rescores=rescores))
     end_time = time.time()
     if lc != 0:
-      print >>sys.stderr, "Number of lines: %d, Time per line: %f seconds" % (lc, (end_time - start_time) / (float(lc)))
+      print >>sys.stderr, "Number of lines: %d, time per line: %f seconds" % (lc, (end_time - start_time) / (float(lc)))
