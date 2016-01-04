@@ -14,22 +14,22 @@ class MultiDepAlignment(AlignmentMixin):
   skip_score = -3
   mismatch_score = -5
   cand_match_score = 15
-  
+
   short_words = set([',', '.', '-lrb-', '-rrb-', 'is', 'the', 'of', 'for', \
                      'with', 'on', 'to', 'from', 'in', 'a', 'an', 'at', 'and', 'by', 'be', 'we'])
-  
+
   def __init__(self, mt_root1, match_tree1, mt_root2, match_tree2, num_cands, dicts):
     self.match_tree1 = match_tree1
     self.match_tree2 = match_tree2
     self.dicts = dicts
     self.num_cands = num_cands
-    
+
     self.empty_cell1 = MatchCell(match_tree1[0].size)
     self.empty_cell2 = MatchCell(match_tree2[0].size)
-    
-    self.score_matrix = np.empty((len(match_tree1)+1, len(match_tree2)+1))
+
+    self.score_matrix = np.empty((len(match_tree1) + 1, len(match_tree2) + 1))
     self.score_matrix[:] = np.inf
-    self.path_matrix = [[('_', 0) for _ in xrange(len(match_tree2)+1)] for _ in xrange(len(match_tree1)+1)]
+    self.path_matrix = [[('_', 0) for _ in xrange(len(match_tree2) + 1)] for _ in xrange(len(match_tree1) + 1)]
     for d in dicts:
       assert isinstance(d, set)
 
@@ -37,19 +37,19 @@ class MultiDepAlignment(AlignmentMixin):
     self.mt_root2 = mt_root2
 
     self._h(self.mt_root1, self.mt_root2, forbidden1=set(), forbidden2=set())
-    
+
   def get_match_cell1(self, mt_node1):
     if mt_node1 == 0:
       return self.empty_cell1
     else:
       return self.match_tree1[mt_node1 - 1]
-    
+
   def get_match_cell2(self, mt_node2):
     if mt_node2 == 0:
       return self.empty_cell2
     else:
       return self.match_tree2[mt_node2 - 1]
-    
+
   def _match_score(self, mt_node1, mt_node2):
     mc1 = self.get_match_cell1(mt_node1)
     mc2 = self.get_match_cell2(mt_node2)
@@ -74,7 +74,7 @@ class MultiDepAlignment(AlignmentMixin):
           if mc1.cands[i] == k and mc2.cands[j] == k:
             sum_score += self.cand_match_score
             match_type += '[cand%d,%d_%d]' % (i, j, k)
-            broken = True 
+            broken = True
             break
         if broken:
           continue
@@ -83,29 +83,29 @@ class MultiDepAlignment(AlignmentMixin):
           match_type += '[short_word%d,%d]' % (i, j)
           continue
         if mc1.pos_tags[i] == mc2.pos_tags[j] and mc1.words[i] == mc2.words[j]:
-          match_type += '[word%d,%d]' % (i, j) 
+          match_type += '[word%d,%d]' % (i, j)
           sum_score += self.word_match_score
           continue
         if mc1.pos_tags[i] == mc2.pos_tags[j] and mc1.lemmas[i] == mc2.lemmas[j]:
-          match_type += '[lemma%d,%d]' % (i, j) 
+          match_type += '[lemma%d,%d]' % (i, j)
           sum_score += self.lemma_match_score
           continue
         if self.in_dicts(mc1.words[i], mc2.words[j], self.dicts):
-          match_type += '[word_dict%d,%d]' % (i, j) 
+          match_type += '[word_dict%d,%d]' % (i, j)
           sum_score += self.dict_match_score
           continue
         if self.in_dicts(mc1.lemmas[i], mc2.lemmas[j], self.dicts):
-          match_type += '[lemma_dict%d,%d]' % (i, j) 
+          match_type += '[lemma_dict%d,%d]' % (i, j)
           sum_score += self.dict_match_score
           continue
         if mc1.pos_tags[i] == mc2.pos_tags[j]:
-          match_type += '[pos_tags%d,%d]' % (i, j) 
+          match_type += '[pos_tags%d,%d]' % (i, j)
           sum_score += self.pos_tag_match_score
           continue
-        match_type += '[mis%d,%d]' % (i, j) 
+        match_type += '[mis%d,%d]' % (i, j)
         sum_score += self.mismatch_score
     return sum_score, match_type + '_match'
-  
+
   def _balance_lists(self, lists1, lists2):
     fake_guy_number = 0
     while len(lists1) < len(lists2):
@@ -115,12 +115,12 @@ class MultiDepAlignment(AlignmentMixin):
       for girl in lists2:
         lists1[new_guy].append((0, girl))
         lists2[girl].append((-1000, new_guy))
-  
+
   def _sort_lists(self, lists):
     for guy in lists:
-      sorted_list = sorted(lists[guy])[::-1] # sort in reverse score order
+      sorted_list = sorted(lists[guy])[::-1]  # sort in reverse score order
       lists[guy] = sorted_list
-  
+
   def _stable_marriage(self, men_pref_lists, women_pref_lists):
     self._balance_lists(men_pref_lists, women_pref_lists)
     self._balance_lists(women_pref_lists, men_pref_lists)
@@ -154,7 +154,7 @@ class MultiDepAlignment(AlignmentMixin):
           matching[girl] = guy
         else:
           pass
-    
+
     rv = []
     assert len(matching) == len(women_pref_lists)
     matched_guys = set()
@@ -170,9 +170,9 @@ class MultiDepAlignment(AlignmentMixin):
         rv.append((None, girl))
       else:
         assert False
-    
+
     return rv
-  
+
   def _match(self, mt_node1, mt_node2, forbidden1, forbidden2):
     if mt_node1 == 0 and mt_node2 == 0:
       return 0, 'end', []
@@ -180,14 +180,14 @@ class MultiDepAlignment(AlignmentMixin):
       return -1000, 'assert_false', []
     if mt_node1 != 0 and mt_node2 == 0:
       return -1000, 'assert_false', []
-  
+
     mc1 = self.get_match_cell1(mt_node1)
     c1 = set(mc1.children)
     assert mt_node1 not in c1, (mt_node1, c1)
     mc2 = self.get_match_cell2(mt_node2)
     c2 = set(mc2.children)
     assert mt_node2 not in c2, (mt_node2, c2)
-  
+
     men_pref_lists = {}
     women_pref_lists = {}
     for i in c1:
@@ -202,7 +202,7 @@ class MultiDepAlignment(AlignmentMixin):
     outgoing = self._stable_marriage(men_pref_lists, women_pref_lists)
     sum_score = 0
     real_outgoing = []
-    for (i,j) in outgoing:
+    for (i, j) in outgoing:
       assert i is None or i in mc1.children, i
       assert j is None or j in mc2.children, j
       # assert False, 'TODO test this! should we use the skip score for unassigned branches?'
@@ -217,9 +217,9 @@ class MultiDepAlignment(AlignmentMixin):
         # ESPECIALLY IN get_match_tree
       else:
         assert False, (i, j)
-    
+
     outgoing = real_outgoing
-    
+
     direct_match_score, match_type = self._match_score(mt_node1, mt_node2)
     # HACK Johannes: Because unmatched branches can be pruned in a multi-way match, this doesn't hold anymore:
     # assert len([a[0] for a in outgoing if a[0] is not None]) == len(set([a[0] for a in outgoing if a[0] is not None]))
@@ -232,19 +232,19 @@ class MultiDepAlignment(AlignmentMixin):
       assert mt_node2 != o2, (mt_node2, o2, match_type, mc2.children)
 
     return direct_match_score + sum_score, match_type, outgoing
-  
+
   def _skip1(self, mt_node1, mt_node2, forbidden1, forbidden2):
     if mt_node1 == 0:
       return -1000, 'assert_false', []
     score_list = []
     mc1 = self.get_match_cell1(mt_node1)
-  
+
     for i in mc1.children:
       assert i != mt_node1
       self._h(i, mt_node2, forbidden1, forbidden2)
       score_list.append((self.score_matrix[i, mt_node2], i))
     score_list = sorted(score_list)[::-1]
-    
+
     mc2 = self.get_match_cell2(mt_node2)
     sum_score = 0
     skip_type = ''
@@ -257,19 +257,19 @@ class MultiDepAlignment(AlignmentMixin):
 
     assert score_list[0][1] != mt_node1, str((score_list[0][1], mt_node1))
     return sum_score + score_list[0][0], skip_type + '_skip1', [(score_list[0][1], mt_node2)]
-  
+
   def _skip2(self, mt_node1, mt_node2, forbidden1, forbidden2):
     if mt_node2 == 0:
       return -1000, 'assert_false', []
     score_list = []
     mc2 = self.get_match_cell2(mt_node2)
-  
+
     for j in mc2.children:
       assert j != mt_node2
       self._h(mt_node1, j, forbidden1, forbidden2)
       score_list.append((self.score_matrix[mt_node1, j], j))
     score_list = sorted(score_list)[::-1]
-    
+
     mc1 = self.get_match_cell1(mt_node1)
     sum_score = 0
     skip_type = ''
@@ -279,10 +279,10 @@ class MultiDepAlignment(AlignmentMixin):
         sum_score += self.skip_score
       else:
         skip_type += '[zero%d]' % i
-    
+
     assert score_list[0][1] != mt_node2, str((mt_node2, score_list[0][1]))
     return sum_score + score_list[0][0], skip_type + '_skip2', [(mt_node1, score_list[0][1])]
-  
+
   def _h(self, mt_node1, mt_node2, forbidden1, forbidden2):
     forbidden1 = forbidden1.copy()
     forbidden1.add(mt_node1)
@@ -290,7 +290,7 @@ class MultiDepAlignment(AlignmentMixin):
     forbidden2.add(mt_node2)
     if self.score_matrix[mt_node1, mt_node2] != np.inf:
       return self.score_matrix[mt_node1, mt_node2]
-  
+
     m, match_type, cont_match = self._match(mt_node1, mt_node2, forbidden1, forbidden2)
     assert mt_node1 not in [c[0] for c in cont_match]
     assert mt_node2 not in [c[1] for c in cont_match]
@@ -298,9 +298,9 @@ class MultiDepAlignment(AlignmentMixin):
     assert (mt_node1, mt_node2) not in cont_skip1, (mt_node1, mt_node2, cont_skip1)
     l2, skip_type2, cont_skip2 = self._skip2(mt_node1, mt_node2, forbidden1, forbidden2)
     assert (mt_node1, mt_node2) not in cont_skip2, (mt_node1, mt_node2, cont_skip2)
-    
+
     score = max([m, l1, l2])
-    
+
     self.score_matrix[mt_node1, mt_node2] = score
     if score == m:
       self.path_matrix[mt_node1][mt_node2] = match_type, cont_match
@@ -317,7 +317,7 @@ class MultiDepAlignment(AlignmentMixin):
         assert o2 not in forbidden2
     else:
       assert False
-      
+
   def print_match_path(self, stream=sys.stdout, mt_node1=None, mt_node2=None, indent=0):
     if mt_node1 == None:
       mt_node1 = self.mt_root1
@@ -325,7 +325,7 @@ class MultiDepAlignment(AlignmentMixin):
       mt_node2 = self.mt_root2
     mc1 = self.get_match_cell1(mt_node1)
     mc2 = self.get_match_cell2(mt_node2)
-    
+
     instr, succ = self.path_matrix[mt_node1][mt_node2]
     if mt_node1 >= 1:
       mt_words1 = mc1.words
@@ -335,17 +335,17 @@ class MultiDepAlignment(AlignmentMixin):
       mt_words2 = mc2.words
     else:
       mt_words2 = '.' * mc2.size
-      
+
     if instr.endswith('match'):
-      print >>stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, \
+      print >> stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, \
                                                              instr, str(mt_words1 + mt_words2), \
                                                              self.score_matrix[mt_node1, mt_node2])
     elif instr.endswith('skip1'):
-      print >>stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, instr, \
+      print >> stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, instr, \
                                                              str(mt_words1), \
                                                              self.score_matrix[mt_node1, mt_node2])
     elif instr.endswith('skip2'):
-      print >>stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, \
+      print >> stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, \
                                                              instr, str(mt_words2), \
                                                              self.score_matrix[mt_node1, mt_node2])
     elif instr == 'end':
@@ -354,25 +354,25 @@ class MultiDepAlignment(AlignmentMixin):
       assert False, instr
     for o1, o2 in succ:
       assert (o1, o2) != (mt_node1, mt_node2), str(succ)
-      self.print_match_path(stream, o1, o2, indent+4)
-  
+      self.print_match_path(stream, o1, o2, indent + 4)
+
   def get_match_tree(self, match_tree=None, folded=None, node1=None, node2=None, forbidden=None):
     if node1 == None:
       node1 = self.mt_root1
     if node2 == None:
       node2 = self.mt_root2
-    
+
     if folded is not None and (node1, node2) in folded:
       if folded[(node1, node2)] == 0:
         return 0, match_tree
       else:
         return folded[(node1, node2)], match_tree
-  
+
     mc1 = self.get_match_cell1(node1)
     mc2 = self.get_match_cell2(node2)
     size1 = mc1.size
     size2 = mc2.size
-    
+
     if match_tree is None:
       match_tree = []
     if folded is None:
@@ -382,21 +382,21 @@ class MultiDepAlignment(AlignmentMixin):
 
     mc = MatchCell(size1 + size2)
     mc.cands[0:size1] = mc1.cands
-    mc.cands[size1:size1+size2] = mc2.cands
+    mc.cands[size1:size1 + size2] = mc2.cands
     mc.pos_tags[0:size1] = mc1.pos_tags
-    mc.pos_tags[size1:size1+size2] = mc2.pos_tags
+    mc.pos_tags[size1:size1 + size2] = mc2.pos_tags
     mc.words[0:size1] = mc1.words
-    mc.words[size1:size1+size2] = mc2.words
+    mc.words[size1:size1 + size2] = mc2.words
     mc.lemmas[0:size1] = mc1.lemmas
-    mc.lemmas[size1:size1+size2] = mc2.lemmas
+    mc.lemmas[size1:size1 + size2] = mc2.lemmas
     mc.children = []
-    
+
     instr, succ = self.path_matrix[node1][node2]
     mc.match_type = instr
     match_tree.append(mc)
     index = len(match_tree)
     folded[(node1, node2)] = index
-    
+
     if forbidden is  None:
       forbidden = []
     forbidden = [i for i in forbidden]
@@ -413,7 +413,7 @@ class MultiDepAlignment(AlignmentMixin):
       mc.children.append(child_root)
     assert mc.children
     return index, match_tree
-  
+
   def print_matched_lemmas(self, stream=sys.stdout, node1=None, node2=None, folded=None):
     if node1 is None:
       node1 = self.mt_root1
@@ -421,23 +421,23 @@ class MultiDepAlignment(AlignmentMixin):
       node2 = self.mt_root2
     if folded is None:
       folded = set()
-    
+
     if (node1, node2) in folded or node1 == 0 or node2 == 0:
       return
     folded.add((node1, node2))
-    
+
     mc1 = self.get_match_cell1(node1)
     mc2 = self.get_match_cell2(node2)
     instr, succ = self.path_matrix[node1][node2]
     if instr.endswith('_match'):
-      print >>stream, "%s\t%s" % ('\t'.join(mc1.lemmas), '\t'.join(mc2.lemmas))
-    
+      print >> stream, "%s\t%s" % ('\t'.join(mc1.lemmas), '\t'.join(mc2.lemmas))
+
     for (o1, o2) in succ:
       self.print_matched_lemmas(stream, o1, o2, folded)
-  
+
   def overall_score(self):
     return self.score_matrix[self.mt_root1, self.mt_root2]
-  
+
   def rescore(self, unscore_list, folded=None, node1=None, node2=None):
     if node1 is None:
       node1 = self.mt_root1
@@ -445,11 +445,11 @@ class MultiDepAlignment(AlignmentMixin):
       node2 = self.mt_root2
     if folded is None:
       folded = set()
-    
+
     if (node1, node2) in folded or node1 == 0 or node2 == 0:
       return 0
     folded.add((node1, node2))
-    
+
     mc1 = self.get_match_cell1(node1)
     mc2 = self.get_match_cell2(node2)
     lemmas1 = mc1.lemmas
@@ -462,9 +462,8 @@ class MultiDepAlignment(AlignmentMixin):
           for l2 in s2:
             if l1 in lemmas1 and l2 in lemmas2:
               rv += penalty
-    
+
     for (o1, o2) in succ:
       rv += self.rescore(unscore_list, folded, o1, o2)
-    
+
     return rv
-      
