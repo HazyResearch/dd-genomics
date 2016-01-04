@@ -15,7 +15,8 @@ class MultiDepAlignment(AlignmentMixin):
   mismatch_score = -5
   cand_match_score = 15
   
-  short_words = set([',', '.', '-lrb-', '-rrb-', 'is', 'the', 'of', 'for', 'with', 'on', 'to', 'from', 'in', 'a', 'an', 'at', 'and', 'by', 'be', 'we'])
+  short_words = set([',', '.', '-lrb-', '-rrb-', 'is', 'the', 'of', 'for', \
+                     'with', 'on', 'to', 'from', 'in', 'a', 'an', 'at', 'and', 'by', 'be', 'we'])
   
   def __init__(self, mt_root1, match_tree1, mt_root2, match_tree2, num_cands, dicts):
     self.match_tree1 = match_tree1
@@ -35,7 +36,6 @@ class MultiDepAlignment(AlignmentMixin):
     self.mt_root1 = mt_root1
     self.mt_root2 = mt_root2
 
-    # 0 is implicitly root of a match tree
     self._h(self.mt_root1, self.mt_root2, forbidden1=set(), forbidden2=set())
     
   def get_match_cell1(self, mt_node1):
@@ -337,11 +337,17 @@ class MultiDepAlignment(AlignmentMixin):
       mt_words2 = '.' * mc2.size
       
     if instr.endswith('match'):
-      print >>stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, instr, str(mt_words1 + mt_words2), self.score_matrix[mt_node1, mt_node2])
+      print >>stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, \
+                                                             instr, str(mt_words1 + mt_words2), \
+                                                             self.score_matrix[mt_node1, mt_node2])
     elif instr.endswith('skip1'):
-      print >>stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, instr, str(mt_words1), self.score_matrix[mt_node1, mt_node2])
+      print >>stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, instr, \
+                                                             str(mt_words1), \
+                                                             self.score_matrix[mt_node1, mt_node2])
     elif instr.endswith('skip2'):
-      print >>stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, instr, str(mt_words2), self.score_matrix[mt_node1, mt_node2])
+      print >>stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, \
+                                                             instr, str(mt_words2), \
+                                                             self.score_matrix[mt_node1, mt_node2])
     elif instr == 'end':
       pass
     else:
