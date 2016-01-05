@@ -89,3 +89,5 @@ db.url
 
 /oldlogs/
 /writes
+/scores*.lst
+/match_paths
