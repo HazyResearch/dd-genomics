@@ -90,10 +90,13 @@ if __name__ == '__main__':
       mda = MultiDepAlignment(mt_root0, match_tree0, mt_root1, match_tree1, 2, \
                                   [set(['disease', 'disorder']), \
                                    set(['mutation', 'variant', 'allele', 'polymorphism']), \
-                                   set(['case', 'patient']), \
+                                   set(['case', 'patient', 'subject', 'family', 'boy', 'girl']), \
+                                   set(['present', 'display', 'characterize']), \
+                                   set(['nonsense', 'missense', 'frameshift']), \
                                    set(['identify', 'report', 'find', 'detect']), \
                                    set(['cause', 'associate', 'link', 'lead']),
-                                   set(['mutation', 'inhibition'])])
+                                   set(['mutation', 'inhibition']), \
+                                   set(['recessive', 'dominant'])])
       mt_root1, match_tree1 = mda.get_match_tree()
       
     # mt_root1, match_tree1 = match_trees[0]
@@ -115,7 +118,8 @@ if __name__ == '__main__':
       # for (mt_root1, match_tree1) in match_trees:
       mda = MultiDepAlignment(mt_root1, match_tree1, mt_root2, match_tree2, 2, \
                               [set(['disease', 'disorder']), \
-                               set(['mutation', 'variant', 'allele', 'polymorphism']), \
+                               set(['mutation', 'variant', 'allele', 'polymorphism', \
+                                    'SNP', 'truncation', 'deletion', 'duplication']), \
                                set(['case', 'patient']), \
                                set(['identify', 'report', 'find', 'detect']), \
                                set(['cause', 'associate', 'link', 'lead', 'result']),
