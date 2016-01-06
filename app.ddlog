@@ -162,10 +162,10 @@ sentences_input (
   dep_parents text
  ).
 
-hpo_to_doc_via_mesh (
-  hpo_id text,
-  doc_id text
-).
+#hpo_to_doc_via_mesh (
+#  hpo_id text,
+#  doc_id text
+#).
 
 genes (
   #include primary key when dd fixes find command
@@ -318,21 +318,21 @@ pheno_mentions_without_acronyms (
   is_correct boolean
 ).
 
-pheno_features (
-  @distributed_by
-  doc_id text,
-        section_id text,
-  mention_id text,
-  feature text
-).
+#pheno_features (
+#  @distributed_by
+#  doc_id text,
+#        section_id text,
+#  mention_id text,
+#  feature text
+#).
 
-variant_features (
-  @distributed_by
-  doc_id text,
-        section_id text,
-  mention_id text,
-  feature text
-).
+#variant_features (
+#  @distributed_by
+#  doc_id text,
+#        section_id text,
+#  mention_id text,
+#  feature text
+#).
 
 #@extraction
 genepheno_association (
@@ -386,45 +386,45 @@ genepheno_features (
 ).
 
 #? Do we keep this table ?
-genevariant_relations (
-  id bigint,
-  relation_id text,
-  doc_id text,
-  section1_id text,
-  sent1_id int,
-  section2_id text,
-  sent2_id int,
-  variant_mention_id text,
-  variant_entity text,
-  variant_wordidxs int[],
-  variant_is_correct boolean,
-  gene_mention_id text,
-  gene_name text,
-  gene_wordidxs int[],
-  gene_is_correct boolean,
-  is_correct boolean,
-  supertype text,
-  subtype text
-).
+#genevariant_relations (
+#  id bigint,
+#  relation_id text,
+#  doc_id text,
+#  section1_id text,
+#  sent1_id int,
+#  section2_id text,
+#  sent2_id int,
+#  variant_mention_id text,
+#  variant_entity text,
+#  variant_wordidxs int[],
+#  variant_is_correct boolean,
+#  gene_mention_id text,
+#  gene_name text,
+#  gene_wordidxs int[],
+#  gene_is_correct boolean,
+#  is_correct boolean,
+#  supertype text,
+#  subtype text
+#).
 
-genevariant_features (
-  @distributed_by
-  doc_id text,
-        section_id text,
-  relation_id text,
-  feature text
-).
+#genevariant_features (
+#  @distributed_by
+#  doc_id text,
+#        section_id text,
+#  relation_id text,
+#  feature text
+#).
 
-test_nlp (
-  @distributed_by
-  id bigint
-).
+#test_nlp (
+#  @distributed_by
+#  id bigint
+#).
 
-plos_doi_to_pmid (
-  @distributed_by
-  doi text,
-  pmid text
-).
+#plos_doi_to_pmid (
+#  @distributed_by
+#  doi text,
+#  pmid text
+#).
 
 non_gene_acronyms (
   # id for random variable
@@ -495,19 +495,19 @@ genepheno_holdout_labels (
   labeler text
 ).
 
-genepheno_causation_canon (
-  @distributed_by
-  hpo_id text,
-  @distributed_by
-  ensembl_id text
-).
+#genepheno_causation_canon (
+#  @distributed_by
+#  hpo_id text,
+#  @distributed_by
+#  ensembl_id text
+#).
 
-genepheno_association_canon (
-  @distributed_by
-  hpo_id text,
-  @distributed_by
-  ensembl_id text
-).
+#genepheno_association_canon (
+#  @distributed_by
+#  hpo_id text,
+#  @distributed_by
+#  ensembl_id text
+#).
 
 hpo_abnormalities (
   @distributed_by
@@ -558,24 +558,24 @@ genepheno_pairs_sentences(
 #  n_seq text[]
 #).
 
-ensgene (
-  bin int,
-  name text,
-  chrom text,
-  strand text,
-  txStart int,
-  txEnd int,
-  cdsStart int,
-  cdsEnd int,
-  exonCount int,
-  exonStarts text,
-  exonEnds text,
-  score int,
-  name2 text,
-  cdsStartStat text,
-  cdsEndStat text,
-  exonFrames text
-).
+#ensgene (
+#  bin int,
+#  name text,
+#  chrom text,
+#  strand text,
+#  txStart int,
+#  txEnd int,
+#  cdsStart int,
+#  cdsEnd int,
+#  exonCount int,
+#  exonStarts text,
+#  exonEnds text,
+#  score int,
+#  name2 text,
+#  cdsStartStat text,
+#  cdsEndStat text,
+# exonFrames text
+#).
 
 genepheno_relations(
  id               bigint, 
@@ -652,12 +652,16 @@ function gene_extract_candidates over (doc_id text,
   returns rows like gene_mentions
   implementation "code/gene_extract_candidates.py" handles tsv lines.
 
-gene_extract_candidates_view_temp (doc_id) *:-
+gene_extract_candidates_data_temp (
+@distributed_by
+doc_id text).
+
+gene_extract_candidates_data_temp (doc_id) *:-
 pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
 
 gene_mentions_temp_before_non_gene_acronyms_delete_candidates += gene_extract_candidates(doc_id, section_id, sent_id, words, dep_paths, dep_parents, lemmas, poses, ners) :-
   sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
-  gene_extract_candidates_view_temp (doc_id).
+  gene_extract_candidates_data_temp (doc_id).
 
 #non_gene_acronyms_delete_candidates
 gene_mentions_non_gene_acronyms(
@@ -676,13 +680,10 @@ gene_mentions_non_gene_acronyms(
   is_correct boolean
 ).
 
-gene_mentions_non_gene_acronyms_view_temp(abbrev, doc_id) :-
-non_gene_acronyms( id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs, mention_id, supertype, subtype, abbrev, definition, is_correct), 
-[is_correct = "t" ; is_correct IS NULL].
-
 gene_mentions_non_gene_acronyms(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct) :- 
 gene_mentions_temp_before_non_gene_acronyms_delete_candidates(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct), 
-gene_mentions_non_gene_acronyms_view_temp(gene_name, doc_id).
+non_gene_acronyms( _, doc_id, _, _, _, _, _, _, _, gene_name, _, is_correct_nga), 
+[is_correct_nga = "t" ; is_correct_nga IS NULL].
 
 gene_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct) :-
 gene_mentions_temp_before_non_gene_acronyms_delete_candidates(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct), 
@@ -725,8 +726,8 @@ function variant_extract_features over rows like variant_extract_features_input
   returns rows like variant_features
   implementation "code/variant_extract_features.py" handles tsv lines.
 
-variant_features += variant_extract_features(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, mention_id, array_to_string(wordidxs, "|^|")) :- sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
-variant_mentions_filtered(_, doc_id, section_id, sent_id, wordidxs, mention_id, _, _, _, _, _).
+#variant_features += variant_extract_features(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, mention_id, array_to_string(wordidxs, "|^|")) :- sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
+#variant_mentions_filtered(_, doc_id, section_id, sent_id, wordidxs, mention_id, _, _, _, _, _).
 
 
 #pheno_filter_candidates
@@ -886,7 +887,29 @@ implementation "code/non_gene_acronyms_extract_candidates_ddlog.py" handles tsv 
 
 #We extract genes from gene_mentions_temp_before_non_gene_acronyms_delete_candidates and non gene_mentions because the first gene extraction is done in gene_mentions_temp_before_non_gene_acronyms_delete_candidates. Then the non_gene_acronyms_delete_candidates will create gene_mentions which will be used in the rest of the run.
 
-#issue solved: call to an elt of an array. Python script modified to take that into account here
+#issue solved: call to an elt of an array. Python script modified to take that into account there
+
+non_gene_acronyms_extract_candidates_view_temp_1(
+@distributed_by
+doc_id text, 
+section_id text, 
+sent_id int, 
+wordidxs int[]).
+
+non_gene_acronyms_extract_candidates_view_temp_2(
+@distributed_by
+doc_id text, 
+section_id text,
+sent_id int, 
+word_string text,
+word_string_array text,  
+dep_paths text, 
+dep_parents text, 
+lemmas text, 
+poses text,
+ners text, 
+wordidxs int[]).
+
 
 non_gene_acronyms_extract_candidates_view_temp_1(doc_id, section_id, sent_id, wordidxs) *:- gene_mentions_temp_before_non_gene_acronyms_delete_candidates(_, doc_id, section_id, sent_id, wordidxs, _, _, _, _, _, _, _).
 
@@ -913,6 +936,29 @@ non_gene_acronyms(id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs
 function pheno_acronyms_extract_candidates over (doc_id text, section_id text, sent_id int, words_string text, dep_paths text, dep_parents text, lemmas text, poses text, ners text,  wordidxs int[], entity text)
 returns rows like pheno_acronyms
 implementation "code/pheno_acronyms_extract_candidates_ddlog.py" handles tsv lines.
+
+pheno_acronyms_extract_candidates_view_temp_1(
+  @distributed_by
+  doc_id text, 
+  section_id text, 
+  sent_id int, 
+  wordidxs int[], 
+  entity text).
+
+pheno_acronyms_extract_candidates_view_temp_2(
+@distributed_by
+doc_id text, 
+section_id text, 
+sent_id int, 
+word_string text, 
+word_string_array text,
+dep_paths text, 
+dep_parents text, 
+lemmas text, 
+poses text,
+ners text, 
+wordidxs int[], 
+entity text). 
 
 pheno_acronyms_extract_candidates_view_temp_1(doc_id, section_id, sent_id, wordidxs, entity) *:- 
 pheno_mentions_without_acronyms(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct), 
@@ -1008,28 +1054,28 @@ genepheno_pairs_sentences(doc_id, section_id, sent_id, gene_mention_ids, gene_na
 
 
 #Create table gene_to_transcripts
-gene_to_transcripts(gene_name text,
-            ensembl_ids text,
-            ensembl_transcripts text,
-            chroms text,
-            strands text,
-            txstarts text,
-            txends text,
-            exonstarts text,
-            exonends text).
+#gene_to_transcripts(gene_name text,
+#            ensembl_ids text,
+#            ensembl_transcripts text,
+#            chroms text,
+#            strands text,
+#            txstarts text,
+#            txends text,
+#            exonstarts text,
+#            exonends text).
 
-gene_to_transcripts(
-            gene_name,
-            array_to_string(ARRAY_AGG(ensembl_id), "|~|"),
-            array_to_string(ARRAY_AGG(name), "|~|"),
-            array_to_string(ARRAY_AGG(chrom), "|~|"),
-            array_to_string(ARRAY_AGG(strand), "|~|"),
-            array_to_string(ARRAY_AGG(cdsstart), "|~|"),
-            array_to_string(ARRAY_AGG(cdsend), "|~|"),
-            array_to_string(ARRAY_AGG(exonstarts), "|~|"),
-            array_to_string(ARRAY_AGG(exonends), "|~|")) *:-
-genes(ensembl_id, canonical_name, gene_name, name_type),
-ensgene( bin, name, chrom, strand, txstart, txend, cdsstart, cdsend, exoncount, exonstarts, exonends, score, ensembl_id, cdsstartstat, cdsendstat, exonframes).
+#gene_to_transcripts(
+#            gene_name,
+#            array_to_string(ARRAY_AGG(ensembl_id), "|~|"),
+#            array_to_string(ARRAY_AGG(name), "|~|"),
+#            array_to_string(ARRAY_AGG(chrom), "|~|"),
+#            array_to_string(ARRAY_AGG(strand), "|~|"),
+#            array_to_string(ARRAY_AGG(cdsstart), "|~|"),
+#            array_to_string(ARRAY_AGG(cdsend), "|~|"),
+#            array_to_string(ARRAY_AGG(exonstarts), "|~|"),
+#            array_to_string(ARRAY_AGG(exonends), "|~|")) *:-
+#genes(ensembl_id, canonical_name, gene_name, name_type),
+#ensgene( bin, name, chrom, strand, txstart, txend, cdsstart, cdsend, exoncount, exonstarts, exonends, score, ensembl_id, cdsstartstat, cdsendstat, exonframes).
 
 
 
@@ -1044,14 +1090,14 @@ implementation "code/genevariant_extract_candidates.py" handles tsv lines.
 #gene_to_transcripts(gene_name, ensembl_ids, ensembl_transcripts, chroms, strands, txstarts, txends, exonstarts, exonends).
 
 #genevariant_supervise_matching_coding_genes
-genevariant_coding_supervise_true( 
-          doc_id text,
-          mention_id text,
-          entity text,
-          pos text,
-          fromseq text,
-          toseq text,
-          gene_names text[]).
+#genevariant_coding_supervise_true( 
+#          doc_id text,
+#          mention_id text,
+#          entity text,
+#          pos text,
+#          fromseq text,
+#          toseq text,
+#          gene_names text[]).
 
 #genevariant_coding_supervise_true(doc_id,mention_id,entity,pos,fromseq,toseq,ARRAY_AGG(gene_name)) *:-
 #variant_mentions (id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, variant_type, ivsnum, pos, posplus, frompos, topos, seq, fromseq, toseq, words, is_correct), 
@@ -1123,29 +1169,29 @@ gene_mention_ids(doc_id).
 
 #variant_filter_candidates
 
-variant_mentions_filtered(
-  id bigint,
-  @distributed_by
-  doc_id text,
-  section_id text,
-  sent_id int,
-  wordidxs int[],
-  mention_id text,
-  supertype text,
-  subtype text,
-  entity text,
-  variant_type text,
-  ivsNum text,
-  pos text,
-  posPlus text,
-  fromPos text,
-  toPos text,
-  seq text,
-  fromSeq text,
-  toSeq text,
-  words text[],
-  is_correct boolean
-).
+#variant_mentions_filtered(
+#  id bigint,
+#  @distributed_by
+#  doc_id text,
+#  section_id text,
+#  sent_id int,
+#  wordidxs int[],
+#  mention_id text,
+#  supertype text,
+#  subtype text,
+#  entity text,
+#  variant_type text,
+#  ivsNum text,
+#  pos text,
+#  posPlus text,
+#  fromPos text,
+#  toPos text,
+#  seq text,
+#  fromSeq text,
+#  toSeq text,
+#  words text[],
+#  is_correct boolean
+#).
 
 #Need to add genevariant, but check the true definition or use of genevariant_relations first.
 
@@ -1262,8 +1308,8 @@ genepheno_causation_inference(relation_id) :-
 @weight("?")
 gene_mentions_filtered_inference(mention_id1) = 
 gene_mentions_filtered_inference(mention_id2) :-
-gene_mentions_filtered(_, doc_id,_, _, _, mention_id1, _, _, _, _, _, _),
-gene_mentions_filtered(_, doc_id,_, _, _, mention_id2, _, _, _, _, _, _).
+gene_mentions_filtered(_, doc_id,_, _, _, mention_id1, _, _, _, gene_name, _, _),
+gene_mentions_filtered(_, doc_id,_, _, _, mention_id2, _, _, _, gene_name, _, _).
 
 
 
