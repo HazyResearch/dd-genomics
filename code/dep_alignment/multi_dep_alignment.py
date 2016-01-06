@@ -201,14 +201,12 @@ class MultiDepAlignment(AlignmentMixin):
         women_pref_lists[j].append((self.score_matrix[i, j], i))
     outgoing = self._stable_marriage(men_pref_lists, women_pref_lists)
     sum_score = 0
-    real_outgoing = []
     for (i, j) in outgoing:
       assert i is None or i in mc1.children, i
       assert j is None or j in mc2.children, j
       # assert False, 'TODO test this! should we use the skip score for unassigned branches?'
       if i is not None and j is not None:
         sum_score += self.score_matrix[i, j]
-        real_outgoing.append((i, j))
       elif i is not None or j is not None:
         sum_score += self.skip_score
         # HACK Johannes. Do we want to leave out unmatched branches this way?
@@ -218,18 +216,18 @@ class MultiDepAlignment(AlignmentMixin):
       else:
         assert False, (i, j)
 
-    outgoing = real_outgoing
-
     direct_match_score, match_type = self._match_score(mt_node1, mt_node2)
     # HACK Johannes: Because unmatched branches can be pruned in a multi-way match, this doesn't hold anymore:
     # assert len([a[0] for a in outgoing if a[0] is not None]) == len(set([a[0] for a in outgoing if a[0] is not None]))
     # assert len([a[1] for a in outgoing if a[1] is not None]) == len(set([a[1] for a in outgoing if a[1] is not None]))
     assert len(outgoing) >= min(len(mc1.children), len(mc2.children))
     for o1, o2 in outgoing:
-      assert o1 is not None
-      assert o2 is not None
-      assert mt_node1 != o1, (mt_node1, o1, match_type, mc1.children)
-      assert mt_node2 != o2, (mt_node2, o2, match_type, mc2.children)
+      # assert o1 is not None
+      # assert o2 is not None
+      if o1 is not None:
+        assert mt_node1 != o1, (mt_node1, o1, match_type, mc1.children)
+      if o2 is not None:
+        assert mt_node2 != o2, (mt_node2, o2, match_type, mc2.children)
 
     return direct_match_score + sum_score, match_type, outgoing
 
@@ -305,8 +303,8 @@ class MultiDepAlignment(AlignmentMixin):
     if score == m:
       self.path_matrix[mt_node1][mt_node2] = match_type, cont_match
       for o1, o2 in cont_match:
-        assert o1 not in forbidden1
-        assert o2 not in forbidden2
+        assert o1 is None or o1 not in forbidden1
+        assert o2 is None or o2 not in forbidden2
     elif score == l1:
       self.path_matrix[mt_node1][mt_node2] = skip_type1, cont_skip1
       for o1, _ in cont_skip1:
@@ -318,15 +316,13 @@ class MultiDepAlignment(AlignmentMixin):
     else:
       assert False
 
-  def print_match_path(self, stream=sys.stdout, mt_node1=None, mt_node2=None, indent=0):
-    if mt_node1 == None:
+  def print_match_tree(self, stream=sys.stdout, mt_node1=-1, mt_node2=-1, indent=0):
+    if mt_node1 == -1:
       mt_node1 = self.mt_root1
-    if mt_node2 == None:
+    if mt_node2 == -1:
       mt_node2 = self.mt_root2
     mc1 = self.get_match_cell1(mt_node1)
     mc2 = self.get_match_cell2(mt_node2)
-
-    instr, succ = self.path_matrix[mt_node1][mt_node2]
     if mt_node1 >= 1:
       mt_words1 = mc1.words
     else:
@@ -336,90 +332,175 @@ class MultiDepAlignment(AlignmentMixin):
     else:
       mt_words2 = '.' * mc2.size
 
-    if instr.endswith('match'):
-      print >> stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, \
-                                                             instr, str(mt_words1 + mt_words2), \
-                                                             self.score_matrix[mt_node1, mt_node2])
-    elif instr.endswith('skip1'):
-      print >> stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, instr, \
-                                                             str(mt_words1), \
-                                                             self.score_matrix[mt_node1, mt_node2])
-    elif instr.endswith('skip2'):
-      print >> stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, \
-                                                             instr, str(mt_words2), \
-                                                             self.score_matrix[mt_node1, mt_node2])
-    elif instr == 'end':
-      pass
+    if mt_node1 is not None and mt_node2 is not None:
+      instr, succ = self.path_matrix[mt_node1][mt_node2]
+  
+      if instr.endswith('match'):
+        print >> stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, \
+                                                               instr, str(mt_words1 + mt_words2), \
+                                                               self.score_matrix[mt_node1, mt_node2])
+      elif instr.endswith('skip1'):
+        print >> stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, instr, \
+                                                               str(mt_words1), \
+                                                               self.score_matrix[mt_node1, mt_node2])
+      elif instr.endswith('skip2'):
+        print >> stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, \
+                                                               instr, str(mt_words2), \
+                                                               self.score_matrix[mt_node1, mt_node2])
+      elif instr == 'end':
+        pass
+      else:
+        assert False, instr
+      for o1, o2 in succ:
+        assert (o1, o2) != (mt_node1, mt_node2), str(succ)
+        self.print_match_tree(stream, o1, o2, indent + 4)
+    elif mt_node1 is None and mt_node2 is not None:
+      print >> stream, " " * indent + "%d,None: single2: %s" % (mt_node2, str(mt_words2))
+      for c in mc2.children:
+        assert c != mt_node2
+        self.print_match_tree(stream, None, c, indent + 4)
+    elif mt_node1 is not None and mt_node2 is None:
+      print >> stream, " " * indent + "%d,None: single1: %s" % (mt_node1, str(mt_words1))
+      for c in mc1.children:
+        assert c != mt_node1
+        self.print_match_tree(stream, c, None, indent + 4)
     else:
-      assert False, instr
-    for o1, o2 in succ:
-      assert (o1, o2) != (mt_node1, mt_node2), str(succ)
-      self.print_match_path(stream, o1, o2, indent + 4)
+      assert False
 
-  def get_match_tree(self, match_tree=None, folded=None, node1=None, node2=None, forbidden=None):
-    if node1 == None:
+  def get_match_tree(self, match_tree=-1, folded=-1, node1=-1, node2=-1, size1=-1, size2=-1, forbidden=-1):
+    if node1 == -1:
       node1 = self.mt_root1
-    if node2 == None:
+    if node2 == -1:
       node2 = self.mt_root2
-
-    if folded is not None and (node1, node2) in folded:
+    
+    if folded != -1 and (node1, node2) in folded:
       if folded[(node1, node2)] == 0:
         return 0, match_tree
       else:
         return folded[(node1, node2)], match_tree
-
-    mc1 = self.get_match_cell1(node1)
-    mc2 = self.get_match_cell2(node2)
-    size1 = mc1.size
-    size2 = mc2.size
-
-    if match_tree is None:
+    
+    if match_tree == -1:
       match_tree = []
-    if folded is None:
+    if folded == -1:
       assert len(match_tree) == 0
       folded = {}
       folded[(0, 0)] = 0
-
-    mc = MatchCell(size1 + size2)
-    mc.cands[0:size1] = mc1.cands
-    mc.cands[size1:size1 + size2] = mc2.cands
-    mc.pos_tags[0:size1] = mc1.pos_tags
-    mc.pos_tags[size1:size1 + size2] = mc2.pos_tags
-    mc.words[0:size1] = mc1.words
-    mc.words[size1:size1 + size2] = mc2.words
-    mc.lemmas[0:size1] = mc1.lemmas
-    mc.lemmas[size1:size1 + size2] = mc2.lemmas
-    mc.children = []
-
-    instr, succ = self.path_matrix[node1][node2]
-    mc.match_type = instr
-    match_tree.append(mc)
-    index = len(match_tree)
-    folded[(node1, node2)] = index
-
-    if forbidden is  None:
+    
+    if forbidden == -1:
       forbidden = []
-    forbidden = [i for i in forbidden]
-    forbidden.append((node1, node2))
+    
+    if node1 is not None and node2 is not None:
+      mc1 = self.get_match_cell1(node1)
+      mc2 = self.get_match_cell2(node2)
+      size1 = mc1.size
+      size2 = mc2.size
+  
+      mc = MatchCell(size1 + size2)
+      mc.cands[0:size1] = mc1.cands
+      mc.cands[size1:size1 + size2] = mc2.cands
+      mc.pos_tags[0:size1] = mc1.pos_tags
+      mc.pos_tags[size1:size1 + size2] = mc2.pos_tags
+      mc.words[0:size1] = mc1.words
+      mc.words[size1:size1 + size2] = mc2.words
+      mc.lemmas[0:size1] = mc1.lemmas
+      mc.lemmas[size1:size1 + size2] = mc2.lemmas
+      mc.children = []
+  
+      instr, succ = self.path_matrix[node1][node2]
+      mc.match_type = instr
+      match_tree.append(mc)
+      index = len(match_tree)
+      folded[(node1, node2)] = index
+  
+      forbidden = [i for i in forbidden] # copying forbidden the old way
+      forbidden.append((node1, node2))
+  
+      for o1, o2 in succ:
+        assert not instr.endswith('_match') or o1 in mc1.children, (o1, mc1.children)
+        assert not instr.endswith('_match') or o2 in mc2.children, (o2, mc2.children)
+        assert not instr.endswith('_skip2') or o1 == node1
+        assert not instr.endswith('_skip1') or o2 == node2
+        assert (o1, o2) not in forbidden, (o1, o2, forbidden)
+        child_root, _ = self.get_match_tree(match_tree=match_tree, folded=folded, \
+                                            node1=o1, node2=o2, size1=size1, size2=size2, \
+                                            forbidden=forbidden)
+        assert child_root >= 0
+        mc.children.append(child_root)
+      assert mc.children
+      return index, match_tree
+    elif node1 is None and node2 is not None:
+      mc2 = self.get_match_cell2(node2)
+      assert size1 != -1
+      assert size2 != -1
+      
+      mc = MatchCell(size1 + size2)
+      mc.cands[0:size1] = [None for i in xrange(size1)]
+      mc.cands[size1:size1 + size2] = mc2.cands
+      mc.pos_tags[0:size1] = [None for i in xrange(size1)]
+      mc.pos_tags[size1:size1 + size2] = mc2.pos_tags
+      mc.words[0:size1] = [None for i in xrange(size1)]
+      mc.words[size1:size1 + size2] = mc2.words
+      mc.lemmas[0:size1] = [None for i in xrange(size1)]
+      mc.lemmas[size1:size1 + size2] = mc2.lemmas
+      mc.children = []
+      
+      mc.match_type = 'single2'
+      match_tree.append(mc)
+      index = len(match_tree)
+      folded[(node1, node2)] = index
+      
+      forbidden = [i for i in forbidden]
+      forbidden.append((node1, node2))
+      
+      for c in mc2.children:
+        child_root, _ = self.get_match_tree(match_tree=match_tree, folded=folded, \
+                                            node1=None, node2=c, size1=size1, size2=size2, \
+                                            forbidden=forbidden)
+        assert child_root >= 0
+        mc.children.append(child_root)
+      assert mc.children
+      return index, match_tree
+    elif node1 is not None and node2 is None:
+      mc1 = self.get_match_cell1(node1)
+      assert size1 != -1
+      assert size2 != -1
+      
+      mc = MatchCell(size1 + size2)
+      mc.cands[0:size1] = mc1.cands
+      mc.cands[size1:size1 + size2] = [None for i in xrange(size2)]
+      mc.pos_tags[0:size1] = mc1.pos_tags
+      mc.pos_tags[size1:size1 + size2] = [None for i in xrange(size2)]
+      mc.words[0:size1] = mc1.words
+      mc.words[size1:size1 + size2] = [None for i in xrange(size2)]
+      mc.lemmas[0:size1] = mc1.lemmas
+      mc.lemmas[size1:size1 + size2] = [None for i in xrange(size2)]
+      mc.children = []
+      
+      mc.match_type = 'single1'
+      match_tree.append(mc)
+      index = len(match_tree)
+      folded[(node1, node2)] = index
+      
+      forbidden = [i for i in forbidden]
+      forbidden.append((node1, node2))
+      
+      for c in mc1.children:
+        child_root, _ = self.get_match_tree(match_tree=match_tree, folded=folded, \
+                                            node1=c, node2=None, size1=size1, size2=size2, \
+                                            forbidden=forbidden)
+        assert child_root >= 0
+        mc.children.append(child_root)
+      assert mc.children
+      return index, match_tree
+    else:
+      assert False
 
-    for o1, o2 in succ:
-      assert not instr.endswith('_match') or o1 in mc1.children, (o1, mc1.children)
-      assert not instr.endswith('_match') or o2 in mc2.children, (o2, mc2.children)
-      assert not instr.endswith('_skip2') or o1 == node1
-      assert not instr.endswith('_skip1') or o2 == node2
-      assert (o1, o2) not in forbidden, (o1, o2, forbidden)
-      child_root, _ = self.get_match_tree(match_tree, folded, o1, o2, forbidden)
-      assert child_root >= 0
-      mc.children.append(child_root)
-    assert mc.children
-    return index, match_tree
-
-  def print_matched_lemmas(self, stream=sys.stdout, node1=None, node2=None, folded=None):
-    if node1 is None:
+  def print_matched_lemmas(self, stream=sys.stdout, node1=-1, node2=-1, folded=-1):
+    if node1 == -1:
       node1 = self.mt_root1
-    if node2 is None:
+    if node2 == -1:
       node2 = self.mt_root2
-    if folded is None:
+    if folded == -1:
       folded = set()
 
     if (node1, node2) in folded or node1 == 0 or node2 == 0:
@@ -438,12 +519,12 @@ class MultiDepAlignment(AlignmentMixin):
   def overall_score(self):
     return self.score_matrix[self.mt_root1, self.mt_root2]
 
-  def rescore(self, unscore_list, folded=None, node1=None, node2=None):
-    if node1 is None:
+  def rescore(self, unscore_list, folded=-1, node1=-1, node2=-1):
+    if node1 == -1:
       node1 = self.mt_root1
-    if node2 is None:
+    if node2 == -1:
       node2 = self.mt_root2
-    if folded is None:
+    if folded == -1:
       folded = set()
 
     if (node1, node2) in folded or node1 == 0 or node2 == 0:

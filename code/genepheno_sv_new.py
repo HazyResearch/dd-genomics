@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 import collections
-from util import extractor_util as eutil
+import extractor_util as eutil
 import sys
 from dep_alignment.alignment_util import row_to_canonical_match_tree, DepParentsCycleException, OverlappingCandidatesException, RootException
 from dep_alignment.multi_dep_alignment import MultiDepAlignment
@@ -76,7 +76,7 @@ if __name__ == '__main__':
   app_home = os.environ['APP_HOME']
   match_trees = []
   with open(app_home + '/match_paths/match_paths%d.txt' % random.randint(0, 100000), 'a') as match_path_file:
-    with open(app_home + '/true_causation_sentences1.tsv') as f:
+    with open(app_home + '/true_causation_sentences2.tsv') as f:
       for line in f:
         row = ds_parser.parse_tsv_row(line)
         try:
@@ -123,13 +123,13 @@ if __name__ == '__main__':
                                set(['case', 'patient']), \
                                set(['identify', 'report', 'find', 'detect']), \
                                set(['cause', 'associate', 'link', 'lead', 'result']),
-                               set(['mutation', 'inhibition'])])
+                               set(['mutation', 'inhibition', 'deficiency'])])
       # mda.print_matched_lemmas(match_path_file)
       print >>match_path_file, ' '.join(row.words)
       mda.print_match_path(match_path_file)
       score1 = mda.overall_score()
       score2 = mda.rescore([(set(['cause', 'lead', 'result']), set(['associate', 'link']), -50),
-                            (set(['mutation']), set(['inhibition']), -50)])
+                            (set(['mutation']), set(['inhibition', 'deficiency']), -50)])
       r = read_candidate(row)
       matching_scores.append(int(score1))
       rescores.append(int(score1 + score2))
