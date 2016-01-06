@@ -531,12 +531,6 @@ hgvs_hpo (
   hpo_id text
 ).
 
-dummy (
-  a int,
-  b int,
-  c int
-).
-
 genepheno_pairs_sentences(
   @distributed_by
  doc_id            text,     
@@ -552,17 +546,17 @@ genepheno_pairs_sentences(
  pheno_is_corrects boolean[]
 ).
 
-ensembl_protein_sequences (
-  @distributed_by
-  ensembl_transcript text,
-  aa_seq text[]
-).
+#ensembl_protein_sequences (
+#  @distributed_by
+#  ensembl_transcript text,
+#  aa_seq text[]
+#).
 
-ensembl_gene_sequences (
-  @distributed_by
-  ensembl_transcript text,
-  n_seq text[]
-).
+#ensembl_gene_sequences (
+#  @distributed_by
+#  ensembl_transcript text,
+#  n_seq text[]
+#).
 
 ensgene (
   bin int,
