@@ -130,7 +130,6 @@ genepheno_causation_views(id, relation_id, doc_id, section_id, sent_id, gene_men
 
 
 #### Declaration tables #####
-@distributed_by("doc_id")
 sentences (
   @distributed_by
   doc_id text,
@@ -146,9 +145,9 @@ sentences (
  ).
 
 #@source
-@distributed_by("doc_id")
 sentences_input (
   #@key
+  @distributed_by
   doc_id text,
   #@key
   section_id text,
@@ -168,19 +167,19 @@ hpo_to_doc_via_mesh (
   doc_id text
 ).
 
-@distributed_by("ensembl_id")
 genes (
   #include primary key when dd fixes find command
   #gene_id text primary key,
+  @distributed_by
   ensembl_id text,
   canonical_name text,
   gene_name text,
   name_type text
 ).
 
-@distributed_by("doc_id")
 gene_mentions_temp_before_non_gene_acronyms_delete_candidates (
   id bigint,
+  @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
@@ -195,10 +194,10 @@ gene_mentions_temp_before_non_gene_acronyms_delete_candidates (
 ).
 
 #@extraction
-@distributed_by("doc_id")
 gene_mentions (
   id bigint,
   #@references(relation="sentences_input", column="doc_id")
+  @distributed_by
   doc_id text,
   ##@references(relation="sentences_input", column="section_id")
   section_id text,
@@ -217,9 +216,9 @@ gene_mentions (
   is_correct boolean
 ).
 
-@distributed_by("doc_id")
 variant_mentions (
   id bigint,
+  @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
@@ -241,19 +240,19 @@ variant_mentions (
   is_correct boolean
 ).
 
-@distributed_by("doc_id")
 gene_features (
+  @distributed_by
   doc_id text,
         section_id text,
   mention_id text,
   feature text
 ).
 
-@distributed_by("doc_id")
 #@extraction
 pheno_mentions (
   id bigint,
   #@references(relation="sentences_input", column="doc_id")
+  @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
@@ -274,6 +273,7 @@ pheno_mentions (
 
 pheno_mentions_before_union_1 (
   id bigint,
+  @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
@@ -288,6 +288,7 @@ pheno_mentions_before_union_1 (
 
 pheno_mentions_before_union_2 (
   id bigint,
+  @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
@@ -302,9 +303,9 @@ pheno_mentions_before_union_2 (
 
 #Temporary table created to avoid a "dependency loop" and help the compiler understand better the order pheno_extract_candidates ->p heno_acronyms_extract_candidates -> pheno_acronyms_aggregate_candidates pheno_acronyms_insert_candidates
 
-@distributed_by("doc_id")
 pheno_mentions_without_acronyms (
   id bigint,
+  @distributed_by
   doc_id text,
         section_id text,
   sent_id int,
@@ -317,16 +318,16 @@ pheno_mentions_without_acronyms (
   is_correct boolean
 ).
 
-@distributed_by("doc_id")
 pheno_features (
+  @distributed_by
   doc_id text,
         section_id text,
   mention_id text,
   feature text
 ).
 
-@distributed_by("doc_id")
 variant_features (
+  @distributed_by
   doc_id text,
         section_id text,
   mention_id text,
@@ -334,11 +335,11 @@ variant_features (
 ).
 
 #@extraction
-@distributed_by("doc_id")
 genepheno_association (
   id bigint,
   relation_id text,  
   #@references(relation="sentences_input", column="doc_id")
+  @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
@@ -358,10 +359,10 @@ genepheno_association (
   subtype text
 ).
 
-@distributed_by("doc_id")
 genepheno_causation (
   id bigint,
   relation_id text,
+  @distributed_by
   doc_id text,
         section_id text,
   sent_id int,
@@ -376,8 +377,8 @@ genepheno_causation (
         subtype text
 ).
 
-@distributed_by("doc_id")
 genepheno_features (
+  @distributed_by
   doc_id text,
         section_id text,
   relation_id text,
@@ -406,29 +407,29 @@ genevariant_relations (
   subtype text
 ).
 
-@distributed_by("doc_id")
 genevariant_features (
+  @distributed_by
   doc_id text,
         section_id text,
   relation_id text,
   feature text
 ).
 
-@distributed_by("id")
 test_nlp (
+  @distributed_by
   id bigint
 ).
 
-@distributed_by("doi")
 plos_doi_to_pmid (
+  @distributed_by
   doi text,
   pmid text
 ).
 
-@distributed_by("doc_id")
 non_gene_acronyms (
   # id for random variable
   id bigint,
+  @distributed_by
   doc_id text,
         section_id text,
   sent_id int,
@@ -442,18 +443,18 @@ non_gene_acronyms (
   is_correct boolean
 ).
 
-@distributed_by("doc_id")
 non_gene_acronyms_features (
+  @distributed_by
   doc_id text,
   section_id text,
   mention_id text,
   feature text
 ).
 
-@distributed_by("doc_id")
 pheno_acronyms (
   # id for random variable
   id bigint,
+  @distributed_by
   doc_id text,
         section_id text,
   sent_id int,
@@ -468,21 +469,21 @@ pheno_acronyms (
   is_correct boolean
 ).
 
-@distributed_by("doc_id")
 pheno_acronyms_features (
+  @distributed_by
   doc_id text,
         section_id text,
   mention_id text,
   feature text
 ).
 
-@distributed_by("doc_id")
 genepheno_holdout_set (
-        doc_id text,
-        section_id text,
-        sent_id int,
-        gene_wordidxs int[],
-        pheno_wordidxs int[]
+  @distributed_by
+  doc_id text,
+  section_id text,
+  sent_id int,
+  gene_wordidxs int[],
+  pheno_wordidxs int[]
 ).
 
 genepheno_holdout_labels (
@@ -494,20 +495,22 @@ genepheno_holdout_labels (
   labeler text
 ).
 
-@distributed_by("hpo_id", "ensembl_id")
 genepheno_causation_canon (
+  @distributed_by
   hpo_id text,
+  @distributed_by
   ensembl_id text
 ).
 
-@distributed_by("hpo_id", "ensembl_id")
 genepheno_association_canon (
+  @distributed_by
   hpo_id text,
+  @distributed_by
   ensembl_id text
 ).
 
-@distributed_by("hpo_id")
 hpo_abnormalities (
+  @distributed_by
   hpo_id text,
   pheno_name text
 ).
@@ -534,8 +537,8 @@ dummy (
   c int
 ).
 
-@distributed_by("doc_id")
 genepheno_pairs_sentences(
+  @distributed_by
  doc_id            text,     
  section_id        text,      
  sent_id           integer,  
@@ -549,13 +552,14 @@ genepheno_pairs_sentences(
  pheno_is_corrects boolean[]
 ).
 
-@distributed_by("ensembl_transcript")
 ensembl_protein_sequences (
+  @distributed_by
   ensembl_transcript text,
   aa_seq text[]
 ).
-@distributed_by("ensembl_transcript")
+
 ensembl_gene_sequences (
+  @distributed_by
   ensembl_transcript text,
   n_seq text[]
 ).
@@ -579,10 +583,10 @@ ensgene (
   exonFrames text
 ).
 
-@distributed_by("doc_id")
 genepheno_relations(
  id               bigint, 
  relation_id      text,   
+ @distributed_by
  doc_id           text,      
  section_id       text,      
  sent_id          integer,
@@ -605,11 +609,12 @@ doc_id              text,
  issn_print         text,    
  issn_electronic    text).
 
-@distributed_by("hpo_id")
-allowed_phenos (hpo_id text).
+allowed_phenos (
+  @distributed_by
+  hpo_id text).
 
-@distributed_by("doc_id")
 gene_holdout_set (
+        @distributed_by
         doc_id text,
         section_id text,
         sent_id int,
@@ -661,9 +666,9 @@ gene_mentions_temp_before_non_gene_acronyms_delete_candidates += gene_extract_ca
   gene_extract_candidates_view_temp (doc_id).
 
 #non_gene_acronyms_delete_candidates
-@distributed_by("doc_id")
 gene_mentions_non_gene_acronyms(
   id bigint,
+  @distributed_by
   doc_id text,
         section_id text,
   sent_id int,
@@ -732,8 +737,19 @@ variant_mentions_filtered(_, doc_id, section_id, sent_id, wordidxs, mention_id, 
 
 #pheno_filter_candidates
 #Create table pheno_mentions_filtered
-@distributed_by("doc_id")
-pheno_mentions_filtered( id bigint, doc_id text, section_id text, sent_id integer, wordidxs text, mention_id text, supertype text, subtype text, entity text, words text, is_correct boolean).
+pheno_mentions_filtered( 
+  id bigint,
+  @distributed_by 
+  doc_id text,
+  section_id text,
+  sent_id integer,
+  wordidxs text,
+  mention_id text,
+  supertype text,
+  subtype text,
+  entity text,
+  words text,
+  is_correct boolean).
 
 pheno_mentions_filtered( id, doc_id, section_id, sent_id, array_to_string(wordidxs, "|^|"), mention_id, supertype, subtype, entity, array_to_string(words, "|^|"), is_correct) *:-
 pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct),
@@ -741,14 +757,15 @@ genepheno_relations(_,_,_,_,_,_,_,_,_,mention_id,_,_,_).
 
 
 #Create table pheno_mention_ids
-@distributed_by("doc_id")
-pheno_mention_ids( doc_id text).
+pheno_mention_ids( 
+@distributed_by
+doc_id text).
 
 pheno_mention_ids(doc_id) *:- pheno_mentions_filtered(_, doc_id, _, _,_, _, _, _, _, _, _).
 
 #Create table sentences_input_with_pheno_mention
-@distributed_by("doc_id")
 sentences_input_with_pheno_mention(
+  @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
@@ -780,8 +797,8 @@ implementation "code/pheno_extract_features.py" handles tsv lines.
 
 #Create table genepheno_pairs
 #get_genepheno_pairs
-@distributed_by("doc_id")
 genepheno_pairs(
+  @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
@@ -814,8 +831,8 @@ genepheno_pairs(
 #serialize_genepheno_pairs_split ?
 
 #get_genevariant_pairs
-@distributed_by("doc_id")
 genevariant_pairs(
+  @distributed_by
   doc_id text,
   gene_section_id text,
   gene_sent_id int,
@@ -919,8 +936,8 @@ pheno_acronyms_extract_candidates_view_temp_2(doc_id, section_id, sent_id, word_
 
 #pheno_acronyms_aggregate_candidates
 #Creating table pheno_acronyms_aggregate
-@distributed_by("doc_id")
 pheno_acronyms_aggregate(
+  @distributed_by
   doc_id text,
   pa_section_ids text,
   pa_sent_ids text,
@@ -930,14 +947,14 @@ pheno_acronyms_aggregate(
 pheno_acronyms_aggregate(doc_id, array_to_string(ARRAY_AGG(section_id), "|^|"), array_to_string(ARRAY_AGG(sent_id), "|^|"), array_to_string(ARRAY_AGG(abbrev), "|^|"), array_to_string(ARRAY_AGG(entity), "|^|")) *:-
 pheno_acronyms(id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs, mention_id, supertype, subtype, abbrev, definition, entity, "t").
 
-@distributed_by("doc_id")
 pheno_acronyms_ids(
+  @distributed_by
   doc_id text).
 
 pheno_acronyms_ids(doc_id) *:- pheno_acronyms_aggregate(doc_id, pa_section_ids, pa_sent_ids, pa_abbrevs, pheno_entities).
 
-@distributed_by("doc_id")
 sentences_input_with_pheno_acronyms(
+  @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
@@ -1064,8 +1081,20 @@ genevariant_coding_supervise_true(
 
 #gene_filter_candidates
 #Create table gene_mentions_filtered
-@distributed_by("doc_id")
-gene_mentions_filtered( id bigint, doc_id text, section_id text, sent_id integer, wordidxs text, mention_id text, mapping_type text, supertype text, subtype text, gene_name text, words text, is_correct boolean).
+gene_mentions_filtered( 
+  id bigint,
+  @distributed_by
+  doc_id text,
+  section_id text,
+  sent_id integer,
+  wordidxs text,
+  mention_id text,
+  mapping_type text,
+  supertype text,
+  subtype text,
+  gene_name text,
+  words text,
+  is_correct boolean).
 
 gene_mentions_filtered( id, doc_id, section_id, sent_id, array_to_string(wordidxs, "|^|"), mention_id, mapping_type, supertype, subtype, gene_name, array_to_string(words, "|^|"), is_correct) *:-
 gene_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct),
@@ -1074,15 +1103,16 @@ genepheno_relations(_,_,_,_,_,mention_id,_,_,_,_,_,_,_).
 
 #Create table gene_mention_ids
 
-@distributed_by("doc_id")
-gene_mention_ids( doc_id text).
+gene_mention_ids( 
+@distributed_by
+doc_id text).
 
 gene_mention_ids(doc_id) *:- gene_mentions_filtered(_, doc_id, _, _, _,_, _, _, _, _, _, _).
 
 #Create table sentences_input_with_gene_mention
 
-@distributed_by("doc_id")
 sentences_input_with_gene_mention(
+  @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
@@ -1099,9 +1129,9 @@ gene_mention_ids(doc_id).
 
 #variant_filter_candidates
 
-@distributed_by("doc_id")
 variant_mentions_filtered(
   id bigint,
+  @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
