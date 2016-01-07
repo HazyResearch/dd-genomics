@@ -87,4 +87,6 @@ db.url
 
 /log*
 
+/input/sentences*
+
 /search
