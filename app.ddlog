@@ -130,19 +130,19 @@ genepheno_causation_views(id, relation_id, doc_id, section_id, sent_id, gene_men
 
 
 #### Declaration tables #####
-sentences (
-  @distributed_by
-  doc_id text,
-  section_id text,
-  sent_id int,
-  ref_doc_id text,
-  words text[],
-  lemmas text[],
-  poses text[],
-  ners text[],
-  dep_paths text[],
-  dep_parents int[]
- ).
+#sentences (
+#  @distributed_by
+#  doc_id text,
+#  section_id text,
+#  sent_id int,
+#  ref_doc_id text,
+#  words text[],
+#  lemmas text[],
+#  poses text[],
+#  ners text[],
+#  dep_paths text[],
+#  dep_parents int[]
+# ).
 
 #@source
 sentences_input (
@@ -627,16 +627,17 @@ gene_holdout_labels (
 ##### Extractors #####
 
 #Extractor: serialize_sentences
-sentences_input(
-  doc_id,
-  section_id,
-  sent_id,
-  ARRAY_TO_STRING(words, "|^|"),
-  ARRAY_TO_STRING(lemmas, "|^|"),
-  ARRAY_TO_STRING(poses, "|^|"),
-  ARRAY_TO_STRING(ners, "|^|"),
-  ARRAY_TO_STRING(dep_paths, "|^|"),
-  ARRAY_TO_STRING(dep_parents, "|^|")) :-  sentences(doc_id, section_id, sent_id,_, words, lemmas, poses, ners, dep_paths, dep_parents).
+#Here commented out since we start directly from sentences_input
+#sentences_input(
+#  doc_id,
+#  section_id,
+#  sent_id,
+#  ARRAY_TO_STRING(words, "|^|"),
+#  ARRAY_TO_STRING(lemmas, "|^|"),
+#  ARRAY_TO_STRING(poses, "|^|"),
+#  ARRAY_TO_STRING(ners, "|^|"),
+#  ARRAY_TO_STRING(dep_paths, "|^|"),
+#  ARRAY_TO_STRING(dep_parents, "|^|")) :-  sentences(doc_id, section_id, sent_id,_, words, lemmas, poses, ners, dep_paths, dep_parents).
 
 
 # gene_extract_candidates:
