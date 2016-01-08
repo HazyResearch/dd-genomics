@@ -117,7 +117,7 @@ if [ ! -f data/meshToPmid.tsv ]; then
   fi
 fi
 
-if [ ! -f data/hg19_ensGene.sql ]; then
+if [ ! -f raw/hg19_ensGene.sql ]; then
   if [ -f /dfs/scratch0/jbirgmei/dd_onto_data/hg19_ensGene.sql ]; then
     cp /dfs/scratch0/jbirgmei/dd_onto_data/hg19_ensGene.sql raw/hg19_ensGene.sql
   else
