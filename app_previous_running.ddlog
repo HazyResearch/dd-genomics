@@ -1,6 +1,3 @@
-##Work in progress
-##From the latest application.conf, on January 7th
-
 ##### Creation views for mindbender #####
 
 # Currently, the mindbender has some troubles tracing sentence with multiple keys, so tables are created, e.g., *_view with view_key for view
@@ -490,7 +487,6 @@ genepheno_holdout_set (
 ).
 
 genepheno_holdout_labels (
-  @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
@@ -498,25 +494,6 @@ genepheno_holdout_labels (
   type text,
   labeler text
 ).
-
-#all_genepheno_holdout_sets (
-#  @distributed_by
-#  doc_id text,
-#  section_id text,
-#  sent_id int,
-#  gene_wordidxs int[],
-#  pheno_wordidxs int[]
-#).
-
-#all_genepheno_holdout_labels (
-#  @distributed_by
-#  doc_id text,
-#  section_id text,
-#  sent_id int,
-#  is_correct text,
-#  type text,
-#  labeler text
-#).
 
 #genepheno_causation_canon (
 #  @distributed_by
@@ -569,11 +546,11 @@ genepheno_pairs_sentences(
  pheno_is_corrects boolean[]
 ).
 
-ensembl_protein_sequences (
-  @distributed_by
-  ensembl_transcript text,
-  aa_seq text[]
-).
+#ensembl_protein_sequences (
+#  @distributed_by
+#  ensembl_transcript text,
+#  aa_seq text[]
+#).
 
 #ensembl_gene_sequences (
 #  @distributed_by
@@ -581,24 +558,24 @@ ensembl_protein_sequences (
 #  n_seq text[]
 #).
 
-ensgene (
-  bin int,
-  name text,
-  chrom text,
-  strand text,
-  txStart int,
-  txEnd int,
-  cdsStart int,
-  cdsEnd int,
-  exonCount int,
-  exonStarts text,
-  exonEnds text,
-  score int,
-  name2 text,
-  cdsStartStat text,
-  cdsEndStat text,
- exonFrames text
-).
+#ensgene (
+#  bin int,
+#  name text,
+#  chrom text,
+#  strand text,
+#  txStart int,
+#  txEnd int,
+#  cdsStart int,
+#  cdsEnd int,
+#  exonCount int,
+#  exonStarts text,
+#  exonEnds text,
+#  score int,
+#  name2 text,
+#  cdsStartStat text,
+#  cdsEndStat text,
+# exonFrames text
+#).
 
 genepheno_relations(
  id               bigint, 
@@ -1078,28 +1055,28 @@ genepheno_pairs_sentences(doc_id, section_id, sent_id, gene_mention_ids, gene_na
 
 
 #Create table gene_to_transcripts
-gene_to_transcripts(gene_name text,
-            ensembl_ids text,
-            ensembl_transcripts text,
-            chroms text,
-            strands text,
-            txstarts text,
-            txends text,
-            exonstarts text,
-            exonends text).
+#gene_to_transcripts(gene_name text,
+#            ensembl_ids text,
+#            ensembl_transcripts text,
+#            chroms text,
+#            strands text,
+#            txstarts text,
+#            txends text,
+#            exonstarts text,
+#            exonends text).
 
-gene_to_transcripts(
-            gene_name,
-            array_to_string(ARRAY_AGG(ensembl_id), "|~|"),
-            array_to_string(ARRAY_AGG(name), "|~|"),
-            array_to_string(ARRAY_AGG(chrom), "|~|"),
-            array_to_string(ARRAY_AGG(strand), "|~|"),
-            array_to_string(ARRAY_AGG(cdsstart), "|~|"),
-            array_to_string(ARRAY_AGG(cdsend), "|~|"),
-            array_to_string(ARRAY_AGG(exonstarts), "|~|"),
-            array_to_string(ARRAY_AGG(exonends), "|~|")) *:-
-genes(ensembl_id, canonical_name, gene_name, name_type),
-ensgene( bin, name, chrom, strand, txstart, txend, cdsstart, cdsend, exoncount, exonstarts, exonends, score, ensembl_id, cdsstartstat, cdsendstat, exonframes).
+#gene_to_transcripts(
+#            gene_name,
+#            array_to_string(ARRAY_AGG(ensembl_id), "|~|"),
+#            array_to_string(ARRAY_AGG(name), "|~|"),
+#            array_to_string(ARRAY_AGG(chrom), "|~|"),
+#            array_to_string(ARRAY_AGG(strand), "|~|"),
+#            array_to_string(ARRAY_AGG(cdsstart), "|~|"),
+#            array_to_string(ARRAY_AGG(cdsend), "|~|"),
+#            array_to_string(ARRAY_AGG(exonstarts), "|~|"),
+#            array_to_string(ARRAY_AGG(exonends), "|~|")) *:-
+#genes(ensembl_id, canonical_name, gene_name, name_type),
+#ensgene( bin, name, chrom, strand, txstart, txend, cdsstart, cdsend, exoncount, exonstarts, exonends, score, ensembl_id, cdsstartstat, cdsendstat, exonframes).
 
 
 

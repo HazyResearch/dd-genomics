@@ -14,32 +14,32 @@ CREATE TABLE genes (
 -- Gene mentions
 DROP TABLE IF EXISTS gene_mentions CASCADE;
 CREATE TABLE gene_mentions (
-	id bigint,
-	doc_id text,
+  id bigint,
+  doc_id text,
         section_id text,
-	sent_id int,
-	wordidxs int[],
-	mention_id text,
+  sent_id int,
+  wordidxs int[],
+  mention_id text,
         mapping_type text,
-	supertype text,
+  supertype text,
         subtype text,
         gene_name text,
-	words text[],
-	is_correct boolean
+  words text[],
+  is_correct boolean
 ) DISTRIBUTED BY (doc_id);
 
 -- Gene mentions
 DROP TABLE IF EXISTS variant_mentions CASCADE;
 CREATE TABLE variant_mentions (
-	id bigint,
-	doc_id text,
+  id bigint,
+  doc_id text,
         section_id text,
-	sent_id int,
-	wordidxs int[],
-	mention_id text,
-	supertype text,
+  sent_id int,
+  wordidxs int[],
+  mention_id text,
+  supertype text,
         subtype text,
-	entity text,
+  entity text,
         variant_type text,
         ivsNum text,
         pos text,
@@ -49,67 +49,67 @@ CREATE TABLE variant_mentions (
         seq text,
         fromSeq text,
         toSeq text,
-	words text[],
-	is_correct boolean
+  words text[],
+  is_correct boolean
 ) DISTRIBUTED BY (doc_id);
 
 -- Gene mentions features
 DROP TABLE IF EXISTS gene_features CASCADE;
 CREATE TABLE gene_features (
-	doc_id text,
+  doc_id text,
         section_id text,
-	mention_id text,
-	feature text
+  mention_id text,
+  feature text
 ) DISTRIBUTED BY (doc_id);
 
 -- phenotype mentions
 DROP TABLE IF EXISTS pheno_mentions CASCADE;
 CREATE TABLE pheno_mentions (
-	id bigint,
-	doc_id text,
+  id bigint,
+  doc_id text,
         section_id text,
-	sent_id int,
-	wordidxs int[],
-	mention_id text,
-	supertype text,
+  sent_id int,
+  wordidxs int[],
+  mention_id text,
+  supertype text,
         subtype text,
-	entity text,
-	words text[],
-	is_correct boolean
+  entity text,
+  words text[],
+  is_correct boolean
 ) DISTRIBUTED BY (doc_id);
 
 -- Phenotype mentions features
 DROP TABLE IF EXISTS pheno_features CASCADE;
 CREATE TABLE pheno_features (
-	doc_id text,
+  doc_id text,
         section_id text,
-	mention_id text,
-	feature text
+  mention_id text,
+  feature text
 ) DISTRIBUTED BY (doc_id);
 
 DROP TABLE IF EXISTS variant_features CASCADE;
 CREATE TABLE variant_features (
-	doc_id text,
+  doc_id text,
         section_id text,
-	mention_id text,
-	feature text
+  mention_id text,
+  feature text
 ) DISTRIBUTED BY (doc_id);
 
 -- Gene / Phenotype association mentions
 DROP TABLE IF EXISTS genepheno_association CASCADE;
 CREATE TABLE genepheno_association (
-	id bigint,
-	relation_id text,
-	doc_id text,
+  id bigint,
+  relation_id text,
+  doc_id text,
         section_id text,
-	sent_id int,
+  sent_id int,
         gene_mention_id text,
         gene_name text,
         gene_wordidxs int[],
-	pheno_mention_id text,
+  pheno_mention_id text,
         pheno_entity text,
         pheno_wordidxs int[],
-	is_correct boolean,
+  is_correct boolean,
         supertype text,
         subtype text
 ) DISTRIBUTED BY (doc_id);
@@ -117,18 +117,18 @@ CREATE TABLE genepheno_association (
 -- Gene / Phenotype association mentions
 DROP TABLE IF EXISTS genepheno_causation CASCADE;
 CREATE TABLE genepheno_causation (
-	id bigint,
-	relation_id text,
-	doc_id text,
+  id bigint,
+  relation_id text,
+  doc_id text,
         section_id text,
-	sent_id int,
+  sent_id int,
         gene_mention_id text,
         gene_name text,
         gene_wordidxs int[],
-	pheno_mention_id text,
+  pheno_mention_id text,
         pheno_entity text,
         pheno_wordidxs int[],
-	is_correct boolean,
+  is_correct boolean,
         supertype text,
         subtype text
 ) DISTRIBUTED BY (doc_id);
@@ -158,18 +158,18 @@ CREATE TABLE genepheno_sv_new (
 -- G/P relation mentions features
 DROP TABLE IF EXISTS genepheno_features CASCADE;
 CREATE TABLE genepheno_features (
-	doc_id text,
+  doc_id text,
         section_id text,
-	relation_id text,
-	feature text
+  relation_id text,
+  feature text
 ) DISTRIBUTED BY (doc_id);
 
 DROP TABLE IF EXISTS genevariant_features CASCADE;
 CREATE TABLE genevariant_features (
-	doc_id text,
+  doc_id text,
         section_id text,
-	relation_id text,
-	feature text
+  relation_id text,
+  feature text
 ) DISTRIBUTED BY (doc_id);
 
 DROP TABLE IF EXISTS test_nlp;
@@ -183,55 +183,55 @@ CREATE TABLE plos_doi_to_pmid (
 
 DROP TABLE IF EXISTS non_gene_acronyms CASCADE;
 CREATE TABLE non_gene_acronyms (
-	-- id for random variable
-	id bigint,
-	doc_id text,
+  -- id for random variable
+  id bigint,
+  doc_id text,
         section_id text,
-	sent_id int,
-	short_wordidxs int[],
-	long_wordidxs int[],
-	mention_id text,
-	supertype text,
+  sent_id int,
+  short_wordidxs int[],
+  long_wordidxs int[],
+  mention_id text,
+  supertype text,
         subtype text,
-	abbrev text,
-	definition text[],
-	is_correct boolean
+  abbrev text,
+  definition text[],
+  is_correct boolean
 ) DISTRIBUTED BY (doc_id);
 
 -- Gene mentions features
 DROP TABLE IF EXISTS non_gene_acronyms_features CASCADE;
 CREATE TABLE non_gene_acronyms_features (
-	doc_id text,
+  doc_id text,
         section_id text,
-	mention_id text,
-	feature text
+  mention_id text,
+  feature text
 ) DISTRIBUTED BY (doc_id);
 
 DROP TABLE IF EXISTS pheno_acronyms CASCADE;
 CREATE TABLE pheno_acronyms (
-	-- id for random variable
-	id bigint,
-	doc_id text,
+  -- id for random variable
+  id bigint,
+  doc_id text,
         section_id text,
-	sent_id int,
-	short_wordidxs int[],
-	long_wordidxs int[],
-	mention_id text,
-	supertype text,
+  sent_id int,
+  short_wordidxs int[],
+  long_wordidxs int[],
+  mention_id text,
+  supertype text,
         subtype text,
-	abbrev text,
-	definition text[],
+  abbrev text,
+  definition text[],
         entity text,
-	is_correct boolean
+  is_correct boolean
 ) DISTRIBUTED BY (doc_id);
 
 -- Gene mentions features
 DROP TABLE IF EXISTS pheno_acronyms_features CASCADE;
 CREATE TABLE pheno_acronyms_features (
-	doc_id text,
+  doc_id text,
         section_id text,
-	mention_id text,
-	feature text
+  mention_id text,
+  feature text
 ) DISTRIBUTED BY (doc_id);
 
 DROP TABLE IF EXISTS genepheno_holdout_set;
