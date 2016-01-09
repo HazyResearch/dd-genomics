@@ -646,6 +646,10 @@ gene_holdout_labels (
   labeler text
 ).
 
+omim_allelic_variant_pmids (
+@distributed_by
+pmid text).
+
 
 ##### Extractors #####
 
@@ -675,10 +679,6 @@ function gene_extract_candidates over (doc_id text,
   ners text)
   returns rows like gene_mentions
   implementation "code/gene_extract_candidates.py" handles tsv lines.
-
-#gene_extract_candidates_view_temp (
-#@distributed_by
-#doc_id text).
 
 gene_extract_candidates_view_temp (doc_id) *:-
 pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
