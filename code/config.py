@@ -297,6 +297,11 @@ GENE_PHENO = {
                    'unlikely.*GENE.*PHENO', ]
     },
          
+    'example-sentences': {
+      'pos': [],
+      'neg': []
+    },
+         
     'synonyms': [set(['disease', 'disorder']), \
                  set(['mutation', 'variant', 'allele', 'polymorphism']), \
                  set(['case', 'patient', 'subject', 'family', 'boy', 'girl']), \
@@ -317,9 +322,10 @@ GENE_PHENO = {
 
 CAUSATION_SR = {
     
-    'example_sentences': {
-      'true_causation_sentences1.tsv': 18,
-      'true_causation_sentences2.tsv': 27
+    'example-sentences': {
+      'pos': [('true_causation_sentences1.tsv', 18),
+              ('true_causation_sentences2.tsv', 27)],
+      'neg': []
     },
                 
     # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
