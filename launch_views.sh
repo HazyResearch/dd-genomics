@@ -8,5 +8,6 @@ while true; do
 done
 echo 
 
+#echo 'maintenance of the views right now, should be back working in a few hours'
 
 #You may have a request timeout while launching it. Just wait a few minutes and reload the page
