@@ -6,7 +6,7 @@
 <div ng-if="!searchResult.highlight['text']">
     <strong class="text-muted">Review content:</strong>
     <blockquote>
-        <div mindtagger-word-array="source.words"></div>
+        <div>{{source.words}}</div>
         <small>{{extraction.relation_id}}</small>
     </blockquote>
 </div>
