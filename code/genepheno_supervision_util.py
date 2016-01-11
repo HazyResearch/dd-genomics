@@ -6,7 +6,7 @@ import random
 import re
 import sys
 import config
-from dep_alignment.genepheno_sv_new import get_example_tree, get_score
+from dep_alignment.genepheno_sv_new import get_example_tree, get_score, print_example_tree
 
 
 # This defines the Row object that we read in to the extractor
@@ -67,11 +67,11 @@ def read_supervision():
       hpo_id, gene_name = line.strip().split('\t')
       hpo_ids = [hpo_id] + [parent for parent in HPO_DAG.edges[hpo_id]]
       for h in hpo_ids:
-        supervision_pairs.add((h,gene_name))
+        supervision_pairs.add((h, gene_name))
   return supervision_pairs
 
-# count_g_or_p_false_none = 0 
-# count_adjacent_false_none = 0 
+# count_g_or_p_false_none = 0
+# count_adjacent_false_none = 0
 
 CACHE = {}
 
@@ -97,10 +97,10 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
   phrase = ' '.join(row.words)
   lemma_phrase = ' '.join(row.lemmas)
   b = sorted([gene_wordidxs[0], gene_wordidxs[-1], pheno_wordidxs[0], pheno_wordidxs[-1]])[1:-1]
-  assert b[0]+1 < len(row.words), str((b[0]+1, len(row.words), row.doc_id, row.section_id, row.sent_id, str(row.words)))
+  assert b[0] + 1 < len(row.words), str((b[0] + 1, len(row.words), row.doc_id, row.section_id, row.sent_id, str(row.words)))
   assert b[1] < len(row.words), str((b[1], len(row.words), row.doc_id, row.section_id, row.sent_id, str(row.words)))
-  between_phrase = ' '.join(row.words[i] for i in range(b[0]+1,b[1]))
-  between_phrase_lemmas = ' '.join(row.lemmas[i] for i in range(b[0]+1,b[1]))
+  between_phrase = ' '.join(row.words[i] for i in range(b[0] + 1, b[1]))
+  between_phrase_lemmas = ' '.join(row.lemmas[i] for i in range(b[0] + 1, b[1]))
 
   # Create a dependencies DAG for the sentence
   dep_dag = deps.DepPathDAG(row.dep_parents, row.dep_paths, row.words, max_path_len=HF['max-dep-path-dist'])
@@ -116,13 +116,13 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
       return None
 
   dep_path_between = frozenset(dep_dag.min_path_sets(gene_wordidxs, pheno_wordidxs)) if dep_dag else None
-  
+
   # distant supervision rules & hyperparameters
   # NOTE: see config.py for all documentation & values
 
   # global count_g_or_p_false_none
   # global count_adjacent_false_none
-  
+
   if SR.get('g-or-p-false'):
     opts = SR['g-or-p-false']
     # The following line looks like it was written by a prosimian, but it is actually correct.
@@ -130,7 +130,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
     # (Consider that Boolean variables can and will take the value ``None'' in this language.)
     """The above comment might be necessary for a Eukaryota, otherwise hopefully the below is self-explanatory"""
     if gene_is_correct == False or pheno_is_correct == False:
-      if random.random() < opts['diff']*superv_diff or random.random() < opts['rand']:
+      if random.random() < opts['diff'] * superv_diff or random.random() < opts['rand']:
         return r._replace(is_correct=False, relation_supertype='G_ANDOR_P_FALSE', relation_subtype='gene_is_correct: %s, pheno_is_correct: %s' % (gene_is_correct, pheno_is_correct))
       else:
         # count_g_or_p_false_none += 1
@@ -138,7 +138,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
 
   if SR.get('adjacent-false'):
     if re.search(r'[a-z]{3,}', between_phrase, flags=re.I) is None:
-      if random.random() < 0.5*superv_diff or random.random() < 0.01:
+      if random.random() < 0.5 * superv_diff or random.random() < 0.01:
         st = non_alnum.sub('_', between_phrase)
         return r._replace(is_correct=False, relation_supertype='G_P_ADJACENT', relation_subtype=st)
       else:
@@ -150,17 +150,17 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
   if SR.get('phrases-in-sent'):
     opts = SR['phrases-in-sent']
     opts = replace_opts(opts, [('GENE', gene), ('PHENO', pheno)])
-    for name,val in VALS:
+    for name, val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
         match = util.rgx_mult_search(phrase + ' ' + lemma_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
           # backslashes cause postgres errors in postgres 9
-          return r._replace(is_correct=val, relation_supertype='PHRASE_%s' % name, relation_subtype = non_alnum.sub('_', match))
+          return r._replace(is_correct=val, relation_supertype='PHRASE_%s' % name, relation_subtype=non_alnum.sub('_', match))
 
   if SR.get('phrases-in-between'):
     opts = SR['phrases-in-between']
     opts = replace_opts(opts, [('GENE', gene), ('PHENO', pheno)])
-    for name,val in VALS:
+    for name, val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
         match = util.rgx_mult_search(between_phrase + ' ' + between_phrase_lemmas, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
@@ -171,9 +171,9 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
     if dep_path_between:
       verbs_between = [i for i in dep_path_between if row.poses[i].startswith("VB")]
       if len(verbs_between) > 0:
-        for name,val in VALS:
-          mod_words = [i for i,x in enumerate(row.lemmas) if x in opts[name]]
-          mod_words += [i for i,x in enumerate(row.dep_paths) if x in opts['%s-dep-tag' % name]]
+        for name, val in VALS:
+          mod_words = [i for i, x in enumerate(row.lemmas) if x in opts[name]]
+          mod_words += [i for i, x in enumerate(row.dep_paths) if x in opts['%s-dep-tag' % name]]
           d = dep_dag.path_len_sets(verbs_between, mod_words)
           if d and d < opts['max-dist'] + 1:
             subtype = 'ModWords: ' + ' '.join([str(m) for m in mod_words]) + ', VerbsBetween: ' + ' '.join([str(m) for m in verbs_between]) + ', d: ' + str(d)
@@ -181,36 +181,39 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
 
   if SR.get('dep-lemma-connectors') and dep_dag:
     opts = SR['dep-lemma-connectors']
-    for name,val in VALS:
+    for name, val in VALS:
       if dep_path_between:
-        connectors = [i for i,x in enumerate(row.lemmas) if i in dep_path_between and x in opts[name]]
+        connectors = [i for i, x in enumerate(row.lemmas) if i in dep_path_between and x in opts[name]]
         if len(connectors) > 0:
           return r._replace(is_correct=val, relation_supertype='DEP_LEMMA_CONNECT_%s' % name, relation_subtype=non_alnum.sub('_', ' '.join([str(x) for x in connectors])))
 
   if SR.get('dep-lemma-neighbors') and dep_dag:
     opts = SR['dep-lemma-neighbors']
-    for name,val in VALS:
-      for entity in ['g','p']:
-        lemmas = [i for i,x in enumerate(row.lemmas) if x in opts['%s-%s' % (name,entity)]]
+    for name, val in VALS:
+      for entity in ['g', 'p']:
+        lemmas = [i for i, x in enumerate(row.lemmas) if x in opts['%s-%s' % (name, entity)]]
         d = dep_dag.path_len_sets(gene_wordidxs, lemmas)
         if d and d < opts['max-dist'] + 1:
           subtype = ' '.join([str(l) for l in lemmas]) + ', d: ' + str(d)
-          return r._replace(is_correct=val, relation_supertype='DEP_LEMMA_NB_%s_%s' % (name,entity), relation_subtype=non_alnum.sub('_', subtype))
+          return r._replace(is_correct=val, relation_supertype='DEP_LEMMA_NB_%s_%s' % (name, entity), relation_subtype=non_alnum.sub('_', subtype))
 
   if SR.get('charite-all-pos'):
     if (pheno_entity, gene_name) in charite_pairs:
       return r._replace(is_correct=True, relation_supertype='CHARITE_SUP')
-  
-  if SR.get('example-sentences'):
+
+  if False and SR.get('example-sentences'):
     opts = SR['example-sentences']
     for name, val in VALS:
-      for ((sentences_file, cutoff), i) in enumerate(opts[name]):
+      for (i, (sentences_file, cutoff)) in enumerate(opts[name]):
         if (name, sentences_file, cutoff, i) in CACHE['example-trees']:
           example_tree_root, example_tree = CACHE['example-trees'][(name, sentences_file, cutoff, i)]
         else:
           example_tree_root, example_tree = get_example_tree(sentences_file, SR['synonyms'])
+          print >>sys.stderr, "tree: "
+          print_example_tree(sentences_file, SR['synonyms'])
           CACHE['example-trees'][(name, sentences_file, cutoff, i)] = (example_tree_root, example_tree)
         _, rescore = get_score(row, example_tree_root, example_tree, SR['synonyms'], SR['rescores'])
+        # print >> sys.stderr, "%s: have score %d" % (sentences_file, rescore)
         if rescore >= cutoff:
           return r._replace(is_correct=val, relation_supertype='TREE_MATCH_%s' % name, relation_subtype=sentences_file)
 
@@ -218,17 +221,19 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
   return r
 
 def supervise(supervision_rules, hard_filters):
+  print >> sys.stderr, supervision_rules
   # generate the mentions, while trying to keep the supervision approx. balanced
   # print out right away so we don't bloat memory...
   pos_count = 0
   neg_count = 0
   # load in static data
+  CACHE['example-trees'] = {}
   CHARITE_PAIRS = read_supervision()
   for line in sys.stdin:
     row = parser.parse_tsv_row(line)
 
-    relation = create_supervised_relation(row, superv_diff=pos_count-neg_count, SR=supervision_rules, HF=hard_filters, charite_pairs=CHARITE_PAIRS)
-    
+    relation = create_supervised_relation(row, superv_diff=pos_count - neg_count, SR=supervision_rules, HF=hard_filters, charite_pairs=CHARITE_PAIRS)
+
     if relation:
       if relation.is_correct == True:
         pos_count += 1

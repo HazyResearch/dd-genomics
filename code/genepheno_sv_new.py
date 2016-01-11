@@ -3,8 +3,8 @@
 import collections
 import extractor_util as eutil
 import sys
-from alignment_util import row_to_canonical_match_tree, DepParentsCycleException, OverlappingCandidatesException, RootException
-from multi_dep_alignment import MultiDepAlignment
+from dep_alignment.alignment_util import row_to_canonical_match_tree, DepParentsCycleException, OverlappingCandidatesException, RootException
+from dep_alignment.multi_dep_alignment import MultiDepAlignment
 import os
 import random
 import time
@@ -73,7 +73,9 @@ def read_candidate(row):
   return r
 
 def get_example_tree(example_sentences_filename, synonyms):
-  with open(app_home + '/true_causation_sentences2.tsv') as f:
+  app_home = os.environ['APP_HOME']
+  match_trees = []
+  with open(app_home + '/' + example_sentences_filename) as f:
     for line in f:
       row = ds_parser.parse_tsv_row(line)
       try:
@@ -86,13 +88,29 @@ def get_example_tree(example_sentences_filename, synonyms):
     mt_root1, match_tree1 = mda.get_match_tree()
   return mt_root1, match_tree1
 
+def print_example_tree(example_sentences_filename, synonyms):
+  app_home = os.environ['APP_HOME']
+  match_trees = []
+  with open(app_home + '/' + example_sentences_filename) as f:
+    for line in f:
+      row = ds_parser.parse_tsv_row(line)
+      try:
+        match_trees.append(row_to_canonical_match_tree(row, [row.gene_wordidxs, row.pheno_wordidxs]))
+      except (DepParentsCycleException, OverlappingCandidatesException, RootException):
+        continue
+  mt_root1, match_tree1 = match_trees[0]
+  for mt_root0, match_tree0 in match_trees[1:]:
+    mda = MultiDepAlignment(mt_root0, match_tree0, mt_root1, match_tree1, 2, synonyms)
+    mt_root1, match_tree1 = mda.get_match_tree()
+  mda.print_match_tree(sys.stderr)
+
 def get_score(genepheno_row, example_tree_root, example_tree, synonyms, rescores):
   row = genepheno_row
   try:
     mt_root2, match_tree2 = row_to_canonical_match_tree(row, [row.gene_wordidxs, row.pheno_wordidxs])
     assert len(match_tree2) <= len(row.words) + 1, (len(row.words), len(match_tree2), row.words, match_tree2) 
   except (DepParentsCycleException, OverlappingCandidatesException, RootException):
-    continue
+    return -1, -1
   mda = MultiDepAlignment(example_tree_root, example_tree, mt_root2, match_tree2, 2, synonyms)
   score1 = mda.overall_score()
   score2 = mda.rescore(rescores)
@@ -102,7 +120,7 @@ if __name__ == '__main__':
   app_home = os.environ['APP_HOME']
   match_trees = []
   with open(app_home + '/match_paths/match_paths%d.txt' % random.randint(0, 100000), 'a') as match_path_file:
-    with open(app_home + '/true_causation_sentences2.tsv') as f:
+    with open(app_home + '/true_causation_sentences1.tsv') as f:
       for line in f:
         row = ds_parser.parse_tsv_row(line)
         try:

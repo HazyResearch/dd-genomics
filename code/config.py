@@ -310,11 +310,12 @@ GENE_PHENO = {
                  set(['identify', 'report', 'find', 'detect']), \
                  set(['cause', 'associate', 'link', 'lead']),
                  set(['mutation', 'inhibition']), \
-                 set(['recessive', 'dominant'])]
-    },
+                 set(['recessive', 'dominant'])],
               
     'rescores': [(set(['cause', 'lead', 'result']), set(['associate', 'link']), -50),
                  (set(['mutation']), set(['inhibition', 'deficiency']), -50)],
+    
+  },
 
   ## Features
   'F' : {}
@@ -323,8 +324,8 @@ GENE_PHENO = {
 CAUSATION_SR = {
     
     'example-sentences': {
-      'pos': [('true_causation_sentences1.tsv', 18),
-              ('true_causation_sentences2.tsv', 27)],
+      'pos': [('onto/manual/true_causation_sentences1.tsv', 18),
+              ('onto/manual/true_causation_sentences2.tsv', 27)],
       'neg': []
     },
                 
@@ -335,7 +336,7 @@ CAUSATION_SR = {
                'possible association', 'to investigate', 'could reveal', \
                'to determine', 'unclear', 'hypothesize', 'to evaluate', \
                'plasma', 'expression', 'to detect', 'to find out', \
-               'inconclusive', 'further analysis'],
+               'inconclusive', 'further analysis', 'association'],
       'pos-rgx' : [],
       'neg-rgx' : [],
     },
