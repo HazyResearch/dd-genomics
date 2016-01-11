@@ -6,7 +6,7 @@ import random
 import re
 import sys
 import config
-from dep_alignment.genepheno_sv_new import get_example_tree, get_score, print_example_tree
+from genepheno_sv_new import get_example_tree, get_score, print_example_tree
 
 
 # This defines the Row object that we read in to the extractor
@@ -147,15 +147,6 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
 
   gene_name = row.gene_name
   VALS = config.GENE_PHENO['vals']
-  if SR.get('phrases-in-sent'):
-    opts = SR['phrases-in-sent']
-    opts = replace_opts(opts, [('GENE', gene), ('PHENO', pheno)])
-    for name, val in VALS:
-      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
-        match = util.rgx_mult_search(phrase + ' ' + lemma_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
-        if match:
-          # backslashes cause postgres errors in postgres 9
-          return r._replace(is_correct=val, relation_supertype='PHRASE_%s' % name, relation_subtype=non_alnum.sub('_', match))
 
   if SR.get('phrases-in-between'):
     opts = SR['phrases-in-between']
@@ -200,6 +191,17 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
   if SR.get('charite-all-pos'):
     if (pheno_entity, gene_name) in charite_pairs:
       return r._replace(is_correct=True, relation_supertype='CHARITE_SUP')
+    
+  if SR.get('phrases-in-sent'):
+    opts = SR['phrases-in-sent']
+    opts = replace_opts(opts, [('GENE', gene), ('PHENO', pheno)])
+    for name, val in VALS:
+      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
+        match = util.rgx_mult_search(phrase + ' ' + lemma_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
+        if match:
+          # backslashes cause postgres errors in postgres 9
+          return r._replace(is_correct=val, relation_supertype='PHRASE_%s' % name, relation_subtype=non_alnum.sub('_', match))
+
 
   if False and SR.get('example-sentences'):
     opts = SR['example-sentences']
@@ -221,7 +223,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
   return r
 
 def supervise(supervision_rules, hard_filters):
-  print >> sys.stderr, supervision_rules
+  # print >> sys.stderr, supervision_rules
   # generate the mentions, while trying to keep the supervision approx. balanced
   # print out right away so we don't bloat memory...
   pos_count = 0

@@ -284,13 +284,13 @@ GENE_PHENO = {
       'neg' : ['possible association', 'to investigate', 'could reveal', 'to determine', \
                'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression', 'to detect', \
                'to find out', 'inconclusive', 'further analysis'],
-      # 'pos-rgx' : [r'(mutat|delet|duplicat|truncat).*GENE.*(implicated?|found).*PHENO', \
-      #              r'(mutat|delet|duplicat|truncat).*GENE.*cause.*PHENO', r'PHENO.*linkage to.*GENE', \
-      #              r'(mutat|delet|duplicat|truncat).*GENE.*described.*patients.*PHENO', \
-      #              r'.*patient.*GENE.*present with.*clinical.*PHENO.*', \
-      #              r'(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO', \
-      #              r'(mutation|deletion).*GENE.*described.*patients.*PHENO'],
-      'pos-rgx' : [],
+      'pos-rgx' : [r'(mutat|delet|duplicat|truncat).*GENE.*(implicated?|found).*PHENO', \
+                   r'(mutat|delet|duplicat|truncat).*GENE.*cause.*PHENO', r'PHENO.*linkage to.*GENE', \
+                   r'(mutat|delet|duplicat|truncat).*GENE.*described.*patients.*PHENO', \
+                   r'.*patient.*GENE.*present with.*clinical.*PHENO.*', \
+                   r'(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO', \
+                   r'(mutation|deletion).*GENE.*described.*patients.*PHENO'],
+      # 'pos-rgx' : [],
       'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', \
                    r'^\s*To determine', r'^\s*To evaluate', r'^\s*To investigate', \
                    '\d+ h ', r'^\s*To assess', r'^\s*here we define', r'^\s*whether', \
