@@ -3,8 +3,8 @@
 import collections
 import extractor_util as eutil
 import sys
-from dep_alignment.alignment_util import row_to_canonical_match_tree, DepParentsCycleException, OverlappingCandidatesException, RootException
-from dep_alignment.multi_dep_alignment import MultiDepAlignment
+from alignment_util import row_to_canonical_match_tree, DepParentsCycleException, OverlappingCandidatesException, RootException
+from multi_dep_alignment import MultiDepAlignment
 import os
 import random
 import time
@@ -71,6 +71,32 @@ def read_candidate(row):
   r = Relation(None, relation_id, row.doc_id, row.section_id, row.sent_id, gene_mention_id, gene_name, \
                gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, None, None, None, [], None, None)
   return r
+
+def get_example_tree(example_sentences_filename, synonyms):
+  with open(app_home + '/true_causation_sentences2.tsv') as f:
+    for line in f:
+      row = ds_parser.parse_tsv_row(line)
+      try:
+        match_trees.append(row_to_canonical_match_tree(row, [row.gene_wordidxs, row.pheno_wordidxs]))
+      except (DepParentsCycleException, OverlappingCandidatesException, RootException):
+        continue
+  mt_root1, match_tree1 = match_trees[0]
+  for mt_root0, match_tree0 in match_trees[1:]:
+    mda = MultiDepAlignment(mt_root0, match_tree0, mt_root1, match_tree1, 2, synonyms)
+    mt_root1, match_tree1 = mda.get_match_tree()
+  return mt_root1, match_tree1
+
+def get_score(genepheno_row, example_tree_root, example_tree, synonyms, rescores):
+  row = genepheno_row
+  try:
+    mt_root2, match_tree2 = row_to_canonical_match_tree(row, [row.gene_wordidxs, row.pheno_wordidxs])
+    assert len(match_tree2) <= len(row.words) + 1, (len(row.words), len(match_tree2), row.words, match_tree2) 
+  except (DepParentsCycleException, OverlappingCandidatesException, RootException):
+    continue
+  mda = MultiDepAlignment(example_tree_root, example_tree, mt_root2, match_tree2, 2, synonyms)
+  score1 = mda.overall_score()
+  score2 = mda.rescore(rescores)
+  return score1, score2
 
 if __name__ == '__main__':
   app_home = os.environ['APP_HOME']

@@ -296,13 +296,32 @@ GENE_PHENO = {
                    '\d+ h ', r'^\s*To assess', r'^\s*here we define', r'^\s*whether', \
                    'unlikely.*GENE.*PHENO', ]
     },
-  },
+         
+    'synonyms': [set(['disease', 'disorder']), \
+                 set(['mutation', 'variant', 'allele', 'polymorphism']), \
+                 set(['case', 'patient', 'subject', 'family', 'boy', 'girl']), \
+                 set(['present', 'display', 'characterize']), \
+                 set(['nonsense', 'missense', 'frameshift']), \
+                 set(['identify', 'report', 'find', 'detect']), \
+                 set(['cause', 'associate', 'link', 'lead']),
+                 set(['mutation', 'inhibition']), \
+                 set(['recessive', 'dominant'])]
+    },
+              
+    'rescores': [(set(['cause', 'lead', 'result']), set(['associate', 'link']), -50),
+                 (set(['mutation']), set(['inhibition', 'deficiency']), -50)],
 
   ## Features
   'F' : {}
 }
 
 CAUSATION_SR = {
+    
+    'example_sentences': {
+      'true_causation_sentences1.tsv': 18,
+      'true_causation_sentences2.tsv': 27
+    },
+                
     # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
     'phrases-in-sent' : {
       'pos' : [],
