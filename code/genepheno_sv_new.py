@@ -100,7 +100,7 @@ if __name__ == '__main__':
       mt_root1, match_tree1 = mda.get_match_tree()
       
     # mt_root1, match_tree1 = match_trees[0]
-    mda.print_match_path(match_path_file)
+    mda.print_match_tree(match_path_file)
     lc = 0
     start_time = time.time()
     for line in sys.stdin:
@@ -126,7 +126,7 @@ if __name__ == '__main__':
                                set(['mutation', 'inhibition', 'deficiency'])])
       # mda.print_matched_lemmas(match_path_file)
       print >>match_path_file, ' '.join(row.words)
-      mda.print_match_path(match_path_file)
+      mda.print_match_tree(match_path_file)
       score1 = mda.overall_score()
       score2 = mda.rescore([(set(['cause', 'lead', 'result']), set(['associate', 'link']), -50),
                             (set(['mutation']), set(['inhibition', 'deficiency']), -50)])

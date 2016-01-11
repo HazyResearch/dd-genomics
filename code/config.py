@@ -257,8 +257,10 @@ GENE_PHENO = {
     # Supervise GP pairs as T/F based on dependency-path neighbor lemmas of G and P
     'dep-lemma-neighbors' : {
       'max-dist' : 1,
-      'pos-g' : ['cause', 'mutate', 'mutation', 'variant', 'allele'],
-      'pos-p' : ['mutation', 'mutate'],
+      # 'pos-g' : ['cause', 'mutate', 'mutation', 'variant', 'allele'],
+      # 'pos-p' : ['mutation', 'mutate'],
+      'pos-g' : [],
+      'pos-p' : [],
       'neg-g' : ['express', 'expression', 'coexpression', 'coexpress', 'co-expression', \
                  'co-express', 'overexpress', 'overexpression', 'over-expression', \
                  'over-express', 'somatic', 'infection', 'interacts', 'regulate', \
@@ -277,16 +279,18 @@ GENE_PHENO = {
     },
 
     'phrases-in-sent' : {
-      'pos' : ['caused by (mutation|deletion|duplication|truncat)', 'confirmed linkage'],
+      # 'pos' : ['caused by (mutation|deletion|duplication|truncat)', 'confirmed linkage'],
+      'pos' : [],
       'neg' : ['possible association', 'to investigate', 'could reveal', 'to determine', \
                'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression', 'to detect', \
                'to find out', 'inconclusive', 'further analysis'],
-      'pos-rgx' : [r'(mutat|delet|duplicat|truncat).*GENE.*(implicated?|found).*PHENO', \
-                   r'(mutat|delet|duplicat|truncat).*GENE.*cause.*PHENO', r'PHENO.*linkage to.*GENE', \
-                   r'(mutat|delet|duplicat|truncat).*GENE.*described.*patients.*PHENO', \
-                   r'.*patient.*GENE.*present with.*clinical.*PHENO.*', \
-                   r'(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO', \
-                   r'(mutation|deletion).*GENE.*described.*patients.*PHENO'],
+      # 'pos-rgx' : [r'(mutat|delet|duplicat|truncat).*GENE.*(implicated?|found).*PHENO', \
+      #              r'(mutat|delet|duplicat|truncat).*GENE.*cause.*PHENO', r'PHENO.*linkage to.*GENE', \
+      #              r'(mutat|delet|duplicat|truncat).*GENE.*described.*patients.*PHENO', \
+      #              r'.*patient.*GENE.*present with.*clinical.*PHENO.*', \
+      #              r'(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO', \
+      #              r'(mutation|deletion).*GENE.*described.*patients.*PHENO'],
+      'pos-rgx' : [],
       'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', \
                    r'^\s*To determine', r'^\s*To evaluate', r'^\s*To investigate', \
                    '\d+ h ', r'^\s*To assess', r'^\s*here we define', r'^\s*whether', \
@@ -312,7 +316,8 @@ CAUSATION_SR = {
     },
     # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
     'dep-lemma-connectors' : {
-      'pos' : ['cause'],
+      # 'pos' : ['cause'],
+      'pos': [],
       'neg' : ['associate', 'correlate', 'implicate']
     },
 }
@@ -322,10 +327,11 @@ ASSOCIATION_SR = {
     'phrases-in-sent' : {
       'pos' : [],
       'neg' : [],
-      'pos-rgx' : [r'genotype.*linked to.*PHENO', r'PHENO.*linkage to.*GENE', \
-                   r'.*GENE.*associated with.*PHENO', \
-                   '(variant|allele)?.*GENE.*(PHENO suscept|susceptibility to PHENO).*', \
-                   '(single nucleotide polymorphisms|SNPs) in GENE.*(associated with|cause).*PHENO'],
+      # 'pos-rgx' : [r'genotype.*linked to.*PHENO', r'PHENO.*linkage to.*GENE', \
+      #              r'.*GENE.*associated with.*PHENO', \
+      #              '(variant|allele)?.*GENE.*(PHENO suscept|susceptibility to PHENO).*', \
+      #              '(single nucleotide polymorphisms|SNPs) in GENE.*(associated with|cause).*PHENO'],
+      'pos-rgx' : [],
       'neg-rgx' : [],
     }
 }

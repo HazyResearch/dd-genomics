@@ -316,56 +316,18 @@ class MultiDepAlignment(AlignmentMixin):
     else:
       assert False
 
-  def print_match_tree(self, stream=sys.stdout, mt_node1=-1, mt_node2=-1, indent=0):
-    if mt_node1 == -1:
-      mt_node1 = self.mt_root1
-    if mt_node2 == -1:
-      mt_node2 = self.mt_root2
-    mc1 = self.get_match_cell1(mt_node1)
-    mc2 = self.get_match_cell2(mt_node2)
-    if mt_node1 >= 1:
-      mt_words1 = mc1.words
-    else:
-      mt_words1 = ['.'] * mc1.size
-    if mt_node2 >= 1:
-      mt_words2 = mc2.words
-    else:
-      mt_words2 = '.' * mc2.size
+  def _print_match_tree_recursive(self, stream, match_tree, index, indent):
+    assert 0 < index
+    assert index <= len(match_tree), (index, len(match_tree))
+    cell = match_tree[index - 1]
+    print >> stream, " " * indent + str(cell)
+    for c in cell.children:
+      if c != 0:
+        self._print_match_tree_recursive(stream, match_tree, c, indent + 4)
 
-    if mt_node1 is not None and mt_node2 is not None:
-      instr, succ = self.path_matrix[mt_node1][mt_node2]
-  
-      if instr.endswith('match'):
-        print >> stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, \
-                                                               instr, str(mt_words1 + mt_words2), \
-                                                               self.score_matrix[mt_node1, mt_node2])
-      elif instr.endswith('skip1'):
-        print >> stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, instr, \
-                                                               str(mt_words1), \
-                                                               self.score_matrix[mt_node1, mt_node2])
-      elif instr.endswith('skip2'):
-        print >> stream, " " * indent + "%d,%d: %s: %s (%d)" % (mt_node1, mt_node2, \
-                                                               instr, str(mt_words2), \
-                                                               self.score_matrix[mt_node1, mt_node2])
-      elif instr == 'end':
-        pass
-      else:
-        assert False, instr
-      for o1, o2 in succ:
-        assert (o1, o2) != (mt_node1, mt_node2), str(succ)
-        self.print_match_tree(stream, o1, o2, indent + 4)
-    elif mt_node1 is None and mt_node2 is not None:
-      print >> stream, " " * indent + "%d,None: single2: %s" % (mt_node2, str(mt_words2))
-      for c in mc2.children:
-        assert c != mt_node2
-        self.print_match_tree(stream, None, c, indent + 4)
-    elif mt_node1 is not None and mt_node2 is None:
-      print >> stream, " " * indent + "%d,None: single1: %s" % (mt_node1, str(mt_words1))
-      for c in mc1.children:
-        assert c != mt_node1
-        self.print_match_tree(stream, c, None, indent + 4)
-    else:
-      assert False
+  def print_match_tree(self, stream=sys.stdout):
+    root, match_tree = self.get_match_tree()
+    self._print_match_tree_recursive(stream, match_tree, root, 0)
 
   def get_match_tree(self, match_tree=-1, folded=-1, node1=-1, node2=-1, size1=-1, size2=-1, forbidden=-1):
     if node1 == -1:
@@ -385,6 +347,8 @@ class MultiDepAlignment(AlignmentMixin):
       assert len(match_tree) == 0
       folded = {}
       folded[(0, 0)] = 0
+      folded[(0, None)] = 0
+      folded[(None, 0)] = 0
     
     if forbidden == -1:
       forbidden = []
@@ -416,8 +380,8 @@ class MultiDepAlignment(AlignmentMixin):
       forbidden.append((node1, node2))
   
       for o1, o2 in succ:
-        assert not instr.endswith('_match') or o1 in mc1.children, (o1, mc1.children)
-        assert not instr.endswith('_match') or o2 in mc2.children, (o2, mc2.children)
+        assert not instr.endswith('_match') or o1 is None or o1 in mc1.children, (o1, mc1.children)
+        assert not instr.endswith('_match') or o2 is None or o2 in mc2.children, (o2, mc2.children)
         assert not instr.endswith('_skip2') or o1 == node1
         assert not instr.endswith('_skip1') or o2 == node2
         assert (o1, o2) not in forbidden, (o1, o2, forbidden)
@@ -458,7 +422,7 @@ class MultiDepAlignment(AlignmentMixin):
                                             forbidden=forbidden)
         assert child_root >= 0
         mc.children.append(child_root)
-      assert mc.children
+      assert mc.children, (node2, mc2.children)
       return index, match_tree
     elif node1 is not None and node2 is None:
       mc1 = self.get_match_cell1(node1)
@@ -527,7 +491,7 @@ class MultiDepAlignment(AlignmentMixin):
     if folded == -1:
       folded = set()
 
-    if (node1, node2) in folded or node1 == 0 or node2 == 0:
+    if (node1, node2) in folded or node1 == 0 or node2 == 0 or node1 is None or node2 is None:
       return 0
     folded.add((node1, node2))
 
