@@ -13,6 +13,14 @@ Setting the dd-genomics repo:
 - compile the application with the command "deepdive compile"
 
 
+Running the application: 
+
+ - Run the command "deepdive do ..." with the name of the table you want to fill. Deepdive will suggest you all the operations it has to do for that. For instance, if you want to run the whole pipeline, run "deepdive do model/calibration-plots". 
+ - To mark as done or todo some tables, use the command "deepdive mark ...". For instance, if you want each process to be mark as undone, run "deepdive mark todo init/db" 
+ - Run "deepdive plan" to see all the operations possibles.
+ - If you import sentences_input from elsewhere, don't forget to run "deepdive mark done sentences_input"
+ - Overall, just run "deepdive" to see all the commands possible.
+ 
 
 
 
@@ -25,7 +33,7 @@ Setting the dd-genomics repo:
 
 
 
-Switching to ddlog:
+
 
 Main changes from application.conf:
 
