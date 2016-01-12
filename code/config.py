@@ -235,7 +235,7 @@ GENE_PHENO = {
 
   'SR': {
     # Whether to include GP pairs with no or long dep path links as neg. supervision (vs. skip)
-    'bad-dep-paths' : True,
+    'bad-dep-paths' : False,
 
     # Subsample GP pairs where G and/or P is neg. example as neg. GP supervision
     'g-or-p-false' : {'diff' : 0.5, 'rand' : 0.01},
