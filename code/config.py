@@ -88,9 +88,10 @@ GENE = {
                   'ghrelin', 'MIM', 'NHS', 'STD', 'hole'],
 
     'post-match' : {
-      'pos' : ['_ mutation', 'mutation', '_ mutations', 'mutations', 'mutant', \
-               'mutants', 'gene', 'exon', 'residue', 'residues', 'coding', \
-               'isoform', 'isoforms', 'deletion', 'mRNA', 'homozyous'],
+      # 'pos' : ['_ mutation', 'mutation', '_ mutations', 'mutations', 'mutant', \
+      #          'mutants', 'gene', 'exon', 'residue', 'residues', 'coding', \
+      #          'isoform', 'isoforms', 'deletion', 'mRNA', 'homozyous'],
+      'pos': [],
       'neg' : ['+', 'pathway', 'patient', 'patients', 'risk factor', 'risk factors', \
                'inhibitor', 'inhibitors', 'cell', 'cells', 'is used', 'syndrome'],
       'pos-rgx' : [],
@@ -271,7 +272,9 @@ GENE_PHENO = {
     },
 
     # Label T all GP pairs in Charite dataset (and that haven't already been labeled T/F)
-    'charite-all-pos' : True,
+    'charite-all-pos' : False,
+    
+    'charite-all-pos-words': ['(mutat|delet|duplicat|truncat|SNP).*cause'],
 
     # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
     'dep-lemma-connectors' : {
@@ -285,12 +288,14 @@ GENE_PHENO = {
       'neg' : ['possible association', 'to investigate', 'could reveal', 'to determine', \
                'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression', 'to detect', \
                'to find out', 'inconclusive', 'further analysis'],
-      'pos-rgx' : [r'(mutat|delet|duplicat|truncat).*GENE.*(implicated?|found).*PHENO', \
-                   r'(mutat|delet|duplicat|truncat).*GENE.*cause.*PHENO', r'PHENO.*linkage to.*GENE', \
-                   r'(mutat|delet|duplicat|truncat).*GENE.*described.*patients.*PHENO', \
-                   r'.*patient.*GENE.*present with.*clinical.*PHENO.*', \
-                   r'(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO', \
-                   r'(mutation|deletion).*GENE.*described.*patients.*PHENO'],
+      'pos-rgx' : [r'(mutat|delet|duplicat|truncat|SNP).*GENE.*(implicated?|found).*PHENO', \
+                   r'(mutat|delet|duplicat|truncat|SNP).*GENE.*cause.*PHENO', 
+                  # r'PHENO.*linkage to.*GENE', \
+                  # r'(mutat|delet|duplicat|truncat).*GENE.*described.*patients.*PHENO', \
+                  # r'.*patient.*GENE.*present with.*clinical.*PHENO.*', \
+                  # r'(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO', \
+                  # r'(mutation|deletion).*GENE.*described.*patients.*PHENO'
+                  ],
       # 'pos-rgx' : [],
       'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', \
                    r'^\s*To determine', r'^\s*To evaluate', r'^\s*To investigate', \

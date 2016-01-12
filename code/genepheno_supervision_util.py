@@ -75,6 +75,98 @@ def read_supervision():
 
 CACHE = {}
 
+def config_supervise(r, row, pheno_entity, gene_name, gene, pheno, 
+              phrase, between_phrase, \
+              lemma_phrase, between_phrase_lemmas, dep_dag, \
+              dep_path_between, gene_wordidxs, 
+              charite_pairs, VALS, SR):
+  if SR.get('phrases-in-between'):
+    opts = SR['phrases-in-between']
+    opts = replace_opts(opts, [('GENE', gene), ('PHENO', pheno)])
+    for name, val in VALS:
+      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
+        match = util.rgx_mult_search(between_phrase + ' ' + between_phrase_lemmas, opts[name], opts['%s-rgx' % name], flags=re.I)
+        if match:
+          return r._replace(is_correct=val, relation_supertype='PHRASE_BETWEEN_%s' % name, relation_subtype=non_alnum.sub('_', match))
+
+  if SR.get('phrases-in-sent'):
+    opts = SR['phrases-in-sent']
+    opts = replace_opts(opts, [('GENE', gene), ('PHENO', pheno)])
+    for name, val in VALS:
+      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
+        match = util.rgx_mult_search(phrase + ' ' + lemma_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
+        if match:
+          # backslashes cause postgres errors in postgres 9
+          return r._replace(is_correct=val, relation_supertype='PHRASE_%s' % name, relation_subtype=non_alnum.sub('_', match))
+
+
+  if SR.get('primary-verb-modifiers') and dep_dag:
+    opts = SR['primary-verb-modifiers']
+    if dep_path_between:
+      verbs_between = [i for i in dep_path_between if row.poses[i].startswith("VB")]
+      if len(verbs_between) > 0:
+        for name, val in VALS:
+          mod_words = [i for i, x in enumerate(row.lemmas) if x in opts[name]]
+          mod_words += [i for i, x in enumerate(row.dep_paths) if x in opts['%s-dep-tag' % name]]
+          d = dep_dag.path_len_sets(verbs_between, mod_words)
+          if d and d < opts['max-dist'] + 1:
+            subtype = 'ModWords: ' + ' '.join([str(m) for m in mod_words]) + ', VerbsBetween: ' + ' '.join([str(m) for m in verbs_between]) + ', d: ' + str(d)
+            return r._replace(is_correct=val, relation_supertype='PRIMARY_VB_MOD_%s' % name, relation_subtype=non_alnum.sub('_', subtype))
+
+  if SR.get('dep-lemma-connectors') and dep_dag:
+    opts = SR['dep-lemma-connectors']
+    for name, val in VALS:
+      if dep_path_between:
+        connectors = [i for i, x in enumerate(row.lemmas) \
+                      if i in dep_path_between and x in opts[name]]
+        if len(connectors) > 0:
+          return r._replace(is_correct=val, 
+                            relation_supertype='DEP_LEMMA_CONNECT_%s' % name, 
+                            relation_subtype=non_alnum.sub('_', 
+                                  ' '.join([str(x) for x in connectors])))
+
+  if SR.get('dep-lemma-neighbors') and dep_dag:
+    opts = SR['dep-lemma-neighbors']
+    for name, val in VALS:
+      for entity in ['g', 'p']:
+        lemmas = [i for i, x in enumerate(row.lemmas) if x in opts['%s-%s' % (name, entity)]]
+        d = dep_dag.path_len_sets(gene_wordidxs, lemmas)
+        if d and d < opts['max-dist'] + 1:
+          subtype = ' '.join([str(l) for l in lemmas]) + ', d: ' + str(d)
+          return r._replace(is_correct=val, 
+                            relation_supertype='DEP_LEMMA_NB_%s_%s' % (name, entity), 
+                            relation_subtype=non_alnum.sub('_', subtype))
+
+  if SR.get('charite-all-pos'):
+    if (pheno_entity, gene_name) in charite_pairs:
+      return r._replace(is_correct=True, relation_supertype='CHARITE_SUP')
+  
+  if SR.get('charite-all-pos-words'):
+    opts = SR['charite-all-pos-words']
+    match = util.rgx_mult_search(phrase + ' ' + 
+                                 lemma_phrase, [], 
+                                 opts, flags=re.I)
+    if match:
+      return r._replace(is_correct=True, relation_supertype='CHARITE_SUP_WORDS', 
+                        relation_subtype=non_alnum.sub('_', match))
+    
+  # if False and SR.get('example-sentences'):
+  #   opts = SR['example-sentences']
+  #   for name, val in VALS:
+  #     for (i, (sentences_file, cutoff)) in enumerate(opts[name]):
+  #       if (name, sentences_file, cutoff, i) in CACHE['example-trees']:
+  #         example_tree_root, example_tree = CACHE['example-trees'][(name, sentences_file, cutoff, i)]
+  #       else:
+  #         example_tree_root, example_tree = get_example_tree(sentences_file, SR['synonyms'])
+  #         print >>sys.stderr, "tree: "
+  #         print_example_tree(sentences_file, SR['synonyms'])
+  #         CACHE['example-trees'][(name, sentences_file, cutoff, i)] = (example_tree_root, example_tree)
+  #       _, rescore = get_score(row, example_tree_root, example_tree, SR['synonyms'], SR['rescores'])
+  #       # print >> sys.stderr, "%s: have score %d" % (sentences_file, rescore)
+  #       if rescore >= cutoff:
+  #         return r._replace(is_correct=val, relation_supertype='TREE_MATCH_%s' % name, relation_subtype=sentences_file)
+  return None
+
 non_alnum = re.compile('[\W_]+')
 def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
   """
@@ -146,78 +238,24 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
         return None
 
   gene_name = row.gene_name
-  VALS = config.GENE_PHENO['vals']
 
-  if SR.get('phrases-in-between'):
-    opts = SR['phrases-in-between']
-    opts = replace_opts(opts, [('GENE', gene), ('PHENO', pheno)])
-    for name, val in VALS:
-      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
-        match = util.rgx_mult_search(between_phrase + ' ' + between_phrase_lemmas, opts[name], opts['%s-rgx' % name], flags=re.I)
-        if match:
-          return r._replace(is_correct=val, relation_supertype='PHRASE_BETWEEN_%s' % name, relation_subtype=non_alnum.sub('_', match))
-
-  if SR.get('phrases-in-sent'):
-    opts = SR['phrases-in-sent']
-    opts = replace_opts(opts, [('GENE', gene), ('PHENO', pheno)])
-    for name, val in VALS:
-      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
-        match = util.rgx_mult_search(phrase + ' ' + lemma_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
-        if match:
-          # backslashes cause postgres errors in postgres 9
-          return r._replace(is_correct=val, relation_supertype='PHRASE_%s' % name, relation_subtype=non_alnum.sub('_', match))
-
-
-  if SR.get('primary-verb-modifiers') and dep_dag:
-    opts = SR['primary-verb-modifiers']
-    if dep_path_between:
-      verbs_between = [i for i in dep_path_between if row.poses[i].startswith("VB")]
-      if len(verbs_between) > 0:
-        for name, val in VALS:
-          mod_words = [i for i, x in enumerate(row.lemmas) if x in opts[name]]
-          mod_words += [i for i, x in enumerate(row.dep_paths) if x in opts['%s-dep-tag' % name]]
-          d = dep_dag.path_len_sets(verbs_between, mod_words)
-          if d and d < opts['max-dist'] + 1:
-            subtype = 'ModWords: ' + ' '.join([str(m) for m in mod_words]) + ', VerbsBetween: ' + ' '.join([str(m) for m in verbs_between]) + ', d: ' + str(d)
-            return r._replace(is_correct=val, relation_supertype='PRIMARY_VB_MOD_%s' % name, relation_subtype=non_alnum.sub('_', subtype))
-
-  if SR.get('dep-lemma-connectors') and dep_dag:
-    opts = SR['dep-lemma-connectors']
-    for name, val in VALS:
-      if dep_path_between:
-        connectors = [i for i, x in enumerate(row.lemmas) if i in dep_path_between and x in opts[name]]
-        if len(connectors) > 0:
-          return r._replace(is_correct=val, relation_supertype='DEP_LEMMA_CONNECT_%s' % name, relation_subtype=non_alnum.sub('_', ' '.join([str(x) for x in connectors])))
-
-  if SR.get('dep-lemma-neighbors') and dep_dag:
-    opts = SR['dep-lemma-neighbors']
-    for name, val in VALS:
-      for entity in ['g', 'p']:
-        lemmas = [i for i, x in enumerate(row.lemmas) if x in opts['%s-%s' % (name, entity)]]
-        d = dep_dag.path_len_sets(gene_wordidxs, lemmas)
-        if d and d < opts['max-dist'] + 1:
-          subtype = ' '.join([str(l) for l in lemmas]) + ', d: ' + str(d)
-          return r._replace(is_correct=val, relation_supertype='DEP_LEMMA_NB_%s_%s' % (name, entity), relation_subtype=non_alnum.sub('_', subtype))
-
-  if SR.get('charite-all-pos'):
-    if (pheno_entity, gene_name) in charite_pairs:
-      return r._replace(is_correct=True, relation_supertype='CHARITE_SUP')
-    
-  # if False and SR.get('example-sentences'):
-  #   opts = SR['example-sentences']
-  #   for name, val in VALS:
-  #     for (i, (sentences_file, cutoff)) in enumerate(opts[name]):
-  #       if (name, sentences_file, cutoff, i) in CACHE['example-trees']:
-  #         example_tree_root, example_tree = CACHE['example-trees'][(name, sentences_file, cutoff, i)]
-  #       else:
-  #         example_tree_root, example_tree = get_example_tree(sentences_file, SR['synonyms'])
-  #         print >>sys.stderr, "tree: "
-  #         print_example_tree(sentences_file, SR['synonyms'])
-  #         CACHE['example-trees'][(name, sentences_file, cutoff, i)] = (example_tree_root, example_tree)
-  #       _, rescore = get_score(row, example_tree_root, example_tree, SR['synonyms'], SR['rescores'])
-  #       # print >> sys.stderr, "%s: have score %d" % (sentences_file, rescore)
-  #       if rescore >= cutoff:
-  #         return r._replace(is_correct=val, relation_supertype='TREE_MATCH_%s' % name, relation_subtype=sentences_file)
+  VALS = [('neg', False)]
+  rv = config_supervise(r, row, pheno_entity, gene_name, gene, pheno, 
+              phrase, between_phrase, \
+              lemma_phrase, between_phrase_lemmas, dep_dag, \
+              dep_path_between, gene_wordidxs, 
+              charite_pairs, VALS, SR)
+  if rv is not None:
+    return rv
+  
+  VALS = [('pos', True)]
+  rv = config_supervise(r, row, pheno_entity, gene_name, gene, pheno, 
+              phrase, between_phrase, \
+              lemma_phrase, between_phrase_lemmas, dep_dag, \
+              dep_path_between, gene_wordidxs, 
+              charite_pairs, VALS, SR)
+  if rv is not None:
+    return rv
 
   # Return GP relation object
   return r
