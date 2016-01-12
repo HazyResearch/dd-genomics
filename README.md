@@ -1,6 +1,6 @@
 Setting the dd-genomics repo: 
 
-- define a db.url file, such as postgresql://localhost:6432/genomics_tpalo (the number being the port and the noun is the name of the database you want to create).
+- define a db.url file, such as greenplum://localhost:6432/genomics_tpalo (the number being the port and the noun is the name of the database you want to create), or more likely something like postgresql://localhost/genomics_tpalo if you're doint it locally.
  
 - Pre-process & load the data: See the Parser README (https://github.com/HazyResearch/dd-genomics/tree/master/parser) for detailed instructions
 - Make sure that the custom user functions have been loaded into Postgres for this user; to do so run ./util/add_user_functions.sh.
@@ -8,8 +8,9 @@ Setting the dd-genomics repo:
 - Fetch and process ontology files: cd onto; ./make_all.sh
 
  - Install nltk: sudo pip install nltk. Download the corpora wordnet: in Python: import nltk; nltk.download() and download the corpora wordnet.
- 
 
+ - Define a input/sentences_input.* for which the sentences_input will be loaded, either an alias of the dataset. 
+ 
 - compile the application with the command "deepdive compile"
 
 #### TO-DO LIST
@@ -80,6 +81,21 @@ It will download the `util/mindbender` command, which includes Mindtagger as wel
 (On raiders2, to get the correct psql version, do: ```export
 PATH=/dfs/scratch1/netj/wrapped/greenplum:$PATH``` first.)
 
+ - Run the command "deepdive do ..." with the name of the table you want to fill. Deepdive will suggest you all the operations it has to do for that. For instance, if you want to run the whole pipeline, run "deepdive do model/calibration-plots". 
+
+  - If one of the inputs is a sql file, there will likely be an error with deepdive for too big sql files during a deepdive run, so just run the following (here for instance with sentences_input):
+ 		- deepdive sql < input/sentences_input.sql
+ 		- deepdive mark done sentences_input
+ That will do the trick
+
+ - To mark as done or todo some tables, use the command "deepdive mark ...". For instance, if you want each process to be mark as undone, run "deepdive mark todo init/db" 
+
+ - Run "deepdive plan" to see all the operations possibles.
+
+ - Overall, just run "deepdive" to see all the commands possible.
+ 
+ - you can have access at the overall flow of the application in ${APP_HOME}/run/dataflow.svg (Chrome for instance works well for it).
+ 
 To produce a set of reports using Dashboard after a GDD run, use the following steps:
 ```bash
 (
