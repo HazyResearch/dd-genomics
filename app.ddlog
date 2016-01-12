@@ -680,38 +680,50 @@ function gene_extract_candidates over (doc_id text,
   returns rows like gene_mentions
   implementation "code/gene_extract_candidates.py" handles tsv lines.
 
-gene_extract_candidates_view_temp (doc_id) *:-
-pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
+#gene_extract_candidates_view_temp (doc_id) *:-
+#pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
 
 gene_mentions_temp_before_non_gene_acronyms_delete_candidates += gene_extract_candidates(doc_id, section_id, sent_id, words, dep_paths, dep_parents, lemmas, poses, ners) :-
-  sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
-  gene_extract_candidates_view_temp (doc_id).
+  sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
 
 #non_gene_acronyms_delete_candidates
 gene_mentions_non_gene_acronyms(
   id bigint,
   @distributed_by
   doc_id text,
-        section_id text,
+  section_id text,
   sent_id int,
   wordidxs int[],
   mention_id text,
-        mapping_type text,
+  mapping_type text,
   supertype text,
-        subtype text,
-        gene_name text,
+  subtype text,
+  gene_name text,
   words text[],
   is_correct boolean
 ).
 
-gene_mentions_non_gene_acronyms(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct) :- 
+gene_mentions_non_gene_acronyms(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct) :-
 gene_mentions_temp_before_non_gene_acronyms_delete_candidates(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct), 
 non_gene_acronyms( _, doc_id, _, _, _, _, _, _, _, gene_name, _, is_correct_nga), 
 [is_correct_nga = "t" ; is_correct_nga IS NULL].
 
-gene_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct) :-
+gene_mentions_updated_condition_met_before_union (id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, "ABBREVIATION", subtype, gene_name, words, "f") :-
+gene_mentions_temp_before_non_gene_acronyms_delete_candidates(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct), 
+non_gene_acronyms( _, doc_id, _, _, _, _, _, _, _, gene_name, _, is_correct_nga), 
+[is_correct_nga = "t" ; is_correct_nga IS NULL].
+
+gene_mentions_updated_condition_not_met_before_union (id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct) :-
 gene_mentions_temp_before_non_gene_acronyms_delete_candidates(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct), 
 ! EXISTS[non_gene_acronyms(_, doc_id, _, _, _, _, _, _, _, gene_name, _, is_correct_nga), [is_correct_nga = "t" ; is_correct_nga IS NULL]].
+
+gene_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct) :-
+gene_mentions_updated_condition_not_met_before_union (id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct);
+gene_mentions_updated_condition_met_before_union (id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct).
+
+#gene_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct) :-
+#gene_mentions_temp_before_non_gene_acronyms_delete_candidates(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct), 
+#! EXISTS[non_gene_acronyms(_, doc_id, _, _, _, _, _, _, _, gene_name, _, is_correct_nga), [is_correct_nga = "t" ; is_correct_nga IS NULL]].
 
 #Gene extract features
 function gene_extract_features over rows like gene_extract_features_input
