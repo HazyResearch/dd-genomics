@@ -2,7 +2,7 @@ Setting the dd-genomics repo:
 
 - define a db.url file, such as postgresql://localhost:6432/genomics_tpalo (the number being the port and the noun is the name of the database you want to create).
  
-- Pre-process & load the data: See the Parser README for detailed instructions
+- Pre-process & load the data: See the Parser README (https://github.com/HazyResearch/dd-genomics/tree/master/parser) for detailed instructions
 - Make sure that the custom user functions have been loaded into Postgres for this user; to do so run ./util/add_user_functions.sh.
 
 - Fetch and process ontology files: cd onto; ./make_all.sh
