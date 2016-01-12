@@ -200,6 +200,16 @@ Running the application:
 
 Main changes from application.conf:
 
+	- During a run, the driver now fills out a temporary table and replaces the corresponding table only at the end of the run of an extractor. Therefore, no more loss of data if a run is stopped in the middle. 
+
+	- The column on which the table will be distributed by on greenplum is now defined by the annotation @distributed_by in front of the respective column. The driver will detect if the db used is postgres or greenplum (done by precising it in db.url) and add the "distributed by ..." statement only if needed, therefore no need to distringuish the app.ddlog file between psql and greenplum.
+
+	- To create views, look at the documentation in /lfs/raiders7/0/tpalo/dd-genomics_for_views (to come soon).
+
+	- For more information about the ddlog language, look at http://deepdive.stanford.edu/doc/basics/ddlog.html and https://github.com/HazyResearch/dd-genomics.
+
+	- Slight bug in the compiler for now, when a view is defined by an extractor in app.ddlog, the command "deepdive compile" returns an error precising that the table is not declared. This can be fixed by adding: deepdive.schema.relations { name_of_th_view { "type": "view" } } in deepdive.conf.
+
 	- many temporary tables and views (due to complicated sql queries that cannot be translated directly in ddlog). This should not effect the speed of the process.
 
 limitations and remarks:
