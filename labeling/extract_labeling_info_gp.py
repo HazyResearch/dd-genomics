@@ -21,9 +21,21 @@ if __name__ == "__main__":
           rv = results['by_key'][key]['is_correct']
           type_value = None
           if u'Association' in results['by_key'][key]:
-            type_value = 'association'
+            val = results['by_key'][key]['Association']
+            if val == True:
+              type_value = 'association'
           elif u'Causation' in results['by_key'][key]:
-            type_value = 'causation'
+            val = results['by_key'][key]['Causation']
+            if val == True:
+              type_value = 'causation'
+          elif u'association' in results['by_key'][key]:
+            val = results['by_key'][key]['association']
+            if val == True:
+              type_value = 'association'
+          elif u'causation' in results['by_key'][key]:
+            val = results['by_key'][key]['causation']
+            if val == True:
+              type_value = 'causation'
           is_correct = None
           if rv == True:
             is_correct = 't'

@@ -157,6 +157,17 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
         if match:
           return r._replace(is_correct=val, relation_supertype='PHRASE_BETWEEN_%s' % name, relation_subtype=non_alnum.sub('_', match))
 
+  if SR.get('phrases-in-sent'):
+    opts = SR['phrases-in-sent']
+    opts = replace_opts(opts, [('GENE', gene), ('PHENO', pheno)])
+    for name, val in VALS:
+      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
+        match = util.rgx_mult_search(phrase + ' ' + lemma_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
+        if match:
+          # backslashes cause postgres errors in postgres 9
+          return r._replace(is_correct=val, relation_supertype='PHRASE_%s' % name, relation_subtype=non_alnum.sub('_', match))
+
+
   if SR.get('primary-verb-modifiers') and dep_dag:
     opts = SR['primary-verb-modifiers']
     if dep_path_between:
@@ -192,32 +203,21 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
     if (pheno_entity, gene_name) in charite_pairs:
       return r._replace(is_correct=True, relation_supertype='CHARITE_SUP')
     
-  if SR.get('phrases-in-sent'):
-    opts = SR['phrases-in-sent']
-    opts = replace_opts(opts, [('GENE', gene), ('PHENO', pheno)])
-    for name, val in VALS:
-      if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
-        match = util.rgx_mult_search(phrase + ' ' + lemma_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
-        if match:
-          # backslashes cause postgres errors in postgres 9
-          return r._replace(is_correct=val, relation_supertype='PHRASE_%s' % name, relation_subtype=non_alnum.sub('_', match))
-
-
-  if False and SR.get('example-sentences'):
-    opts = SR['example-sentences']
-    for name, val in VALS:
-      for (i, (sentences_file, cutoff)) in enumerate(opts[name]):
-        if (name, sentences_file, cutoff, i) in CACHE['example-trees']:
-          example_tree_root, example_tree = CACHE['example-trees'][(name, sentences_file, cutoff, i)]
-        else:
-          example_tree_root, example_tree = get_example_tree(sentences_file, SR['synonyms'])
-          print >>sys.stderr, "tree: "
-          print_example_tree(sentences_file, SR['synonyms'])
-          CACHE['example-trees'][(name, sentences_file, cutoff, i)] = (example_tree_root, example_tree)
-        _, rescore = get_score(row, example_tree_root, example_tree, SR['synonyms'], SR['rescores'])
-        # print >> sys.stderr, "%s: have score %d" % (sentences_file, rescore)
-        if rescore >= cutoff:
-          return r._replace(is_correct=val, relation_supertype='TREE_MATCH_%s' % name, relation_subtype=sentences_file)
+  # if False and SR.get('example-sentences'):
+  #   opts = SR['example-sentences']
+  #   for name, val in VALS:
+  #     for (i, (sentences_file, cutoff)) in enumerate(opts[name]):
+  #       if (name, sentences_file, cutoff, i) in CACHE['example-trees']:
+  #         example_tree_root, example_tree = CACHE['example-trees'][(name, sentences_file, cutoff, i)]
+  #       else:
+  #         example_tree_root, example_tree = get_example_tree(sentences_file, SR['synonyms'])
+  #         print >>sys.stderr, "tree: "
+  #         print_example_tree(sentences_file, SR['synonyms'])
+  #         CACHE['example-trees'][(name, sentences_file, cutoff, i)] = (example_tree_root, example_tree)
+  #       _, rescore = get_score(row, example_tree_root, example_tree, SR['synonyms'], SR['rescores'])
+  #       # print >> sys.stderr, "%s: have score %d" % (sentences_file, rescore)
+  #       if rescore >= cutoff:
+  #         return r._replace(is_correct=val, relation_supertype='TREE_MATCH_%s' % name, relation_subtype=sentences_file)
 
   # Return GP relation object
   return r

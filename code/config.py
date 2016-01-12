@@ -3,6 +3,7 @@
 # The master configuration file for candidate extraction, distant supervision and feature
 # extraction hyperparameters / configurations
 import sys
+import copy
 
 if sys.version_info < (2,7):
   assert False, "Need Python version 2.7 at least"
@@ -379,8 +380,8 @@ def extend(map1, map2):
             rv[item].append(v)
   return rv
 
-GENE_PHENO_ASSOCIATION = GENE_PHENO
-GENE_PHENO_CAUSATION = GENE_PHENO
+GENE_PHENO_ASSOCIATION = copy.deepcopy(GENE_PHENO)
+GENE_PHENO_CAUSATION = copy.deepcopy(GENE_PHENO)
 GENE_PHENO_ASSOCIATION['SR'] = extend(GENE_PHENO_ASSOCIATION['SR'], ASSOCIATION_SR)
 GENE_PHENO_CAUSATION['SR'] = extend(GENE_PHENO_CAUSATION['SR'], CAUSATION_SR)
 
