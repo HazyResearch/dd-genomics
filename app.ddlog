@@ -321,13 +321,13 @@ pheno_mentions_without_acronyms (
   is_correct boolean
 ).
 
-#pheno_features (
-#  @distributed_by
-#  doc_id text,
-#        section_id text,
-#  mention_id text,
-#  feature text
-#).
+pheno_features (
+  @distributed_by
+  doc_id text,
+        section_id text,
+  mention_id text,
+  feature text
+).
 
 #variant_features (
 #  @distributed_by
@@ -761,7 +761,8 @@ function variant_extract_features over rows like variant_extract_features_input
   returns rows like variant_features
   implementation "code/variant_extract_features.py" handles tsv lines.
 
-#variant_features += variant_extract_features(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, mention_id, array_to_string(wordidxs, "|^|")) :- sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
+#variant_features += variant_extract_features(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, mention_id, array_to_string(wordidxs, "|^|")) :- 
+#sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
 #variant_mentions_filtered(_, doc_id, section_id, sent_id, wordidxs, mention_id, _, _, _, _, _).
 
 
@@ -818,8 +819,9 @@ function pheno_extract_features over rows like pheno_extract_features_input
 returns rows like pheno_features
 implementation "code/pheno_extract_features.py" handles tsv lines.
 
-#pheno_features += pheno_extract_features(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, mention_id, array_to_string(wordidxs, "|^|")) :- sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
-#pheno_mentions_filtered(_, doc_id, section_id, sent_id, wordidxs, mention_id, _, _, _, _, _).
+pheno_features += pheno_extract_features(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, mention_id, array_to_string(wordidxs, "|^|")) :- 
+sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
+pheno_mentions_filtered(_, doc_id, section_id, sent_id, wordidxs, mention_id, _, _, _, _, _).
 
     # We first get G-P pairs, then aggregate & serialize them, then do G-P supervision
     # This is to avoide the VMEM error caused by large operations
@@ -857,8 +859,6 @@ genepheno_pairs(
   gene_mentions(gene_id, doc_id, section_id, sent_id, gene_wordidxs, gene_mention_id, gene_mapping_type, gene_supertype, gene_subtype, gene_name, gene_words, gene_is_correct),
   pheno_mentions(pheno_id, doc_id, section_id, sent_id, pheno_wordidxs, pheno_mention_id, pheno_supertype, pheno_subtype, pheno_entity, pheno_words, pheno_is_correct).
 
-
-#serialize_genepheno_pairs_split ?
 
 #get_genevariant_pairs
 genevariant_pairs(
@@ -910,8 +910,8 @@ genevariant_pairs(
     variant_seq,
     variant_fromseq,
     variant_toseq,
-    variant_is_correct)
-    :- gene_mentions(_, doc_id, gene_section_id, gene_sent_id, gene_wordidxs, gene_mention_id, _, _, _, gene_name, _, gene_is_correct), 
+    variant_is_correct) :-
+    gene_mentions(_, doc_id, gene_section_id, gene_sent_id, gene_wordidxs, gene_mention_id, _, _, _, gene_name, _, gene_is_correct), 
     variant_mentions (variant_id, doc_id, variant_section_id, variant_sent_id, variant_wordidxs, variant_mention_id, variant_supertype, variant_subtype, variant_entity, variant_variant_type, variant_ivsnum, variant_pos, variant_posplus, variant_frompos, variant_topos, variant_seq, variant_fromseq, variant_toseq, variant_words, variant_is_correct).
 
 
@@ -923,27 +923,6 @@ implementation "code/non_gene_acronyms_extract_candidates_ddlog.py" handles tsv 
 #We extract genes from gene_mentions_temp_before_non_gene_acronyms_delete_candidates and non gene_mentions because the first gene extraction is done in gene_mentions_temp_before_non_gene_acronyms_delete_candidates. Then the non_gene_acronyms_delete_candidates will create gene_mentions which will be used in the rest of the run.
 
 #issue solved: call to an elt of an array. Python script modified to take that into account there
-
-#non_gene_acronyms_extract_candidates_view_temp_1(
-#@distributed_by
-#doc_id text, 
-#section_id text, 
-#sent_id int, 
-#wordidxs int[]).
-
-#non_gene_acronyms_extract_candidates_view_temp_2(
-#@distributed_by
-#doc_id text, 
-#section_id text,
-#sent_id int, 
-#word_string text,
-#word_string_array text,  
-#dep_paths text, 
-#dep_parents text, 
-#lemmas text, 
-#poses text,
-#ners text, 
-#wordidxs int[]).
 
 
 non_gene_acronyms_extract_candidates_view_temp_1(doc_id, section_id, sent_id, wordidxs) *:- gene_mentions_temp_before_non_gene_acronyms_delete_candidates(_, doc_id, section_id, sent_id, wordidxs, _, _, _, _, _, _, _).
@@ -958,7 +937,7 @@ non_gene_acronyms += non_gene_acronyms_extract_candidates(doc_id, section_id, se
 
 
 #non_gene_acronyms_extract_features
-function non_gene_acronyms_extract_features over (doc_id text,section_id text,sent_id int,words text,lemmas text,poses text,ners text,dep_paths text,dep_parents text,mention_id text,supertype text,short_wordidxs_to_string text,long_wordidxs_to_string text)
+function non_gene_acronyms_extract_features over rows like non_gene_acronyms_extract_features_input
 returns rows like non_gene_acronyms_features
 implementation "code/non_gene_acronyms_extract_features.py" handles tsv lines.
 
@@ -968,32 +947,10 @@ non_gene_acronyms(id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs
 
 #pheno_acronyms_extract_candidates
 
-function pheno_acronyms_extract_candidates over (doc_id text, section_id text, sent_id int, words_string text, dep_paths text, dep_parents text, lemmas text, poses text, ners text,  wordidxs int[], entity text)
+function pheno_acronyms_extract_candidates over rows like pheno_acronyms_extract_candidates_input
 returns rows like pheno_acronyms
 implementation "code/pheno_acronyms_extract_candidates_ddlog.py" handles tsv lines.
 
-#pheno_acronyms_extract_candidates_view_temp_1(
-#  @distributed_by
-#  doc_id text, 
-#  section_id text, 
-#  sent_id int, 
-#  wordidxs int[], 
-#  entity text).
-
-#pheno_acronyms_extract_candidates_view_temp_2(
-#@distributed_by
-#doc_id text, 
-#section_id text, 
-#sent_id int, 
-#word_string text, 
-#word_string_array text,
-#dep_paths text, 
-#dep_parents text, 
-#lemmas text, 
-#poses text,
-#ners text, 
-#wordidxs int[], 
-#entity text). 
 
 pheno_acronyms_extract_candidates_view_temp_1(doc_id, section_id, sent_id, wordidxs, entity) *:- 
 pheno_mentions_without_acronyms(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct), 
