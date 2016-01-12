@@ -6,7 +6,6 @@ import random
 import re
 import sys
 import config
-from dep_alignment.genepheno_sv_new import get_example_tree, get_score
 
 
 # This defines the Row object that we read in to the extractor
@@ -201,19 +200,6 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
     if (pheno_entity, gene_name) in charite_pairs:
       return r._replace(is_correct=True, relation_supertype='CHARITE_SUP')
   
-  if SR.get('example-sentences'):
-    opts = SR['example-sentences']
-    for name, val in VALS:
-      for ((sentences_file, cutoff), i) in enumerate(opts[name]):
-        if (name, sentences_file, cutoff, i) in CACHE['example-trees']:
-          example_tree_root, example_tree = CACHE['example-trees'][(name, sentences_file, cutoff, i)]
-        else:
-          example_tree_root, example_tree = get_example_tree(sentences_file, SR['synonyms'])
-          CACHE['example-trees'][(name, sentences_file, cutoff, i)] = (example_tree_root, example_tree)
-        _, rescore = get_score(row, example_tree_root, example_tree, SR['synonyms'], SR['rescores'])
-        if rescore >= cutoff:
-          return r._replace(is_correct=val, relation_supertype='TREE_MATCH_%s' % name, relation_subtype=sentences_file)
-
   # Return GP relation object
   return r
 
