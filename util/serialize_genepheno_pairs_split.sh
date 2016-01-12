@@ -5,13 +5,13 @@ set -beEu -o pipefail
 # Empty the specified table database table
 #
 
-if [ $# -ne 1 ]; then
-	echo "$0: ERROR: wrong number of arguments" >&2
-	echo "$0: USAGE: $0 DB" >&2
-	exit 1
-fi
+# if [ $# -ne 1 ]; then
+# 	echo "$0: ERROR: wrong number of arguments" >&2
+# 	echo "$0: USAGE: $0 DB" >&2
+# 	exit 1
+# fi
 
-DB=$1
+# DB=$1
 START_YEAR=1850
 END_YEAR=2015
 
@@ -46,7 +46,7 @@ CREATE TABLE genepheno_pairs_sentences AS (
     gp.sent_id
 );
 EOF
-psql -q -X --set ON_ERROR_STOP=1 -d $DB -f ${SQL_COMMAND_FILE} || exit 1
+deepdive sql -q -X --set ON_ERROR_STOP=1 -f ${SQL_COMMAND_FILE} || exit 1
 rm -rf ${TMPDIR}
 
 for i in $(seq $START_YEAR $END_YEAR)
@@ -80,7 +80,7 @@ do
       gp.sent_id
   );
 EOF
-  psql -q -X --set ON_ERROR_STOP=1 -d $DB -f ${SQL_COMMAND_FILE} || exit 1
+  deepdive sql -q -X --set ON_ERROR_STOP=1 -f ${SQL_COMMAND_FILE} || exit 1
   rm -rf ${TMPDIR}
 done
 
@@ -113,5 +113,5 @@ INSERT INTO genepheno_pairs_sentences (
     gp.sent_id
 );
 EOF
-psql -q -X --set ON_ERROR_STOP=1 -d $DB -f ${SQL_COMMAND_FILE} || exit 1
+deepdive sql -q -X --set ON_ERROR_STOP=1 -f ${SQL_COMMAND_FILE} || exit 1
 rm -rf ${TMPDIR}
