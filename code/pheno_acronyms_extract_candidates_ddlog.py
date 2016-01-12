@@ -102,7 +102,8 @@ if __name__ == '__main__':
       if '-LRB-' not in row.words[row.pheno_wordidxs[len(row.pheno_wordidxs)-1] + 1]:
         continue
     except:
-      print >> sys.stderr, 'error in condition for extractor pheno_acronyms extract candidates'
+      pass
+      #print >> sys.stderr, 'error in condition for extractor pheno_acronyms extract candidates'
     # Skip row if sentence doesn't contain a verb, contains URL, etc.
     if util.skip_row(row):
       continue
