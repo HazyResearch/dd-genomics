@@ -173,6 +173,17 @@ Then start the dashboard, if it's not already running, with
 
 Main changes from application.conf:
 
+
+
+
+
+
+
+
+
+
+
+
 Switching to ddlog:
 
 Main changes from application.conf:
