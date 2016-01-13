@@ -238,7 +238,7 @@ GENE_PHENO = {
     'bad-dep-paths' : False,
 
     # Subsample GP pairs where G and/or P is neg. example as neg. GP supervision
-    'g-or-p-false' : {'diff' : 0.5, 'rand' : 0.01},
+    'g-or-p-false' : {'diff' : 0, 'rand' : 0},
 
     # Supervise G adjacent to P as false
     'adjacent-false' : True,
@@ -251,9 +251,11 @@ GENE_PHENO = {
     'primary-verb-modifiers' : {
       'max-dist' : 1,
       'pos' : [],
-      'neg' : ['might'],
+      'neg' : [# 'might'
+               ],
       'pos-dep-tag' : [],
-      'neg-dep-tag' : ['neg']
+      'neg-dep-tag' : ['neg'
+                       ]
     },
 
     # Supervise GP pairs as T/F based on dependency-path neighbor lemmas of G and P
@@ -263,18 +265,38 @@ GENE_PHENO = {
       # 'pos-p' : ['mutation', 'mutate'],
       'pos-g' : [],
       'pos-p' : [],
-      'neg-g' : ['express', 'expression', 'coexpression', 'coexpress', 'co-expression', \
-                 'co-express', 'overexpress', 'overexpression', 'over-expression', \
-                 'over-express', 'somatic', 'infection', 'interacts', 'regulate', \
-                 'up-regulate', 'upregulate', 'down-regulate', 'downregulate', 'production', \
-                 'product', 'increased', 'increase', 'increas'],
+      'neg-g' : ['express', 
+                 'expression', 
+                 'coexpression', 
+                 'coexpress', 
+                 'co-expression',
+                 'co-express', 
+                 'overexpress', 
+                 'overexpression', 
+                 'over-expression',
+                 'over-express', 
+                 'somatic', 
+                 'infection', 
+                 'interacts', 
+                 'regulate',
+                 'up-regulate', 
+                 'upregulate', 
+                 'down-regulate', 
+                 'downregulate', 
+                 'production',
+                 'product', 
+                 'increased', 
+                 'increase', 
+                 'increas',
+                 'deficiency'
+                 ],
       'neg-p' : []
     },
 
     # Label T all GP pairs in Charite dataset (and that haven't already been labeled T/F)
     'charite-all-pos' : False,
     
-    'charite-all-pos-words': ['(mutat|delet|duplicat|truncat|SNP).*cause'],
+    'charite-all-pos-words': ['(mutat|delet|duplicat|truncat|SNP).*caus'],
 
     # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
     'dep-lemma-connectors' : {
@@ -285,22 +307,46 @@ GENE_PHENO = {
     'phrases-in-sent' : {
       # 'pos' : ['caused by (mutation|deletion|duplication|truncat)', 'confirmed linkage'],
       'pos' : [],
-      'neg' : ['possible association', 'to investigate', 'could reveal', 'to determine', \
-               'unclear', 'hypothesize', 'to evaluate', 'plasma', 'expression', 'to detect', \
-               'to find out', 'inconclusive', 'further analysis'],
-      'pos-rgx' : [r'(mutat|delet|duplicat|truncat|SNP).*GENE.*(implicated?|found).*PHENO', \
-                   r'(mutat|delet|duplicat|truncat|SNP).*GENE.*cause.*PHENO', 
+      'neg' : ['possible association', 
+               'to investigate', 
+               'could reveal', 
+               'to determine',
+               'could not determine',
+               'unclear', 
+               'hypothesize', 
+               'to evaluate', 
+               'plasma', 
+               'expression', 
+               'to detect',
+               'mouse',
+               'mice',
+               'to find out', 
+               'inconclusive', 
+               'further analysis'],
+      'pos-rgx' : [r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*(implicated?|found).*PHENO',
+                   r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*cause.*PHENO', 
                   # r'PHENO.*linkage to.*GENE', \
-                  # r'(mutat|delet|duplicat|truncat).*GENE.*described.*patients.*PHENO', \
-                  # r'.*patient.*GENE.*present with.*clinical.*PHENO.*', \
-                  # r'(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO', \
-                  # r'(mutation|deletion).*GENE.*described.*patients.*PHENO'
+                  r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*described.*patients.*PHENO',
+                  r'.*patient.*GENE.*present with.*clinical.*PHENO.*',
+                  r'(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO',
+                  r'(mutation|deletion).*GENE.*described.*patients.*PHENO'
                   ],
       # 'pos-rgx' : [],
-      'neg-rgx' : [r'rs\d+', r't?SNPs?', r'\d+(\.\d+)?\s*\%', r'\?\s*$', \
-                   r'^\s*To determine', r'^\s*To evaluate', r'^\s*To investigate', \
-                   '\d+ h ', r'^\s*To assess', r'^\s*here we define', r'^\s*whether', \
-                   'unlikely.*GENE.*PHENO', ]
+      'neg-rgx' : [# r'rs\d+', 
+                   # r't?SNPs?', 
+                   # r'\d+(\.\d+)?\s*\%', 
+                   r'\?\s*$',
+                   r'^\s*To determine', 
+                   r'^\s*To evaluate', 
+                   r'^\s*To investigate',
+                   r'^\s*We investigated',
+                   '\d+ h ', 
+                   r'^\s*To assess', 
+                   r'^\s*here we define', 
+                   r'^\s*whether',
+                   'unlikely.*GENE.*PHENO',
+                   'PHENO.*not due to.*GENE',
+                    ]
     },
          
     'example-sentences': {
@@ -338,11 +384,26 @@ CAUSATION_SR = {
     # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
     'phrases-in-sent' : {
       'pos' : [],
-      'neg' : ['risk', 'variance', 'gwas', 'association study', \
-               'possible association', 'to investigate', 'could reveal', \
-               'to determine', 'unclear', 'hypothesize', 'to evaluate', \
-               'plasma', 'expression', 'to detect', 'to find out', \
-               'inconclusive', 'further analysis', 'association'],
+      'neg' : [# 'risk', 
+               'variance', 
+               'gwas', 
+               'association study',
+               'possible association', 
+               'to investigate', 
+               'could reveal',
+               'to determine', 
+               'unclear', 
+               'hypothesize', 
+               'to evaluate',
+               'plasma', 
+               'expression', 
+               'to detect', 
+               'to find out',
+               'inconclusive', 
+               'further analysis', 
+               'association'
+               'associated with',
+               ],
       'pos-rgx' : [],
       'neg-rgx' : [],
     },
@@ -350,7 +411,10 @@ CAUSATION_SR = {
     'dep-lemma-connectors' : {
       # 'pos' : ['cause'],
       'pos': [],
-      'neg' : ['associate', 'correlate', 'implicate']
+      'neg' : [# 'associate', 
+               # 'correlate', 
+               # 'implicate'
+               ]
     },
 }
 
@@ -407,7 +471,7 @@ GENE_VARIANT_PHENO = {
   ## Supervision Rules
   'SR' : {
     # Subsample GP pairs where G and/or P is neg. example as neg. GP supervision
-    'gv-or-p-false' : {'diff' : 0.5, 'rand' : 0.01},
+    'gv-or-p-false' : {'diff' : 0, 'rand' : 0.01},
 
     # Supervise with ClinVar
     'clinvar-sup' : True
