@@ -866,6 +866,31 @@ genepheno_pairs(
   gene_mentions(gene_id, doc_id, section_id, sent_id, gene_wordidxs, gene_mention_id, gene_mapping_type, gene_supertype, gene_subtype, gene_name, gene_words, gene_is_correct),
   pheno_mentions(pheno_id, doc_id, section_id, sent_id, pheno_wordidxs, pheno_mention_id, pheno_supertype, pheno_subtype, pheno_entity, pheno_words, pheno_is_correct).
 
+genepheno_pairs_sentences(
+  doc_id,
+  section_id,
+  sent_id,
+  array_to_string(ARRAY_AGG(gene_mention_id), "|^|"),
+  ARRAY_AGG(gene_name),
+  array_to_string(ARRAY_AGG(gene_wordidxs), "|^|"),
+  ARRAY_AGG(gene_is_correct),
+  array_to_string(ARRAY_AGG(pheno_mention_id), "|^|"),
+  ARRAY_AGG(pheno_entity),
+  array_to_string(ARRAY_AGG(pheno_wordidxs), "|^|"),
+  ARRAY_AGG(pheno_is_correct)
+  ) :-
+  genepheno_pairs(doc_id, 
+                  section_id, 
+                  sent_id, 
+                  gene_mention_id, 
+                  gene_name,
+                  gene_wordidxs,
+                  gene_is_correct,
+                  pheno_mention_id,
+                  pheno_entity,
+                  pheno_wordidxs,
+                  pheno_is_correct).
+
 
 #get_genevariant_pairs
 genevariant_pairs(
