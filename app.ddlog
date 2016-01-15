@@ -624,14 +624,16 @@ genepheno_relations(
  pheno_is_correct boolean).
 
 doc_metadata(
-doc_id              text,    
+ @distributed_by
+ doc_id             text,    
  source_name        text,    
  source_year        integer,
  source_text_year   text,    
  source_year_status text,    
  issn_global        text,    
  issn_print         text,    
- issn_electronic    text).
+ issn_electronic    text,
+ mesh_terms         text).
 
 allowed_phenos (
   @distributed_by
