@@ -1,18 +1,3 @@
-Setting the dd-genomics repo: 
-
-- define a db.url file, such as greenplum://localhost:6432/genomics_tpalo (the number being the port and the noun is the name of the database you want to create), or more likely something like postgresql://localhost/genomics_tpalo if you're doint it locally.
- 
-- Pre-process & load the data: See the Parser README (https://github.com/HazyResearch/dd-genomics/tree/master/parser) for detailed instructions
-- Make sure that the custom user functions have been loaded into Postgres for this user; to do so run ./util/add_user_functions.sh.
-
-- Fetch and process ontology files: cd onto; ./make_all.sh
-
- - Install nltk: sudo pip install nltk. Download the corpora wordnet: in Python: import nltk; nltk.download() and download the corpora wordnet.
-
- - Define a input/sentences_input.* for which the sentences_input will be loaded, either an alias of the dataset. 
- 
-- compile the application with the command "deepdive compile"
-
 #### TO-DO LIST
 See Milestones/Issues.
 
@@ -185,7 +170,24 @@ Then start the dashboard, if it's not already running, with
 
 * Go to the directory and start downloading
 
-### DDLOg
+### DDLog
+
+Setting the dd-genomics repo: 
+
+- define a db.url file, such as greenplum://localhost:6432/genomics_tpalo (the number being the port and the noun is the name of the database you want to create), or more likely something like postgresql://localhost/genomics_tpalo if you're doint it locally.
+ 
+- Pre-process & load the data: See the Parser README (https://github.com/HazyResearch/dd-genomics/tree/master/parser) for detailed instructions
+- Make sure that the custom user functions have been loaded into Postgres for this user; to do so run ./util/add_user_functions.sh.
+
+- Fetch and process ontology files: cd onto; ./make_all.sh
+
+ - Install nltk: sudo pip install nltk. Download the corpora wordnet: in Python: import nltk; nltk.download() and download the corpora wordnet.
+
+ - Define a input/sentences_input.* for which the sentences_input will be loaded, either an alias of the dataset. 
+ 
+- compile the application with the command "deepdive compile"
+
+
 
 Main changes from application.conf:
 
