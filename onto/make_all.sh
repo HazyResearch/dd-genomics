@@ -93,13 +93,13 @@ cat dicts/ensembl_refseq.txt dicts/ensembl_symbols_canonical.txt dicts/ensembl_s
 #mv temp.txt dicts/ensembl_map.tsv	
 
 # OPTIONAL: delete all intermediate files
-rm dicts/ensembl_refseq.txt
-rm dicts/ensembl_direct.txt
-rm dicts/ensembl_symbols.txt
-rm dicts/ensembl_symbols_canonical.txt
-rm dicts/ensembl_symbols_syns.txt
-rm dicts/ensembl_syns.txt
-rm dicts/symbols_syns.txt
+# rm dicts/ensembl_refseq.txt
+# rm dicts/ensembl_direct.txt
+# rm dicts/ensembl_symbols.txt
+# rm dicts/ensembl_symbols_canonical.txt
+# rm dicts/ensembl_symbols_syns.txt
+# rm dicts/ensembl_syns.txt
+# rm dicts/symbols_syns.txt
 
 # Copy the final table to the data folder for use by deepdive
 cp dicts/ensembl_map.tsv data/ensembl_genes.tsv

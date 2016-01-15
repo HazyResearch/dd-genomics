@@ -165,6 +165,13 @@ sentences_input (
   dep_parents text
  ).
 
+generifs (
+  ensembl_id text,
+  @distributed_by
+  doc_id text,
+  words text
+).
+
 #hpo_to_doc_via_mesh (
 #  hpo_id text,
 #  doc_id text
