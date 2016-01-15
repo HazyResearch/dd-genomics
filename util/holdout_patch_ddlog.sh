@@ -35,9 +35,3 @@ ginf.expectation as expectation
 from genepheno_association g,
 genepheno_association_inference_label_inference ginf
 where ginf.relation_id = g.relation_id;"""
-
-cd util/
-
-
-(source ../env_local.sh; ./gp_holdout_fp_assoc.sh $1)
-(source ../env_local.sh; ./gp_holdout_fp_caus.sh $1)
