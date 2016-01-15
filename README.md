@@ -141,3 +141,18 @@ Then start the dashboard, if it's not already running, with
 [docker-install]: https://docs.docker.com/installation/#installation
 [dockerfile-1]: https://gist.github.com/adamwgoldberg/7075b2237f819483a067
 [dd-extractors]: http://deepdive.stanford.edu/doc/basics/extractors.html
+
+### Getting Data From NCBI
+
+* ssh to one of the following IP addresses (the silk machines):
+** 171.64.65.39 (this is silk04.stanford.edu)
+** 171.64.65.43
+** 171.64.65.44
+** 171.64.65.70
+** 171.64.65.72
+
+* Type ftp ftp.ncbi.nlm.nih.gov
+* Username: anonymous
+* Password: bejerano@stanford.edu
+
+* Go to the directory and start downloading
