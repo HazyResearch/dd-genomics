@@ -8,7 +8,7 @@ Setting the dd-genomics repo:
 
 1. Define a `db.url` file, such as: `[postgres|greenplum]://localhost:6432/genomics_tpalo`
 
-2. Copy template file `env_local.sh.template` to `env_local.sh` and modify this file with your local settings (it's ignored by git, and prefered by the run script).  Make sure to set your `PATH` so that the correct version of `psql` is on it.
+2. Copy template file `env.sh` to `env_local.sh` and modify this file with your local settings (it's ignored by git, and prefered by the run script).  Make sure to set your `PATH` so that the correct version of `psql` is on it.
 
 3.  Install nltk: `sudo pip install nltk`. Download the corpora wordnet: in Python: `import nltk; nltk.download()` and download the corpora wordnet.
 
@@ -46,13 +46,30 @@ Using **genes** as an example:
 
 2. Load genes table: `deepdive do data/genes`
 
-3. Switch to the labeling directory: `cd labeling`
-
-4. Run the create holdout set script: `./create_new_g_holdout_set.sh [DB_NAME]`
+3. Switch to the labeling directory & un the create holdout set script: `cs labeling && ./create_new_g_holdout_set.sh [DB_NAME]`
 
 5. Append your name to the new folder created (by convention): `mv [DATE]-gene-holdout [DATE]-gene-holdout.[NAME]`
 
 6. Start Mindtagger: `PORT=8321 ./start-gui.sh`
+
+7. *Label data!*
+
+8. Edit `backup_files_g.txt` with your labeling name / backup directory
+
+9. To append your labels to the holdout set (or replace previous set with your new labels, using `>`): 
+	
+	```
+	python extract_labeling_info_g.py backup_files_g.txt >> ../onto/manual/gene_holdout_labels.tsv
+	```
+
+10. *Commit your labels via git*
+
+11. If you replaced the holdout set and want to load all old data, run:
+	
+	```
+	cd ../onto/manual && ./get_historical_g_labels.sh > gene_holdout_labels.tsv
+	```
+
 
 
 #### Raiders 7 notes...
