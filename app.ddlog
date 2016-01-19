@@ -496,13 +496,21 @@ genepheno_holdout_set (
   pheno_wordidxs int[]
 ).
 
-genepheno_holdout_labels (
+genepheno_holdout_labels_caus (
   @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
   is_correct text,
-  type text,
+  labeler text
+).
+
+genepheno_holdout_labels_assoc (
+  @distributed_by
+  doc_id text,
+  section_id text,
+  sent_id int,
+  is_correct text,
   labeler text
 ).
 
