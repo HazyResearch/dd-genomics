@@ -8,7 +8,7 @@ import os
 import random
 import re
 import sys
-import config
+import config_new as config
 
 import genepheno_supervision_util as sv
 
