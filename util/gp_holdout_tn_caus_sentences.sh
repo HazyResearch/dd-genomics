@@ -15,6 +15,9 @@ cat <<EOF >> ${SQL_COMMAND_FILE}
 COPY (
 SELECT DISTINCT
   l.labeler CAUSATION_FALSE_POSITIVES,
+  s.doc_id,
+  s.section_id,
+  s.sent_id,
   gc.gene_name,
   gc.gene_wordidxs,
   gc.pheno_wordidxs,
@@ -26,7 +29,7 @@ FROM
   RIGHT JOIN genepheno_holdout_set s 
     ON (s.doc_id = gc.doc_id AND s.section_id = gc.section_id AND s.sent_id = gc.sent_id AND gc.gene_wordidxs = s.gene_wordidxs AND gc.pheno_wordidxs = s.pheno_wordidxs) 
   JOIN genepheno_holdout_labels l
-    ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
+    ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id and l.type = 'causation') 
   JOIN sentences_input_with_holdout_gp si
     ON (si.doc_id = l.doc_id AND si.section_id = l.section_id AND si.sent_id = l.sent_id)
 WHERE
