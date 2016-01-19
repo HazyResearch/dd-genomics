@@ -15,15 +15,19 @@ cat <<EOF >> ${SQL_COMMAND_FILE}
 COPY (
 SELECT DISTINCT
   l.labeler GENE_FALSE_NEGATIVES,
+  l.doc_id,
+  l.section_id,
+  l.sent_id,
   g.expectation,
   g.gene_name,
-  g.wordidxs,
+  s.gene_wordidxs,
+  (string_to_array(si.words, '|^|'))[s.gene_wordidxs[1] + 1],
   array_to_string(string_to_array(si.words, '|^|'), ' ') words,
   array_to_string(string_to_array(si.lemmas, '|^|'), ' ') lemmas
 FROM
   gene_mentions_filtered_is_correct_inference g
   RIGHT JOIN gene_holdout_set s 
-    ON (s.doc_id = g.doc_id AND s.section_id = g.section_id AND s.sent_id = g.sent_id AND (STRING_TO_ARRAY(g.wordidxs, '|^|'))::int[] = s.gene_wordidxs) 
+    ON (s.doc_id = g.doc_id AND s.section_id = g.section_id AND s.sent_id = g.sent_id AND (STRING_TO_ARRAY(g.wordidxs, '|~|'))::int[] = s.gene_wordidxs) 
   JOIN gene_holdout_labels l
     ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
   JOIN sentences_input_with_holdout_g si

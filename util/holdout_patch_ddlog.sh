@@ -31,15 +31,24 @@ genepheno_association_inference_label_inference ginf
 where ginf.relation_id = g.relation_id;"""
 
 deepdive sql """
-DELETE FROM gene_holdout_labels WHERE doc_id NOT IN (SELECT DISTINCT doc_id FROM sentences_input);
-DELETE FROM gene_holdout_set WHERE doc_id NOT IN (SELECT DISTINCT doc_id FROM sentences_input);
+DELETE FROM gene_holdout_set 
+WHERE (doc_id, section_id, sent_id, gene_wordidxs) IN 
+(SELECT DISTINCT
+  s.* 
+FROM
+  gene_holdout_set s 
+  LEFT JOIN 
+  gene_mentions_filtered p
+    ON (s.doc_id = p.doc_id AND s.section_id = p.section_id AND s.sent_id = p.sent_id AND s.gene_wordidxs = STRING_TO_ARRAY(p.wordidxs, '|~|')::INTEGER[]) WHERE p.doc_id IS NULL);
+
+DELETE FROM gene_holdout_labels WHERE (doc_id, section_id, sent_id) NOT IN (SELECT DISTINCT doc_id, section_id, sent_id FROM gene_holdout_set);
 
 DROP TABLE IF EXISTS sentences_input_with_holdout_g;
 CREATE TABLE sentences_input_with_holdout_g AS (
   SELECT si.*
   FROM 
     sentences_input_with_gene_mention si
-    JOIN genepheno_holdout_set s
+    JOIN gene_holdout_set s
       ON (si.doc_id = s.doc_id)
 ) DISTRIBUTED BY (doc_id);
 """
