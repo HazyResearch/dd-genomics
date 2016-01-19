@@ -8,7 +8,7 @@ Setting the dd-genomics repo:
 
 1. Define a `db.url` file, such as: `[postgres|greenplum]://localhost:6432/genomics_tpalo`
 
-2. Copy template file `env.sh` to `env_local.sh` and modify this file with your local settings (it's ignored by git, and prefered by the run script).  Make sure to set your `PATH` so that the correct version of `psql` is on it.
+2. Copy template file `env_local.sh.template` to `env_local.sh` and modify this file with your local settings (it's ignored by git, and prefered by the run script).  Make sure to set your `PATH` so that the correct version of `psql` is on it.
 
 3.  Install nltk: `sudo pip install nltk`. Download the corpora wordnet: in Python: `import nltk; nltk.download()` and download the corpora wordnet.
 
