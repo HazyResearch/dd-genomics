@@ -1,5 +1,8 @@
 #! /usr/bin/env bash
 
+#Right now, this file is not executed by the deepdive do command
+#Let's keep it for now (like a few weeks) to see if we need it at some point. Otherwise, we can delete this file. 
+
 deepdive sql """
         DELETE FROM doc_metadata
         WHERE (doc_id in (
