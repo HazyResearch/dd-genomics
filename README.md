@@ -14,7 +14,34 @@ See Milestones/Issues.
 		* Processed through coreNLP: `$ROOT/parsed/pubmed_abs/corenlp/pubmed_abs.tsv`
 	* **In database: `raiders2:genomics_production.{sentences, doc_metadata}`**
 
-### Running GDD: Basics
+### DDLog
+
+Setting the dd-genomics repo: 
+
+- define a db.url file, such as greenplum://localhost:6432/genomics_tpalo (the number being the port and the noun is the name of the database you want to create), or more likely something like postgresql://localhost/genomics_tpalo if you're doint it locally.
+ 
+- Pre-process & load the data: See the Parser README (https://github.com/HazyResearch/dd-genomics/tree/master/parser) for detailed instructions
+- Make sure that the custom user functions have been loaded into Postgres for this user; to do so run ./util/add_user_functions.sh.
+
+- Fetch and process ontology files: cd onto; ./make_all.sh
+
+ - Install nltk: sudo pip install nltk. Download the corpora wordnet: in Python: import nltk; nltk.download() and download the corpora wordnet.
+
+ - Define a input/sentences_input.* for which the sentences_input will be loaded, either an alias of the dataset. 
+ 
+- compile the application with the command "deepdive compile"
+
+
+Running the application: 
+
+ - Run the command "deepdive do ..." with the name of the table you want to fill. Deepdive will suggest you all the operations it has to do for that. For instance, if you want to run the whole pipeline, run "deepdive do model/calibration-plots". 
+ - To mark as done or todo some tables, use the command "deepdive mark ...". For instance, if you want each process to be mark as undone, run "deepdive mark todo init/db" 
+ - Run "deepdive plan" to see all the operations possibles.
+ - If you import sentences_input from elsewhere, don't forget to run "deepdive mark done sentences_input"
+ - you can have access at the overall flow of the application in ${APP_HOME}/run/dataflow.svg (Chrome for instance works well for it).
+ - Overall, just run "deepdive" to see all the commands possible.
+
+### Running GDD: Basics (Old deepdive version)
 
 1. Copy template file `env.sh` to `env_local.sh` and modify this file (it's ignored by git, and prefered by the run script).  Make sure to set:
 	* database variables: user, host, port, db-name, db-type (postgres vs. greenplum)
@@ -169,35 +196,6 @@ Then start the dashboard, if it's not already running, with
 * Password: bejerano@stanford.edu
 
 * Go to the directory and start downloading
-
-### DDLog
-
-Setting the dd-genomics repo: 
-
-- define a db.url file, such as greenplum://localhost:6432/genomics_tpalo (the number being the port and the noun is the name of the database you want to create), or more likely something like postgresql://localhost/genomics_tpalo if you're doint it locally.
- 
-- Pre-process & load the data: See the Parser README (https://github.com/HazyResearch/dd-genomics/tree/master/parser) for detailed instructions
-- Make sure that the custom user functions have been loaded into Postgres for this user; to do so run ./util/add_user_functions.sh.
-
-- Fetch and process ontology files: cd onto; ./make_all.sh
-
- - Install nltk: sudo pip install nltk. Download the corpora wordnet: in Python: import nltk; nltk.download() and download the corpora wordnet.
-
- - Define a input/sentences_input.* for which the sentences_input will be loaded, either an alias of the dataset. 
- 
-- compile the application with the command "deepdive compile"
-
-
-
-Main changes from application.conf:
-
-Running the application: 
-
- - Run the command "deepdive do ..." with the name of the table you want to fill. Deepdive will suggest you all the operations it has to do for that. For instance, if you want to run the whole pipeline, run "deepdive do model/calibration-plots". 
- - To mark as done or todo some tables, use the command "deepdive mark ...". For instance, if you want each process to be mark as undone, run "deepdive mark todo init/db" 
- - Run "deepdive plan" to see all the operations possibles.
- - If you import sentences_input from elsewhere, don't forget to run "deepdive mark done sentences_input"
- - Overall, just run "deepdive" to see all the commands possible.
  
 
 Main changes from application.conf:
