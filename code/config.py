@@ -87,20 +87,19 @@ GENE = {
     'bad-genes': ['ANOVA', 'MRI', 'CO2', 'gamma', 'spatial', 'tau', 'Men', \
                   'ghrelin', 'MIM', 'NHS', 'STD', 'hole'],
 
-    'post-match' : {
+    'post-neighbor-match' : {
       # 'pos' : ['_ mutation', 'mutation', '_ mutations', 'mutations', 'mutant', \
       #          'mutants', 'gene', 'exon', 'residue', 'residues', 'coding', \
       #          'isoform', 'isoforms', 'deletion', 'mRNA', 'homozyous'],
-      'pos': [],
-      'neg' : ['+', 'pathway', 'patient', 'patients', 'risk factor', 'risk factors', \
-               'inhibitor', 'inhibitors', 'cell', 'cells', 'is used', 'syndrome'],
+      'pos': ['gene'],
+      'neg' : ['+', 'pathway', 'inhibitor', 'inhibitors', 'cell', 'cells', 'syndrome'],
       'pos-rgx' : [],
       # can't copy the lt-equal sign from anywhere now, it should be down there as well
       'neg-rgx' : [r'cell(s|\slines?)', '< \d+', '<= \d+', '≥ \d+', '> \d+', '>= \d+'] 
     },
 
     'pre-neighbor-match' : {
-      'pos' : [],
+      'pos' : ['gene'],
       'neg' : [],
       'pos-rgx': [],
       'neg-rgx': []

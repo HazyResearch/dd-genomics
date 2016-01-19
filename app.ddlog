@@ -496,13 +496,21 @@ genepheno_holdout_set (
   pheno_wordidxs int[]
 ).
 
-genepheno_holdout_labels (
+genepheno_holdout_labels_caus (
   @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
   is_correct text,
-  type text,
+  labeler text
+).
+
+genepheno_holdout_labels_assoc (
+  @distributed_by
+  doc_id text,
+  section_id text,
+  sent_id int,
+  is_correct text,
   labeler text
 ).
 
@@ -739,7 +747,7 @@ function gene_extract_features over rows like gene_extract_features_input
   implementation "code/gene_extract_features.py" handles tsv lines.
 
 gene_features += gene_extract_features(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, mention_id, supertype, gene_wordidxs) :-
-  sentences_input_with_gene_mention(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents),
+  sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents),
   gene_mentions_filtered(_, doc_id, section_id, sent_id, gene_wordidxs, mention_id, _, supertype, _, _, _, _).
 
 #variant_extract_candidates
@@ -809,25 +817,6 @@ pheno_mention_ids(
 doc_id text).
 
 pheno_mention_ids(doc_id) *:- pheno_mentions_filtered(_, doc_id, _, _,_, _, _, _, _, _, _).
-
-#Create table sentences_input_with_pheno_mention
-sentences_input_with_pheno_mention(
-  @distributed_by
-  doc_id text,
-  section_id text,
-  sent_id int,
-  words text,
-  lemmas text,
-  poses text,
-  ners text,
-  dep_paths text,
-  dep_parents text).
-
-sentences_input_with_pheno_mention( doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents) :-
-sentences_input( doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
-pheno_mention_ids(doc_id).
-
-
 
 #Add dependency for the previous extractor certainly
 #pheno_extract_features
@@ -1026,23 +1015,6 @@ pheno_acronyms_ids(
 
 pheno_acronyms_ids(doc_id) *:- pheno_acronyms_aggregate(doc_id, pa_section_ids, pa_sent_ids, pa_abbrevs, pheno_entities).
 
-sentences_input_with_pheno_acronyms(
-  @distributed_by
-  doc_id text,
-  section_id text,
-  sent_id int,
-  words text,
-  lemmas text,
-  poses text,
-  ners text,
-  dep_paths text,
-  dep_parents text
- ).
-
-sentences_input_with_pheno_acronyms(doc_id,section_id,sent_id,words,lemmas,poses,ners,dep_paths,dep_parents) :-
-sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
-pheno_acronyms_ids(doc_id).
-
 #pheno_acronyms_insert_candidates
 
 function pheno_acronyms_insert_candidates over rows like pheno_acronyms_insert_candidates_input
@@ -1050,7 +1022,7 @@ returns rows like pheno_mentions
 implementation "code/pheno_acronyms_to_mentions.py" handles tsv lines.
 
 pheno_mentions_before_union_2 += pheno_acronyms_insert_candidates(doc_id, section_id, sent_id, words, lemmas, poses, ners, pa_abbrevs, pheno_entities, pa_section_ids, pa_sent_ids) :-
-sentences_input_with_pheno_acronyms(doc_id,section_id,sent_id,words,lemmas,poses,ners,dep_paths,dep_parents), 
+sentences_input(doc_id,section_id,sent_id,words,lemmas,poses,ners,dep_paths,dep_parents), 
 pheno_acronyms_aggregate(doc_id, pa_section_ids, pa_sent_ids, pa_abbrevs, pheno_entities).
 
 #We finally union the two temporary tables pheno_mentions_before_union_1 and 2 in the final table pheno_mentions.
@@ -1244,24 +1216,6 @@ gene_mention_ids(
 doc_id text).
 
 gene_mention_ids(doc_id) *:- gene_mentions_filtered(_, doc_id, _, _, _,_, _, _, _, _, _, _).
-
-#Create table sentences_input_with_gene_mention
-
-sentences_input_with_gene_mention(
-  @distributed_by
-  doc_id text,
-  section_id text,
-  sent_id int,
-  words text,
-  lemmas text,
-  poses text,
-  ners text,
-  dep_paths text,
-  dep_parents text).
-
-sentences_input_with_gene_mention( doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents) :-
-sentences_input( doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
-gene_mention_ids(doc_id).
 
 #variant_filter_candidates
 variant_mentions_filtered(

@@ -92,12 +92,12 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
 
   phrase = ' '.join(row.words)
   lemma_phrase = ' '.join(row.lemmas)
-  if SR.get('post-match'):
-    opts = SR['post-match']
-    phrase_post = " ".join(row.words[i+1:])
+  if SR.get('post-neighbor-match') and i < len(row.words) - 1:
+    opts = SR['post-neighbor-match']
+    post_neighbor = row.words[i+1]
     for name,val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
-        match = util.rgx_mult_search(phrase_post, opts[name], opts['%s-rgx' % name], flags=re.I)
+        match = util.rgx_mult_search(post_neighbor, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
           return m._replace(is_correct=val, mention_supertype='POST_MATCH_%s_%s' % (name, val), mention_subtype=match)
   
