@@ -14,59 +14,51 @@ See Milestones/Issues.
 		* Processed through coreNLP: `$ROOT/parsed/pubmed_abs/corenlp/pubmed_abs.tsv`
 	* **In database: `raiders2:genomics_production.{sentences, doc_metadata}`**
 
-### DDLog
+
+### SETUP:
 
 Setting the dd-genomics repo: 
 
-- define a db.url file, such as greenplum://localhost:6432/genomics_tpalo (the number being the port and the noun is the name of the database you want to create), or more likely something like postgresql://localhost/genomics_tpalo if you're doint it locally.
+1. Define a `db.url` file, such as: `[postgres|greenplum]://localhost:6432/genomics_tpalo`
+
+2. Copy template file `env.sh` to `env_local.sh` and modify this file with your local settings (it's ignored by git, and prefered by the run script).  Make sure to set your `PATH` so that the correct version of `psql` is on it.
+
+3.  Install nltk: `sudo pip install nltk`. Download the corpora wordnet: in Python: `import nltk; nltk.download()` and download the corpora wordnet.
+
+4.  Fetch and process ontology files: `cd onto; ./make_all.sh`
+
+5. Pre-process & load the data: See the [Parser README](https://github.com/HazyResearch/dd-genomics/tree/master/parser) for detailed instructions; then save the output table to `input/sentences_input.*` (or copy an existing sentences_input table to this location)
+
+6. **Source the environment vars: `source env_local.sh`.  *NOTE that this should be done before any deepdive run or action!* **
  
-- Pre-process & load the data: See the Parser README (https://github.com/HazyResearch/dd-genomics/tree/master/parser) for detailed instructions
-- Make sure that the custom user functions have been loaded into Postgres for this user; to do so run ./util/add_user_functions.sh.
-
-- Fetch and process ontology files: cd onto; ./make_all.sh
-
- - Install nltk: sudo pip install nltk. Download the corpora wordnet: in Python: import nltk; nltk.download() and download the corpora wordnet.
-
- - Define a input/sentences_input.* for which the sentences_input will be loaded, either an alias of the dataset. 
- 
-- compile the application with the command "deepdive compile"
+7. Compile the application: `deepdive compile`
 
 
-Running the application: 
+### Running DeepDive: 
 
- - Run the command "deepdive do ..." with the name of the table you want to fill. Deepdive will suggest you all the operations it has to do for that. For instance, if you want to run the whole pipeline, run "deepdive do model/calibration-plots". 
- - To mark as done or todo some tables, use the command "deepdive mark ...". For instance, if you want each process to be mark as undone, run "deepdive mark todo init/db" 
- - Run "deepdive plan" to see all the operations possibles.
- - If you import sentences_input from elsewhere, don't forget to run "deepdive mark done sentences_input"
- - you can have access at the overall flow of the application in ${APP_HOME}/run/dataflow.svg (Chrome for instance works well for it).
- - Overall, just run "deepdive" to see all the commands possible.
+* Run the command "deepdive do ..." with the name of the table you want to fill. Deepdive will suggest you all the operations it has to do for that. For instance, if you want to run the whole pipeline, run "deepdive do model/calibration-plots". 
 
-### Running GDD: Basics (Old deepdive version)
+* To mark as done or todo some tables, use the command "deepdive mark ...". For instance, if you want each process to be mark as undone, run "deepdive mark todo init/db" 
 
-1. Copy template file `env.sh` to `env_local.sh` and modify this file (it's ignored by git, and prefered by the run script).  Make sure to set:
-	* database variables: user, host, port, db-name, db-type (postgres vs. greenplum)
-	* _memory and parallelism options_
-	* _relevant library paths_
-	* _[GREENPLUM ONLY] port for gpfdist_
+* Run "deepdive plan" to see all the operations possibles.
 
-2. Create the database to be used if necessary (`createdb -U $DBUSER -h $DBHOST -p $DBPORT $DBNAME`)
+* If you import sentences_input from elsewhere, don't forget to run "deepdive mark done sentences_input"
 
-3. Create the *input* data schema by running: `./util/create_input_schema.sh` (**NOTE that this will drop any input data already loaded into e.g. `sentences` or `sentences_input` tables**)
+* You can have access at the overall flow of the application in ${APP_HOME}/run/dataflow.svg (Chrome for instance works well for it).
 
-4. To refresh / create the *extractor* schema, run `./util/create_schema.sh` (**NOTE that this will drop any output data from previous runs**).
+* Overall, just run "deepdive" to see all the commands possible.
 
-5. **Pre-process & load the data: See the [Parser README](parser) for detailed instructions**
 
-6. Make sure that the custom user functions have been loaded into Postgres for this user; to do so run `./util/add_user_functions.sh`.
+#### Raiders 7 notes...
+* To use **mosh**:
+```bash
+mosh yourusername@raiders7
+kinit
+aklog
+```
 
-7. Fetch and process ontology files: `cd onto; ./make_all.sh`
 
-8. Install nltk: `sudo pip install nltk`. Download the corpora wordnet: in Python: `import nltk; nltk.download()` and download the corpora wordnet.
-
-9. Run the appropriate pipeline: `./run.sh [PIPELINE_NAME]`.  **ATTENTION: NEEDS PYTHON 2.7 at least.** Current key pipelines to use:
-	1. **`preprocess`:** Serialize the sentences, etc. (any other operations only dependent on the input data i.e. the `sentences` table should go here)
-	2. **`full_pipeline_gp`:** Run the extractors for G, P, and G-P; this is the union of `extractors_gp` and `inference_gp`
-	3. **`postprocess`:** Aggregate the entity-level relations for the API, etc. (any other operations dependent on extraction & inference should go here)
+# OLD STUFF...
 
 ### Notes on Simple Debugging Routines
 
