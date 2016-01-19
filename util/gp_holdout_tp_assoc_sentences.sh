@@ -14,7 +14,7 @@ SQL_COMMAND_FILE=${TMPDIR}/dft.sql
 cat <<EOF >> ${SQL_COMMAND_FILE}
 COPY (
 SELECT DISTINCT
-  l.labeler ASSOCIATION_FALSE_POSITIVES,
+  l.labeler ASSOCIATION_TRUE_POSITIVES,
   s.doc_id,
   s.section_id,
   s.sent_id,
