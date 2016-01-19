@@ -13,7 +13,7 @@ from
         and hs.section_id = g.section_id
         and hs.sent_id = g.sent_id
         and hs.gene_wordidxs = g.wordidxs)
-  join sentences_input_with_gene_mention si
+  join sentences_input si
     on (hs.doc_id = si.doc_id
         and hs.section_id = si.section_id
         and hs.sent_id = si.sent_id)

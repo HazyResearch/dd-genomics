@@ -42,15 +42,6 @@ FROM
     ON (s.doc_id = p.doc_id AND s.section_id = p.section_id AND s.sent_id = p.sent_id AND s.gene_wordidxs = STRING_TO_ARRAY(p.wordidxs, '|~|')::INTEGER[]) WHERE p.doc_id IS NULL);
 
 DELETE FROM gene_holdout_labels WHERE (doc_id, section_id, sent_id) NOT IN (SELECT DISTINCT doc_id, section_id, sent_id FROM gene_holdout_set);
-
-DROP TABLE IF EXISTS sentences_input_with_holdout_g;
-CREATE TABLE sentences_input_with_holdout_g AS (
-  SELECT si.*
-  FROM 
-    sentences_input_with_gene_mention si
-    JOIN gene_holdout_set s
-      ON (si.doc_id = s.doc_id)
-) DISTRIBUTED BY (doc_id);
 """
 
 deepdive sql """
@@ -67,13 +58,4 @@ FROM
 DELETE FROM genepheno_holdout_labels 
 WHERE (doc_id, section_id, sent_id) NOT IN 
 (SELECT DISTINCT doc_id, section_id, sent_id FROM genepheno_holdout_set);
-
-DROP TABLE IF EXISTS sentences_input_with_holdout_gp;
-CREATE TABLE sentences_input_with_holdout_gp AS (
-  SELECT si.*
-  FROM 
-    sentences_input_with_gene_mention si
-    JOIN genepheno_holdout_set s
-      ON (si.doc_id = s.doc_id)
-) DISTRIBUTED BY (doc_id);
 """
