@@ -182,6 +182,12 @@ Then start the dashboard, if it's not already running, with
 [dockerfile-1]: https://gist.github.com/adamwgoldberg/7075b2237f819483a067
 [dd-extractors]: http://deepdive.stanford.edu/doc/basics/extractors.html
 
+### PATH
+
+Add the following to your zshrc on raiders7:
+
+    export PATH=/lfs/raiders7/0/USERNAME/local/bin:/usr/local/greenplum-db/bin_wrapped:~/local/bin:/usr/local/jdk1.8.0_66/bin:/lfs/raiders7/0/USERNAME/deepdive/util:/lfs/raiders7/0/USERNAME/deepdive/util:$PATH
+
 ### Getting Data From NCBI
 
 * ssh to one of the following IP addresses (the silk machines):
