@@ -39,7 +39,7 @@ FROM
       ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
   WHERe
     COALESCE(gc.expectation, 0) > 0.9 
-    AND l.is_correct = 'f'
+    AND (l.is_correct = 'f' OR l.type = 'association')
   GROUP BY labeler) fp
   FULL OUTER JOIN
   (SELECT
@@ -83,7 +83,7 @@ FROM
       ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
   WHERe
     COALESCE(gc.expectation, 0) <= 0.9
-    AND l.is_correct = 'f'
+    AND (l.is_correct = 'f' OR l.type = 'association')
   GROUP BY labeler) tn
   ON (fn.labeler = tn.labeler)) a;
 EOF
