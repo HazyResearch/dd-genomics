@@ -35,11 +35,11 @@ FROM
     genepheno_association_is_correct_inference gc 
     RIGHT JOIN genepheno_holdout_set s 
       ON (s.doc_id = gc.doc_id AND s.section_id = gc.section_id AND s.sent_id = gc.sent_id AND gc.gene_wordidxs = s.gene_wordidxs AND gc.pheno_wordidxs = s.pheno_wordidxs) 
-    JOIN genepheno_holdout_labels l
+    JOIN genepheno_holdout_labels_assoc l
       ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
   WHERe
     COALESCE(gc.expectation, 0) > 0.5 
-    AND (l.is_correct = 'f' OR l.type = 'causation')
+    AND l.is_correct = 'f'
   GROUP BY labeler) fp
   FULL OUTER JOIN
   (SELECT
@@ -49,8 +49,8 @@ FROM
     genepheno_association_is_correct_inference gc 
     RIGHT JOIN genepheno_holdout_set s 
       ON (s.doc_id = gc.doc_id AND s.section_id = gc.section_id AND s.sent_id = gc.sent_id AND gc.gene_wordidxs = s.gene_wordidxs AND gc.pheno_wordidxs = s.pheno_wordidxs) 
-    JOIN genepheno_holdout_labels l
-      ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id and l.type = 'association') 
+    JOIN genepheno_holdout_labels_assoc l
+      ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
   WHERe
     COALESCE(gc.expectation, 0) > 0.5 
     AND l.is_correct = 't'
@@ -64,8 +64,8 @@ FROM
     genepheno_association_is_correct_inference gc 
     RIGHT JOIN genepheno_holdout_set s 
       ON (s.doc_id = gc.doc_id AND s.section_id = gc.section_id AND s.sent_id = gc.sent_id AND gc.gene_wordidxs = s.gene_wordidxs AND gc.pheno_wordidxs = s.pheno_wordidxs) 
-    JOIN genepheno_holdout_labels l
-      ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id and l.type = 'association') 
+    JOIN genepheno_holdout_labels_assoc l
+      ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
   WHERe
     COALESCE(gc.expectation, 0) <= 0.5
     AND l.is_correct = 't'
@@ -79,11 +79,11 @@ FROM
     genepheno_association_is_correct_inference gc 
     RIGHT JOIN genepheno_holdout_set s 
       ON (s.doc_id = gc.doc_id AND s.section_id = gc.section_id AND s.sent_id = gc.sent_id AND gc.gene_wordidxs = s.gene_wordidxs AND gc.pheno_wordidxs = s.pheno_wordidxs) 
-    JOIN genepheno_holdout_labels l
+    JOIN genepheno_holdout_labels_assoc l
       ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
   WHERe
     COALESCE(gc.expectation, 0) <= 0.5
-    AND (l.is_correct = 'f' OR l.type = 'causation')
+    AND l.is_correct = 'f'
   GROUP BY labeler) tn
   ON (tn.labeler = COALESCE(fp.labeler, tp.labeler, fn.labeler))) a;
 EOF
