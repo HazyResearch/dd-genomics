@@ -11,6 +11,10 @@ report-templates/
 snapshot/
 .application.conf*
 
+# Ignore labeling files and holdouts
+onto/manual/gene_holdout_set.tsv
+labeling/backup_files_g.txt
+
 # Vim swap files
 *.*.sw*
 
