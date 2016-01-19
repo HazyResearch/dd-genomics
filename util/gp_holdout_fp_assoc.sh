@@ -55,7 +55,7 @@ FROM
     COALESCE(gc.expectation, 0) > 0.5 
     AND l.is_correct = 't'
   GROUP BY labeler) tp
-  ON (fp.labeler = tp.labeler)
+  ON (tp.labeler = fp.labeler)
   FULL OUTER JOIN
   (SELECT
     labeler,
@@ -70,7 +70,7 @@ FROM
     COALESCE(gc.expectation, 0) <= 0.5
     AND l.is_correct = 't'
   GROUP BY labeler) fn
-  ON (tp.labeler = fn.labeler)
+  ON (fn.labeler = COALESCE(fp.labeler, tp.labeler))
   FULL OUTER JOIN
   (SELECT
     labeler,
@@ -85,7 +85,7 @@ FROM
     COALESCE(gc.expectation, 0) <= 0.5
     AND (l.is_correct = 'f' OR l.type = 'causation')
   GROUP BY labeler) tn
-  ON (fn.labeler = tn.labeler)) a;
+  ON (tn.labeler = COALESCE(fp.labeler, tp.labeler, fn.labeler))) a;
 EOF
 psql -q -X --set ON_ERROR_STOP=1 -d $DB -f ${SQL_COMMAND_FILE} > /dev/stderr
 rm -rf ${TMPDIR}
