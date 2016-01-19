@@ -36,6 +36,25 @@ Setting the dd-genomics repo:
 * Overall, just run `deepdive` to see all the commands possible.
 
 
+### Labeling data:
+
+**[Labeling guidelines](https://docs.google.com/document/d/1z16_Rnmoi5iZ2A80zWxG8FpPVlaib6rM_kswL74HGQs/edit?usp=sharing)**
+
+Using **genes** as an example:
+
+1. Make sure the env vars are sourced: `source env_local.sh`
+
+2. Load genes table: `deepdive do data/genes`
+
+3. Switch to the labeling directory: `cd labeling`
+
+4. Run the create holdout set script: `./create_new_g_holdout_set.sh [DB_NAME]`
+
+5. Append your name to the new folder created (by convention): `mv [DATE]-gene-holdout [DATE]-gene-holdout.[NAME]`
+
+6. Start Mindtagger: `PORT=8321 ./start-gui.sh`
+
+
 #### Raiders 7 notes...
 * To use **mosh**:
 ```bash
