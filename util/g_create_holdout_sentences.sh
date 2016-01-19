@@ -12,6 +12,9 @@ DB=$1
 TMPDIR=$(mktemp -d /tmp/dft.XXXXXX)
 SQL_COMMAND_FILE=${TMPDIR}/dft.sql
 cat <<EOF >> ${SQL_COMMAND_FILE}
+DELETE FROM gene_holdout_labels WHERE doc_id NOT IN (SELECT DISTINCT doc_id FROM sentences_input);
+DELETE FROM gene_holdout_set WHERE doc_id NOT IN (SELECT DISTINCT doc_id FROM sentences_input);
+
 DROP TABLE IF EXISTS sentences_input_with_holdout_g;
 CREATE TABLE sentences_input_with_holdout_g AS (
   SELECT si.*

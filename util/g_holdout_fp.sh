@@ -1,4 +1,3 @@
-#!/bin/bash -e
 set -beEu -o pipefail
 
 if [ $# -ne 1 ]; then
