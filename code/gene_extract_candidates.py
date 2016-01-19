@@ -92,7 +92,7 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
 
   phrase = ' '.join(row.words)
   lemma_phrase = ' '.join(row.lemmas)
-  if SR.get('post-neighbor-match'):
+  if SR.get('post-neighbor-match') and i < len(row.words) - 1:
     opts = SR['post-neighbor-match']
     post_neighbor = row.words[i+1]
     for name,val in VALS:
