@@ -1,19 +1,6 @@
 #### TO-DO LIST
 See Milestones/Issues.
 
-### DATA:
-[8/8/15]: Current datasets to use (with *With `ROOT=/dfs/scratch0/ajratner`*):
-* **Production set:**
-	* **PMC (includes PLoS):**
-		* Raw XML documents: `$ROOT/pmc_raw/`
-		* Parsed into sections: `$ROOT/parsed/pmc/xml/{pmc.json, pmc.md.tsv}`
-		* Processed through coreNLP: `$ROOT/parsed/pmc/corenlp/pmc.tsv`
-	* **PubMed Titles + Abstracts:**
-		* Raw XML documents: `/dfs/scratch0/jbirgmei/pubmed_baseline/ungz/`
-		* Parsed into sections: `$ROOT/parsed/pubmed_abs/xml/{pubmed_abs.json, pubmed_abs.md.tsv}`
-		* Processed through coreNLP: `$ROOT/parsed/pubmed_abs/corenlp/pubmed_abs.tsv`
-	* **In database: `raiders2:genomics_production.{sentences, doc_metadata}`**
-
 
 ### SETUP:
 
@@ -29,24 +16,24 @@ Setting the dd-genomics repo:
 
 5. Pre-process & load the data: See the [Parser README](https://github.com/HazyResearch/dd-genomics/tree/master/parser) for detailed instructions; then save the output table to `input/sentences_input.*` (or copy an existing sentences_input table to this location)
 
-6. **Source the environment vars: `source env_local.sh`.  *NOTE that this should be done before any deepdive run or action!* **
+6. Source the environment vars: `source env_local.sh`.  **NOTE that this should be done before any deepdive run or action!**
  
 7. Compile the application: `deepdive compile`
 
 
 ### Running DeepDive: 
 
-* Run the command "deepdive do ..." with the name of the table you want to fill. Deepdive will suggest you all the operations it has to do for that. For instance, if you want to run the whole pipeline, run "deepdive do model/calibration-plots". 
+* Run the command `deepdive do ...` with the name of the table you want to fill. Deepdive will suggest the operations it has to do related to this table, and select a plan including all upstream operations.  For example, if you want to run the whole pipeline, use `do` on the last table: `deepdive do calibration-plots`. 
 
-* To mark as done or todo some tables, use the command "deepdive mark ...". For instance, if you want each process to be mark as undone, run "deepdive mark todo init/db" 
+* To mark as done (`done`), or conversely as yet to be done (`todo`), use the command `deepdive mark ...`. Deepdive will also mark all downstream operations.  For example, if you want each process to be mark as undone, use `do` on the first table: `deepdive mark todo init/db` 
 
-* Run "deepdive plan" to see all the operations possibles.
+* Run `deepdive plan` to see all the operations possibles.
 
-* If you import sentences_input from elsewhere, don't forget to run "deepdive mark done sentences_input"
+* If you import `sentences_input` from elsewhere, don't forget to run `deepdive mark done sentences_input`
 
-* You can have access at the overall flow of the application in ${APP_HOME}/run/dataflow.svg (Chrome for instance works well for it).
+* You can have access the overall flow of the application in `${APP_HOME}/run/dataflow.svg` (Chrome works well for this).
 
-* Overall, just run "deepdive" to see all the commands possible.
+* Overall, just run `deepdive` to see all the commands possible.
 
 
 #### Raiders 7 notes...
@@ -57,6 +44,19 @@ kinit
 aklog
 ```
 
+
+### DATA:
+[8/8/15]: Current datasets to use (with *With `ROOT=/dfs/scratch0/ajratner`*):
+* **Production set:**
+	* **PMC (includes PLoS):**
+		* Raw XML documents: `$ROOT/pmc_raw/`
+		* Parsed into sections: `$ROOT/parsed/pmc/xml/{pmc.json, pmc.md.tsv}`
+		* Processed through coreNLP: `$ROOT/parsed/pmc/corenlp/pmc.tsv`
+	* **PubMed Titles + Abstracts:**
+		* Raw XML documents: `/dfs/scratch0/jbirgmei/pubmed_baseline/ungz/`
+		* Parsed into sections: `$ROOT/parsed/pubmed_abs/xml/{pubmed_abs.json, pubmed_abs.md.tsv}`
+		* Processed through coreNLP: `$ROOT/parsed/pubmed_abs/corenlp/pubmed_abs.tsv`
+	* **In database: `raiders2:genomics_production.{sentences, doc_metadata}`**
 
 # OLD STUFF...
 
