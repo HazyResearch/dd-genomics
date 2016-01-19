@@ -23,7 +23,8 @@ if __name__ == "__main__":
           if u'Association' in results['by_key'][key]:
             val = results['by_key'][key]['Association']
             if val == True:
-              type_value = 'association'
+              type_value = None
+              rv = False
           elif u'Causation' in results['by_key'][key]:
             val = results['by_key'][key]['Causation']
             if val == True:
@@ -31,7 +32,8 @@ if __name__ == "__main__":
           elif u'association' in results['by_key'][key]:
             val = results['by_key'][key]['association']
             if val == True:
-              type_value = 'association'
+              type_value = None
+              rv = False
           elif u'causation' in results['by_key'][key]:
             val = results['by_key'][key]['causation']
             if val == True:
@@ -42,7 +44,7 @@ if __name__ == "__main__":
           if rv == False:
             is_correct = 'f'
           if is_correct == 't':
-            if type_value:
-              print '%s\t%s\t%d\t%s\t%s\t%s' % (doc_id, section_id, sent_id, is_correct, type_value, labeler)
+            if type_value is not None:
+              print '%s\t%s\t%d\t%s\t%s' % (doc_id, section_id, sent_id, is_correct, labeler)
           elif is_correct == 'f':
-            print '%s\t%s\t%d\t%s\t%s\t%s' % (doc_id, section_id, sent_id, is_correct, type_value, labeler)
+            print '%s\t%s\t%d\t%s\t%s' % (doc_id, section_id, sent_id, is_correct, labeler)
