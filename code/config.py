@@ -253,8 +253,7 @@ GENE_PHENO = {
       'neg' : [# 'might'
                ],
       'pos-dep-tag' : [],
-      'neg-dep-tag' : ['neg'
-                       ]
+      'neg-dep-tag' : ['neg']
     },
 
     # Supervise GP pairs as T/F based on dependency-path neighbor lemmas of G and P
@@ -333,7 +332,9 @@ GENE_PHENO = {
       # 'pos-rgx' : [],
       'neg-rgx' : [# r'rs\d+', 
                    # r't?SNPs?', 
-                   # r'\d+(\.\d+)?\s*\%', 
+                   # r'\d+(\.\d+)?\s*\%',
+                   r'PHENO.*not cause.*GENE',
+                   r'GENE.*not cause.*PHENO',
                    r'\?\s*$',
                    r'^\s*To determine', 
                    r'^\s*To evaluate', 
