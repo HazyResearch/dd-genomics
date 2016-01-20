@@ -1,6 +1,6 @@
 <div ng-if="extraction">
 <div>
-    <strong>Is this {{extraction.words}} a gene mention? : {{extraction.is_correct}}</strong>
+    <strong>The gene {{extraction.words}}, with expectation of {{extraction.expectation}}, is labeled as {{extraction.is_correct}}</strong>
 </div>
 
 <div ng-if="!searchResult.highlight['text']">
