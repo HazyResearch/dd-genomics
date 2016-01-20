@@ -1,3 +1,3 @@
 /dfs/scratch0/jbirgmei/labeling_backup
-20151214-genepheno-holdout.JOHANNES/tags.json;johannes_tags.json
+20160120-genepheno-holdout.JOHANNES/tags.json;johannes_tags.json
 20151214-genepheno-holdout.CHLOE/tags.json;chloe_tags.json

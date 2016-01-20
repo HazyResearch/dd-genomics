@@ -322,7 +322,8 @@ GENE_PHENO = {
                'inconclusive', 
                'further analysis',
                'but not',
-               'however'],
+               #'however'
+               ],
       'pos-rgx' : [r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*(implicated?|found).*PHENO',
                    r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*cause.*PHENO', 
                   # r'PHENO.*linkage to.*GENE', \
