@@ -29,7 +29,7 @@ gene_mentions_views(
   doc_id text,
   section_id text,
   sent_id int,
-  wordidxs int[],
+  wordidxs text,
   @key
   mention_id text,
   @navigable
@@ -41,14 +41,24 @@ gene_mentions_views(
   @navigable
   gene_name text,
   @searchable
-  words text[],
+  words text,
   @navigable
   is_correct boolean,
+  @navigable
+  expectation text,
   @references(relation="sentences_input_views", column="views_key", alias="sent_gene")
   views_key text).
 
-gene_mentions_views(id, doc_id, section_id, sent_id, gene_wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct, doc_id || "@" || section_id || "@" || sent_id) :-
-gene_mentions(id, doc_id, section_id, sent_id, gene_wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct).
+gene_mentions_views(id, doc_id, section_id, sent_id, gene_wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct, expectation, doc_id || "@" || section_id || "@" || sent_id) :-
+gene_mentions_filtered(id, doc_id, section_id, sent_id, gene_wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct),
+gene_mentions_filtered_inference_label_inference_bis(mention_id, inf_id, label, category, expectation).
+
+gene_mentions_filtered_inference_label_inference_bis(
+ mention_id   text,              
+ id           bigint,            
+ label        boolean,           
+ category     bigint,            
+ expectation  real).
 
 @extraction
 pheno_mentions_views(
