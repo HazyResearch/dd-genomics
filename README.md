@@ -55,13 +55,13 @@ The link to which access your views will be displayed in the terminal.
 
 #### Prerequisites:
 1. Make sure your env_local.sh is correctly setup in the application root directory
-2. Make sure the table of interest is correctly populated. If not populate it using `deepdive do ..` command. For example: `deepdive do data/genes` if you'd like to label gene mentions
+2. Make sure the table of interest is correctly populated. If not, populate it using `deepdive do ..` command. For example: use `deepdive do data/genes` if you'd like to label gene mentions
 
 #### Prepare & launch Mindtagger:
 **Basic**: You can start labeling in two basic steps:
 	
 1. Change directory to dd-genomics/labeling: `cd labeling/`
-2. Run `./start_mindtagging $MENTION_OR_RELATION [$LABELER_NAME]`: The first argument is required to generate the right hold-out set (gene/phenotype/genepheno). The second argument is optional: if none is given, the script will use the `$DDUSER` based on your `env_local.sh`. This script will generate the corresponding hold out set, choose an unused port number and launch MindTagger on it. 
+2. Run `./start_mindtagging $MENTION_OR_RELATION [$LABELER_NAME]`: The first argument is required to generate the right hold-out set (gene/phenotype/genepheno). The second argument is optional: if none is given, the script will use the `$DDUSER` based on your `env_local.sh`. This script will generate the corresponding hold-out set for your relation, choose an unused port number and launch MindTagger on it. 
 
 **Advanced**: If you wish to customize the labeling pipeline, for instance to have a specific port number, perform the following steps.
 	
