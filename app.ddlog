@@ -165,6 +165,15 @@ sentences_input (
   dep_parents text
  ).
 
+# Preprocessed as xml trees for fast feature extraction via treedlib
+xml_input (
+  @distributed_by
+  doc_id text,
+  section_id text,
+  sent_id int,
+  xml text
+).
+
 generifs (
   ensembl_id text,
   @distributed_by
@@ -675,6 +684,14 @@ pmid text).
 #  ARRAY_TO_STRING(dep_paths, "|^|"),
 #  ARRAY_TO_STRING(dep_parents, "|^|")) :-  sentences(doc_id, section_id, sent_id,_, words, lemmas, poses, ners, dep_paths, dep_parents).
 
+# xml preprocessing for treedlib
+function xml_prep over rows like sentences_input
+  returns rows like xml_input
+  implementation "code/sentence_input_to_xml_input.py" handles tsv lines.
+
+xml_input += 
+  xml_prep(did, secid, sid, ws, ls, ps, ns, d1s, d2s) :-
+  sentences_input(did, secid, sid, ws, ls, ps, ns, d1s, d2s).
 
 # gene_extract_candidates:
 function gene_extract_candidates over (doc_id text,
