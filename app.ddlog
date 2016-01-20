@@ -1277,6 +1277,7 @@ gene_mentions_filtered(
   section_id text,
   sent_id integer,
   wordidxs text,
+  @key
   mention_id text,
   mapping_type text,
   supertype text,
@@ -1440,7 +1441,9 @@ genepheno_association_updated_condition_not_met_2(id, relation_id, doc_id, secti
 
 ##### Declare Variable Relations #####
 
-gene_mentions_filtered_inference?(mention_id text).
+gene_mentions_filtered_inference?(
+  @references(relation="gene_mentions_views", column="mention_id")
+mention_id text).
 #pheno_mentions_filtered_inference?(mention_id text).
 genepheno_association_inference?(relation_id text).
 genepheno_causation_inference?(relation_id text).
