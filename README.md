@@ -55,17 +55,17 @@ The link to which access your views will be displayed in the terminal.
 
 #### Prerequisites:
 1. Make sure your env_local.sh is correctly setup in the application root directory
-2. Load tables of interest. For example: `deepdive do data/genes` if you'd like to label gene mentions
+2. Make sure the table of interest is correctly populated. If not populate it using `deepdive do ..` command. For example: `deepdive do data/genes` if you'd like to label gene mentions
 
 #### Prepare & launch Mindtagger:
 **Basic**: You can start labeling in two basic steps:
 	
-1. change directory to dd-genomics/labeling: `cd labeling/`
-2. run `./start_mindtagging $MENTION_OR_RELATION [$LABELER_NAME]`: The first argument is required to generate the right hold-out set (gene/phenotype/genepheno). The second argument is optional: if none is given, the script will use the `$DDUSER` based on your `env_local.sh`. This script will generate the corresponding hold out set, choose an unused port number and launch MindTagger on it. 
+1. Change directory to dd-genomics/labeling: `cd labeling/`
+2. Run `./start_mindtagging $MENTION_OR_RELATION [$LABELER_NAME]`: The first argument is required to generate the right hold-out set (gene/phenotype/genepheno). The second argument is optional: if none is given, the script will use the `$DDUSER` based on your `env_local.sh`. This script will generate the corresponding hold out set, choose an unused port number and launch MindTagger on it. 
 
 **Advanced**: If you wish to customize the labeling pipeline, for instance to have a specific port number, perform the following steps.
 	
-1. change directory to dd-genomics/labeling: `cd labeling/`
+1. Change directory to dd-genomics/labeling: `cd labeling/`
 2. Generate adequate hold-out set (`create_new_[g|p|gp]_holdout_set.sh [$LABELER_NAME]`): This script generates a hold-out set for a given relation (g: genes, p: phenotypes, gp: genepheno). The argument is optional: if none is given, the script will use the `$DDUSER` based on your `env_local.sh`.
 3. Choose a port number: for example `export PORT=6593`
 4. Fire Mindtagger: `./start-gui.sh`
