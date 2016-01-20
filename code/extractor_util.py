@@ -6,7 +6,7 @@ import sys
 import ddlib
 import traceback
 
-FIX_DEP_PARENTS=True
+FIX_DEP_PARENTS = True
 
 def rgx_comp(strings=[], rgxs=[]):
   r = r'|'.join(re.escape(w) for w in strings)
@@ -65,7 +65,7 @@ def skip_row(row):
     for word in row.words:
       assert isinstance(ex, basestring), str(ex)
       assert isinstance(word, basestring), str(row.words) + '\n' + str(row.lemmas) + '\n' + str(word)
-      if re.search(ex, word, re.I|re.S):
+      if re.search(ex, word, re.I | re.S):
         return True
   return False
 
@@ -78,6 +78,9 @@ def print_error(err_string):
 def tsv_string_to_list(s, func=lambda x : x, sep='|^|'):
   """Convert a TSV string from the sentences_input table to a list,
   optionally applying a fn to each element"""
+  
+  if s.strip() == "":
+    return []
 
   # Auto-detect separator
   if re.search(r'^\{|\}$', s):
@@ -132,7 +135,7 @@ class RowParser:
   def parse_tsv_row(self, line):
     row = Row()
     cols = line.split('\t')
-    for i,col in enumerate(cols):
+    for i, col in enumerate(cols):
       field_name, field_type = self.fields[i]
       if RP_PARSERS.has_key(field_type):
         val = RP_PARSERS[field_type](col)
