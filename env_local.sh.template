@@ -1,13 +1,13 @@
 #! /bin/bash
 
-# the user running the application
-export DDUSER=yahres
+# TODO the user running the application
+export DDUSER=
 
-# the database user (default: the same as above) & connection vars
-export DBUSER=yahres
-export DBHOST=raiders7
-export DBPORT=6432
-export DBNAME=genomics_yahres
+# TODO the database user (default: the same as above) & connection vars
+export DBUSER=
+export DBHOST=
+export DBPORT=
+export DBNAME=
 
 # the port that gpfdist will run on (should be uique for each user on system!)
 export GPPORT=8197
@@ -32,7 +32,8 @@ export JAVA_OPTS="-Xmx$MEMORY"
 # NOTE: if using mac, need to install coreutils / greadlink, or hardcode here...
 DIRNAME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 REAL_DIRNAME=`readlink -f ${DIRNAME}` || REAL_DIRNAME=`greadlink -f ${DIRNAME}`
-export APP_HOME=/lfs/raiders7/0/yahres/dd-genomics
+# TODO fill App home url
+export APP_HOME=
 export GDD_HOME=$APP_HOME
 export DEEPDIVE_HOME=${DEEPDIVE_HOME-/lfs/local/0/$DDUSER/deepdive}
 
