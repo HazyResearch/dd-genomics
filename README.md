@@ -48,27 +48,40 @@ Using **genes** as an example:
 
 3. Switch to the labeling directory & un the create holdout set script: `cs labeling && ./create_new_g_holdout_set.sh [DB_NAME]`
 
-5. Append your name to the new folder created (by convention): `mv [DATE]-gene-holdout [DATE]-gene-holdout.[NAME]`
+4. Append your name to the new folder created (by convention): `mv [DATE]-gene-holdout [DATE]-gene-holdout.[NAME]`
 
-6. Start Mindtagger: `PORT=8321 ./start-gui.sh`
+5. Start Mindtagger: `PORT=8321 ./start-gui.sh`
 
-7. *Label data!*
+6. *Label data!*
 
-8. Edit `backup_files_g.txt` with your labeling name / backup directory
+7. Edit `backup_files_g.txt` with your labeling name / backup directory
 
-9. To append your labels to the holdout set (or replace previous set with your new labels, using `>`): 
+8. To append your labels to the holdout set (or replace previous set with your new labels, using `>`): 
 	
 	```
 	python extract_labeling_info_g.py backup_files_g.txt >> ../onto/manual/gene_holdout_labels.tsv
 	```
 
-10. *Commit your labels via git*
+9. *Commit your labels via git* (may need to `git rm --cached labeling/backup_files_g.txt`)
 
-11. If you replaced the holdout set and want to load all old data, run:
+10. If you replaced the holdout set and want to load all old data, run:
 	
 	```
-	cd ../onto/manual && ./get_historical_g_labels.sh > gene_holdout_labels.tsv
+	cd ../onto/manual
+	./get_historical_g_labels.sh > gene_holdout_labels.tsv
+	./get_historical_g_holdout_sets.sh > gene_holdout_set.tsv
 	```
+
+11. Then, load with deepdive:
+
+	```
+	deepdive redo data/gene_holdout_set
+	deepdive redo data/gene_holdout_labels
+	```
+
+12. Finally: 
+	* Cmd line printout of precision/recall stats: `cd ../../util && ./g_holdout_stats.sh [DBNAME]`
+	* Cmd line printout of example sentences; for example, for false negs: `./g_holdout_fn_sentences.sh [DBNAME]`
 
 
 
