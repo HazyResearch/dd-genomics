@@ -92,7 +92,7 @@ GENE = {
       #          'mutants', 'gene', 'exon', 'residue', 'residues', 'coding', \
       #          'isoform', 'isoforms', 'deletion', 'mRNA', 'homozyous'],
       'pos': ['gene'],
-      'neg' : ['+', 'pathway', 'inhibitor', 'inhibitors', 'cell', 'cells', 'syndrome'],
+      'neg' : ['+', 'pathway', 'inhibitor', 'inhibitors', 'cell', 'cells', 'syndrome', 'domain'],
       'pos-rgx' : [],
       # can't copy the lt-equal sign from anywhere now, it should be down there as well
       'neg-rgx' : [r'cell(s|\slines?)', '< \d+', '<= \d+', '≥ \d+', '> \d+', '>= \d+'] 

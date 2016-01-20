@@ -33,7 +33,7 @@ FROM
   JOIN sentences_input si
     ON (si.doc_id = l.doc_id AND si.section_id = l.section_id AND si.sent_id = l.sent_id)
 WHERE
-  COALESCE(g.expectation, 0) <= 0.9 
+  COALESCE(g.expectation, 0) <= 0.5 
   AND l.is_correct = 't')
 TO STDOUT;
 EOF
