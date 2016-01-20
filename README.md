@@ -50,7 +50,7 @@ Using **genes** as an example:
 
 4. Append your name to the new folder created (by convention): `mv [DATE]-gene-holdout [DATE]-gene-holdout.[NAME]`
 
-5. Start Mindtagger: `PORT=8321 ./start-gui.sh`
+5. Start Mindtagger with a random port, such that: `PORT=8321 ./start-gui.sh`
 
 6. *Label data!*
 
