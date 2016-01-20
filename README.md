@@ -46,7 +46,7 @@ Using **genes** as an example:
 
 2. Load genes table: `deepdive do data/genes`
 
-3. Switch to the labeling directory & un the create holdout set script: `cs labeling && ./create_new_g_holdout_set.sh [DB_NAME]`
+3. Switch to the labeling directory & un the create holdout set script: `cd labeling && ./create_new_g_holdout_set.sh [DB_NAME]`
 
 4. Append your name to the new folder created (by convention): `mv [DATE]-gene-holdout [DATE]-gene-holdout.[NAME]`
 
