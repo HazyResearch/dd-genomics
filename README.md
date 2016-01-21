@@ -85,7 +85,7 @@ Using **genes** as an example:
 
 ### Error Analysis
 
-The Error Analysis doc is at https://docs.google.com/document/d/1u6fPO55YGR5BpJOJTDypAt8MfQImhS9PF9E_bkCqiz8/edit# .
+The Error Analysis doc is at https://docs.google.com/document/d/1u6fPO55YGR5BpJOJTDypAt8MfQImhS9PF9E_bkCqiz8/edit?usp=sharing .
 
 #### Raiders 7 notes...
 * To use **mosh**:
