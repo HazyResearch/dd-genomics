@@ -86,7 +86,7 @@ VALS = config.GENE['vals']
 def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention_supertype=None, mention_subtype=None):
   """Given a Row object consisting of a sentence, create & supervise a Mention output object"""
   word = row.words[i]
-  mid = '%s_%s_%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, i, gene_name, mention_supertype)
+  mid = '%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, i)
   m = Mention(None, row.doc_id, row.section_id, row.sent_id, [i], mid, mapping_type, mention_supertype, mention_subtype, gene_name, [word], None)
   dep_dag = deps.DepPathDAG(row.dep_parents, row.dep_paths, row.words)
 
