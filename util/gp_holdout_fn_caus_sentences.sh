@@ -27,10 +27,8 @@ SELECT DISTINCT
   array_to_string(string_to_array(si.lemmas, '|^|'), ' ') lemmas
 FROM
   genepheno_causation_is_correct_inference gc 
-  RIGHT JOIN genepheno_holdout_set s 
-    ON (s.doc_id = gc.doc_id AND s.section_id = gc.section_id AND s.sent_id = gc.sent_id AND gc.gene_wordidxs = s.gene_wordidxs AND gc.pheno_wordidxs = s.pheno_wordidxs) 
-  JOIN genepheno_holdout_labels_caus l
-    ON (s.doc_id = l.doc_id AND s.section_id = l.section_id AND s.sent_id = l.sent_id) 
+  RIGHT JOIN genepheno_holdout_labels_caus l
+    ON (l.doc_id = gc.doc_id AND l.section_id = gc.section_id AND l.sent_id = gc.sent_id AND gc.gene_wordidxs = l.gene_wordidxs AND gc.pheno_wordidxs = l.pheno_wordidxs) 
   JOIN sentences_input si
     ON (si.doc_id = l.doc_id AND si.section_id = l.section_id AND si.sent_id = l.sent_id)
 WHERE

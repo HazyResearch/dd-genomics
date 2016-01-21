@@ -9,7 +9,15 @@ select
   , p.wordidxs as pheno_wordidxs
   , string_to_array(si.words, '|^|') as words
 from
-  (select distinct * from genepheno_holdout_set) hs
+  (SELECT DISTINCT
+      doc_id,
+      section_id,
+      sent_id,
+      string_to_array(gene_wordidxs, '|~|')::int[] AS gene_wordidxs,
+      string_to_array(pheno_wordidxs, '|~|')::int[] AS pheno_wordidxs
+    FROM
+      genepheno_pairs gp
+    ORDER BY random() LIMIT 1000) hs
   join gene_mentions g
     on (hs.doc_id = g.doc_id
         and hs.section_id = g.section_id

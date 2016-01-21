@@ -487,20 +487,13 @@ pheno_acronyms_features (
   feature text
 ).
 
-genepheno_holdout_set (
-  @distributed_by
-  doc_id text,
-  section_id text,
-  sent_id int,
-  gene_wordidxs int[],
-  pheno_wordidxs int[]
-).
-
 genepheno_holdout_labels_caus (
   @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
+  gene_wordidxs int[],
+  pheno_wordidxs int[],
   is_correct text,
   labeler text
 ).
@@ -510,42 +503,11 @@ genepheno_holdout_labels_assoc (
   doc_id text,
   section_id text,
   sent_id int,
+  gene_wordidxs int[],
+  pheno_wordidxs int[],
   is_correct text,
   labeler text
 ).
-
-#all_genepheno_holdout_sets (
-#  @distributed_by
-#  doc_id text,
-#  section_id text,
-#  sent_id int,
-#  gene_wordidxs int[],
-#  pheno_wordidxs int[]
-#).
-
-#all_genepheno_holdout_labels (
-#  @distributed_by
-#  doc_id text,
-#  section_id text,
-#  sent_id int,
-#  is_correct text,
-#  type text,
-#  labeler text
-#).
-
-#genepheno_causation_canon (
-#  @distributed_by
-#  hpo_id text,
-#  @distributed_by
-#  ensembl_id text
-#).
-
-#genepheno_association_canon (
-#  @distributed_by
-#  hpo_id text,
-#  @distributed_by
-#  ensembl_id text
-#).
 
 hpo_abnormalities (
   @distributed_by
