@@ -20,7 +20,9 @@ CREATE TABLE genepheno_holdout_set AS (
     section_id,
     sent_id,
     string_to_array(gene_wordidxs, '|~|')::int[] AS gene_wordidxs,
-    string_to_array(pheno_wordidxs, '|~|')::int[] AS pheno_wordidxs
+    string_to_array(pheno_wordidxs, '|~|')::int[] AS pheno_wordidxs,
+    gene_mention_id,
+    pheno_mention_id
   FROM
     genepheno_pairs gp
   ORDER BY random()

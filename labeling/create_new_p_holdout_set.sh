@@ -24,7 +24,8 @@ CREATE TABLE pheno_holdout_set AS (
     doc_id,
     section_id,
     sent_id,
-    STRING_TO_ARRAY(wordidxs, '|^|')::int[] AS pheno_wordidxs
+    STRING_TO_ARRAY(wordidxs, '|^|')::int[] AS pheno_wordidxs,
+    mention_id
   FROM
     pheno_mentions_filtered pm
   ORDER BY random()

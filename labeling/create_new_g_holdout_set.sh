@@ -18,7 +18,8 @@ CREATE TABLE gene_holdout_set AS (
     doc_id,
     section_id,
     sent_id,
-    STRING_TO_ARRAY(wordidxs, '|^|')::int[] AS gene_wordidxs
+    STRING_TO_ARRAY(wordidxs, '|^|')::int[] AS gene_wordidxs,
+    mention_id
   FROM
     gene_mentions_filtered gm
   ORDER BY random()
