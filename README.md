@@ -83,7 +83,9 @@ Using **genes** as an example:
 	* Cmd line printout of precision/recall stats: `cd ../../util && ./g_holdout_stats.sh [DBNAME]`
 	* Cmd line printout of example sentences; for example, for false negs: `./g_holdout_fn_sentences.sh [DBNAME]`
 
+### Error Analysis
 
+The Error Analysis doc is at https://docs.google.com/document/d/1u6fPO55YGR5BpJOJTDypAt8MfQImhS9PF9E_bkCqiz8/edit# .
 
 #### Raiders 7 notes...
 * To use **mosh**:
