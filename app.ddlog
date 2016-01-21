@@ -44,29 +44,28 @@ gene_mentions_views(
   words text,
   @navigable
   is_correct boolean,
-  @navigable
-  expectation text,
   @searchable
   feature text[],
-  #weights text[],
+  @searchable
+  weights double[],
   @references(relation="sentences_input_views", column="views_key", alias="sent_gene")
   views_key text).
 
-gene_mentions_views(id, doc_id, section_id, sent_id, gene_wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct, expectation, ARRAY_AGG(feature), doc_id || "@" || section_id || "@" || sent_id) :-
+gene_mentions_views(id, doc_id, section_id, sent_id, gene_wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct, ARRAY_AGG(feature), ARRAY_AGG(weights), doc_id || "@" || section_id || "@" || sent_id) :-
 gene_mentions_filtered(id, doc_id, section_id, sent_id, gene_wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct),
-gene_mentions_filtered_inference_label_inference_bis(mention_id, inf_id, label, category, expectation),
-gene_features(doc_id, section_id, mention_id, feature).
+gene_features(doc_id, section_id, mention_id, feature),
+dd_inference_result_variables_mapped_weights_bis(_, _, _, "inf_istrue_gene_mentions_filtered_inference--" ||feature, _, weights).
 
 #inf_istrue_gene_mentions_filtered_inference--
 
-#Hack to use post-process tables, in particular to add the expectations computed by deepdive in the views
-gene_mentions_filtered_inference_label_inference_bis(
- mention_id   text,              
- id           bigint,            
- label        boolean,           
- category     bigint,            
- expectation  real).
-
+dd_inference_result_variables_mapped_weights_bis(
+ id          integer          ,
+ isfixed     boolean          ,
+ initvalue   integer          ,
+ description text             ,
+ categories  text             ,
+ weight      double 
+).
 
 @extraction
 pheno_mentions_views(
