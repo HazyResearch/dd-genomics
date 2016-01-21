@@ -1313,12 +1313,14 @@ genevariant_relations ( _, _, _, _, _, _, _, mention_id, _, _, _, _, _, _, _, _,
 #? Exctractor seems wrong in the application.conf (What is g ?)
 
 #genepheno_extract_features
-function genepheno_extract_features over rows like genepheno_extract_features_input returns rows like genepheno_features
-implementation "code/genepheno_extract_features.py" handles tsv lines.
+function genepheno_extract_features over rows like genepheno_extract_features_input
+  returns rows like genepheno_features
+  implementation "code/genepheno_extract_features.py" handles tsv lines.
 
-genepheno_features += genepheno_extract_features( relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_wordidxs, pheno_mention_id, pheno_wordidxs, words, lemmas, poses, ners, dep_paths, dep_parents) :- 
-genepheno_relations(id,relation_id,doc_id,section_id,sent_id,gene_mention_id,gene_name,gene_wordidxs,gene_is_correct,pheno_mention_id,pheno_entity,pheno_wordidxs,pheno_is_correct),
-sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
+genepheno_features += 
+genepheno_extract_features(rid, did, secid, sid, gmid, gwidxs, pmid, pwidxs, xml) :-
+genepheno_relations(_, rid, did, secid, sid, gmid, _, gwidxs, _, pmid, _, pwidxs, _),
+xml_input(did, secid, sid, xml).
 
 
 #genepheno_association_supervision

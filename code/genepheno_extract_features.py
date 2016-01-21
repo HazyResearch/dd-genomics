@@ -1,37 +1,19 @@
 #!/usr/bin/env python
-import extractor_util as util
-from collections import namedtuple
-import os
-import sys
-import ddlib
-from treedlib_util import read_ptsv, SentenceInput
-from tree_structs import sentence_to_xmltree
+from treedlib_util import PTSVParser, print_tsv
 from basic_features import get_relation_features
 
+xml_relation_parser = PTSVParser([
+  ('relation_id', 'text'),
+  ('doc_id', 'text'),
+  ('section_id', 'text'),
+  ('sent_id', 'int'),
+  ('gene_mention_id', 'text'),
+  ('gene_wordidxs', 'int[]'),
+  ('pheno_mention_id', 'text'),
+  ('pheno_wordidxs', 'int[]'),
+  ('xml', 'text')
+])
 
-Feature = namedtuple('Feature', ['doc_id', 'section_id', 'relation_id', 'name'])
-
-for line in sys.stdin:
-
-  # Parse the TSV input line
-  cols = read_ptsv(line)
-
-  # Get the relation-level attributes
-  relation_id = cols[0]
-  doc_id = cols[1]
-  section_id = cols[2]
-  sent_id = cols[3]
-  gene_mention_id = cols[4]
-  gene_wordidxs = cols[5]
-  pheno_mention_id = cols[6]
-  pheno_wordidxs = cols[7]
-
-  # Get the sentence and parse as XML
-  # NOTE: This should be done as pre-processing!!
-  si = SentenceInput._make(cols[8:] + [range(len(cols[8]))])
-  t = sentence_to_xmltree(si)
-
-  # Get relation features
-  f = Feature(doc_id=doc_id, section_id=section_id, relation_id=relation_id, name=None)
-  for feat in get_relation_features(t.root, gene_wordidxs, pheno_wordidxs):
-    util.print_tsv_output(f._replace(name=feat))
+for row in xml_relation_parser.parse_stdin():
+  for feat in get_relation_features(row.xml, row.gene_wordidxs, row.pheno_wordidxs):
+    print_tsv((row.doc_id, row.section_id, row.relation_id, feat))
