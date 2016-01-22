@@ -1,7 +1,6 @@
 <div ng-if="extraction">
 <div>
-    <strong>The gene {{extraction.words}}, with expectation of {{extraction.genepheno_causation_inference_relation_id[0].expectation}}, is labeled as {{extraction.is_correct}}</strong>
-    <strong>Is this ({{extraction.gene_entity}}, {{extraction.pheno_entity}}) a genepheno causation? : {{extraction.is_correct}}</strong>
+    <strong>Is this ({{extraction.gene_name}}, {{extraction.pheno_entity}}), with expectation of {{extraction.genepheno_causation_inference_relation_id[0].expectation}}, a genepheno causation? : {{extraction.is_correct}}</strong>
 </div>
 
 <div ng-if="!searchResult.highlight['text']">
