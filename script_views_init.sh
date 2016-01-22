@@ -44,6 +44,6 @@ git checkout thomas-improving-views
 # git pull
 # git fetch
 # git pull
-echo "postgresql://localhost:5432/$1" > db.url
+echo "postgresql://localhost:15193/$1" > db.url
 deepdive compile
 deepdive do init/db
