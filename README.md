@@ -60,16 +60,18 @@ The link to which access your views will be displayed in the terminal.
 #### Prepare & launch Mindtagger:
 **Basic**: You can start labeling in two basic steps:
 	
-1. Change directory to dd-genomics/labeling: `cd labeling/`
-2. Run `./start_mindtagging $MENTION_OR_RELATION [$LABELER_NAME]`: The first argument is required to generate the right hold-out set (gene/phenotype/genepheno). The second argument is optional: if none is given, the script will use the `$DDUSER` based on your `env_local.sh`. This script will generate the corresponding hold-out set for your relation, choose an unused port number and launch MindTagger on it. 
+Run `./start_mindtagging $MENTION [$LABELER_NAME]`: The first argument is required to generate the right hold-out set (gene/pheno/genepheno). The second argument is optional: if none is given, the script will use the `$DDUSER` based on your `env_local.sh`. This script will generate the corresponding hold-out set for your relation, choose an unused port number and launch MindTagger on it. 
 
 **Advanced**: If you wish to customize the labeling pipeline, for instance to have a specific port number, perform the following steps.
 	
-1. Change directory to dd-genomics/labeling: `cd labeling/`
-2. Generate adequate hold-out set (`create_new_[g|p|gp]_holdout_set.sh [$LABELER_NAME]`): This script generates a hold-out set for a given relation (g: genes, p: phenotypes, gp: genepheno). The argument is optional: if none is given, the script will use the `$DDUSER` based on your `env_local.sh`.
-3. Choose a port number: for example `export PORT=6593`
-4. Fire Mindtagger: `./start-gui.sh`
+1. Generate adequate hold-out set (`create_new_[g|p|gp]_holdout_set.sh [$LABELER_NAME]`): This script generates a hold-out set for a given relation (g: genes, p: phenotypes, gp: genepheno). The argument is optional: if none is given, the script will use the `$DDUSER` based on your `env_local.sh`.
+2. Choose a port number: for example `export PORT=6593`
+3. Fire Mindtagger: `./start-gui.sh`
 	
+#### Export tags:
+Run `export_tags.sh $MENTION [$LABELER_NAME]`: the arguments are similar to the above. This script will load all the non-null labels to the shared database and update your label_backup file in `labels/$RELATION_$LABELER_NAME`.
+Note that you should consistently use the names if you decide to personalize the `$LABELER_NAME` variable.
+
 
 Using **genes** as an example:
 
