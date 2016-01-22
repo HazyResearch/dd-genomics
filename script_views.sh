@@ -7,8 +7,6 @@ if [ "$#" -ne 1 ] ; then
   exit 1
 fi
 
-echo "please do first manually all the following commands"
-
 deepdive compile
 
 deepdive do weights
@@ -21,16 +19,6 @@ deepdive do genepheno_association_views
 deepdive do genepheno_causation_views
 deepdive do sentences_input_views
 deepdive do pheno_mentions_views
-
-while true; do
-    read -p "Have you done all the previous commands ?" yn
-    case $yn in
-        [Yy]* ) break;;
-        [Nn]* )	echo 'Please do !';	exit;;
-        * ) echo "Please answer y or n.";;
-    esac
-done
-echo 
 
 cd ..
 mkdir -p tables_for_views
