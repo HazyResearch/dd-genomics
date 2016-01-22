@@ -147,7 +147,8 @@ VALS = config.PHENO['vals']
 def create_supervised_mention(row, idxs, entity=None, mention_supertype=None, mention_subtype=None):
   """Given a Row object consisting of a sentence, create & supervise a Mention output object"""
   words = [row.words[i] for i in idxs]
-  mid = '%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, '-'.join(idxs))
+  idxs_strs = [str(i) for i in idxs]
+  mid = '%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, '-'.join(idxs_strs))
   m = Mention(None, row.doc_id, row.section_id, row.sent_id, idxs, mid, mention_supertype, mention_subtype, entity, words, None)
 
   if SR.get('post-match'):
@@ -208,7 +209,8 @@ def generate_rand_negatives(s, candidates):
         break
     wordidxs = [x[j] for j in ridxs]
     mtype = 'RAND_NEG'
-    mid = '%s_%s_%s_%s' % (s.doc_id, s.section_id, s.sent_id, '-'.join(wordidxs))
+    wordidxs_strs = [str(i) for i in wordidxs]
+    mid = '%s_%s_%s_%s' % (s.doc_id, s.section_id, str(s.sent_id), '-'.join(wordidxs_strs))
     negs.append(
       Mention(dd_id=None, doc_id=s.doc_id, section_id=s.section_id, sent_id=s.sent_id, wordidxs=wordidxs,
         mention_id=mid, mention_supertype=mtype, mention_subtype=None, entity=None, words=[s.words[i] for i in wordidxs],

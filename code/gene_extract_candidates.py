@@ -174,7 +174,7 @@ def get_negative_mentions(row, mentions, d, per_row_max=2):
       continue
     
     # Make a template mention object- will have mention_id opt with gene_name appended
-    mid = '%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, i)
+    mid = '%s_%s_%d_%s' % (row.doc_id, row.section_id, row.sent_id, i)
     m = Mention(dd_id=None, doc_id=row.doc_id, section_id=row.section_id, sent_id=row.sent_id, wordidxs=[i], mention_id=mid, mapping_type=None, mention_supertype="RANDOM_NEGATIVE",mention_subtype=None, gene_name=None, words=[word], is_correct=None)
 
     # Non-match all uppercase negative supervision
