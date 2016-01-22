@@ -47,7 +47,7 @@ gene_mentions_views(
   @searchable
   feature text[],
   @searchable
-  weights double[],
+  weights text[],
   @references(relation="sentences_input_views", column="views_key", alias="sent_gene")
   views_key text).
 
@@ -64,7 +64,7 @@ dd_inference_result_variables_mapped_weights_bis(
  initvalue   integer          ,
  description text             ,
  categories  text             ,
- weight      double 
+ weight      real
 ).
 
 @extraction
