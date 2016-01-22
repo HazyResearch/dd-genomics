@@ -51,10 +51,13 @@ gene_mentions_views(
   @references(relation="sentences_input_views", column="views_key", alias="sent_gene")
   views_key text).
 
-gene_mentions_views(id, doc_id, section_id, sent_id, gene_wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct, ARRAY_AGG(feature), ARRAY_AGG(weights), doc_id || "@" || section_id || "@" || sent_id) :-
-gene_mentions_filtered(id, doc_id, section_id, sent_id, gene_wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct),
-gene_features(doc_id, section_id, mention_id, feature),
-dd_inference_result_variables_mapped_weights_bis(_, _, _, "inf_istrue_gene_mentions_filtered_inference--" ||feature, _, weights).
+#Quite dirty hack to add the "order by" commands in the array of features and weights, which cannot be done directly in app.ddlog
+#Currently, the following ddlog extraction is not done but a similar one is copied in deepdive.conf, in which the "ORDER BY" commands were added manually...
+
+#gene_mentions_views(id, doc_id, section_id, sent_id, gene_wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct, ARRAY_AGG(feature), ARRAY_AGG(weights), doc_id || "@" || section_id || "@" || sent_id) :-
+#gene_mentions_filtered(id, doc_id, section_id, sent_id, gene_wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct),
+#gene_features(doc_id, section_id, mention_id, feature),
+#dd_inference_result_variables_mapped_weights_bis(_, _, _, "inf_istrue_gene_mentions_filtered_inference--" ||feature, _, weights).
 
 #inf_istrue_gene_mentions_filtered_inference--
 
