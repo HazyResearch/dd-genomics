@@ -17,15 +17,13 @@
               <th>Feature</th>
           </tr></thead>
           <tbody>
-            <tr ng-repeat="feature in extraction.feature | parsedArray:'postgres' ">
+            <tr ng-repeat="features in extraction.features | parsedArray:'postgres' ">
               <td class="text-right">{{(extraction.weights | parsedArray:'postgres')[$index]}}</td>
-              <th>{{(extraction.feature | parsedArray:'postgres')[$index]}}</th>
+              <th>{{(extraction.features | parsedArray:'postgres')[$index]}}</th>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
-    	<!--<div>Features:</div>
-    	<div>{{extraction.feature}}</div>-->
 </div>
 </div>

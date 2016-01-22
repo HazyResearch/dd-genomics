@@ -45,13 +45,13 @@ gene_mentions_views(
   @navigable
   is_correct boolean,
   @searchable
-  feature text[],
+  features text[],
   @searchable
   weights text[],
   @references(relation="sentences_input_views", column="views_key", alias="sent_gene")
   views_key text).
 
-gene_mentions_views(id, doc_id, section_id, sent_id, gene_wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct, ARRAY_AGG(feature), ARRAY_AGG(weights), doc_id || "@" || section_id || "@" || sent_id) :-
+gene_mentions_views(id, doc_id, section_id, sent_id, gene_wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct, ARRAY_AGG(feature ORDER BY abs(weights) DESC), ARRAY_AGG(weights ORDER BY abs(weights) DESC), doc_id || "@" || section_id || "@" || sent_id) :-
 gene_mentions_filtered(id, doc_id, section_id, sent_id, gene_wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct),
 gene_features(doc_id, section_id, mention_id, feature),
 dd_inference_result_variables_mapped_weights_bis(_, _, _, "inf_istrue_gene_mentions_filtered_inference--" ||feature, _, weights).
