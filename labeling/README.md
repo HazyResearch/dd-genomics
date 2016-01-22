@@ -4,7 +4,7 @@
 
 #### Prerequisites:
 1. Make sure your env_local.sh is correctly setup in the application root directory
-2. Make sure the table of interest is correctly populated. If not, populate it using `deepdive do ..` command. For example: use `deepdive do data/genes` if you'd like to label gene mentions
+2. Make sure the table of interest is correctly populated. If not, populate it using `deepdive do ..` command. For example: use `deepdive do gene_mentions` if you'd like to label gene mentions
 
 #### Prepare & launch Mindtagger:
 **Basic**: You can start labeling in two basic steps:
