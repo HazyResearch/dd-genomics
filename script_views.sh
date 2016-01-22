@@ -36,18 +36,18 @@ cd ..
 mkdir -p tables_for_views
 cd tables_for_views
 export PATH=/dfs/scratch0/netj/postgresql/9.4.4/bin:$PATH
-pg_dump -p 6432 -h raiders7 -U tpalo genomics_tpalo -t sentences_input_views > sentences_input_views.sql
-pg_dump -p 6432 -h raiders7 -U tpalo genomics_tpalo -t gene_mentions_views > gene_mentions_views.sql
-pg_dump -p 6432 -h raiders7 -U tpalo genomics_tpalo -t genepheno_causation_views > genepheno_causation_views.sql
-pg_dump -p 6432 -h raiders7 -U tpalo genomics_tpalo -t pheno_mentions_views > pheno_mentions_views.sql
-pg_dump -p 6432 -h raiders7 -U tpalo genomics_tpalo -t genepheno_association_views > genepheno_association_views.sql
-pg_dump -p 6432 -h raiders7 -U tpalo genomics_tpalo -t gene_mentions_filtered_inference_label_inference > gene_mentions_filtered_inference_label_inference.sql
-pg_dump -p 6432 -h raiders7 -U tpalo genomics_tpalo -t genepheno_causation_inference_label_inference > genepheno_causation_inference_label_inference.sql                            
-pg_dump -p 6432 -h raiders7 -U tpalo genomics_tpalo -t genepheno_association_inference_label_inference > genepheno_association_inference_label_inference.sql
-pg_dump -p 6432 -h raiders7 -U tpalo genomics_tpalo -t dd_inference_result_variables > dd_inference_result_variables.sql
-pg_dump -p 6432 -h raiders7 -U tpalo genomics_tpalo -t gene_mentions_filtered_inference > gene_mentions_filtered_inference.sql
-pg_dump -p 6432 -h raiders7 -U tpalo genomics_tpalo -t genepheno_causation_inference > genepheno_causation_inference.sql
-pg_dump -p 6432 -h raiders7 -U tpalo genomics_tpalo -t genepheno_association_inference > genepheno_association_inference.sql
+pg_dump -p 6432 -h raiders7 -U tpalo $1 -t sentences_input_views > sentences_input_views.sql
+pg_dump -p 6432 -h raiders7 -U tpalo $1 -t gene_mentions_views > gene_mentions_views.sql
+pg_dump -p 6432 -h raiders7 -U tpalo $1 -t genepheno_causation_views > genepheno_causation_views.sql
+pg_dump -p 6432 -h raiders7 -U tpalo $1 -t pheno_mentions_views > pheno_mentions_views.sql
+pg_dump -p 6432 -h raiders7 -U tpalo $1 -t genepheno_association_views > genepheno_association_views.sql
+pg_dump -p 6432 -h raiders7 -U tpalo $1 -t gene_mentions_filtered_inference_label_inference > gene_mentions_filtered_inference_label_inference.sql
+pg_dump -p 6432 -h raiders7 -U tpalo $1 -t genepheno_causation_inference_label_inference > genepheno_causation_inference_label_inference.sql                            
+pg_dump -p 6432 -h raiders7 -U tpalo $1 -t genepheno_association_inference_label_inference > genepheno_association_inference_label_inference.sql
+pg_dump -p 6432 -h raiders7 -U tpalo $1 -t dd_inference_result_variables > dd_inference_result_variables.sql
+pg_dump -p 6432 -h raiders7 -U tpalo $1 -t gene_mentions_filtered_inference > gene_mentions_filtered_inference.sql
+pg_dump -p 6432 -h raiders7 -U tpalo $1 -t genepheno_causation_inference > genepheno_causation_inference.sql
+pg_dump -p 6432 -h raiders7 -U tpalo $1 -t genepheno_association_inference > genepheno_association_inference.sql
 
 
 
