@@ -42,7 +42,7 @@ Setting the dd-genomics repo:
 This will create a new folder on postgres at ../name_database_for_views
 
 * Then, in the original folder dd-genomics that contains your interesting data, run the script script_views.sh (usage: ./script_views.sh name_database_you_want_data_from), where name_database_you_want_data_from is the database from which the data will be exported.
-Then run manually the commands displayed (sorry, I will try to add a pipeline for that).  Then, running the script should launch the views, after a long time of loading and processing.
+Then run the commands displayed by :wq the different vim files (I will try to add a pipeline for that). Then, running the script should launch the views, after a long time of loading and processing.
 
 
 ### Labeling data:
