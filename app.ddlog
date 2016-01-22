@@ -1,6 +1,3 @@
-##Work in progress
-##From the latest application.conf, on January 7th
-
 ##### Creation views for mindbender #####
 
 # Currently, the mindbender has some troubles tracing sentence with multiple keys, so tables are created, e.g., *_view with view_key for view
@@ -59,7 +56,10 @@ gene_mentions_views(
 #gene_features(doc_id, section_id, mention_id, feature),
 #dd_inference_result_variables_mapped_weights_bis(_, _, _, "inf_istrue_gene_mentions_filtered_inference--" ||feature, _, weights).
 
-#inf_istrue_gene_mentions_filtered_inference--
+#Small hack for which we add this table (with an empty tsv file in input) and then, after a run, we run the command 
+#deepdive sql "insert into dd_inference_result_variables_mapped_weights_bis select * from dd_inference_result_variables_mapped_weights;"
+#This is done to get the weights of the features because currently ddlog cannot refer to tables created after a run.
+
 
 dd_inference_result_variables_mapped_weights_bis(
  id          integer          ,
@@ -115,11 +115,17 @@ genepheno_association_views(
   is_correct boolean,
   supertype text,
   subtype text,
+  @searchable
+  features text[],
+  @searchable
+  weights text[],
   @references(relation="sentences_input_views", column="views_key", alias="genepheno_association_extraction")
   views_key text).
 
-genepheno_association_views(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, doc_id || "@" || section_id || "@" || sent_id) :-
-  genepheno_association(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype).
+#genepheno_association_views(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, ARRAY_AGG(feature), ARRAY_AGG(weights), doc_id || "@" || section_id || "@" || sent_id) :-
+#genepheno_association(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype),
+#genepheno_features ( doc_id, section_id, relation_id, feature),
+#dd_inference_result_variables_mapped_weights_bis(_, _, _, "inf_istrue_genepheno_association_inference--" ||feature, _, weights).
 
 @extraction
 genepheno_causation_views(
@@ -141,13 +147,17 @@ genepheno_causation_views(
   is_correct boolean,
   supertype text,
   subtype text,
+  @searchable
+  features text[],
+  @searchable
+  weights text[],
   @references(relation="sentences_input_views", column="views_key", alias="genepheno_causation_extraction")
   views_key text).
 
-genepheno_causation_views(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, doc_id || "@" || section_id || "@" || sent_id) :-
-  genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype).
-
-
+#genepheno_causation_views(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, ARRAY_AGG(feature), ARRAY_AGG(weights), doc_id || "@" || section_id || "@" || sent_id) :-
+#genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype),
+#genepheno_features ( doc_id, section_id, relation_id, feature),
+#dd_inference_result_variables_mapped_weights_bis(_, _, _, "inf_istrue_genepheno_causation_inference--" ||feature, _, weights).
 
 
 
@@ -1447,8 +1457,12 @@ gene_mentions_filtered_inference?(
   @references(relation="gene_mentions_views", column="mention_id")
 mention_id text).
 #pheno_mentions_filtered_inference?(mention_id text).
-genepheno_association_inference?(relation_id text).
-genepheno_causation_inference?(relation_id text).
+genepheno_association_inference?(
+  @references(relation="genepheno_association_views", column="relation_id")
+relation_id text).
+genepheno_causation_inference?(
+  @references(relation="genepheno_causation_views", column="relation_id")
+relation_id text).
 non_gene_acronyms_inference?(mention_id text).
 #genevariant_relations_inference?(relation_id text).
 
