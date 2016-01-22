@@ -79,13 +79,11 @@ def extract_candidate_mentions(row):
 
   for i, word in enumerate(row.words):
     if word == row.pa_abbrev:
-      mention_id = '%s_%s_%d_%d_%d_ABBREV_%s' %  \
+      mention_id = '%s_%s_%d_%d' %  \
            (row.doc_id, \
             row.section_id, \
             row.sent_id, \
-            i, \
-            i, \
-            row.pheno_entity)
+            i)
       subtype = '%s_%s_%d_%s' % (row.doc_id, row.pa_section_id, row.pa_sent_id, row.pa_abbrev)
       m = Mention(None, row.doc_id, row.section_id, row.sent_id,
           [i], mention_id, "ABBREV", subtype, row.pheno_entity,
@@ -102,13 +100,11 @@ def generate_rand_negatives(row, pos, neg):
     if word == row.pa_abbrev:
       continue
     if word.isupper() and word.strip() != '-LRB-' and word.strip() != '-RRB-':
-      mention_id = '%s_%s_%d_%d_%d_ABBREV_RAND_NEG_%s' %  \
+      mention_id = '%s_%s_%d_%d' %  \
            (row.doc_id, \
             row.section_id, \
             row.sent_id, \
-            i, \
-            i, \
-            row.pheno_entity)
+            i)
       subtype = '%s_%s_%d_%s' % (row.doc_id, row.pa_section_id, row.pa_sent_id, row.pa_abbrev)
       m = Mention(None, row.doc_id, row.section_id, row.sent_id, 
           [i], mention_id, 'ABBREV_RAND_NEG', subtype, None, [word], False)
