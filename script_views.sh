@@ -61,8 +61,8 @@ deepdive sql "update sentences_input_views set words = replace(words, '|^|', ' '
 # # define which port to use for your own Elasticsearch instance launched internally by mindbender
 export ELASTICSEARCH_BASEURL=http://localhost:9${RANDOM:0:3}
 
-#Trial to increase the number of buckets and make views work
-export ELASTICSEARCH_BULK_BATCHSIZE=200000
+#this bulk batchsize could be increased to increase speed. Careful, from 200000, it starts not to work so well.
+export ELASTICSEARCH_BULK_BATCHSIZE=20000
 mindbender search update 
 
 export ES_HEAP_SIZE=10g
