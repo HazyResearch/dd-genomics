@@ -33,12 +33,16 @@ fi
 
 
 #To be run in your original dd-genomics folder
-cd ..
-# git clone https://github.com/HazyResearch/dd-genomics.git dd-genomics_for_views
-cd dd-genomics_for_views
+if [[ ! ( -d ${1}_for_views) ]]
+then
+  git clone git@github.com:HazyResearch/dd-genomics.git ../${1}_for_views
+  rm -rf ../${1}_for_views/onto
+  cp -r onto ../{1}_for_views
+fi
+cd ../${1}_for_views
+git checkout thomas-improving-views
 # git pull
 # git fetch
-# git checkout thomas-improving-views
 # git pull
 echo "postgresql://localhost:5432/$1" > db.url
 deepdive compile
