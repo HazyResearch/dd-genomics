@@ -85,7 +85,7 @@ GENE = {
   'SR' : {
     # Label some P mentions based on the toks / phrases that follow
     'bad-genes': ['ANOVA', 'MRI', 'CO2', 'gamma', 'spatial', 'tau', 'Men', \
-                  'ghrelin', 'MIM', 'NHS', 'STD', 'hole'],
+                  'ghrelin', 'MIM', 'NHS', 'STD', 'hole', 'SDS'],
 
     'post-neighbor-match' : {
       # 'pos' : ['_ mutation', 'mutation', '_ mutations', 'mutations', 'mutant', \
