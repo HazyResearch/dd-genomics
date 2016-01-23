@@ -34,7 +34,7 @@ elif [ $1 = 'pheno' ]; then
         done
 elif [ $1 = 'genepheno' ]; then
         for DIR in *-genepheno-holdout.$NAME; do
-                ./extract_labels_from_json.py $DIR/tags.json $NAME > tmp.tsv
+                ./extract_genepheno_labels_from_json.py $DIR/tags.json $NAME > tmp.tsv
 		cat tmp.tsv | psql -U $DDUSER -p 6432 -d genomics_labels -c 'COPY genepheno_labels FROM STDIN;'
                 cat tmp.tsv >> "labels/genepheno_$NAME"
                 rm tmp.tsv
