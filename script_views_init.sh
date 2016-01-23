@@ -37,7 +37,7 @@ if [[ ! ( -d ${1}_for_views) ]]
 then
   git clone git@github.com:HazyResearch/dd-genomics.git ../${1}_for_views
   rm -rf ../${1}_for_views/onto
-  cp -r onto ../{1}_for_views
+  cp -r onto ../${1}_for_views
 fi
 cd ../${1}_for_views
 git checkout thomas-improving-views
