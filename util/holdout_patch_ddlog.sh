@@ -34,7 +34,7 @@ deepdive sql """
 DELETE FROM gene_holdout_set 
 WHERE (doc_id, section_id, sent_id, gene_wordidxs) IN 
 (SELECT DISTINCT
-  s.* 
+  s.doc_id, s.section_id, s.sent_id, s.gene_wordidxs
 FROM
   gene_holdout_set s 
   LEFT JOIN 
@@ -48,7 +48,7 @@ deepdive sql """
 DELETE FROM genepheno_holdout_labels_caus
 WHERE (doc_id, section_id, sent_id, gene_wordidxs, pheno_wordidxs) IN 
 (SELECT DISTINCT
-  s.* 
+  s.doc_id, s.section_id, s.sent_id, s.gene_wordidxs, s.pheno_wordidxs
 FROM
   genepheno_holdout_labels_caus s 
   LEFT JOIN 
@@ -57,7 +57,7 @@ FROM
 DELETE FROM genepheno_holdout_labels_assoc
 WHERE (doc_id, section_id, sent_id, gene_wordidxs, pheno_wordidxs) IN 
 (SELECT DISTINCT
-  s.* 
+  s.doc_id, s.section_id, s.sent_id, s.gene_wordidxs, s.pheno_wordidxs
 FROM
   genepheno_holdout_labels_assoc s 
   LEFT JOIN 
