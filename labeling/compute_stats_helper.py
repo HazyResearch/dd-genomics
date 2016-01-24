@@ -2,7 +2,7 @@
 
 import sys
 
-if len(sys.argv) != 3:
+if len(sys.argv) != 4:
     print 'Wrong number of arguments'
     print 'USAGE: ./compute_stats_helper.py $label_tsvfile $prediction_tsvfile $confidence'
     exit(1)
