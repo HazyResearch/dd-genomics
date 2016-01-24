@@ -19,9 +19,9 @@ with open(label_filename) as f:
         relationid = line[0].lower().strip()
         is_correct = line[1].lower().strip()
         if is_correct == 't':
-            labels[mentionid] = True
+            labels[relationid] = True
         elif is_correct == 'f':
-            labels[mentionid] = False
+            labels[relationid] = False
 
 # read predictions 
 predictions = {}
@@ -54,7 +54,7 @@ for label_id in labels:
     else:
         if labels[label_id]:
             # was true but rejected
-            false_negative += 1
+            false_negatives += 1
         else:
             true_negatives += 1 
 
