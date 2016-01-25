@@ -14,8 +14,7 @@ fi
 psql -U $DDUSER -p 6432 -d genomics_labels -c "COPY (SELECT * FROM genepheno_association_labels) TO STDOUT WITH NULL AS ''" > genepheno_association_labels.tsv
 
 # extract all predictions from the genepheno_causation table
-psql -U $DDUSER -p 6432 -d genomics_$DDUSER -c "C
-OPY (SELECT relation_id, expectation FROM genepheno_association_inference_label_inference) TO STDOUT WITH NULL AS ''" > genepheno_association_predictions.tsv
+psql -U $DDUSER -p 6432 -d genomics_$DDUSER -c "COPY (SELECT relation_id, expectation FROM genepheno_association_inference_label_inference) TO STDOUT WITH NULL AS ''" > genepheno_association_predictions.tsv
 # launch python script that computes precision and recall
 ./compute_stats_helper.py genepheno_association_labels.tsv genepheno_association_predictions.tsv $CONFIDENCE > stats_association.tsv
 rm genepheno_association_labels.tsv
