@@ -344,26 +344,19 @@ pheno_features (
 #  feature text
 #).
 
-#@extraction
-genepheno_association (
+genepheno_causation_all_superv (
   id bigint,
-  relation_id text,  
-  #@references(relation="sentences_input", column="doc_id")
+  relation_id text,
   @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
-  #@references(relation="gene_mentions", column="mention_id")
   gene_mention_id text,
-  #@searchable
   gene_name text,
   gene_wordidxs int[],
-  #@references(relation="pheno_mentions", column="mention_id")
   pheno_mention_id text,
-  #@searchable
   pheno_entity text,
   pheno_wordidxs int[],
-  #@navigable
   is_correct boolean,
   supertype text,
   subtype text
@@ -374,17 +367,53 @@ genepheno_causation (
   relation_id text,
   @distributed_by
   doc_id text,
-        section_id text,
+  section_id text,
   sent_id int,
-        gene_mention_id text,
-        gene_name text,
-        gene_wordidxs int[],
+  gene_mention_id text,
+  gene_name text,
+  gene_wordidxs int[],
   pheno_mention_id text,
-        pheno_entity text,
-        pheno_wordidxs int[],
+  pheno_entity text,
+  pheno_wordidxs int[],
   is_correct boolean,
-        supertype text,
-        subtype text
+  supertype text,
+  subtype text
+).
+
+genepheno_association_all_superv (
+  id bigint,
+  relation_id text,
+  @distributed_by
+  doc_id text,
+  section_id text,
+  sent_id int,
+  gene_mention_id text,
+  gene_name text,
+  gene_wordidxs int[],
+  pheno_mention_id text,
+  pheno_entity text,
+  pheno_wordidxs int[],
+  is_correct boolean,
+  supertype text,
+  subtype text
+).
+
+genepheno_association (
+  id bigint,
+  relation_id text,
+  @distributed_by
+  doc_id text,
+  section_id text,
+  sent_id int,
+  gene_mention_id text,
+  gene_name text,
+  gene_wordidxs int[],
+  pheno_mention_id text,
+  pheno_entity text,
+  pheno_wordidxs int[],
+  is_correct boolean,
+  supertype text,
+  subtype text
 ).
 
 genepheno_features (
@@ -487,7 +516,7 @@ pheno_acronyms_features (
   feature text
 ).
 
-genepheno_holdout_labels_caus (
+genepheno_holdout_labels_causation (
   @distributed_by
   doc_id text,
   section_id text,
@@ -498,7 +527,7 @@ genepheno_holdout_labels_caus (
   labeler text
 ).
 
-genepheno_holdout_labels_assoc (
+genepheno_holdout_labels_association (
   @distributed_by
   doc_id text,
   section_id text,
@@ -1221,24 +1250,29 @@ sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_pat
 
 
 #genepheno_association_supervision
-function genepheno_association_supervision over rows like genepheno_association_supervision_input returns rows like genepheno_association
+function genepheno_association_supervision over rows like genepheno_association_supervision_input returns rows like genepheno_association_all_superv
 implementation "code/genepheno_association_supervision.py" handles tsv lines.
 
-
-genepheno_association += genepheno_association_supervision( relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct, words, lemmas, poses, dep_paths, dep_parents) :-
+genepheno_association_all_superv += genepheno_association_supervision( relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct, words, lemmas, poses, dep_paths, dep_parents) :-
 genepheno_relations(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct), 
 sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
 
-
+genepheno_association(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype) :-
+  genepheno_association_all_superv(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype),
+  !EXISTS[genepheno_holdout_labels_association(doc_id, section_id, sent_id, gene_wordidxs, pheno_wordidxs, _, _)].
 
 #genepheno_causation_supervision
 
-function genepheno_causation_supervision over rows like genepheno_causation_supervision_input returns rows like genepheno_causation
+function genepheno_causation_supervision over rows like genepheno_causation_supervision_input returns rows like genepheno_causation_all_superv
 implementation "code/genepheno_causation_supervision.py" handles tsv lines.
 
-genepheno_causation += genepheno_causation_supervision(relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct, words, lemmas, poses, dep_paths, dep_parents) :-
+genepheno_causation_all_superv += genepheno_causation_supervision(relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct, words, lemmas, poses, dep_paths, dep_parents) :-
 genepheno_relations(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct), 
 sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
+
+genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype) :-
+  genepheno_causation_all_superv(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype),
+  !EXISTS[genepheno_holdout_labels_causation(doc_id, section_id, sent_id, gene_wordidxs, pheno_wordidxs, _, _)].
 
 #genepheno_no_variant_negatives
 
