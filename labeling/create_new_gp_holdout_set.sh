@@ -33,8 +33,6 @@ echo "Pulling random 1000 instances from genepheno_pairs"
 psql -q -X --set ON_ERROR_STOP=1 -d $DB -f ${SQL_COMMAND_FILE} || exit 1
 rm -rf ${TMPDIR}
 
-echo "Copying holdout set to onto/manual/genepheno_holdout_set.tsv"
-psql -q -X --set ON_ERROR_STOP=1 -d $DB -c 'COPY genepheno_holdout_set TO STDOUT' > ../onto/manual/genepheno_holdout_set.tsv
 
 newdir=OLD/genepheno-holdout-`date +'%Y-%m-%d-%H-%M-%S'`
 echo "Moving old genepheno labeling directories to ${newdir}"

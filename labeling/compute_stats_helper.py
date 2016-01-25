@@ -29,8 +29,10 @@ with open(pred_filename) as f:
     for i, line in enumerate(f):
         line = line.split('\t')
         relationid = line[0].lower().strip()
-        expectation = line[1].strip()
-        predictions[relationid] = (expectation >= 0.5)
+        expectation = float(line[1].strip())
+        predictions[relationid] = (expectation >= confidence)
+	print str(expectation) + ':   '
+	print predictions[relationid]
 
 # Evaluate number of true positives
 
