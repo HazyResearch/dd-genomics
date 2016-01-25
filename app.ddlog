@@ -761,6 +761,28 @@ omim_allelic_variant_pmids (
 pmid text).
 
 
+#Tables for automatic labels synchronization 
+
+genepheno_causation_labels
+(relation_id text,
+is_correct text,
+labeler text).
+
+genepheno_association_labels
+(relation_id text, 
+is_correct text, 
+labeler text).
+
+gene_labels
+(mention_id text, 
+is_correct text, 
+labeler text).
+
+pheno_labels
+(relation_id text, 
+is_correct text, 
+labeler text).
+
 ##### Extractors #####
 
 #Extractor: serialize_sentences
