@@ -31,8 +31,6 @@ with open(pred_filename) as f:
         relationid = line[0].lower().strip()
         expectation = float(line[1].strip())
         predictions[relationid] = (expectation >= confidence)
-	print str(expectation) + ':   '
-	print predictions[relationid]
 
 # Evaluate number of true positives
 
@@ -70,7 +68,7 @@ print '\n\n\n'
 # compute precision, recall and F1
 precision = float(true_positives)/float(true_positives+false_positives)
 recall = float(true_positives)/float(true_positives+false_negatives)
-F1_score = 2*float(true_positives) / (2*float(true_positives + false_positives + false_negatives))
+F1_score = 2*precision*recall / (precision+recall)
 
 print 'Precision:\t'+str(precision)
 print 'Recall:\t'+str(recall)

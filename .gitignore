@@ -15,6 +15,7 @@ snapshot/
 onto/manual/gene_holdout_set.tsv
 labeling/backup_files_g.txt
 labeling/OLD
+labeling/stats*
 # Vim swap files
 *.*.sw*
 
