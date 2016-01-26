@@ -38,11 +38,15 @@ Setting the dd-genomics repo:
 
 ### Running views
 
-* You should run once the script script_views_init.sh (usage: ./script_views_init name_database_for_views).
-This will create a new folder on postgres at ../name_database_for_views
+* You can prepare all the data by simply running script_views.sh 
+Then run the commands displayed by :wq the different vim files (I will try to add a pipeline for that). After a certain time, the run should end after creating all the indexes required for the views.
+You can then launch the views (very quick) by ES_HEAP_SIZE=25; PORT=$RANDOM mindbender search gui.
+The link to which access your views will be displayed in the terminal.
 
-* Then, in the original folder dd-genomics that contains your interesting data, run the script script_views.sh (usage: ./script_views.sh name_database_you_want_data_from), where name_database_you_want_data_from is the database from which the data will be exported.
-Then run the commands displayed by :wq the different vim files (I will try to add a pipeline for that). Then, running the script should launch the views, after a long time of loading and processing.
+* A few comments:
+	- currently, the script exports all the tables in the database in postgres. This is certainly not optimized if the views have already been created once. Soon some specific scripts to update only part of the tables will come.
+	- Only 6 features and weights are displayed currently in the views (the one with the most important absolute weights). If you want to display more features, you can click on {...} below the sentence and then on [...] in front of features and weights to display all of them. You can also modify the value of "limitTo" in mindbender/search-template/
+	- Greenplum doesn't support the operations through which the views are created. Therefore, we here create another postgres database (done by modifying db.url) on port 15193, currently hosted on /lfs/raiders7/0/tpalo/pgdb_genomics. The scripts export many tables from greenplum to postgres by exporting them in the folder ../tables_for_views. This process could certainly be parallized and made faster. 
 
 
 ### Labeling data:
