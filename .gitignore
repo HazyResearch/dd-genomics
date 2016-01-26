@@ -98,3 +98,5 @@ db.url
 /input/sentences*
 
 /search
+
+db*.url
