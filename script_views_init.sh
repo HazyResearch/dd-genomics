@@ -26,24 +26,35 @@ echo
 # #In deepdive home
 
 
-if [ "$#" -ne 1 ] ; then
-  echo "Usage: $0 name_database_for_views" >&2
-  exit 1
-fi
+#if [ "$#" -ne 1 ] ; then
+#  echo "Usage: $0 name_database_for_views" >&2
+#  exit 1
+#fi
 
 
 #To be run in your original dd-genomics folder
-if [[ ! ( -d ${1}_for_views) ]]
-then
-  git clone git@github.com:HazyResearch/dd-genomics.git ../${1}_for_views
-  rm -rf ../${1}_for_views/onto
-  cp -r onto ../${1}_for_views
-fi
-cd ../${1}_for_views
-git checkout thomas-improving-views
+#if [[ ! ( -d ${1}_for_views) ]]
+#then
+#  git clone git@github.com:HazyResearch/dd-genomics.git ../${1}_for_views
+#  rm -rf ../${1}_for_views/onto
+#  cp -r onto ../${1}_for_views
+#fi
+#cd ../${1}_for_views
+#git checkout thomas-improving-views
 # git pull
 # git fetch
 # git pull
-echo "postgresql://localhost:15193/$1" > db.url
-deepdive compile
-deepdive do init/db
+if [[ ( -f db_for_gp.url)  ]]
+then
+        mv db_for_gp.url db.url
+fi
+if [[ ( -f db.url)  ]]
+then
+	cp db.url db_for_gp.url
+fi
+database_greenplum=$(cat db_for_gp.url | sed 's/.*:\/\/.*\///')
+echo "postgresql://localhost:15193/${database_greenplum}_for_views" > db.url
+cp db.url db_for_pg.url
+#deepdive compile
+deepdive redo init/db
+cp db_for_gp.url db.url
