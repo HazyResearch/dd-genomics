@@ -82,6 +82,7 @@ deepdive sql < ../tables_for_views/genepheno_association_inference_label_inferen
 
 deepdive sql "update sentences_input_views set words = replace(words, '|^|', ' ');"
 
+rm -r ../tables_for_views
 
 #? mindbender search drop
 # # define which port to use for your own Elasticsearch instance launched internally by mindbender
