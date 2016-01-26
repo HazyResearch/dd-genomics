@@ -45,21 +45,21 @@ DELETE FROM gene_holdout_labels WHERE (doc_id, section_id, sent_id) NOT IN (SELE
 """
 
 deepdive sql """
-DELETE FROM genepheno_holdout_labels_caus
+DELETE FROM genepheno_holdout_labels_causation
 WHERE (doc_id, section_id, sent_id, gene_wordidxs, pheno_wordidxs) IN 
 (SELECT DISTINCT
   s.doc_id, s.section_id, s.sent_id, s.gene_wordidxs, s.pheno_wordidxs
 FROM
-  genepheno_holdout_labels_caus s 
+  genepheno_holdout_labels_causation s 
   LEFT JOIN 
   genepheno_pairs p 
     ON (s.doc_id = p.doc_id AND s.section_id = p.section_id AND s.sent_id = p.sent_id AND s.gene_wordidxs = STRING_TO_ARRAY(p.gene_wordidxs, '|~|')::INTEGER[] AND s.pheno_wordidxs = STRING_TO_ARRAY(p.pheno_wordidxs, '|~|')::INTEGER[]) WHERE p.doc_id IS NULL);
-DELETE FROM genepheno_holdout_labels_assoc
+DELETE FROM genepheno_holdout_labels_association
 WHERE (doc_id, section_id, sent_id, gene_wordidxs, pheno_wordidxs) IN 
 (SELECT DISTINCT
   s.doc_id, s.section_id, s.sent_id, s.gene_wordidxs, s.pheno_wordidxs
 FROM
-  genepheno_holdout_labels_assoc s 
+  genepheno_holdout_labels_association s 
   LEFT JOIN 
   genepheno_pairs p 
     ON (s.doc_id = p.doc_id AND s.section_id = p.section_id AND s.sent_id = p.sent_id AND s.gene_wordidxs = STRING_TO_ARRAY(p.gene_wordidxs, '|~|')::INTEGER[] AND s.pheno_wordidxs = STRING_TO_ARRAY(p.pheno_wordidxs, '|~|')::INTEGER[]) WHERE p.doc_id IS NULL);
