@@ -2,7 +2,37 @@
 
 #This file is to be run in your original dd-genomics folder, the one you want data from.
 
-cp db_for_gp.url db.url
+while true; do
+    read -p "Have you checked deepdive and mindbender are correctly installed ?" yn
+    case $yn in
+        [Yy]* ) break;;
+        [Nn]* ) echo 'In your deepdive folder, you can run the following commands';
+                                echo 'git pull';
+                                echo 'git checkout master';
+                                echo 'git pull';
+                                echo 'git submodule update --init';
+                                echo 'make';
+                                echo 'make install #PREFIX=...';
+                                echo 'cd util/mindbender';
+                                echo 'git submodule update --init';
+                                echo 'cd ../..';
+                                echo 'make build-mindbender install #PREFIX=/lfs/raiders7/0/tpalo/local';
+                                exit;;
+        * ) echo "Please answer y or n.";;
+    esac
+done
+echo 
+
+if [[ ( -f db_for_gp.url)  ]]
+then
+        cp db_for_gp.url db.url
+fi
+if [[ ( -f db.url)  ]]
+then
+        cp db.url db_for_gp.url
+fi
+database_greenplum=$(cat db_for_gp.url | sed 's/.*:\/\/.*\///')
+echo "postgresql://localhost:15193/${database_greenplum}_for_views" > db_for_pg.url
 
 deepdive redo weights
 
@@ -61,6 +91,8 @@ export ELASTICSEARCH_BASEURL=http://localhost:9${RANDOM:0:3}
 export ELASTICSEARCH_BULK_BATCHSIZE=20000
 mindbender search update 
 
-export ES_HEAP_SIZE=10g
+cp db_for_gp.url db.url
 
-PORT=$RANDOM mindbender search gui
+#export ES_HEAP_SIZE=10g
+
+#PORT=$RANDOM mindbender search gui
