@@ -17,7 +17,7 @@
               <th>Feature</th>
           </tr></thead>
           <tbody>
-            <tr ng-repeat="features in extraction.features | parsedArray:'postgres'">
+            <tr ng-repeat="features in extraction.features | parsedArray:'postgres' | limitTo:6 ">
               <td class="text-right">{{(extraction.weights | parsedArray:'postgres')[$index]}}</td>
               <th>{{(extraction.features | parsedArray:'postgres')[$index]}}</th>
             </tr>
