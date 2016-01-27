@@ -618,28 +618,6 @@ pheno_acronyms_features (
   feature text
 ).
 
-genepheno_holdout_labels_causation (
-  @distributed_by
-  doc_id text,
-  section_id text,
-  sent_id int,
-  gene_wordidxs int[],
-  pheno_wordidxs int[],
-  is_correct text,
-  labeler text
-).
-
-genepheno_holdout_labels_association (
-  @distributed_by
-  doc_id text,
-  section_id text,
-  sent_id int,
-  gene_wordidxs int[],
-  pheno_wordidxs int[],
-  is_correct text,
-  labeler text
-).
-
 hpo_abnormalities (
   @distributed_by
   hpo_id text,
@@ -1384,11 +1362,11 @@ sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_pat
 
 genepheno_association_all_superv_non_holdout(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype) :-
   genepheno_association_all_superv(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype),
-  !EXISTS[genepheno_holdout_labels_association(doc_id, section_id, sent_id, gene_wordidxs, pheno_wordidxs, _, _)].
+  !EXISTS[genepheno_association_labels(relation_id, _, _)].
 
 genepheno_association_all_superv_holdout(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, NULL, supertype, subtype) :-
   genepheno_association_all_superv(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, _, supertype, subtype),
-  EXISTS[genepheno_holdout_labels_association(doc_id, section_id, sent_id, gene_wordidxs, pheno_wordidxs, _, _)].
+  EXISTS[genepheno_association_labels(relation_id, _, _)].
 
 genepheno_association(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype) :-
   genepheno_association_all_superv_non_holdout(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype);
@@ -1405,11 +1383,11 @@ sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_pat
 
 genepheno_causation_all_superv_non_holdout(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype) :-
   genepheno_causation_all_superv(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype),
-  !EXISTS[genepheno_holdout_labels_causation(doc_id, section_id, sent_id, gene_wordidxs, pheno_wordidxs, _, _)].
+  !EXISTS[genepheno_causation_labels(relation_id, _, _)].
 
 genepheno_causation_all_superv_holdout(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, NULL, supertype, subtype) :-
   genepheno_causation_all_superv(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, _, supertype, subtype),
-  EXISTS[genepheno_holdout_labels_causation(doc_id, section_id, sent_id, gene_wordidxs, pheno_wordidxs, _, _)].
+  EXISTS[genepheno_causation_labels(relation_id, _, _)].
 
 genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype) :-
   genepheno_causation_all_superv_non_holdout(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype);
