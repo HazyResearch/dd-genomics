@@ -42,6 +42,8 @@ then
         cp db.url db_for_gp.url
 fi
 database_greenplum=$(cat db_for_gp.url | sed 's/.*:\/\/.*\///')
+# Thomas own database in case 5432 doesn't work:
+# echo "postgresql://localhost:15193/${database_greenplum}_for_views" > db_for_pg.url
 echo "postgresql://localhost:5432/${database_greenplum}_for_views" > db_for_pg.url
 
 deepdive redo weights
