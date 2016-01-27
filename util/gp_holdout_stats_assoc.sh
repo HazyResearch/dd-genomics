@@ -33,7 +33,7 @@ FROM
     COUNT(DISTINCT s.doc_id) fp
   FROM
     genepheno_association_is_correct_inference gc 
-    RIGHT JOIN genepheno_holdout_labels_association s 
+    RIGHT JOIN genepheno_association_labels s 
       ON (s.doc_id = gc.doc_id AND s.section_id = gc.section_id AND s.sent_id = gc.sent_id AND gc.gene_wordidxs = s.gene_wordidxs AND gc.pheno_wordidxs = s.pheno_wordidxs) 
   WHERe
     COALESCE(gc.expectation, 0) > 0.5 
@@ -45,7 +45,7 @@ FROM
     COUNT(DISTINCT s.doc_id) tp
   FROM
     genepheno_association_is_correct_inference gc 
-    RIGHT JOIN genepheno_holdout_labels_association s 
+    RIGHT JOIN genepheno_association_labels s 
       ON (s.doc_id = gc.doc_id AND s.section_id = gc.section_id AND s.sent_id = gc.sent_id AND gc.gene_wordidxs = s.gene_wordidxs AND gc.pheno_wordidxs = s.pheno_wordidxs) 
   WHERe
     COALESCE(gc.expectation, 0) > 0.5 
@@ -58,7 +58,7 @@ FROM
     COUNT(DISTINCT s.doc_id) fn
   FROM
     genepheno_association_is_correct_inference gc 
-    RIGHT JOIN genepheno_holdout_labels_association s 
+    RIGHT JOIN genepheno_association_labels s 
       ON (s.doc_id = gc.doc_id AND s.section_id = gc.section_id AND s.sent_id = gc.sent_id AND gc.gene_wordidxs = s.gene_wordidxs AND gc.pheno_wordidxs = s.pheno_wordidxs) 
   WHERe
     COALESCE(gc.expectation, 0) <= 0.5
@@ -71,7 +71,7 @@ FROM
     COUNT(DISTINCT s.doc_id) tn
   FROM
     genepheno_association_is_correct_inference gc 
-    RIGHT JOIN genepheno_holdout_labels_association s 
+    RIGHT JOIN genepheno_association_labels s 
       ON (s.doc_id = gc.doc_id AND s.section_id = gc.section_id AND s.sent_id = gc.sent_id AND gc.gene_wordidxs = s.gene_wordidxs AND gc.pheno_wordidxs = s.pheno_wordidxs) 
   WHERe
     COALESCE(gc.expectation, 0) <= 0.5
