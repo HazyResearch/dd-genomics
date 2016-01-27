@@ -288,7 +288,7 @@ GENE_PHENO = {
                  'increas',
                  'deficiency'
                  ],
-      'neg-p' : []
+      'neg-p' : ['without']
     },
 
     # Label T all GP pairs in Charite dataset (and that haven't already been labeled T/F)
@@ -325,13 +325,7 @@ GENE_PHENO = {
                'deficiency',
                'activity'
                ],
-      'pos-rgx' : [r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*(implicated?|found).*PHENO',
-                   r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*cause.*PHENO', 
-                  r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*described.*patients.*PHENO',
-                  r'.*patient.*GENE.*present with.*clinical.*PHENO.*',
-                  r'(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO',
-                  r'(mutation|deletion).*GENE.*described.*patients.*PHENO'
-                  ],
+      'pos-rgx' : [],
       # 'pos-rgx' : [],
       'neg-rgx' : [# r'rs\d+', 
                    # r't?SNPs?', 
@@ -410,7 +404,11 @@ CAUSATION_SR = {
                'association'
                'associated with',
                ],
-      'pos-rgx' : [],
+      'pos-rgx' : [r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*cause.*PHENO', 
+                  r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*described.*patients.*PHENO',
+                  r'.*patient.*GENE.*present with.*clinical.*PHENO.*',
+                  r'(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO',
+                  r'(mutation|deletion).*GENE.*described.*patients.*PHENO'],
       'neg-rgx' : [],
     },
     # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
