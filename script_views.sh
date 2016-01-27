@@ -23,6 +23,16 @@ while true; do
 done
 echo 
 
+while true; do
+    read -p "Is sentences_input the same as for the previous run of this script? Answer no only if you modified sentences_input or if it's the first time you run this script." yn
+    case $yn in
+        [Yy]* ) sentences_to_be_re_run=$false; break;;
+        [Nn]* ) sentences_to_be_re_run=$true; break;;
+        * ) echo "Please answer y or n.";;
+    esac
+done
+echo 
+
 if [[ ( -f db_for_gp.url)  ]]
 then
         cp db_for_gp.url db.url
@@ -35,21 +45,33 @@ database_greenplum=$(cat db_for_gp.url | sed 's/.*:\/\/.*\///')
 echo "postgresql://localhost:15193/${database_greenplum}_for_views" > db_for_pg.url
 
 deepdive redo weights
-
 deepdive redo dd_inference_result_variables_mapped_weights_bis
 deepdive sql "insert into dd_inference_result_variables_mapped_weights_bis select * from dd_inference_result_variables_mapped_weights;"
 
-deepdive redo gene_mentions_views
-deepdive redo genepheno_association_views
-deepdive redo genepheno_causation_views
-deepdive redo sentences_input_views
-deepdive redo pheno_mentions_views
+if [ $sentences_to_be_re_run]
+then   
+    deepdive mark todo sentences_input_views
+else
+    deepdive mark done sentences_input_views
+fi
+
+deepdive mark todo gene_mentions_views
+deepdive mark todo genepheno_association_views
+deepdive mark todo genepheno_causation_views
+deepdive mark todo pheno_mentions_views
+
+deepdive redo dumb_for_views
 
 database_greenplum=$(cat db_for_gp.url | sed 's/.*:\/\/.*\///')
 
 mkdir -p ../tables_for_views
 export PATH=/dfs/scratch0/netj/postgresql/9.4.4/bin:$PATH
-pg_dump -p 6432 -h raiders7 -U tpalo ${database_greenplum} -t sentences_input_views > ../tables_for_views/sentences_input_views.sql
+
+if [ $sentences_to_be_re_run]
+then   
+    pg_dump -p 6432 -h raiders7 -U tpalo ${database_greenplum} -t sentences_input_views > ../tables_for_views/sentences_input_views.sql
+fi
+
 pg_dump -p 6432 -h raiders7 -U tpalo ${database_greenplum} -t gene_mentions_views > ../tables_for_views/gene_mentions_views.sql
 pg_dump -p 6432 -h raiders7 -U tpalo ${database_greenplum} -t genepheno_causation_views > ../tables_for_views/genepheno_causation_views.sql
 pg_dump -p 6432 -h raiders7 -U tpalo ${database_greenplum} -t pheno_mentions_views > ../tables_for_views/pheno_mentions_views.sql
@@ -66,9 +88,14 @@ pg_dump -p 6432 -h raiders7 -U tpalo ${database_greenplum} -t genepheno_associat
 
 cp db_for_pg.url db.url
 
-deepdive redo init/db
+if [ $sentences_to_be_re_run]
+then   
+    deepdive redo init/db
+    deepdive sql < ../tables_for_views/sentences_input_views.sql 
+    deepdive sql "update sentences_input_views set words = replace(words, '|^|', ' ');"
+fi
+
 deepdive sql < ../tables_for_views/genepheno_causation_views.sql
-deepdive sql < ../tables_for_views/sentences_input_views.sql 
 deepdive sql < ../tables_for_views/genepheno_association_views.sql 
 deepdive sql < ../tables_for_views/gene_mentions_views.sql 
 deepdive sql < ../tables_for_views/pheno_mentions_views.sql 
@@ -80,7 +107,6 @@ deepdive sql < ../tables_for_views/genepheno_causation_inference_label_inference
 deepdive sql < ../tables_for_views/genepheno_association_inference.sql 
 deepdive sql < ../tables_for_views/genepheno_association_inference_label_inference.sql 
 
-deepdive sql "update sentences_input_views set words = replace(words, '|^|', ' ');"
 
 rm -r ../tables_for_views
 
@@ -89,8 +115,15 @@ rm -r ../tables_for_views
 export ELASTICSEARCH_BASEURL=http://localhost:9${RANDOM:0:3}
 
 #this bulk batchsize could be increased to increase speed. Careful, from 200000, it starts not to work so well.
-export ELASTICSEARCH_BULK_BATCHSIZE=20000
-mindbender search update 
+export ELASTICSEARCH_BULK_BATCHSIZE=30000
+
+if [ $sentences_to_be_re_run]
+then   
+    mindbender search drop
+    mindbender search update 
+else
+    mindbender search update genepheno_association_views genepheno_causation_views gene_mentions_views pheno_mentions_views
+fi
 
 cp db_for_gp.url db.url
 
