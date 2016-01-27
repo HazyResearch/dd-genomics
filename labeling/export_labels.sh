@@ -27,7 +27,6 @@ if [ $1 = 'gene' ]; then
 		psql -U $DDUSER -p 6432 -d genomics_labels -c 'INSERT INTO tmp SELECT * FROM gene_labels gl WHERE (gl.mention_id, gl.is_correct, gl.labeler) NOT IN (SELECT * FROM tmp)'
 		psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE gene_labels'
 		psql -U $DDUSER -p 6432 -d genomics_labels -c 'ALTER TABLE tmp RENAME TO gene_labels'
-
 		cat tmp.tsv >> "labels/gene_$NAME"
 		rm tmp.tsv
 	done
