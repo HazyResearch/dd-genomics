@@ -8,13 +8,13 @@ Setting the dd-genomics repo:
 
 1. Define a `db.url` file, such as: `[postgres|greenplum]://localhost:6432/genomics_tpalo`
 
-2. Copy template file `env.sh` to `env_local.sh` and modify this file with your local settings (it's ignored by git, and prefered by the run script).  Make sure to set your `PATH` so that the correct version of `psql` is on it.
+2. Copy template file `env.sh` to `env_local.sh` and modify this file with your local settings (it's ignored by git, and prefered by the run script).  Make sure to set your `PATH` so that the correct version of `psql` is on it. Be sure in particular to define the variable APP_HOME as the path to your dd-genomics repo. 
 
 3.  Install nltk: `sudo pip install nltk`. Download the corpora wordnet: in Python: `import nltk; nltk.download()` and download the corpora wordnet.
 
 4.  Fetch and process ontology files: `cd onto; ./make_all.sh`
 
-5. Pre-process & load the data: See the [Parser README](https://github.com/HazyResearch/dd-genomics/tree/master/parser) for detailed instructions; then save the output table to `input/sentences_input.*` (or copy an existing sentences_input table to this location)
+5. Pre-process & load the data: See the [Parser README](https://github.com/HazyResearch/dd-genomics/tree/master/parser) for detailed instructions; then save the output table to `input/sentences_input.*` (or copy an existing sentences_input table to this location).
 
 6. Source the environment vars: `source env_local.sh`.  **NOTE that this should be done before any deepdive run or action!**
  
@@ -28,8 +28,6 @@ Setting the dd-genomics repo:
 * To mark as done (`done`), or conversely as yet to be done (`todo`), use the command `deepdive mark ...`. Deepdive will also mark all downstream operations.  For example, if you want each process to be mark as undone, use `do` on the first table: `deepdive mark todo init/db` 
 
 * Run `deepdive plan` to see all the operations possibles.
-
-* If you import `sentences_input` from elsewhere, don't forget to run `deepdive mark done sentences_input`
 
 * You can have access the overall flow of the application in `${APP_HOME}/run/dataflow.svg` (Chrome works well for this).
 
@@ -47,6 +45,7 @@ The link to which access your views will be displayed in the terminal.
 	- currently, the script exports all the tables in the database in postgres. This is certainly not optimized if the views have already been created once. Soon some specific scripts to update only part of the tables will come.
 	- Only 6 features and weights are displayed currently in the views (the one with the most important absolute weights). If you want to display more features, you can click on {...} below the sentence and then on [...] in front of features and weights to display all of them. You can also modify the value of "limitTo" in mindbender/search-template/
 	- Greenplum doesn't support the operations through which the views are created. Therefore, we here create another postgres database (done by modifying db.url) on port 15193, currently hosted on /lfs/raiders7/0/tpalo/pgdb_genomics. The scripts export many tables from greenplum to postgres by exporting them in the folder ../tables_for_views. This process could certainly be parallized and made faster. 
+	- Once in views, you can search for instance for false negatives with the query: expectation: <0.9 is_correct:"T"
 
 
 ### Labeling data:
