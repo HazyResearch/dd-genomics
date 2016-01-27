@@ -85,7 +85,7 @@ GENE = {
   'SR' : {
     # Label some P mentions based on the toks / phrases that follow
     'bad-genes': ['ANOVA', 'MRI', 'CO2', 'gamma', 'spatial', 'tau', 'Men', \
-                  'ghrelin', 'MIM', 'NHS', 'STD', 'hole', 'SDS'],
+                  'ghrelin', 'MIM', 'NHS', 'STD', 'hole', 'SDS', 'p12', 'p13', 'p53'],
 
     'post-neighbor-match' : {
       # 'pos' : ['_ mutation', 'mutation', '_ mutations', 'mutations', 'mutant', \
@@ -343,6 +343,8 @@ GENE_PHENO = {
                    r'^\s*To evaluate', 
                    r'^\s*To investigate',
                    r'^\s*We investigated',
+                   r'^\s*We examined',
+                   r'^\s*To examine',
                    '\d+ h ', 
                    r'^\s*To assess', 
                    r'^\s*here we define', 
