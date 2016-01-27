@@ -6,13 +6,11 @@ select
   , array_agg(DISTINCT genes.ensembl_id) as gene_id
   , g.wordidxs as gene_wordidxs
   , string_to_array(si.words, '|^|') as words
+  , g.mention_id
 from
   (select distinct * from gene_holdout_set) hs
   join gene_mentions g
-    on (hs.doc_id = g.doc_id
-        and hs.section_id = g.section_id
-        and hs.sent_id = g.sent_id
-        and hs.gene_wordidxs = g.wordidxs)
+    on hs.mention_id = g.mention_id
   join sentences_input si
     on (hs.doc_id = si.doc_id
         and hs.section_id = si.section_id
@@ -27,5 +25,6 @@ group by
   , hs.sent_id
   , g.wordidxs
   , si.words
+  , g.mention_id
 )
 to stdout with csv header;

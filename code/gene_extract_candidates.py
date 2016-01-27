@@ -86,7 +86,7 @@ VALS = config.GENE['vals']
 def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention_supertype=None, mention_subtype=None):
   """Given a Row object consisting of a sentence, create & supervise a Mention output object"""
   word = row.words[i]
-  mid = '%s_%s_%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, i, gene_name, mention_supertype)
+  mid = '%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, i)
   m = Mention(None, row.doc_id, row.section_id, row.sent_id, [i], mid, mapping_type, mention_supertype, mention_subtype, gene_name, [word], None)
   dep_dag = deps.DepPathDAG(row.dep_parents, row.dep_paths, row.words)
 
@@ -174,7 +174,7 @@ def get_negative_mentions(row, mentions, d, per_row_max=2):
       continue
     
     # Make a template mention object- will have mention_id opt with gene_name appended
-    mid = '%s_%s_%s_%s' % (row.doc_id, row.section_id, row.sent_id, i)
+    mid = '%s_%s_%d_%s' % (row.doc_id, row.section_id, row.sent_id, i)
     m = Mention(dd_id=None, doc_id=row.doc_id, section_id=row.section_id, sent_id=row.sent_id, wordidxs=[i], mention_id=mid, mapping_type=None, mention_supertype="RANDOM_NEGATIVE",mention_subtype=None, gene_name=None, words=[word], is_correct=None)
 
     # Non-match all uppercase negative supervision

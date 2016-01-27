@@ -14,15 +14,6 @@ with open(HPO_FILE) as f:
 
 input_csv = sys.argv[1]
 
-def create_row_id(row):
-  row_id = ''
-  row_id += row[0]
-  row_id += '_'
-  row_id += row[1]
-  row_id += '_'
-  row_id += row[2]
-  return row_id
-
 writer = csv.writer(sys.stdout)
 with open(input_csv) as f:
   reader = csv.reader(f)
@@ -35,7 +26,7 @@ with open(input_csv) as f:
       row[7] = row[7].replace('-RRB-', ')')
       row[7] = row[7].replace('-LSB-', '[')
       row[7] = row[7].replace('-RSB-', ']')
-      row_id = create_row_id(row)
+      row_id = row[-2]+'_'+row[-1] #GeneMentionID_PhenoMentionID
       if hpo_id in hpo_id_to_name:
         new_row = [row_id] + row + [hpo_id_to_name[hpo_id]]
       else:

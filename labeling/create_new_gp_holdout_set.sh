@@ -1,12 +1,14 @@
 #!/bin/bash
 
-if [ $# -ne 1 ]; then
-	echo "$0: ERROR: wrong number of arguments" >&2
-	echo "$0: USAGE: $0 DB" >&2
-	exit 1
+. ../env_local.sh
+if [ $# -eq 1 ]; then
+        echo "Setting name to: $1"
+        NAME=$1
+else
+        echo "Setting name to default: $DDUSER"
+        NAME=$DDUSER
 fi
-
-DB=$1
+DB=$DBNAME
 
 TMPDIR=$(mktemp -d /tmp/dft.XXXXXX)
 SQL_COMMAND_FILE=${TMPDIR}/dft.sql
@@ -18,7 +20,9 @@ CREATE TABLE genepheno_holdout_set AS (
     section_id,
     sent_id,
     string_to_array(gene_wordidxs, '|~|')::int[] AS gene_wordidxs,
-    string_to_array(pheno_wordidxs, '|~|')::int[] AS pheno_wordidxs
+    string_to_array(pheno_wordidxs, '|~|')::int[] AS pheno_wordidxs,
+    gene_mention_id,
+    pheno_mention_id
   FROM
     genepheno_pairs gp
   ORDER BY random()
@@ -29,24 +33,15 @@ echo "Pulling random 1000 instances from genepheno_pairs"
 psql -q -X --set ON_ERROR_STOP=1 -d $DB -f ${SQL_COMMAND_FILE} || exit 1
 rm -rf ${TMPDIR}
 
-echo "Copying holdout set to onto/manual/genepheno_holdout_set.tsv"
-psql -q -X --set ON_ERROR_STOP=1 -d $DB -c 'COPY genepheno_holdout_set TO STDOUT' > ../onto/manual/genepheno_holdout_set.tsv
-
-echo "Creating new genepheno-holdout Mindtagger task"
-
-./create-new-task.sh genepheno-holdout
 
 newdir=OLD/genepheno-holdout-`date +'%Y-%m-%d-%H-%M-%S'`
-echo "Moving old labeling directories to OLD/${newdir}"
+echo "Moving old genepheno labeling directories to ${newdir}"
+mkdir -p OLD
 mkdir $newdir
+mv *-genepheno-holdout.* $newdir
 
-for i in {AARON,HARENDRA,JOHANNES}
-do
-  mv *-genepheno-holdout.$i $newdir
+echo "Creating new gene-holdout Mindtagger task"
+./create-new-task.sh genepheno-holdout
+for FILENAME in *-genepheno-holdout; do
+        mv $FILENAME $FILENAME.$NAME
 done
-
-echo "Tasks for you: "
-echo "  * Take the new genepheno-holdout task and create *.{AARON,HARENDRA,JOHANNES} tasks from it"
-echo "  * Then (start MindTagger and) create the necessary labels"
-echo "  * Don't forget to start and cleanup the backup!"
-

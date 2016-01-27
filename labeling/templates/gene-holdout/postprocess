@@ -24,6 +24,6 @@ with open(input_csv) as f:
       row[5] = row[5].replace('-RRB-', ')')
       row[5] = row[5].replace('-LSB-', '[')
       row[5] = row[5].replace('-RSB-', ']')
-      row_id = create_row_id(row)
+      row_id = row[-1]#create_row_id(row)
       new_row = [row_id] + row
     writer.writerow(new_row)
