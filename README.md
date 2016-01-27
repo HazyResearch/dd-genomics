@@ -40,7 +40,7 @@ Setting the dd-genomics repo:
 
 * You can prepare all the data by simply running script_views.sh 
 Then run the commands displayed by :wq the different vim files (I will try to add a pipeline for that). After a certain time, the run should end after creating all the indexes required for the views.
-You can then launch the views (very quick) by ES_HEAP_SIZE=25; PORT=$RANDOM mindbender search gui.
+You can then launch the views (very quick) by ES_HEAP_SIZE=25g; PORT=$RANDOM mindbender search gui.
 The link to which access your views will be displayed in the terminal.
 
 * A few comments:
