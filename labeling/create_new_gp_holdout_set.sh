@@ -38,7 +38,7 @@ newdir=OLD/genepheno-holdout-`date +'%Y-%m-%d-%H-%M-%S'`
 echo "Moving old genepheno labeling directories to ${newdir}"
 mkdir -p OLD
 mkdir $newdir
-mv *-genepheno-holdout.* $newdir
+mv *-genepheno-holdout.${NAME} $newdir
 
 echo "Creating new gene-holdout Mindtagger task"
 ./create-new-task.sh genepheno-holdout
