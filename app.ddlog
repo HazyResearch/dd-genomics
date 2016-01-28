@@ -45,16 +45,22 @@ gene_mentions_views(
   features text[],
   @searchable
   weights text[],
+  @searchable
+  is_correct_labels text,
+  @navigable
+  labeler text,
   @references(relation="sentences_input_views", column="views_key", alias="sent_gene")
   views_key text).
 
 #Quite dirty hack to add the "order by" commands in the array of features and weights, which cannot be done directly in app.ddlog
 #Currently, the following ddlog extraction is not done but a similar one is copied in deepdive.conf, in which the "ORDER BY" commands were added manually...
 
-#gene_mentions_views(id, doc_id, section_id, sent_id, gene_wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct, ARRAY_AGG(feature), ARRAY_AGG(weights), doc_id || "@" || section_id || "@" || sent_id) :-
+#gene_mentions_views(id, doc_id, section_id, sent_id, gene_wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct, ARRAY_AGG(feature), ARRAY_AGG(weights), is_correct_labels, labeler, doc_id || "@" || section_id || "@" || sent_id) :-
 #gene_mentions_filtered(id, doc_id, section_id, sent_id, gene_wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct),
 #gene_features(doc_id, section_id, mention_id, feature),
-#dd_inference_result_variables_mapped_weights_bis(_, _, _, "inf_istrue_gene_mentions_filtered_inference--" ||feature, _, weights).
+#dd_inference_result_variables_mapped_weights_bis(_, _, _, "inf_istrue_gene_mentions_filtered_inference--" ||feature, _, weights),
+#[abs(weights) >0],
+#OPTIONAL[ gene_labels(mention_id, is_correct_labels, labeler)].
 
 #Small hack for which we add this table (with an empty tsv file in input) and then, after a run, we run the command 
 #deepdive sql "insert into dd_inference_result_variables_mapped_weights_bis select * from dd_inference_result_variables_mapped_weights;"
@@ -119,13 +125,19 @@ genepheno_association_views(
   features text[],
   @searchable
   weights text[],
+  @searchable
+  is_correct_labels text,
+  @navigable
+  labeler text,
   @references(relation="sentences_input_views", column="views_key", alias="genepheno_association_extraction")
   views_key text).
 
-#genepheno_association_views(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, ARRAY_AGG(feature), ARRAY_AGG(weights), doc_id || "@" || section_id || "@" || sent_id) :-
-#genepheno_association(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype),
+#genepheno_association_views(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, ARRAY_AGG(feature), ARRAY_AGG(weights), is_correct_labels, labeler, doc_id || "@" || section_id || "@" || sent_id) :-
 #genepheno_features ( doc_id, section_id, relation_id, feature),
-#dd_inference_result_variables_mapped_weights_bis(_, _, _, "inf_istrue_genepheno_association_inference--" ||feature, _, weights).
+#dd_inference_result_variables_mapped_weights_bis(_, _, _, "inf_istrue_genepheno_association_inference--" ||feature, _, weights),
+#[abs(weights) >0],
+#genepheno_association(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype),
+#OPTIONAL[ genepheno_association_labels(relation_id, is_correct_labels, labeler)].
 
 @extraction
 genepheno_causation_views(
@@ -151,13 +163,19 @@ genepheno_causation_views(
   features text[],
   @searchable
   weights text[],
+  @searchable
+  is_correct_labels text,
+  @navigable
+  labeler text,
   @references(relation="sentences_input_views", column="views_key", alias="genepheno_causation_extraction")
   views_key text).
 
-#genepheno_causation_views(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, ARRAY_AGG(feature), ARRAY_AGG(weights), doc_id || "@" || section_id || "@" || sent_id) :-
+#genepheno_causation_views(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, ARRAY_AGG(feature), ARRAY_AGG(weights), is_correct_labels, labeler, doc_id || "@" || section_id || "@" || sent_id) :-
 #genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype),
 #genepheno_features ( doc_id, section_id, relation_id, feature),
-#dd_inference_result_variables_mapped_weights_bis(_, _, _, "inf_istrue_genepheno_causation_inference--" ||feature, _, weights).
+#dd_inference_result_variables_mapped_weights_bis(_, _, _, "inf_istrue_genepheno_causation_inference--" ||feature, _, weights),
+#[abs(weights) >0],
+#OPTIONAL[ genepheno_causation_labels(relation_id, is_correct_labels, labeler)].
 
 
 
