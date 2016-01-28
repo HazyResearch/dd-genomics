@@ -58,17 +58,14 @@ def get_hpo_phenos(hpo_dag, parent='HP:0000118', exclude_parents=['HP:0002664', 
           and all([not hpo_dag.has_child(p, hpo_term) for p in exclude_parents]))]
 
 
-def read_hpo_synonyms():
+def read_hpo_synonyms(idx=2):
   syn_dict = dict()
   with open('%s/onto/data/hpo_phenotypes.tsv' % APP_HOME) as f:
     for line in f:
       toks = line.strip(' \r\n').split('\t')
       node = toks[0]
-      syn_dict[node] = node
-      syn_str = toks[4]
-      if syn_str:
-        for syn in syn_str.split('|'):
-          syn_dict[syn] = node
+      syn_str = toks[idx]
+      syn_dict[node] = syn_str.split('|')
   return syn_dict
 
 def load_hgvs_to_hpo():
