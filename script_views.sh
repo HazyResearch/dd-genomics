@@ -107,27 +107,27 @@ then
     deepdive sql "update sentences_input_views set words = replace(words, '|^|', ' ');"
 fi
 
-deepdive sql 'truncate table genepheno_causation_views.sql'
+deepdive sql 'truncate table genepheno_causation_views'
 deepdive sql < ../tables_for_views/genepheno_causation_views.sql
-deepdive sql 'truncate table genepheno_association_views.sql'
+deepdive sql 'truncate table genepheno_association_views'
 deepdive sql < ../tables_for_views/genepheno_association_views.sql 
-deepdive sql 'truncate table gene_mentions_views.sql'
+deepdive sql 'truncate table gene_mentions_views'
 deepdive sql < ../tables_for_views/gene_mentions_views.sql 
-deepdive sql 'truncate table pheno_mentions_views.sql'
+deepdive sql 'truncate table pheno_mentions_views'
 deepdive sql < ../tables_for_views/pheno_mentions_views.sql 
-deepdive sql 'truncate table dd_inference_result_variables.sql'
+deepdive sql 'truncate table dd_inference_result_variables'
 deepdive sql < ../tables_for_views/dd_inference_result_variables.sql
-deepdive sql 'truncate table gene_mentions_filtered_inference.sql'
+deepdive sql 'truncate table gene_mentions_filtered_inference'
 deepdive sql < ../tables_for_views/gene_mentions_filtered_inference.sql 
-deepdive sql 'truncate table gene_mentions_filtered_inference_label_inference.sql'
+deepdive sql 'drop view gene_mentions_filtered_inference_label_inference'
 deepdive sql < ../tables_for_views/gene_mentions_filtered_inference_label_inference.sql 
-deepdive sql 'truncate table genepheno_causation_inference.sql'
+deepdive sql 'truncate table genepheno_causation_inference'
 deepdive sql < ../tables_for_views/genepheno_causation_inference.sql 
-deepdive sql 'truncate table genepheno_causation_inference_label_inference.sql'
+deepdive sql 'drop view genepheno_causation_inference_label_inference'
 deepdive sql < ../tables_for_views/genepheno_causation_inference_label_inference.sql 
-deepdive sql 'truncate table genepheno_association_inference.sql'
+deepdive sql 'truncate table genepheno_association_inference'
 deepdive sql < ../tables_for_views/genepheno_association_inference.sql 
-deepdive sql 'truncate table genepheno_association_inference_label_inference.sql'
+deepdive sql 'drop view genepheno_association_inference_label_inference'
 deepdive sql < ../tables_for_views/genepheno_association_inference_label_inference.sql 
 
 
