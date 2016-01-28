@@ -401,8 +401,8 @@ CAUSATION_SR = {
                'to find out',
                'inconclusive', 
                'further analysis', 
-               'association'
-               'associated with',
+               'association',
+               'associated'
                ],
       'pos-rgx' : [r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*cause.*PHENO', 
                   r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*described.*patients.*PHENO',
