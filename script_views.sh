@@ -44,22 +44,11 @@ fi
 database_greenplum=$(cat db_for_gp.url | sed 's/.*:\/\/.*\///')
 echo "postgresql://localhost:5432/${database_greenplum}_for_views" > db_for_pg.url
 
-DEEPDIVE_PLAN_EDIT=false deepdive redo weights
-DEEPDIVE_PLAN_EDIT=false deepdive redo dd_inference_result_variables_mapped_weights_bis
-deepdive sql "insert into dd_inference_result_variables_mapped_weights_bis select * from dd_inference_result_variables_mapped_weights;"
-
-
-if $sentences_to_be_re_run
-then   
-    deepdive mark todo sentences_input_views
-else
-    deepdive mark done sentences_input_views
-fi
-
-deepdive mark todo gene_mentions_views
-deepdive mark todo genepheno_association_views
-deepdive mark todo genepheno_causation_views
-deepdive mark todo pheno_mentions_views
+DEEPDIVE_PLAN_EDIT=false deepdive do model/calibration-plots
+DEEPDIVE_PLAN_EDIT=false deepdive do weights
+DEEPDIVE_PLAN_EDIT=false deepdive do dd_inference_result_variables_mapped_weights_bis
+#deepdive sql "insert into dd_inference_result_variables_mapped_weights_bis select * from dd_inference_result_variables_mapped_weights;"
+deepdive sql 'drop table if exists dd_inference_result_variables_mapped_weights_bis; drop view if exists dd_inference_result_variables_mapped_weights_bis; create view dd_inference_result_variables_mapped_weights_bis as (select * from dd_inference_result_variables_mapped_weights);'
 
 DEEPDIVE_PLAN_EDIT=false deepdive redo dumb_for_views
 
