@@ -339,6 +339,7 @@ GENE_PHENO = {
                    r'^\s*We investigated',
                    r'^\s*We examined',
                    r'^\s*To examine',
+                   r'^\s*We requested',
                    '\d+ h ', 
                    r'^\s*To assess', 
                    r'^\s*here we define', 
