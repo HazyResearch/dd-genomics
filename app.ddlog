@@ -734,7 +734,9 @@ doc_metadata(
 
 allowed_phenos (
   @distributed_by
-  hpo_id text).
+  hpo_id text,
+  names text,
+  synonyms text).
 
 gene_holdout_set (
         @distributed_by

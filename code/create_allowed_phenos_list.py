@@ -1,9 +1,11 @@
 #! /usr/bin/env python
 
-from data_util import get_hpo_phenos, get_parents, read_hpo_dag
+from data_util import get_hpo_phenos, get_parents, read_hpo_dag, read_hpo_synonyms
 
 if __name__ == "__main__":
   hpo_dag = read_hpo_dag()
+  names = read_hpo_synonyms(1)
+  synonyms = read_hpo_synonyms()
   allowed_phenos = set(get_hpo_phenos(hpo_dag))
   for hpo_id in allowed_phenos.copy():
     parent_ids = get_parents(hpo_id, hpo_dag) # includes the original hpo_id
@@ -15,4 +17,4 @@ if __name__ == "__main__":
     for parent_id in parent_ids:
       allowed_phenos.add(parent_id)
   for hpo_id in allowed_phenos:
-    print hpo_id
+    print "%s\t%s\t%s" % (hpo_id, '|^|'.join(names[hpo_id]), '|^|'.join(synonyms[hpo_id]))
