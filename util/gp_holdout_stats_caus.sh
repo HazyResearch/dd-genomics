@@ -30,11 +30,11 @@ SELECT
 FROM
   (SELECT
     labeler,
-    COUNT(DISTINCT s.doc_id) fp
+    COUNT(DISTINCT gc.relation_id) fp
   FROM
     genepheno_causation_is_correct_inference gc 
     RIGHT JOIN genepheno_causation_labels s 
-      ON (s.doc_id = gc.doc_id AND s.section_id = gc.section_id AND s.sent_id = gc.sent_id AND gc.gene_wordidxs = s.gene_wordidxs AND gc.pheno_wordidxs = s.pheno_wordidxs) 
+      ON (s.relation_id = gc.relation_id)
   WHERe
     COALESCE(gc.expectation, 0) > 0.9 
     AND s.is_correct = 'f'
@@ -42,11 +42,11 @@ FROM
   FULL OUTER JOIN
   (SELECT
     labeler,
-    COUNT(DISTINCT s.doc_id) tp
+    COUNT(DISTINCT gc.relation_id) tp
   FROM
     genepheno_causation_is_correct_inference gc 
     RIGHT JOIN genepheno_causation_labels s 
-      ON (s.doc_id = gc.doc_id AND s.section_id = gc.section_id AND s.sent_id = gc.sent_id AND gc.gene_wordidxs = s.gene_wordidxs AND gc.pheno_wordidxs = s.pheno_wordidxs) 
+      ON (s.relation_id = gc.relation_id)
   WHERe
     COALESCE(gc.expectation, 0) > 0.9 
     AND s.is_correct = 't'
@@ -55,11 +55,11 @@ FROM
   FULL OUTER JOIN
   (SELECT
     labeler,
-    COUNT(DISTINCT s.doc_id) fn
+    COUNT(DISTINCT gc.relation_id) fn
   FROM
     genepheno_causation_is_correct_inference gc 
     RIGHT JOIN genepheno_causation_labels s 
-      ON (s.doc_id = gc.doc_id AND s.section_id = gc.section_id AND s.sent_id = gc.sent_id AND gc.gene_wordidxs = s.gene_wordidxs AND gc.pheno_wordidxs = s.pheno_wordidxs) 
+      ON (s.relation_id = gc.relation_id)
   WHERe
     COALESCE(gc.expectation, 0) <= 0.9
     AND s.is_correct = 't'
@@ -68,11 +68,11 @@ FROM
   FULL OUTER JOIN
   (SELECT
     labeler,
-    COUNT(DISTINCT s.doc_id) tn
+    COUNT(DISTINCT gc.relation_id) tn
   FROM
     genepheno_causation_is_correct_inference gc 
     RIGHT JOIN genepheno_causation_labels s 
-      ON (s.doc_id = gc.doc_id AND s.section_id = gc.section_id AND s.sent_id = gc.sent_id AND gc.gene_wordidxs = s.gene_wordidxs AND gc.pheno_wordidxs = s.pheno_wordidxs) 
+      ON (s.relation_id = gc.relation_id)
   WHERe
     COALESCE(gc.expectation, 0) <= 0.9
     AND s.is_correct = 'f'
