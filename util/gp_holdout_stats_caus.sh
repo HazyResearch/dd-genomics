@@ -30,7 +30,7 @@ SELECT
 FROM
   (SELECT
     labeler,
-    COUNT(DISTINCT gc.relation_id) fp
+    COUNT(DISTINCT s.relation_id) fp
   FROM
     genepheno_causation_is_correct_inference gc 
     RIGHT JOIN genepheno_causation_labels s 
@@ -42,7 +42,7 @@ FROM
   FULL OUTER JOIN
   (SELECT
     labeler,
-    COUNT(DISTINCT gc.relation_id) tp
+    COUNT(DISTINCT s.relation_id) tp
   FROM
     genepheno_causation_is_correct_inference gc 
     RIGHT JOIN genepheno_causation_labels s 
@@ -55,7 +55,7 @@ FROM
   FULL OUTER JOIN
   (SELECT
     labeler,
-    COUNT(DISTINCT gc.relation_id) fn
+    COUNT(DISTINCT s.relation_id) fn
   FROM
     genepheno_causation_is_correct_inference gc 
     RIGHT JOIN genepheno_causation_labels s 
@@ -68,7 +68,7 @@ FROM
   FULL OUTER JOIN
   (SELECT
     labeler,
-    COUNT(DISTINCT gc.relation_id) tn
+    COUNT(DISTINCT s.relation_id) tn
   FROM
     genepheno_causation_is_correct_inference gc 
     RIGHT JOIN genepheno_causation_labels s 
