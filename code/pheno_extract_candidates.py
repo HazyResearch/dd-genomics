@@ -39,6 +39,45 @@ Mention = namedtuple('Mention', [
 HF = config.PHENO['HF']
 SR = config.PHENO['SR']
 
+def enrich_phenos(rows):
+  for row in rows:
+    hpoid, phrase, entry_type = [x.strip() for x in row]
+    ret = []
+    ret.append([hpoid, phrase])
+    new_pheno = ''
+    if phrase.lower().startswith('abnormality of the'):
+      new_pheno = (phrase[len('abnormality of the ') + 1:]).strip()
+    if phrase.lower().startswith('abnormality of'):
+      new_pheno = (phrase[len('abnormality of') + 1:]).strip()
+    if phrase.lower().startswith('abnormal'):
+      new_pheno = (phrase[len('abnormal') + 1:]).strip()
+    if len(new_pheno) > 0:
+      if len(new_pheno.split()) > 1:
+        ret.append([hpoid, new_pheno])
+      aplasias = ['abnormality', 'abnormalities', 'physiology', \
+                  'morphology', 'dysplasia', 'hypoplasia', 'aplasia', \
+                  'hyperplasia']
+      next_pheno = new_pheno
+      for aplasia in aplasias:
+        if new_pheno.endswith(aplasia):
+          next_pheno = (new_pheno[:-len(aplasia)]).strip()
+      for aplasia in aplasias:
+        ret.append([hpoid, next_pheno + ' ' + aplasia])
+  
+  for row in ret:
+    hpoid, pheno = [x.strip() for x in row]
+    words = pheno.split()
+    for word in words:
+      # just assuming that only one slash occurs per line
+      if '/' in word:
+        nword = []
+        nword.append(word.split('/')[0])
+        nword.append(word.split('/')[1])
+        new_pheno = pheno.replace(word, nword[0])
+        new_pheno = pheno.replace(word, nword[1])
+        ret.append([hpoid, new_pheno])
+  return ret
+
 def load_pheno_terms():
   phenos = {}
   pheno_sets = {}
@@ -49,8 +88,9 @@ def load_pheno_terms():
   # [See onto/prep_pheno_terms.py]
   # Note: for now, we don't distinguish between lemmatized / exact
   rows = [line.split('\t') for line in open(onto_path('data/pheno_terms.tsv'), 'rb')]
+  rows = enrich_phenos(rows)
   for row in rows:
-    hpoid, phrase, entry_type = [x.strip() for x in row]
+    hpoid, phrase = [x.strip() for x in row]
     if hpoid in hpo_phenos:
       if phrase in phenos:
         phenos[phrase].append(hpoid)
@@ -62,8 +102,6 @@ def load_pheno_terms():
       else:
         pheno_sets[phrase_bow] = [hpoid]
   return phenos, pheno_sets
-
-
 
 def keep_word(w):
   return (w.lower() not in STOPWORDS and len(w) > HF['min-word-len'] - 1)

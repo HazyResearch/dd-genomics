@@ -21,7 +21,7 @@ from
       gp.pheno_mention_id AS pheno_mention_id
     FROM
       genepheno_pairs gp
-    ORDER BY random()) hs
+  ) hs
   join gene_mentions g
     on hs.gene_mention_id = g.mention_id
   join pheno_mentions p
@@ -45,6 +45,7 @@ group by
   , si.words
   , g.mention_id
   , p.mention_id
+order by random()
 LIMIT 1000
 )
 to stdout with csv header;

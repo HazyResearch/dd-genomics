@@ -30,3 +30,20 @@ FROM (
   ) a 
 group by doc_id, section_id, sent_id, sentence 
 order by random();
+
+Select inferred genepheno relationships:
+
+SELECT DISTINCT
+  gene_name, 
+  (STRING_TO_ARRAY(si.words, '|^|'))[c.pheno_wordidxs[1]+1], 
+  p.names, 
+  ARRAY_TO_STRING(STRING_TO_ARRAY(si.words, '|^|'), ' ') 
+FROM
+  sentences_input si 
+  JOIN genepheno_causation c 
+    ON (si.doc_id = c.doc_id AND si.section_id = c.section_id AND si.sent_id = c.sent_id)  
+  JOIN genepheno_causation_inference_label_inference i 
+    ON (c.relation_id = i.relation_id) 
+  JOIN allowed_phenos p 
+    ON (c.pheno_entity = p.hpo_id) 
+WHERE i.expectation > 0.9;

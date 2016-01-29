@@ -42,5 +42,5 @@ if __name__ == "__main__":
             synonyms = '|'.join(sorted(synonyms)) if synonyms else ''
             related = '|'.join(sorted(related)) if related else ''
             mesh = '|'.join(sorted(mesh)) if mesh else ''
-            out.write('\t'.join([id, name, synonyms, related, alt_ids, is_a, mesh]) + '\n')
+            out.write('\t'.join([id, name.replace('\t', ' '), synonyms.replace('\t', ' '), related.replace('\t', ' '), alt_ids.replace('\t', ' '), is_a.replace('\t', ' '), mesh.replace('\t', ' ')]) + '\n')
 
