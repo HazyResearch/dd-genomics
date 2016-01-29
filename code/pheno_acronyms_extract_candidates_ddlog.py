@@ -82,6 +82,10 @@ def create_supervised_mention(row, is_correct,
     is_correct = False
     supertype = 'FALSE_SHORT_WORD'
     subtype = None
+  if include is not False and is_correct and abbrev in SR['bad-pheno-names']:
+    is_correct = False
+    supertype = 'FALSE_BAD_PHENO_NAME'
+    subtype = None
   if include is True or (include is not False and (is_correct is True or (is_correct is False and neg_count < pos_count))):
     m = Mention(None, row.doc_id, row.section_id,
               row.sent_id, [i for i in xrange(start_abbrev, stop_abbrev + 1)],
