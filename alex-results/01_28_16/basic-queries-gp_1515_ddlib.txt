@@ -1,0 +1,66 @@
+ Number of features 
+--------------------
+           22039148
+(1 row)
+
+                               description                               |  weight  
+-------------------------------------------------------------------------+----------
+ inf_istrue_genepheno_causation_inference--NGRAM_1_[cause]               |  3.47983
+ inf_istrue_genepheno_causation_inference--INV_NGRAM_1_[cause]           |  1.96688
+ inf_istrue_genepheno_causation_inference--NGRAM_1_[causative]           |  1.89209
+ inf_istrue_genepheno_causation_inference--NGRAM_1_[find]                |  1.87519
+ inf_istrue_genepheno_causation_inference--NGRAM_1_[because]             |  1.66347
+ inf_istrue_genepheno_causation_inference--NGRAM_1_[implicate]           |  1.57822
+ inf_istrue_genepheno_causation_inference--INV_NGRAM_1_[mutation]        |  1.32509
+ inf_istrue_genepheno_causation_inference--INV_NGRAM_2_[cause by]        |  1.20256
+ inf_istrue_genepheno_causation_inference--NGRAM_1_[causal]              |  1.08986
+ inf_istrue_genepheno_causation_inference--NGRAM_1_[mutation]            |   1.0689
+ inf_istrue_genepheno_causation_inference--NGRAM_1_[x-linked]            |  1.05713
+ inf_istrue_genepheno_causation_inference--INV_NGRAM_1_[deletion]        |  1.05219
+ inf_istrue_genepheno_causation_inference--NGRAM_2_[find in]             |   1.0094
+ inf_istrue_genepheno_causation_inference--INV_NGRAM_1_[because]         | 0.924549
+ inf_istrue_genepheno_causation_inference--NGRAM_2_[implicate in]        | 0.912407
+ inf_istrue_genepheno_causation_inference--NGRAM_2_[be find]             | 0.805337
+ inf_istrue_genepheno_causation_inference--INV_NGRAM_1_[disease-causing] |  0.76736
+ inf_istrue_genepheno_causation_inference--NGRAM_2_[gene ,]              |  0.76223
+ inf_istrue_genepheno_causation_inference--NGRAM_2_[, cause]             | 0.761337
+ inf_istrue_genepheno_causation_inference--INV_NGRAM_2_[mutation in]     | 0.759081
+(20 rows)
+
+ is_correct | count 
+------------+-------
+ f          | 19936
+ t          |  6197
+            | 53774
+(3 rows)
+
+     supertype      | is_correct | count 
+--------------------+------------+-------
+ PHRASE_neg         |            |   116
+ PHRASE_pos         | t          |   905
+                    |            | 53616
+ G_P_ADJACENT       | f          |    35
+ PRIMARY_VB_MOD_neg | f          |  2063
+ PHRASE_pos         |            |     2
+ DEP_LEMMA_NB_neg_g |            |     2
+ CHARITE_SUP_WORDS  | t          |  5292
+ PHRASE_neg         | f          | 17329
+ CHARITE_SUP_WORDS  |            |    29
+ PRIMARY_VB_MOD_neg |            |     9
+ DEP_LEMMA_NB_neg_g | f          |   509
+(12 rows)
+
+ binned_exp | count 
+------------+-------
+ 0          | 50922
+ 0.1        |  8700
+ 0.2        |  3528
+ 0.3        |  2048
+ 0.4        |  1425
+ 0.5        |  1116
+ 0.6        |  1027
+ 0.7        |  1084
+ 0.8        |  1467
+ 0.9        |  5296
+(10 rows)
+
