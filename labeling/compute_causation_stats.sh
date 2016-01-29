@@ -17,6 +17,6 @@ deepdive sql "COPY (SELECT gal.relation_id, gal.is_correct, gal.labeler FROM gen
 deepdive sql "COPY (SELECT gi.relation_id, gi.expectation FROM genepheno_causation_inference_label_inference gi, genepheno_causation_labels gal WHERE gal.relation_id = gi.relation_id) TO STDOUT WITH NULL AS ''" > genepheno_causation_predictions.tsv
 # launch python script that computes precision and recall
 ./compute_stats_helper.py genepheno_causation_labels.tsv genepheno_causation_predictions.tsv $CONFIDENCE > stats_causation.tsv
-rm genepheno_causation_labels.tsv
-rm genepheno_causation_predictions.tsv
+#rm genepheno_causation_labels.tsv
+#rm genepheno_causation_predictions.tsv
 

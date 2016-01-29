@@ -39,6 +39,10 @@ true_negatives = 0
 false_positives = 0
 false_negatives = 0
 
+# Also store the FP and FNs:
+fps = []
+fns = []
+
 for label_id in labels:
     # if the labeled mention is in the prediction set
     if label_id in predictions:
@@ -46,8 +50,10 @@ for label_id in labels:
             true_positives += 1
         elif (not labels[label_id]) and predictions[label_id]:
             false_positives += 1
+            fps.append(label_id)
         elif labels[label_id] and not predictions[label_id]:
             false_negatives += 1
+            fns.append(label_id)
         else:
             true_negatives += 1
     # if the labeled mention is not in the prediction set (was ruled out)
@@ -74,6 +80,10 @@ print 'Precision:\t'+str(precision)
 print 'Recall:\t'+str(recall)
 print 'F1 score:\t'+str(F1_score)
 
-
-
-
+print 'False Positives:'
+for id in fps:
+  print id
+print '\n'
+print 'False Negatives:'
+for id in fns:
+  print id
