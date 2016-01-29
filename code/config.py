@@ -293,7 +293,7 @@ GENE_PHENO = {
                  'increas',
                  'deficiency'
                  ],
-      'neg-p' : ['without']
+      'neg-p' : ['without', 'except']
     },
 
     # Label T all GP pairs in Charite dataset (and that haven't already been labeled T/F)
