@@ -1,4 +1,4 @@
-#!/bin/bash -e
+
 
 #Here we assume that the ddlog database is accessible by "deepdive sql" so correctly defined in db.url
 
@@ -30,37 +30,16 @@ from genepheno_association g,
 genepheno_association_inference_label_inference ginf
 where ginf.relation_id = g.relation_id;"""
 
-deepdive sql """
-DELETE FROM gene_holdout_set 
-WHERE (doc_id, section_id, sent_id, gene_wordidxs) IN 
-(SELECT DISTINCT
-  s.doc_id, s.section_id, s.sent_id, s.gene_wordidxs
-FROM
-  gene_holdout_set s 
-  LEFT JOIN 
-  gene_mentions_filtered p
-    ON (s.doc_id = p.doc_id AND s.section_id = p.section_id AND s.sent_id = p.sent_id AND s.gene_wordidxs = STRING_TO_ARRAY(p.wordidxs, '|~|')::INTEGER[]) WHERE p.doc_id IS NULL);
-
-DELETE FROM gene_holdout_labels WHERE (doc_id, section_id, sent_id) NOT IN (SELECT DISTINCT doc_id, section_id, sent_id FROM gene_holdout_set);
-"""
-
-deepdive sql """
-DELETE FROM genepheno_holdout_labels_causation
-WHERE (doc_id, section_id, sent_id, gene_wordidxs, pheno_wordidxs) IN 
-(SELECT DISTINCT
-  s.doc_id, s.section_id, s.sent_id, s.gene_wordidxs, s.pheno_wordidxs
-FROM
-  genepheno_holdout_labels_causation s 
-  LEFT JOIN 
-  genepheno_pairs p 
-    ON (s.doc_id = p.doc_id AND s.section_id = p.section_id AND s.sent_id = p.sent_id AND s.gene_wordidxs = STRING_TO_ARRAY(p.gene_wordidxs, '|~|')::INTEGER[] AND s.pheno_wordidxs = STRING_TO_ARRAY(p.pheno_wordidxs, '|~|')::INTEGER[]) WHERE p.doc_id IS NULL);
-DELETE FROM genepheno_holdout_labels_association
-WHERE (doc_id, section_id, sent_id, gene_wordidxs, pheno_wordidxs) IN 
-(SELECT DISTINCT
-  s.doc_id, s.section_id, s.sent_id, s.gene_wordidxs, s.pheno_wordidxs
-FROM
-  genepheno_holdout_labels_association s 
-  LEFT JOIN 
-  genepheno_pairs p 
-    ON (s.doc_id = p.doc_id AND s.section_id = p.section_id AND s.sent_id = p.sent_id AND s.gene_wordidxs = STRING_TO_ARRAY(p.gene_wordidxs, '|~|')::INTEGER[] AND s.pheno_wordidxs = STRING_TO_ARRAY(p.pheno_wordidxs, '|~|')::INTEGER[]) WHERE p.doc_id IS NULL);
-"""
+# deepdive sql """
+# DELETE FROM gene_holdout_set 
+# WHERE (doc_id, section_id, sent_id, gene_wordidxs) IN 
+# (SELECT DISTINCT
+#   s.doc_id, s.section_id, s.sent_id, s.gene_wordidxs
+# FROM
+#   gene_holdout_set s 
+#   LEFT JOIN 
+#   gene_mentions_filtered p
+#     ON (s.doc_id = p.doc_id AND s.section_id = p.section_id AND s.sent_id = p.sent_id AND s.gene_wordidxs = STRING_TO_ARRAY(p.wordidxs, '|~|')::INTEGER[]) WHERE p.doc_id IS NULL);
+# 
+# DELETE FROM gene_holdout_labels WHERE (doc_id, section_id, sent_id) NOT IN (SELECT DISTINCT doc_id, section_id, sent_id FROM gene_holdout_set);
+# """
