@@ -54,7 +54,9 @@ def enrich_phenos(rows):
     if len(new_pheno) > 0:
       if len(new_pheno.split()) > 1:
         ret.append([hpoid, new_pheno])
-      aplasias = ['physiology', 'morphology', 'dysplasia', 'hypoplasia', 'aplasia', 'hyperplasia']
+      aplasias = ['abnormality', 'abnormalities', 'physiology', \
+                  'morphology', 'dysplasia', 'hypoplasia', 'aplasia', \
+                  'hyperplasia']
       next_pheno = new_pheno
       for aplasia in aplasias:
         if new_pheno.endswith(aplasia):
