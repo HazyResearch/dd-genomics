@@ -1,0 +1,24 @@
+##### SUMMARY #####
+True positives:	3
+True negatives:	2
+False positives:	0
+False negatives:	4
+
+
+Precision:	1.0
+Recall:	0.428571428571
+F1 score:	0.6
+
+
+##### yahres #####
+True positives:	3
+True negatives:	2
+False positives:	0
+False negatives:	4
+
+
+Precision:	1.0
+Recall:	0.428571428571
+F1 score:	0.6
+
+

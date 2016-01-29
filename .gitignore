@@ -16,6 +16,17 @@ onto/manual/gene_holdout_set.tsv
 labeling/backup_files_g.txt
 labeling/OLD
 labeling/stats*
+
+
+# ignores for resulting logs except stats
+results_log/latest-*
+results_log/*/FP.tsv
+results_log/*/TP.tsv
+results_log/*/FN.tsv
+results_log/*/holdout_set.tsv
+results_log/*/input_data
+
+
 # Vim swap files
 *.*.sw*
 

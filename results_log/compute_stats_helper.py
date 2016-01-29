@@ -120,7 +120,7 @@ for labeler in labelers:
     else:
         recall = 'N/A (not enough examples)'
     # test for F1 for robustness
-    if (labeler2TP[labeler] + labeler2FP[labeler] > 0) and (labeler2TP[labeler] + labeler2FN[labeler] > 0) :
+    if (labeler2TP[labeler] + labeler2FP[labeler] > 0) and (labeler2TP[labeler] + labeler2FN[labeler] > 0) and precision+recall > 0 :
         F1_score = 2*precision*recall / (precision+recall)
     else:
         F1_score = 'N/A (not enough examples)'

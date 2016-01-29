@@ -1,0 +1,6 @@
+# Ignoring useless logs
+*FP.tsv
+*TP.tsv
+*FN.tsv
+*holdout_set.tsv
+*input_data
