@@ -94,7 +94,7 @@ def create_supervised_mention(row, is_correct,
     supertype = 'FALSE_DEFINITION_IS_GENE_ABBREV'
     # print >>sys.stderr, supertype
     subtype = None
-  if include is not False and is_correct and abbrev in SR['short_words']:
+  if include is not False and is_correct and abbrev in SR['short-words']:
     is_correct = False
     supertype = 'FALSE_SHORT_WORD'
     # print >>sys.stderr, supertype

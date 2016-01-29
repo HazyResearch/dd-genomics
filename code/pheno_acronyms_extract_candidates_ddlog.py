@@ -74,7 +74,11 @@ def create_supervised_mention(row, is_correct,
     supertype = 'DETECTOR_OMITTED_SENTENCE'
     subtype = None
     include = False
-  if include is not False and is_correct and abbrev in SR['short_words']:
+  if include is not False and is_correct and abbrev.islower():
+    is_correct = False
+    supertype = 'FALSE_ALL_LOWERCASE'
+    subtype = None
+  if include is not False and is_correct and abbrev in SR['short-words']:
     is_correct = False
     supertype = 'FALSE_SHORT_WORD'
     subtype = None
