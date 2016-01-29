@@ -29,7 +29,6 @@ Mention = namedtuple('Mention', [
             'sent_id',
             'wordidxs',
             'mention_id',
-            'pickup_type',
             'mention_supertype',
             'mention_subtype',
             'entity',
@@ -41,9 +40,9 @@ HF = config.PHENO['HF']
 SR = config.PHENO['SR']
 
 def enrich_phenos(rows):
+  ret = []
   for row in rows:
     hpoid, phrase, entry_type = [x.strip() for x in row]
-    ret = []
     ret.append([hpoid, phrase, entry_type])
     new_pheno = ''
     if phrase.lower().startswith('abnormality of the'):
@@ -54,7 +53,7 @@ def enrich_phenos(rows):
       new_pheno = (phrase[len('abnormal') + 1:]).strip()
     if len(new_pheno) > 0:
       if len(new_pheno.split()) > 1:
-        ret.append([hpoid, new_pheno])
+        ret.append([hpoid, new_pheno, 'MORPHED'])
       aplasias = ['abnormality', 'abnormalities', 'physiology', \
                   'morphology', 'dysplasia', 'hypoplasia', 'aplasia', \
                   'hyperplasia']
@@ -65,8 +64,9 @@ def enrich_phenos(rows):
       for aplasia in aplasias:
         ret.append([hpoid, next_pheno + ' ' + aplasia, 'MORPHED'])
   
+  new_ret = []
   for row in ret:
-    hpoid, pheno = [x.strip() for x in row]
+    hpoid, pheno, entry_type = [x.strip() for x in row]
     words = pheno.split()
     for word in words:
       # just assuming that only one slash occurs per line
@@ -76,7 +76,8 @@ def enrich_phenos(rows):
         nword.append(word.split('/')[1])
         new_pheno = pheno.replace(word, nword[0])
         new_pheno = pheno.replace(word, nword[1])
-        ret.append([hpoid, new_pheno, 'MORPHED'])
+        new_ret.append([hpoid, new_pheno, 'SLASHED'])
+  ret = ret + new_ret
   return ret
 
 def load_pheno_terms():
@@ -151,6 +152,7 @@ def extract_candidate_mentions(row):
       # (1) Check for exact match (including exact match of lemmatized / stop words removed)
       # If found add to split list so as not to consider subset phrases
       p, lp = map(' '.join, [ws, lws])
+
       if p in PHENOS or lp in PHENOS:
         entities = PHENOS[p] if p in PHENOS else PHENOS[lp]
         for (entity, entry_type) in entities:
