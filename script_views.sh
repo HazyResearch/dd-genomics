@@ -139,4 +139,4 @@ fi
 
 cp db_for_gp.url db.url
 
-echo 'Great! now you can launch the views with the command: export ES_HEAP_SIZE=10g; PORT=$RANDOM mindbender search gui'
+echo 'Great! now you can launch the views with the command: export ELASTICSEARCH_BASEURL=http://localhost:9${RANDOM:0:3}; export ES_HEAP_SIZE=10g; PORT=$RANDOM mindbender search gui'
