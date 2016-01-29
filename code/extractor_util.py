@@ -193,10 +193,7 @@ def run_main_tsv(row_parser, row_fn):
   Assumes that this outputs a list of rows, which get printed out in tsv format
   Has standard error handling for malformed rows- optimally row_fn returns object with pretty print
   """
-  lines_out = []
   for line in sys.stdin:
     row = row_parser(line)
-    lines_out += row_fn(row)
-
-  for line in lines_out:
-    print_tsv_output(line)
+    for line_out in row_fn(row):
+      print_tsv_output(line_out)
