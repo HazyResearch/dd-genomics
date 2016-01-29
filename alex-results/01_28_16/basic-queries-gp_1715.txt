@@ -1,0 +1,66 @@
+ Number of features 
+--------------------
+             480631
+(1 row)
+
+                                                    description                                                    |  weight  
+-------------------------------------------------------------------------------------------------------------------+----------
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[cause]              |  1.73534
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[persist]            |  1.54419
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[develop_associate]  |   1.4174
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[pe]                 |    1.416
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[have_have]          |  1.38345
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[lead_cause]         |  1.36903
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[find_associate]     |  1.36129
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[cause_associate]    |  1.35596
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[lead_increase]      |   1.2699
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[show_associate]     |  1.19777
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[be_identify]        |  1.19152
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[involve_result]     |  1.16272
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[emerge]             |  1.15928
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[link_cause]         |  1.15892
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[dog]                |  0.99823
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[identify_associate] | 0.985878
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[encode_cause]       | 0.952918
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[associate_cause]    | 0.942815
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[lead_protect]       | 0.937843
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[report_have]        | 0.919664
+(20 rows)
+
+ is_correct | count 
+------------+-------
+ t          |  6197
+ f          | 19936
+            | 53774
+(3 rows)
+
+     supertype      | is_correct | count 
+--------------------+------------+-------
+ DEP_LEMMA_NB_neg_g |            |     2
+ PHRASE_pos         |            |     2
+ PHRASE_neg         |            |   116
+ CHARITE_SUP_WORDS  |            |    29
+ PRIMARY_VB_MOD_neg |            |     9
+ G_P_ADJACENT       | f          |    35
+ PRIMARY_VB_MOD_neg | f          |  2063
+ PHRASE_pos         | t          |   905
+                    |            | 53616
+ DEP_LEMMA_NB_neg_g | f          |   509
+ CHARITE_SUP_WORDS  | t          |  5292
+ PHRASE_neg         | f          | 17329
+(12 rows)
+
+ binned_exp | count 
+------------+-------
+ 0          | 15711
+ 0.1        | 15715
+ 0.2        |  7709
+ 0.3        |  5405
+ 0.4        | 17455
+ 0.5        |  8489
+ 0.6        |  2150
+ 0.7        |   732
+ 0.8        |  2656
+ 0.9        |   591
+(10 rows)
+
