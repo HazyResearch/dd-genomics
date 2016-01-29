@@ -29,6 +29,7 @@ Mention = namedtuple('Mention', [
             'sent_id',
             'wordidxs',
             'mention_id',
+            'pickup_type',
             'mention_supertype',
             'mention_subtype',
             'entity',
@@ -196,7 +197,7 @@ def create_supervised_mention(row, idxs, entity=None, mention_supertype=None, me
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
         match = util.rgx_mult_search(phrase_post, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
-          return m._replace(is_correct=val, mention_supertype='POST_MATCH_%s_%s' % (name, val), mention_subtype=match)
+          return m._replace(is_correct=val, mention_supertype='%s_POST_MATCH_%s_%s' % (mention_supertype, name, val), mention_subtype=match)
 
   if SR.get('mesh-supervise'):
     pubmed_id = dutil.get_pubmed_id_for_doc(row.doc_id)
@@ -214,9 +215,9 @@ def create_supervised_mention(row, idxs, entity=None, mention_supertype=None, me
   if mention_supertype == 'EXACT':
     if SR.get('exact-english-word') and \
       len(words) == 1 and phrase in ENGLISH_WORDS and random.random() < SR['exact-english-word']['p']:
-      return m._replace(is_correct=True, mention_supertype='EXACT_AND_ENGLISH_WORD', mention_subtype=phrase)
+      return m._replace(is_correct=True, mention_supertype='%s_EXACT_AND_ENGLISH_WORD' % mention_supertype, mention_subtype=phrase)
     else:
-      return m._replace(is_correct=True, mention_supertype='NON_EXACT_AND_ENGLISH_WORD', mention_subtype=phrase)
+      return m._replace(is_correct=True, mention_supertype='%s_NON_EXACT_AND_ENGLISH_WORD' % mention_supertype, mention_subtype=phrase)
 
   # Else default to existing values / NULL
   return m
