@@ -5,7 +5,7 @@ SELECT COUNT(*) AS "Number of features" FROM genepheno_features;
 
 -- Top features
 -- Need to do `deepdive do weights` first!
-SELECT description, weight FROM dd_inference_result_variables_mapped_weights WHERE description LIKE 'inf_istrue_genepheno_causation%' ORDER BY weight DESC LIMIT 50;
+SELECT description, weight FROM dd_inference_result_variables_mapped_weights WHERE description LIKE 'inf_istrue_genepheno_causation%' ORDER BY weight DESC LIMIT 20;
 
 -- Supervised label distribution
 SELECT is_correct, COUNT(*) FROM genepheno_causation GROUP BY is_correct;
