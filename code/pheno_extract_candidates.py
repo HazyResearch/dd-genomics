@@ -43,7 +43,7 @@ def enrich_phenos(rows):
   for row in rows:
     hpoid, phrase, entry_type = [x.strip() for x in row]
     ret = []
-    ret.append([hpoid, phrase])
+    ret.append([hpoid, phrase, entry_type])
     new_pheno = ''
     if phrase.lower().startswith('abnormality of the'):
       new_pheno = (phrase[len('abnormality of the ') + 1:]).strip()
@@ -62,7 +62,7 @@ def enrich_phenos(rows):
         if new_pheno.endswith(aplasia):
           next_pheno = (new_pheno[:-len(aplasia)]).strip()
       for aplasia in aplasias:
-        ret.append([hpoid, next_pheno + ' ' + aplasia])
+        ret.append([hpoid, next_pheno + ' ' + aplasia, 'MORPHED'])
   
   for row in ret:
     hpoid, pheno = [x.strip() for x in row]
@@ -75,7 +75,7 @@ def enrich_phenos(rows):
         nword.append(word.split('/')[1])
         new_pheno = pheno.replace(word, nword[0])
         new_pheno = pheno.replace(word, nword[1])
-        ret.append([hpoid, new_pheno])
+        ret.append([hpoid, new_pheno, 'MORPHED'])
   return ret
 
 def load_pheno_terms():
@@ -90,17 +90,17 @@ def load_pheno_terms():
   rows = [line.split('\t') for line in open(onto_path('data/pheno_terms.tsv'), 'rb')]
   rows = enrich_phenos(rows)
   for row in rows:
-    hpoid, phrase = [x.strip() for x in row]
+    hpoid, phrase, entry_type = [x.strip() for x in row]
     if hpoid in hpo_phenos:
       if phrase in phenos:
-        phenos[phrase].append(hpoid)
+        phenos[phrase].append((hpoid, entry_type))
       else:
-        phenos[phrase] = [hpoid]
+        phenos[phrase] = [(hpoid, entry_type)]
       phrase_bow = frozenset(phrase.split())
       if phrase_bow in pheno_sets:
-        pheno_sets[phrase_bow].append(hpoid)
+        pheno_sets[phrase_bow].append((hpoid, entry_type))
       else:
-        pheno_sets[phrase_bow] = [hpoid]
+        pheno_sets[phrase_bow] = [(hpoid, entry_type)]
   return phenos, pheno_sets
 
 def keep_word(w):
@@ -152,8 +152,8 @@ def extract_candidate_mentions(row):
       p, lp = map(' '.join, [ws, lws])
       if p in PHENOS or lp in PHENOS:
         entities = PHENOS[p] if p in PHENOS else PHENOS[lp]
-        for entity in entities:
-          mentions.append(create_supervised_mention(row, wordidxs, entity, 'EXACT'))
+        for (entity, entry_type) in entities:
+          mentions.append(create_supervised_mention(row, wordidxs, entity, entry_type + '_EXACT'))
         split_indices.update(wordidxs)
         continue
 
@@ -163,8 +163,8 @@ def extract_candidate_mentions(row):
         ps, lps = map(frozenset, [ws, lws])
         if (len(ps)==len(ws) and ps in PHENO_SETS) or (len(lps)==len(lws) and lps in PHENO_SETS):
           entities = PHENO_SETS[ps] if ps in PHENO_SETS else PHENO_SETS[lps]
-          for entity in entities:
-            mentions.append(create_supervised_mention(row, wordidxs, entity, 'PERM'))
+          for (entity, entry_type) in entities:
+            mentions.append(create_supervised_mention(row, wordidxs, entity, entry_type + '_PERM'))
           continue
 
       # (3) Check for an exact match with one ommitted (interior) word/lemma
@@ -175,8 +175,8 @@ def extract_candidate_mentions(row):
             p, lp = [' '.join([w for i,w in enumerate(x) if i != omit]) for x in [ws, lws]]
             if p in PHENOS or lp in PHENOS:
               entities = PHENOS[p] if p in PHENOS else PHENOS[lp]
-              for entity in entities:
-                mentions.append(create_supervised_mention(row, wordidxs, entity, 'OMIT_%s' % omit))
+              for (entity, entry_type) in entities:
+                mentions.append(create_supervised_mention(row, wordidxs, entity, entry_type + '_OMIT_%s' % omit))
   return mentions    
 
 
