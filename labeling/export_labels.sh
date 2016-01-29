@@ -24,7 +24,7 @@ if [ $1 = 'gene' ]; then
 		psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE IF EXISTS tmp'
 		psql -U $DDUSER -p 6432 -d genomics_labels -c 'CREATE TABLE tmp(mention_id text, is_correct text, labeler text)'
                 cat tmp.tsv | psql -U $DDUSER -p 6432 -d genomics_labels -c 'COPY tmp FROM STDIN;'
-		psql -U $DDUSER -p 6432 -d genomics_labels -c 'INSERT INTO tmp SELECT * FROM gene_labels gl WHERE (gl.mention_id, gl.is_correct, gl.labeler) NOT IN (SELECT * FROM tmp)'
+		psql -U $DDUSER -p 6432 -d genomics_labels -c 'INSERT INTO tmp SELECT * FROM gene_labels gl WHERE (gl.mention_id,  gl.labeler) NOT IN (SELECT mention_id, labeler FROM tmp)'
 		psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE gene_labels'
 		psql -U $DDUSER -p 6432 -d genomics_labels -c 'ALTER TABLE tmp RENAME TO gene_labels'
 		cat tmp.tsv >> "labels/gene_$NAME"
@@ -36,7 +36,7 @@ elif [ $1 = 'pheno' ]; then
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE IF EXISTS tmp'  
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'CREATE TABLE tmp(mention_id text, is_correct text, labeler text)'
                 cat tmp.tsv | psql -U $DDUSER -p 6432 -d genomics_labels -c 'COPY tmp FROM STDIN;'  
-                psql -U $DDUSER -p 6432 -d genomics_labels -c 'INSERT INTO tmp SELECT * FROM pheno_labels pl WHERE (pl.mention_id, pl.is_correct, pl.labeler) NOT IN (SELECT * FROM tmp)'
+                psql -U $DDUSER -p 6432 -d genomics_labels -c 'INSERT INTO tmp SELECT * FROM pheno_labels pl WHERE (pl.mention_id, pl.labeler) NOT IN (SELECT mention_id, labeler FROM tmp)'
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE pheno_labels'
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'ALTER TABLE tmp RENAME TO pheno_labels'
 		cat tmp.tsv >> "labels/pheno_$NAME"
@@ -50,7 +50,7 @@ elif [ $1 = 'genepheno' ]; then
 		psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE IF EXISTS tmp'
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'CREATE TABLE tmp(relation_id text, is_correct text, labeler text)'
                 cat tmp.tsv | psql -U $DDUSER -p 6432 -d genomics_labels -c 'COPY tmp FROM STDIN;'
-                psql -U $DDUSER -p 6432 -d genomics_labels -c 'INSERT INTO tmp SELECT DISTINCT * FROM genepheno_causation_labels gl WHERE (gl.relation_id) NOT IN (SELECT relation_id FROM tmp)'
+                psql -U $DDUSER -p 6432 -d genomics_labels -c 'INSERT INTO tmp SELECT DISTINCT * FROM genepheno_causation_labels gl WHERE (gl.relation_id, gl.labeler) NOT IN (SELECT relation_id, labeler FROM tmp)'
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE genepheno_causation_labels'
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'ALTER TABLE tmp RENAME TO genepheno_causation_labels'
                 cat tmp.tsv >> "labels/genepheno_causation_$NAME"
@@ -60,7 +60,7 @@ elif [ $1 = 'genepheno' ]; then
 		psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE IF EXISTS tmp'
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'CREATE TABLE tmp(relation_id text, is_correct text, labeler text)'
                 cat tmp.tsv | psql -U $DDUSER -p 6432 -d genomics_labels -c 'COPY tmp FROM STDIN;'
-                psql -U $DDUSER -p 6432 -d genomics_labels -c 'INSERT INTO tmp SELECT DISTINCT * FROM genepheno_association_labels gl WHERE (gl.relation_id) NOT IN (SELECT relation_id FROM tmp)'
+                psql -U $DDUSER -p 6432 -d genomics_labels -c 'INSERT INTO tmp SELECT DISTINCT * FROM genepheno_association_labels gl WHERE (gl.relation_id, gl.labeler) NOT IN (SELECT relation_id, labeler FROM tmp)'
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE genepheno_association_labels'
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'ALTER TABLE tmp RENAME TO genepheno_association_labels'
                cat tmp.tsv >> "labels/genepheno_association_$NAME"
