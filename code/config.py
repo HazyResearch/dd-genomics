@@ -5,52 +5,52 @@
 import sys
 import copy
 
-if sys.version_info < (2,7):
+if sys.version_info < (2, 7):
   assert False, "Need Python version 2.7 at least"
 
 BOOL_VALS = [('neg', False), ('pos', True)]
 
 GENE_ACRONYMS = {
   'vals' : BOOL_VALS,
-  
-  ## Features
+
+  # # Features
   'F' : {
-    #'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
+    # 'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
   },
-                     
+
   'HF' : {},
-                     
-  'SR' : { 
+
+  'SR' : {
     'levenshtein_cutoff' : 0.2
   }
 }
 
 NON_GENE_ACRONYMS = {
   'vals' : BOOL_VALS,
-  
-  ## Features
+
+  # # Features
   'F' : {
-    #'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
+    # 'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
   },
-                     
+
   'HF' : {},
-                     
-  'SR' : { 
+
+  'SR' : {
     'levenshtein_cutoff' : 0.2,
-    'short_words': { 'the', 'and', 'or', 'at', 'in', 'see', 'as', 'an', 'data', 'for', 'not', 'our', 'ie', 'to', 'eg', 'one', 'age', 'on', 'center', 'right', 'left', 'from', 'based', 'total', 'via', 'but', 'resp', 'no' } 
+    'short_words': { 'the', 'and', 'or', 'at', 'in', 'see', 'as', 'an', 'data', 'for', 'not', 'our', 'ie', 'to', 'eg', 'one', 'age', 'on', 'center', 'right', 'left', 'from', 'based', 'total', 'via', 'but', 'resp', 'no' }
   }
 }
 
 PHENO_ACRONYMS = {
   'vals' : BOOL_VALS,
-  
-  ## Features
+
+  # # Features
   'F' : {
-    #'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
+    # 'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
   },
-                     
+
   'HF' : {},
-                     
+
   'SR' : {
     'difflib.pheno_cutoff' : 0.8,
     'short_words': { 'the', 'and', 'or', 'at', 'in', 'see', 'as', 'an', 'data', 'for', 'not', 'our', 'ie', 'to', 'eg', 'one', 'age', 'on', 'center', 'right', 'left', 'from', 'based', 'total', 'via', 'but', 'resp', 'no' },
@@ -60,11 +60,11 @@ PHENO_ACRONYMS = {
 
 }
 
-### GENE
+# ## GENE
 GENE = {
   'vals' : BOOL_VALS,
 
-  ## Hard Filters (for candidate extraction)
+  # # Hard Filters (for candidate extraction)
   'HF' : {
     # Restricting the ENSEMBL mapping types we consider
     # Types: CANONICAL_SYMBOL, NONCANONICAL_SYMBOL, REFSEQ
@@ -72,16 +72,16 @@ GENE = {
     'ensembl-mapping-types' : ['CANONICAL_SYMBOL', 'NONCANONICAL_SYMBOL', 'ENSEMBL_ID', 'REFSEQ'],
 
     'min-word-len': {
-      'CANONICAL_SYMBOL' : 2, 
-      'NONCANONICAL_SYMBOL' : 3, 
-      'ENSEMBL_ID' : 3, 
+      'CANONICAL_SYMBOL' : 2,
+      'NONCANONICAL_SYMBOL' : 3,
+      'ENSEMBL_ID' : 3,
       'REFSEQ' : 3
     },
 
     'require-one-letter': True
   },
 
-  ## Supervision Rules
+  # # Supervision Rules
   'SR' : {
     # Label some P mentions based on the toks / phrases that follow
     'bad-genes': ['ANOVA', 'MRI', 'CO2', 'gamma', 'spatial', 'tau', 'Men', \
@@ -95,7 +95,7 @@ GENE = {
       'neg' : ['+', 'pathway', 'inhibitor', 'inhibitors', 'cell', 'cells', 'syndrome', 'domain'],
       'pos-rgx' : [],
       # can't copy the lt-equal sign from anywhere now, it should be down there as well
-      'neg-rgx' : [r'cell(s|\slines?)', '< \d+', '<= \d+', '≥ \d+', '> \d+', '>= \d+'] 
+      'neg-rgx' : [r'cell(s|\slines?)', '< \d+', '<= \d+', '≥ \d+', '> \d+', '>= \d+']
     },
 
     'pre-neighbor-match' : {
@@ -131,14 +131,14 @@ GENE = {
 
   },
 
-  ## Features
+  # # Features
   'F' : {
-    #'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
+    # 'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
   }
 }
 
 
-### VARIANT
+# ## VARIANT
 VARIANT = {
   'vals' : BOOL_VALS,
   'HF' : {},
@@ -146,17 +146,17 @@ VARIANT = {
   'F'  : {}
 }
 
-### GENE-VARIANT
+# ## GENE-VARIANT
 GENE_VARIANT = {
   'vals' : BOOL_VALS,
   'HF' : {}
 }
 
-### PHENO
+# ## PHENO
 PHENO = {
   'vals' : BOOL_VALS,
-  
-  ## Hard Filters (for candidate extraction)
+
+  # # Hard Filters (for candidate extraction)
   'HF' : {
     # Maximum n-gram length to consider
     'max-len' : 8,
@@ -179,8 +179,13 @@ PHENO = {
     'rand-negs' : True
   },
 
-  ## Supervision Rules
+  # # Supervision Rules
   'SR' : {
+
+    'bad-pheno-names': ['MIM'],
+
+    'bad-phenos': ['HP:0001677', 'HP:0002092', 'HP:0100753', 'HP:0002511'],
+
     # Label some P mentions based on the toks / phrases that follow
     'post-match' : {
       'pos' : [],
@@ -205,7 +210,7 @@ PHENO = {
     }
   },
 
-  ## Features
+  # # Features
   'F' : {
     # Add the closest verb by raw distance
     'closest-verb' : True,
@@ -216,9 +221,9 @@ PHENO = {
 }
 
 
-### GENE-PHENO
+# ## GENE-PHENO
 GENE_PHENO = {
-  ## Hard Filters (for candidate extraction)
+  # # Hard Filters (for candidate extraction)
   'HF' : {
     # Upper-bound the max min-dependency-path length between G and P
     'max-dep-path-dist' : 10,
@@ -250,7 +255,7 @@ GENE_PHENO = {
     'primary-verb-modifiers' : {
       'max-dist' : 1,
       'pos' : [],
-      'neg' : [# 'might'
+      'neg' : [  # 'might'
                ],
       'pos-dep-tag' : [],
       'neg-dep-tag' : ['neg']
@@ -263,28 +268,28 @@ GENE_PHENO = {
       # 'pos-p' : ['mutation', 'mutate'],
       'pos-g' : [],
       'pos-p' : [],
-      'neg-g' : ['express', 
-                 'expression', 
-                 'coexpression', 
-                 'coexpress', 
+      'neg-g' : ['express',
+                 'expression',
+                 'coexpression',
+                 'coexpress',
                  'co-expression',
-                 'co-express', 
-                 'overexpress', 
-                 'overexpression', 
+                 'co-express',
+                 'overexpress',
+                 'overexpression',
                  'over-expression',
-                 'over-express', 
-                 'somatic', 
-                 'infection', 
-                 'interacts', 
+                 'over-express',
+                 'somatic',
+                 'infection',
+                 'interacts',
                  'regulate',
-                 'up-regulate', 
-                 'upregulate', 
-                 'down-regulate', 
-                 'downregulate', 
+                 'up-regulate',
+                 'upregulate',
+                 'down-regulate',
+                 'downregulate',
                  'production',
-                 'product', 
-                 'increased', 
-                 'increase', 
+                 'product',
+                 'increased',
+                 'increase',
                  'increas',
                  'deficiency'
                  ],
@@ -293,7 +298,7 @@ GENE_PHENO = {
 
     # Label T all GP pairs in Charite dataset (and that haven't already been labeled T/F)
     'charite-all-pos' : False,
-    
+
     'charite-all-pos-words': ['(mutat|delet|duplicat|truncat|SNP).*caus'],
 
     # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
@@ -305,21 +310,21 @@ GENE_PHENO = {
     'phrases-in-sent' : {
       # 'pos' : ['caused by (mutation|deletion|duplication|truncat)', 'confirmed linkage'],
       'pos' : [],
-      'neg' : ['possible association', 
-               'to investigate', 
-               'could reveal', 
+      'neg' : ['possible association',
+               'to investigate',
+               'could reveal',
                'to determine',
                'could not determine',
-               'unclear', 
-               'hypothesize', 
-               'to evaluate', 
-               'plasma', 
-               'expression', 
+               'unclear',
+               'hypothesize',
+               'to evaluate',
+               'plasma',
+               'expression',
                'to detect',
                'mouse',
                'mice',
-               'to find out', 
-               'inconclusive', 
+               'to find out',
+               'inconclusive',
                'further analysis',
                'but not',
                'deficiency',
@@ -327,34 +332,34 @@ GENE_PHENO = {
                ],
       'pos-rgx' : [],
       # 'pos-rgx' : [],
-      'neg-rgx' : [# r'rs\d+', 
-                   # r't?SNPs?', 
+      'neg-rgx' : [  # r'rs\d+',
+                   # r't?SNPs?',
                    # r'\d+(\.\d+)?\s*\%',
                    r'PHENO.*not cause.*GENE',
                    r'GENE.*not cause.*PHENO',
                    r'\?\s*$',
-                   r'^\s*To determine', 
-                   r'^\s*To evaluate', 
+                   r'^\s*To determine',
+                   r'^\s*To evaluate',
                    r'^\s*To investigate',
                    r'^\s*We investigated',
                    r'^\s*We examined',
                    r'^\s*To examine',
                    r'^\s*We requested',
-                   '\d+ h ', 
-                   r'^\s*To assess', 
-                   r'^\s*here we define', 
+                   '\d+ h ',
+                   r'^\s*To assess',
+                   r'^\s*here we define',
                    r'^\s*whether',
                    'unlikely.*GENE.*PHENO',
                    'PHENO.*not due to.*GENE',
                    'GENE.*linked to.*PHENO',
                     ]
     },
-         
+
     'example-sentences': {
       'pos': [],
       'neg': []
     },
-         
+
     'synonyms': [set(['disease', 'disorder']), \
                  set(['mutation', 'variant', 'allele', 'polymorphism']), \
                  set(['case', 'patient', 'subject', 'family', 'boy', 'girl']), \
@@ -364,48 +369,48 @@ GENE_PHENO = {
                  set(['cause', 'associate', 'link', 'lead']),
                  set(['mutation', 'inhibition']), \
                  set(['recessive', 'dominant'])],
-              
+
     'rescores': [(set(['cause', 'lead', 'result']), set(['associate', 'link']), -50),
                  (set(['mutation']), set(['inhibition', 'deficiency']), -50)],
-    
+
   },
 
-  ## Features
+  # # Features
   'F' : {}
 }
 
 CAUSATION_SR = {
-    
+
     'example-sentences': {
       'pos': [('onto/manual/true_causation_sentences1.tsv', 18),
               ('onto/manual/true_causation_sentences2.tsv', 27)],
       'neg': []
     },
-                
+
     # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
     'phrases-in-sent' : {
       'pos' : [],
-      'neg' : [# 'risk', 
-               'variance', 
-               'gwas', 
+      'neg' : [  # 'risk',
+               'variance',
+               'gwas',
                'association study',
-               'possible association', 
-               'to investigate', 
+               'possible association',
+               'to investigate',
                'could reveal',
-               'to determine', 
-               'unclear', 
-               'hypothesize', 
+               'to determine',
+               'unclear',
+               'hypothesize',
                'to evaluate',
-               'plasma', 
-               'expression', 
-               'to detect', 
+               'plasma',
+               'expression',
+               'to detect',
                'to find out',
-               'inconclusive', 
-               'further analysis', 
+               'inconclusive',
+               'further analysis',
                'association',
                'associated'
                ],
-      'pos-rgx' : [r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*cause.*PHENO', 
+      'pos-rgx' : [r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*cause.*PHENO',
                   r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*described.*patients.*PHENO',
                   r'.*patient.*GENE.*present with.*clinical.*PHENO.*',
                   r'(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO',
@@ -416,8 +421,8 @@ CAUSATION_SR = {
     'dep-lemma-connectors' : {
       # 'pos' : ['cause'],
       'pos': [],
-      'neg' : [# 'associate', 
-               # 'correlate', 
+      'neg' : [  # 'associate',
+               # 'correlate',
                # 'implicate'
                ]
     },
@@ -459,9 +464,9 @@ GENE_PHENO_CAUSATION = copy.deepcopy(GENE_PHENO)
 GENE_PHENO_ASSOCIATION['SR'] = extend(GENE_PHENO_ASSOCIATION['SR'], ASSOCIATION_SR)
 GENE_PHENO_CAUSATION['SR'] = extend(GENE_PHENO_CAUSATION['SR'], CAUSATION_SR)
 
-### GENE-VARIANT-PHENO
+# ## GENE-VARIANT-PHENO
 GENE_VARIANT_PHENO = {
-  ## Hard Filters (for candidate extraction)
+  # # Hard Filters (for candidate extraction)
   'HF' : {
     # Upper-bound the max min-dependency-path length between G and P
     'max-dep-path-dist' : 10,
@@ -473,7 +478,7 @@ GENE_VARIANT_PHENO = {
     'take-best-only' : False
   },
 
-  ## Supervision Rules
+  # # Supervision Rules
   'SR' : {
     # Subsample GP pairs where G and/or P is neg. example as neg. GP supervision
     'gv-or-p-false' : {'diff' : 0, 'rand' : 0.01},
@@ -482,6 +487,6 @@ GENE_VARIANT_PHENO = {
     'clinvar-sup' : True
   },
 
-  ## Features
+  # # Features
   'F' : {}
 }
