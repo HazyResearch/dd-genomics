@@ -1,5 +1,9 @@
 #! /bin/bash -e
 
+deepdive redo allowed_phenos
+deepdive redo charite
+deepdive redo charite_canon
+
 echo "Number of documents: " 
 deepdive sql """ COPY(
 select count(distinct doc_id) from sentences_input) TO STDOUT
@@ -148,20 +152,90 @@ COPY (
 """
 
 echo "What does the expectation-distribution for gene look like?"
+deepdive sql """
+COPY (
+SELECT
+  CASE
+    WHEN expectation BETWEEN 0 and 0.1 THEN '0'
+    WHEN expectation BETWEEN 0.1 and 0.2 THEN '0.1'
+    WHEN expectation BETWEEN 0.2 and 0.3 THEN '0.2'
+    WHEN expectation BETWEEN 0.3 and 0.4 THEN '0.3'
+    WHEN expectation BETWEEN 0.4 and 0.5 THEN '0.4'
+    WHEN expectation BETWEEN 0.5 and 0.6 THEN '0.5'
+    WHEN expectation BETWEEN 0.6 and 0.7 THEN '0.6'
+    WHEN expectation BETWEEN 0.7 and 0.8 THEN '0.7'
+    WHEN expectation BETWEEN 0.8 and 0.9 THEN '0.8'
+    WHEN expectation BETWEEN 0.9 and 1 THEN '0.9'
+  END AS binned_exp,
+  COUNT(*)
+FROM gene_mentions_filtered_inference_label_inference
+GROUP BY binned_exp
+ORDER BY binned_exp) TO STDOUT
+""" | column -t
 
 echo "What does the expectation-distribution for genepheno look like?"
+deepdive sql """
+COPY (
+SELECT
+  CASE
+    WHEN expectation BETWEEN 0 and 0.1 THEN '0'
+    WHEN expectation BETWEEN 0.1 and 0.2 THEN '0.1'
+    WHEN expectation BETWEEN 0.2 and 0.3 THEN '0.2'
+    WHEN expectation BETWEEN 0.3 and 0.4 THEN '0.3'
+    WHEN expectation BETWEEN 0.4 and 0.5 THEN '0.4'
+    WHEN expectation BETWEEN 0.5 and 0.6 THEN '0.5'
+    WHEN expectation BETWEEN 0.6 and 0.7 THEN '0.6'
+    WHEN expectation BETWEEN 0.7 and 0.8 THEN '0.7'
+    WHEN expectation BETWEEN 0.8 and 0.9 THEN '0.8'
+    WHEN expectation BETWEEN 0.9 and 1 THEN '0.9'
+  END AS binned_exp,
+  COUNT(*)
+FROM genepheno_causation_inference_label_inference
+GROUP BY binned_exp
+ORDER BY binned_exp;
+) TO STDOUT
+"""
 
 echo "How many distinct gene object-pheno causation pairs do we infer with expectation > 0.9?"
+deepdive sql """
+COPY (
+select count(*) from
+(select distinct g.canonical_name, c.pheno_entity from genepheno_causation_inference_label_inference i join genepheno_causation c on (i.relation_id = c.relation_id) join genes g on (c.gene_name = g.gene_name) a
+) TO STDOUT
+"""
 
 echo "How many distinct gene object-pheno pairs does Charite contain
 (non-canonicalized phenotypes) with 'allowed' pheno (phenotypic abnormality,
 non-cancer)?"
+deepdive sql """
+COPY (
+select count(*) from (select distinct hpo_id, ensembl_id from charite c join allowed_phenos a on c.ensembl_id = a.ensembl_id) a
+) TO STDOUT
+"""
 
 echo "How many distinct gene objects do we have in genepheno pairs with expectation > 0.9?"
+deepdive sql """
+COPY (
+select count(*) from
+(select distinct g.canonical_name from genepheno_causation_inference_label_inference i join genepheno_causation c on (i.relation_id = c.relation_id) join genes g on (c.gene_name = g.gene_name) a
+) TO STDOUT
+"""
 
 echo "How many distinct phenos do we have in genepheno pairs with expectation > 0.9? (non-canonicalized pheno)?"
+deepdive sql """
+COPY (
+select count(*) from
+(select distinct pheno_entity from genepheno_causation_inference_label_inference i join genepheno_causation c on (i.relation_id = c.relation_id) join genes g on (c.gene_name = g.gene_name) a
+) TO STDOUT
+"""
 
 echo "How many distinct gene object-pheno pairs do we have that are not in canonicalized Charite?"
+deepdive sql """
+COPY (
+select count(*) from
+(select distinct g.canonical_name, pheno_entity from genepheno_causation_inference_label_inference i join genepheno_causation c on (i.relation_id = c.relation_id) join genes g on (c.gene_name = g.gene_name) where (pheno_entity, g.ensembl_id) not in (select distinct hpo_id, ensembl_id from charite_canon)) a
+) TO STDOUT
+"""
 
 echo "Printing 20 random sentences with genepheno pairs that are inferred true:"
 
