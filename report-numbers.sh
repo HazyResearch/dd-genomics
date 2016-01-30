@@ -116,4 +116,53 @@ deepdive sql """ COPY(
 select a.count::float / b.count::float from (select count(*) as count from genepheno_causation c) b, (select count(*) as count from genepheno_features f join genepheno_causation c on (f.relation_id = c.relation_id)) a) TO STDOUT
 """
 
-echo "What are the highest weighted features?"
+deepdive sql """drop table weights;"""
+deepdive sql """create table weights as (select * from dd_inference_result_weights_mapping w) distributed by (id);"""
+
+echo "What are the highest weighted features for gene?"
+deepdive sql """
+COPY (
+  select description, weight from weights w where w.description like '%gene_mentions_filtered%' order by weight desc limit 10
+) TO STDOUT
+"""
+
+echo "What are the lowest weighted features for gene?"
+deepdive sql """
+COPY (
+  select description, weight from weights w where w.description like '%gene_mentions_filtered%' order by weight asc limit 10
+) TO STDOUT
+"""
+
+echo "What are the highest weighted features for gene-pheno?"
+deepdive sql """
+COPY (
+  select description, weight from weights w where w.description like '%genepheno%' order by weight desc limit 10
+) TO STDOUT
+"""
+
+echo "What are the lowest weighted features for gene-pheno?"
+deepdive sql """
+COPY (
+  select description, weight from weights w where w.description like '%genepheno%' order by weight asc limit 10
+) TO STDOUT
+"""
+
+echo "What does the expectation-distribution for gene look like?"
+
+echo "What does the expectation-distribution for genepheno look like?"
+
+echo "How many distinct gene object-pheno causation pairs do we infer with expectation > 0.9?"
+
+echo "How many distinct gene object-pheno pairs does Charite contain
+(non-canonicalized phenotypes) with 'allowed' pheno (phenotypic abnormality,
+non-cancer)?"
+
+echo "How many distinct gene objects do we have in genepheno pairs with expectation > 0.9?"
+
+echo "How many distinct phenos do we have in genepheno pairs with expectation > 0.9? (non-canonicalized pheno)?"
+
+echo "How many distinct gene object-pheno pairs do we have that are not in canonicalized Charite?"
+
+echo "Printing 20 random sentences with genepheno pairs that are inferred true:"
+
+echo "Printing 20 random sentences with genepheno pairs that are inferred true and are not in Charite:"
