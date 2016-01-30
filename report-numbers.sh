@@ -238,5 +238,69 @@ select count(*) from
 """
 
 echo "Printing 20 random sentences with genepheno pairs that are inferred true:"
+deepdive sql """
+COPY (
+select
+  doc_id,
+  section_id,
+  sent_id,
+  ARRAY_AGG(gene_name),
+  ARRAY_AGG(pheno_word),
+  sentence
+FROM (
+  select distinct
+    si.doc_id,
+    si.section_id,
+    si.sent_id,
+    gc.gene_name,
+    (STRING_TO_ARRAY(si.words, '|^|'))[gc.pheno_wordidxs[1]+1] pheno_word,
+    ARRAY_TO_STRING(STRING_TO_ARRAY(si.words, '|^|'), ' ') sentence
+  FROM
+    sentences_input si
+    join genepheno_causation gc
+      on (si.doc_id = gc.doc_id and si.section_id = gc.section_id and si.sent_id = gc.sent_id)
+    join genepheno_causation_inference_label_inference i
+      on (gc.relation_id = i.relation_id)
+    join genes g
+      on (gc.gene_name = g.gene_name)
+  where
+    expectation > 0.9
+  ) a
+group by doc_id, section_id, sent_id, sentence
+order by random() limit 20
+) TO STDOUT
+""" | column -t
 
 echo "Printing 20 random sentences with genepheno pairs that are inferred true and are not in Charite:"
+deepdive sql """
+select
+  doc_id,
+  section_id,
+  sent_id,
+  ARRAY_AGG(gene_name),
+  ARRAY_AGG(pheno_word),
+  sentence
+FROM (
+  select distinct
+    si.doc_id,
+    si.section_id,
+    si.sent_id,
+    gc.gene_name,
+    (STRING_TO_ARRAY(si.words, '|^|'))[gc.pheno_wordidxs[1]+1] pheno_word,
+    ARRAY_TO_STRING(STRING_TO_ARRAY(si.words, '|^|'), ' ') sentence
+  FROM
+    sentences_input si
+    join genepheno_causation gc
+      on (si.doc_id = gc.doc_id and si.section_id = gc.section_id and si.sent_id = gc.sent_id)
+    join genepheno_causation_inference_label_inference i
+      on (gc.relation_id = i.relation_id)
+    join genes g
+      on (gc.gene_name = g.gene_name)
+  where
+    expectation > 0.9
+    and (g.ensembl_id, gc.pheno_entity) not in
+      (select ensembl_id, hpo_id from charite_canon)
+  ) a
+group by doc_id, section_id, sent_id, sentence
+order by random() limit 20
+""" | column -t 
