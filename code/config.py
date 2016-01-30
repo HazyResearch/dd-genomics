@@ -52,8 +52,13 @@ PHENO_ACRONYMS = {
   'HF' : {},
 
   'SR' : {
+    'bad-pheno-names': ['MIM'],
     'difflib.pheno_cutoff' : 0.8,
-    'short-words': { 'the', 'and', 'or', 'at', 'in', 'see', 'as', 'an', 'data', 'for', 'not', 'our', 'ie', 'to', 'eg', 'one', 'age', 'on', 'center', 'right', 'left', 'from', 'based', 'total', 'via', 'but', 'resp', 'no' },
+    'short-words': { 'the', 'and', 'or', 'at', 'in', 
+                    'see', 'as', 'an', 'data', 'for', 'not', 
+                    'our', 'ie', 'to', 'eg', 'one', 'age', 
+                    'on', 'center', 'right', 'left', 'from', 
+                    'based', 'total', 'via', 'but', 'resp', 'no' },
     'rand-negs': True
   },
 
@@ -182,7 +187,7 @@ PHENO = {
   # # Supervision Rules
   'SR' : {
 
-    'bad-pheno-names': ['MIM'],
+    'bad-pheno-names': [],
 
     'bad-phenos': ['HP:0001677', 'HP:0002092', 'HP:0100753', 'HP:0002511'],
 
