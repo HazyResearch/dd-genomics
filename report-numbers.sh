@@ -3,6 +3,9 @@
 deepdive redo allowed_phenos
 deepdive redo charite
 deepdive redo charite_canon
+redo_weights="n"
+echo "Redo weights table? [y/n]"
+read redo_weights
 
 echo -n "Number of documents: " 
 deepdive sql """ COPY(
@@ -75,6 +78,7 @@ echo
 
 echo -n "How many synonyms for each pheno on average? "
 echo "TODO"
+echo
 
 echo -n "How many pheno candidates are there in total? "
 deepdive sql """ COPY(
@@ -142,15 +146,18 @@ select a.count::float / b.count::float from (select count(*) as count from genep
 """
 echo
 
-deepdive sql """drop table weights;"""
-deepdive sql """create table weights as (select * from dd_inference_result_weights_mapping w) distributed by (id);"""
+if [[ $redo_weights = "y" ]]
+then
+  deepdive sql """drop table weights;"""
+  deepdive sql """create table weights as (select * from dd_inference_result_weights_mapping w) distributed by (id);"""
+fi
 
 echo "What are the highest weighted features for gene? "
 deepdive sql """
 COPY (
   select description, weight from weights w where w.description like '%gene_mentions_filtered%' order by weight desc limit 10
 ) TO STDOUT
-""" | column -t
+"""
 echo
 
 echo "What are the lowest weighted features for gene? "
@@ -158,7 +165,7 @@ deepdive sql """
 COPY (
   select description, weight from weights w where w.description like '%gene_mentions_filtered%' order by weight asc limit 10
 ) TO STDOUT
-""" | column -t
+""" 
 echo
 
 echo "What are the highest weighted features for gene-pheno? "
@@ -166,7 +173,7 @@ deepdive sql """
 COPY (
   select description, weight from weights w where w.description like '%genepheno%' order by weight desc limit 10
 ) TO STDOUT
-""" | column -t
+"""
 echo
 
 echo "What are the lowest weighted features for gene-pheno? "
@@ -174,7 +181,7 @@ deepdive sql """
 COPY (
   select description, weight from weights w where w.description like '%genepheno%' order by weight asc limit 10
 ) TO STDOUT
-""" | column -t
+"""
 echo
 
 echo "What does the expectation-distribution for gene look like? "
@@ -228,17 +235,15 @@ echo -n "How many distinct gene object-pheno causation pairs do we infer with ex
 deepdive sql """
 COPY (
 select count(*) from
-(select distinct g.canonical_name, c.pheno_entity from genepheno_causation_inference_label_inference i join genepheno_causation c on (i.relation_id = c.relation_id) join genes g on (c.gene_name = g.gene_name) )a
+(select distinct g.canonical_name, c.pheno_entity from genepheno_causation_inference_label_inference i join genepheno_causation c on (i.relation_id = c.relation_id) join genes g on (c.gene_name = g.gene_name) where i.expectation > 0.9 )a
 ) TO STDOUT
 """
 echo
 
-echo -n "How many distinct gene object-pheno pairs does Charite contain
-(non-canonicalized phenotypes) with 'allowed' pheno (phenotypic abnormality,
-non-cancer)? "
+echo -n "How many distinct gene object-pheno pairs does Charite contain (non-canonicalized phenotypes) with 'allowed' pheno (phenotypic abnormality, non-cancer)? "
 deepdive sql """
 COPY (
-select count(*) from (select distinct hpo_id, ensembl_id from charite c join allowed_phenos a on c.ensembl_id = a.ensembl_id) a
+select count(*) from (select distinct c.hpo_id, ensembl_id from charite c join allowed_phenos a on c.hpo_id = a.hpo_id) a
 ) TO STDOUT
 """
 echo
@@ -247,7 +252,7 @@ echo -n "How many distinct gene objects do we have in genepheno pairs with expec
 deepdive sql """
 COPY (
 select count(*) from
-(select distinct g.canonical_name from genepheno_causation_inference_label_inference i join genepheno_causation c on (i.relation_id = c.relation_id) join genes g on (c.gene_name = g.gene_name) a
+(select distinct g.canonical_name from genepheno_causation_inference_label_inference i join genepheno_causation c on (i.relation_id = c.relation_id) join genes g on (c.gene_name = g.gene_name) where i.expectation > 0.9) a
 ) TO STDOUT
 """
 echo
@@ -256,16 +261,16 @@ echo -n "How many distinct phenos do we have in genepheno pairs with expectation
 deepdive sql """
 COPY (
 select count(*) from
-(select distinct pheno_entity from genepheno_causation_inference_label_inference i join genepheno_causation c on (i.relation_id = c.relation_id) join genes g on (c.gene_name = g.gene_name) a
+(select distinct pheno_entity from genepheno_causation_inference_label_inference i join genepheno_causation c on (i.relation_id = c.relation_id) join genes g on (c.gene_name = g.gene_name) where i.expectation > 0.9) a
 ) TO STDOUT
 """
 echo
 
-echo -n "How many distinct gene object-pheno pairs do we have that are not in canonicalized Charite? "
+echo -n "How many distinct gene object-pheno pairs do we have inferred that are not in canonicalized Charite?"
 deepdive sql """
 COPY (
 select count(*) from
-(select distinct g.canonical_name, pheno_entity from genepheno_causation_inference_label_inference i join genepheno_causation c on (i.relation_id = c.relation_id) join genes g on (c.gene_name = g.gene_name) where (pheno_entity, g.ensembl_id) not in (select distinct hpo_id, ensembl_id from charite_canon)) a
+(select distinct g.canonical_name, pheno_entity from genepheno_causation_inference_label_inference i join genepheno_causation c on (i.relation_id = c.relation_id) join genes g on (c.gene_name = g.gene_name) where i.expectation > 0.9 and (pheno_entity, g.ensembl_id) not in (select distinct hpo_id, ensembl_id from charite_canon)) a
 ) TO STDOUT
 """
 echo
