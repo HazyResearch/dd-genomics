@@ -4,6 +4,7 @@
 
 @source
 sentences_input_views(
+  @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
@@ -23,6 +24,7 @@ sentences_input_views(doc_id, section_id, sent_id, words, lemmas, poses, ners, d
 @extraction
 gene_mentions_views(
   id bigint,
+  @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
@@ -62,10 +64,10 @@ gene_mentions_views(
 #[abs(weights) >0],
 #OPTIONAL[ gene_labels(mention_id, is_correct_labels, labeler)].
 
-#Small hack for which we add this table (with an empty tsv file in input) and then, after a run, we run the command 
-#deepdive sql "insert into dd_inference_result_variables_mapped_weights_bis select * from dd_inference_result_variables_mapped_weights;"
-#This is done to get the weights of the features because currently ddlog cannot refer to tables created after a run.
 
+#Small hack for which we add this table (with an empty tsv file in input) and then, after a run, we run the command 
+#deepdive sql 'drop table if exists dd_inference_result_variables_mapped_weights_bis; drop view if exists dd_inference_result_variables_mapped_weights_bis; create view dd_inference_result_variables_mapped_weights_bis as (select * from dd_inference_result_variables_mapped_weights);'
+#This is done to get the weights of the features because currently ddlog cannot refer to tables created after a run.
 
 dd_inference_result_variables_mapped_weights_bis(
  id          integer          ,
@@ -79,6 +81,7 @@ dd_inference_result_variables_mapped_weights_bis(
 @extraction
 pheno_mentions_views(
   id bigint,
+  @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
@@ -101,11 +104,18 @@ pheno_mentions_views(
 pheno_mentions_views(id, doc_id, section_id, sent_id, pheno_wordidxs, mention_id, supertype, subtype, entity, pheno_words, is_correct, doc_id || "@" || section_id || "@" || sent_id) :-
   pheno_mentions(id, doc_id, section_id, sent_id, pheno_wordidxs, mention_id, supertype, subtype, entity, pheno_words, is_correct).
 
+#Small workaround to easily update the is_charite_canon in the gp_views
+
+charite_canon_temp_views(hpo_id, gene_name, "t") :-
+charite_canon (hpo_id, ensembl_id), 
+genes(ensembl_id,  _,  gene_name,  _).
+
 @extraction
 genepheno_association_views(
   id bigint,
   @key
   relation_id text,
+  @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
@@ -129,21 +139,57 @@ genepheno_association_views(
   is_correct_labels text,
   @navigable
   labeler text,
+  @navigable
+  is_charite_canon text,
   @references(relation="sentences_input_views", column="views_key", alias="genepheno_association_extraction")
   views_key text).
 
-#genepheno_association_views(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, ARRAY_AGG(feature), ARRAY_AGG(weights), is_correct_labels, labeler, doc_id || "@" || section_id || "@" || sent_id) :-
+
+#Here we seem to define it as a table but it is actually only a view (the cmd_extractor is modified in deepdive.conf). We just add here the declaration for genepheno_association_views_temp otherwise the compiler doesn't recongnize a view which output is defined in deepdive.conf
+#That was the actual plan but there is an error in the name used by views in the extraction to genepheno_association_views. So now we really use tables
+
+genepheno_association_views_temp(
+  id bigint,
+  relation_id text,
+  @distributed_by
+  doc_id text,
+  section_id text,
+  sent_id int,
+  gene_mention_id text,
+  gene_name text,
+  gene_wordidxs int[],
+  pheno_mention_id text,
+  pheno_entity text,
+  pheno_wordidxs int[],
+  is_correct boolean,
+  supertype text,
+  subtype text,
+  features text[],
+  weights text[],
+  is_correct_labels text,
+  labeler text,
+  views_key text).
+
+#genepheno_association_views_temp(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, ARRAY_AGG(feature), ARRAY_AGG(weights), is_correct_labels, labeler, doc_id || "@" || section_id || "@" || sent_id) :-
 #genepheno_features ( doc_id, section_id, relation_id, feature),
 #dd_inference_result_variables_mapped_weights_bis(_, _, _, "inf_istrue_genepheno_association_inference--" ||feature, _, weights),
 #[abs(weights) >0],
 #genepheno_association(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype),
 #OPTIONAL[ genepheno_association_labels(relation_id, is_correct_labels, labeler)].
 
+
+genepheno_association_views(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, features, weights, is_correct_labels, labeler, is_charite_canon, views_key) *:-
+genepheno_association_views_temp(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, features, weights, is_correct_labels, labeler, views_key), 
+OPTIONAL[charite_canon_temp_views(pheno_entity, gene_entity, is_charite_canon)].
+
+
+
 @extraction
 genepheno_causation_views(
   id bigint,
   @key
   relation_id text,
+  @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
@@ -167,15 +213,43 @@ genepheno_causation_views(
   is_correct_labels text,
   @navigable
   labeler text,
+  @navigable
+  is_charite_canon text,
   @references(relation="sentences_input_views", column="views_key", alias="genepheno_causation_extraction")
   views_key text).
 
-#genepheno_causation_views(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, ARRAY_AGG(feature), ARRAY_AGG(weights), is_correct_labels, labeler, doc_id || "@" || section_id || "@" || sent_id) :-
+genepheno_causation_views_temp(
+  id bigint,
+  relation_id text,
+  @distributed_by
+  doc_id text,
+  section_id text,
+  sent_id int,
+  gene_mention_id text,
+  gene_name text,
+  gene_wordidxs int[],
+  pheno_mention_id text,
+  pheno_entity text,
+  pheno_wordidxs int[],
+  is_correct boolean,
+  supertype text,
+  subtype text,
+  features text[],
+  weights text[],
+  is_correct_labels text,
+  labeler text,
+  views_key text).
+
+#genepheno_causation_views_temp(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, ARRAY_AGG(feature), ARRAY_AGG(weights), is_correct_labels, labeler, doc_id || "@" || section_id || "@" || sent_id) :-
 #genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype),
 #genepheno_features ( doc_id, section_id, relation_id, feature),
 #dd_inference_result_variables_mapped_weights_bis(_, _, _, "inf_istrue_genepheno_causation_inference--" ||feature, _, weights),
 #[abs(weights) >0],
 #OPTIONAL[ genepheno_causation_labels(relation_id, is_correct_labels, labeler)].
+
+genepheno_causation_views(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, features, weights, is_correct_labels, labeler, is_charite_canon, views_key) *:-
+genepheno_causation_views_temp(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, features, weights, is_correct_labels, labeler, views_key), 
+OPTIONAL[charite_canon_temp_views(pheno_entity, gene_entity, is_charite_canon)].
 
 
 
