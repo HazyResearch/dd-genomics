@@ -1,0 +1,28 @@
+True positives:	5
+True negatives:	106
+False positives:	4
+False negatives:	11
+
+
+
+
+Precision:	0.555555555556
+Recall:	0.3125
+F1 score:	0.4
+False Positives:
+22399432_abstract.0_3_63_22399432_abstract.0_3_30
+22835154_body.0_54_29_22835154_body.0_54_14
+19204064_body.0_171_1_19204064_body.0_171_24
+24828896_body.0_7_4_24828896_body.0_7_37
+
+
+False Negatives:
+21203343_body.0_10_3_21203343_body.0_10_20
+21031598_body.0_24_25_21031598_body.0_24_9
+23285148_body.0_4_32_23285148_body.0_4_3
+23316347_body.0_202_25_23316347_body.0_202_54
+11079449_abstract.0_5_48_11079449_abstract.0_5_11
+23738319_body.0_15_2_23738319_body.0_15_29
+19384346_body.0_120_33_19384346_body.0_120_15
+19220582_abstract.0_2_20_19220582_abstract.0_2_5
+20429427_abstract.0_1_2_20429427_abstract.0_1_14
