@@ -38,10 +38,12 @@ Setting the dd-genomics repo:
 
 * You can prepare all the data by simply running script_views.sh 
 Then run the commands displayed by :wq the different vim files (I will try to add a pipeline for that). After a certain time, the run should end after creating all the indexes required for the views.
-You can then launch the views (very quick) by ES_HEAP_SIZE=25g; PORT=$RANDOM mindbender search gui.
+You can then launch the views (very quick) by ES_HEAP_SIZE=25g; PORT=$RANDOM mindbender search gui. These intructions are displayed at the end of the script
 The link to which access your views will be displayed in the terminal.
 
 * A few comments:
+	- is_charite_canon will be true if the element is in charite_canon and null if it is not. To easily access all the elements of a table not in charite canon, you can run the query in elastic search: _missing_: is_charite_canon
+	- is_correct refers to the boolean defined during distant supervision rules. is_correct_labels refers to the boolean defined by the manual labels (and is null if the gene or gp is not labeled).
 	- currently, the script exports all the tables in the database in postgres. This is certainly not optimized if the views have already been created once. Soon some specific scripts to update only part of the tables will come.
 	- Only 6 features and weights are displayed currently in the views (the one with the most important absolute weights). If you want to display more features, you can click on {...} below the sentence and then on [...] in front of features and weights to display all of them. You can also modify the value of "limitTo" in mindbender/search-template/
 	- Greenplum doesn't support the operations through which the views are created. Therefore, we here create another postgres database (done by modifying db.url) on port 15193, currently hosted on /lfs/raiders7/0/tpalo/pgdb_genomics. The scripts export many tables from greenplum to postgres by exporting them in the folder ../tables_for_views. This process could certainly be parallized and made faster. 
