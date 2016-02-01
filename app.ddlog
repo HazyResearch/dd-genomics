@@ -1558,11 +1558,11 @@ returns rows like genepheno_causation_canon
 implementation "onto/canonicalize_gene_phenotype.sh" handles tsv lines.
 
 genepheno_causation_canon += canonicalize_genepheno_relations(hpo_id, ensembl_id) :-
-  genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype),
+  genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, hpo_id, pheno_wordidxs, is_correct, supertype, subtype),
   genes(ensembl_id, canonical_name, gene_name, name_type).
 
 genepheno_association_canon += canonicalize_genepheno_relations(hpo_id, ensembl_id) :-
-  genepheno_association(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype),
+  genepheno_association(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, hpo_id, pheno_wordidxs, is_correct, supertype, subtype),
   genes(ensembl_id, canonical_name, gene_name, name_type).
 
 
