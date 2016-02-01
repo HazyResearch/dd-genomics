@@ -102,7 +102,9 @@ def get_labels(r, root):
     r'.*patient.*{{G}}.*present with.*clinical.*{{P}}.*',
     r'(single nucleotide polymorphisms|SNPs) in {{G}}.*cause.*{{P}}',
     r'(mutation|deletion).*{{G}}.*described.*patients.*{{P}}',
-    ('{{P}}.*(are|is).*(due to|caused by|result of).*{{G}}', 0.5)
+    'role',
+    'detected',
+    ('{{P}}.*(are|is) (due to|caused by|result of).*{{G}}', 0.7)
   ]
   for label in apply_rgx_rules(pos, seq, 'POS_RGX', default_weight=0.15):
     labels.append(label)
@@ -157,8 +159,8 @@ def get_labels(r, root):
   # Label T / F based on path between
   btwn = Ngrams(Between(Mention(0), Mention(1)), 'lemma', 1).result_set(root, cids)
   pos = [
-    ('role', 0.2),
-    ('detected', 0.2)
+    ('role', 0.3),
+    'detected'
   ]
   for label in apply_rules(pos, lambda p : p in btwn, 'POS_PATH_BTWN', 0.5):
     labels.append(label)
