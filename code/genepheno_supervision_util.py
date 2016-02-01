@@ -146,7 +146,7 @@ def config_supervise(r, row, pheno_entity, gene_name, gene, pheno,
     match = util.rgx_mult_search(phrase + ' ' + 
                                  lemma_phrase, [], 
                                  opts, flags=re.I)
-    if match:
+    if match and (pheno_entity, gene_name) in charite_pairs:
       return r._replace(is_correct=True, relation_supertype='CHARITE_SUP_WORDS', 
                         relation_subtype=non_alnum.sub('_', match))
     

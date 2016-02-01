@@ -1,0 +1,96 @@
+ Number of features 
+--------------------
+           63704195
+(1 row)
+
+                                                   description                                                    |  weight  
+------------------------------------------------------------------------------------------------------------------+----------
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=NN):BETWEEN-MENTION-and-MENTION[cause]             |  2.99768
+ inf_istrue_genepheno_causation_inference--INV_LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[cause]         |  2.68577
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[cause]             |  2.65944
+ inf_istrue_genepheno_causation_inference--INV_LEMMA:PARENTS-OF-BETWEEN-MENTION-and-MENTION[cause]                |  2.65769
+ inf_istrue_genepheno_causation_inference--INV_LEMMA:FILTER-BY(pos=NN):BETWEEN-MENTION-and-MENTION[cause]         |  2.55727
+ inf_istrue_genepheno_causation_inference--LEMMA:PARENTS-OF-BETWEEN-MENTION-and-MENTION[cause]                    |  2.44485
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[implicate]         |  2.10069
+ inf_istrue_genepheno_causation_inference--INV_LEMMA:PARENTS-OF-BETWEEN-MENTION-and-MENTION[implicate]            |  2.05436
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[find]              |  1.84953
+ inf_istrue_genepheno_causation_inference--INV_LEMMA:LEFT-OF-MENTION[cause]                                       |  1.83016
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=NN):BETWEEN-MENTION-and-MENTION[mutation]          |   1.6903
+ inf_istrue_genepheno_causation_inference--LEMMA:PARENTS-OF-BETWEEN-MENTION-and-MENTION[implicate]                |  1.61955
+ inf_istrue_genepheno_causation_inference--LEMMA:RIGHT-OF-MENTION[cause]                                          |   1.5751
+ inf_istrue_genepheno_causation_inference--LEMMA:PARENTS-OF-BETWEEN-MENTION-and-MENTION[mutation]                 |  1.56058
+ inf_istrue_genepheno_causation_inference--INV_LEMMA:PARENTS-OF-BETWEEN-MENTION-and-MENTION[mutation]             |  1.53443
+ inf_istrue_genepheno_causation_inference--LEMMA:LEFT-OF-MENTION[causative]                                       |  1.53336
+ inf_istrue_genepheno_causation_inference--INV_LEMMA:LEFT-OF-MENTION[because]                                     |  1.46351
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=NN):BETWEEN-MENTION-and-MENTION[duplication]       |  1.43874
+ inf_istrue_genepheno_causation_inference--LEMMA:RIGHT-OF-MENTION[gene_cause]                                     |  1.43321
+ inf_istrue_genepheno_causation_inference--LEMMA:RIGHT-OF-MENTION[__cause]                                        |  1.42106
+ inf_istrue_genepheno_causation_inference--INV_LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[implicate]     |  1.35801
+ inf_istrue_genepheno_causation_inference--LEMMA:BETWEEN-MENTION-and-MENTION[causative_mutation]                  |  1.33209
+ inf_istrue_genepheno_causation_inference--LEMMA:LEFT-OF-MENTION[disease-causing]                                 |  1.31868
+ inf_istrue_genepheno_causation_inference--INV_LEMMA:LEFT-OF-MENTION[mutation]                                    |  1.30469
+ inf_istrue_genepheno_causation_inference--LEMMA:LEFT-OF-MENTION[cause]                                           |   1.2791
+ inf_istrue_genepheno_causation_inference--INV_LEMMA:FILTER-BY(pos=NN):BETWEEN-MENTION-and-MENTION[mutation]      |  1.27393
+ inf_istrue_genepheno_causation_inference--DEP_LABEL|LEMMA:BETWEEN-MENTION-and-MENTION[|find_nsubjpass|mutation]  |  1.26155
+ inf_istrue_genepheno_causation_inference--LEMMA:RIGHT-OF-MENTION[find]                                           |  1.25034
+ inf_istrue_genepheno_causation_inference--LEMMA:RIGHT-OF-MENTION[mutation]                                       |   1.2294
+ inf_istrue_genepheno_causation_inference--INV_LEMMA:RIGHT-OF-MENTION[__cause]                                    |   1.2034
+ inf_istrue_genepheno_causation_inference--LEMMA:LEFT-OF-MENTION[tdp-43]                                          |   1.1574
+ inf_istrue_genepheno_causation_inference--INV_LEMMA:FILTER-BY(pos=NN):BETWEEN-MENTION-and-MENTION[parkinsonism]  |  1.14083
+ inf_istrue_genepheno_causation_inference--LEMMA:LEFT-OF-MENTION[profound]                                        |  1.13841
+ inf_istrue_genepheno_causation_inference--INV_LEMMA:RIGHT-OF-MENTION[cause]                                      |  1.07031
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=NN):BETWEEN-MENTION-and-MENTION[myopathy]          |  1.06319
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[c.]                |  1.02961
+ inf_istrue_genepheno_causation_inference--INV_LEMMA:LEFT-OF-MENTION[17]                                          |  1.02017
+ inf_istrue_genepheno_causation_inference--LEMMA:BETWEEN-MENTION-and-MENTION[mutation_causative]                  |  1.01341
+ inf_istrue_genepheno_causation_inference--LEMMA:LEFT-OF-MENTION[another]                                         |  1.00786
+ inf_istrue_genepheno_causation_inference--LEMMA:RIGHT-OF-MENTION[know]                                           | 0.978625
+ inf_istrue_genepheno_causation_inference--DEP_LABEL|LEMMA:BETWEEN-MENTION-and-MENTION[|causative_nsubj|mutation] | 0.969604
+ inf_istrue_genepheno_causation_inference--INV_LEMMA:FILTER-BY(pos=NN):BETWEEN-MENTION-and-MENTION[duplication]   | 0.967418
+ inf_istrue_genepheno_causation_inference--INV_LEMMA:LEFT-OF-MENTION[causative]                                   | 0.966762
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=NN):BETWEEN-MENTION-and-MENTION[deletion]          | 0.966044
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[describe]          | 0.961639
+ inf_istrue_genepheno_causation_inference--LEMMA:FILTER-BY(pos=VB):BETWEEN-MENTION-and-MENTION[associate_cause]   | 0.953689
+ inf_istrue_genepheno_causation_inference--INV_LEMMA:LEFT-OF-MENTION[mutation_be]                                 | 0.947038
+ inf_istrue_genepheno_causation_inference--INV_LEMMA:RIGHT-OF-MENTION[muscular]                                   | 0.940041
+ inf_istrue_genepheno_causation_inference--INV_LEMMA:BETWEEN-MENTION-and-MENTION[polymorphism_genotype]           | 0.937504
+ inf_istrue_genepheno_causation_inference--LEMMA:RIGHT-OF-MENTION[type]                                           | 0.934723
+(50 rows)
+
+ is_correct | count  
+------------+--------
+ f          | 116580
+            | 311581
+ t          |  36283
+(3 rows)
+
+     supertype      | is_correct | count  
+--------------------+------------+--------
+ G_P_ADJACENT       | f          |     75
+ PRIMARY_VB_MOD_neg | f          |  11314
+ PHRASE_pos         | t          |  10886
+                    |            | 311424
+ PHRASE_neg         |            |    115
+ CHARITE_SUP_WORDS  |            |     25
+ PRIMARY_VB_MOD_neg |            |      9
+ DEP_LEMMA_NB_neg_g | f          |   3258
+ PHRASE_pos         |            |      6
+ DEP_LEMMA_NB_neg_g |            |      2
+ CHARITE_SUP_WORDS  | t          |  25397
+ PHRASE_neg         | f          | 101933
+(12 rows)
+
+ binned_exp | count  
+------------+--------
+ 0          | 276203
+ 0.1        |  48315
+ 0.2        |  24587
+ 0.3        |  15945
+ 0.4        |  12935
+ 0.5        |  10002
+ 0.6        |   8398
+ 0.7        |   8276
+ 0.8        |  10288
+ 0.9        |  32361
+(10 rows)
+
