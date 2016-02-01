@@ -727,18 +727,6 @@ charite (
   source text
 ).
 
-genepheno_causation_canon (
-  hpo_id text,
-  ensembl_id text,
-  source text
-).
-
-genepheno_association_canon (
-  hpo_id text,
-  ensembl_id text,
-  source text
-).
-
 hgvs_hpo (
   variant text,
   hpo_id text
@@ -1552,19 +1540,39 @@ genepheno_association_updated_condition_not_met_2(id, relation_id, doc_id, secti
 #extract_entity_level_relations
 #See if needed, can be done if neccessary
 
+genepheno_causation_canon (
+  @distributed_by 
+  hpo_id text,
+  ensembl_id text
+).
+
+genepheno_association_canon (
+  @distributed_by 
+  hpo_id text,
+  ensembl_id text
+).
+
+genepheno_causation_inferred (
+  @distributed_by 
+  hpo_id text,
+  ensembl_id text
+).
+
+genepheno_association_inferred (
+  @distributed_by 
+  hpo_id text,
+  ensembl_id text
+).
 
 function canonicalize_genepheno_relations over rows like genepheno_causation_canon
 returns rows like genepheno_causation_canon
 implementation "onto/canonicalize_gene_phenotype.sh" handles tsv lines.
 
 genepheno_causation_canon += canonicalize_genepheno_relations(hpo_id, ensembl_id) :-
-  genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, hpo_id, pheno_wordidxs, is_correct, supertype, subtype),
-  genes(ensembl_id, canonical_name, gene_name, name_type).
+  genepheno_causation_inferred(hpo_id, ensembl_id).
 
 genepheno_association_canon += canonicalize_genepheno_relations(hpo_id, ensembl_id) :-
-  genepheno_association(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, hpo_id, pheno_wordidxs, is_correct, supertype, subtype),
-  genes(ensembl_id, canonical_name, gene_name, name_type).
-
+  genepheno_association_inferred(hpo_id, ensembl_id).
 
 ##### Declare Variable Relations #####
 
