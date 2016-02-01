@@ -1,0 +1,96 @@
+ Number of features 
+--------------------
+          137255692
+(1 row)
+
+                                     description                                     |  weight  
+-------------------------------------------------------------------------------------+----------
+ inf_istrue_genepheno_causation_inference--NGRAM_1_[cause]                           |  3.58575
+ inf_istrue_genepheno_causation_inference--NGRAM_1_[causative]                       |  2.94589
+ inf_istrue_genepheno_causation_inference--INV_NGRAM_1_[cause]                       |  2.46348
+ inf_istrue_genepheno_causation_inference--NGRAM_1_[find]                            |  2.44275
+ inf_istrue_genepheno_causation_inference--NGRAM_1_[implicate]                       |  2.35951
+ inf_istrue_genepheno_causation_inference--NGRAM_1_[because]                         |  2.26574
+ inf_istrue_genepheno_causation_inference--NGRAM_1_[causal]                          |  2.04504
+ inf_istrue_genepheno_causation_inference--INV_NGRAM_1_[causative]                   |  1.95634
+ inf_istrue_genepheno_causation_inference--INV_W_LEMMA_L_1_R_1_[cause]_[_]           |   1.8332
+ inf_istrue_genepheno_causation_inference--INV_W_LEMMA_L_1_R_1_[cause]_[,]           |  1.80025
+ inf_istrue_genepheno_causation_inference--INV_W_LEMMA_L_1_R_1_[cause]_[.]           |  1.69171
+ inf_istrue_genepheno_causation_inference--INV_NGRAM_1_[because]                     |  1.64163
+ inf_istrue_genepheno_causation_inference--NGRAM_1_[profound]                        |  1.58742
+ inf_istrue_genepheno_causation_inference--INV_W_LEMMA_L_2_R_1_[cause of]_[_]        |  1.56879
+ inf_istrue_genepheno_causation_inference--INV_NGRAM_1_[disease-causing]             |  1.47445
+ inf_istrue_genepheno_causation_inference--W_LEMMA_L_1_R_1_[cause]_[.]               |  1.43431
+ inf_istrue_genepheno_causation_inference--INV_W_LEMMA_L_1_R_1_[cause]_[mutation]    |  1.41204
+ inf_istrue_genepheno_causation_inference--NGRAM_2_[not a]                           |  1.40867
+ inf_istrue_genepheno_causation_inference--NGRAM_1_[disease-causing]                 |  1.38519
+ inf_istrue_genepheno_causation_inference--INV_NGRAM_1_[causal]                      |  1.29845
+ inf_istrue_genepheno_causation_inference--INV_NGRAM_1_[mutation]                    |  1.28633
+ inf_istrue_genepheno_causation_inference--NGRAM_3_[be not a]                        |  1.28291
+ inf_istrue_genepheno_causation_inference--NGRAM_3_[-rrb- gene cause]                |  1.22401
+ inf_istrue_genepheno_causation_inference--INV_NGRAM_2_[-rrb- or]                    |  1.21153
+ inf_istrue_genepheno_causation_inference--W_LEMMA_L_2_R_1_[mutation of]_[.]         |   1.1941
+ inf_istrue_genepheno_causation_inference--W_LEMMA_L_1_R_1_[of]_[cause]              |   1.1846
+ inf_istrue_genepheno_causation_inference--INV_W_LEMMA_L_1_R_1_[cause]_[-rrb-]       |   1.1709
+ inf_istrue_genepheno_causation_inference--NGRAM_1_[mutation]                        |  1.16254
+ inf_istrue_genepheno_causation_inference--INV_W_LEMMA_L_1_R_1_[cause]_[gene]        |  1.14938
+ inf_istrue_genepheno_causation_inference--NGRAM_3_[gene and be]                     |  1.14294
+ inf_istrue_genepheno_causation_inference--INV_W_LEMMA_L_1_R_1_[and]_[mutation]      |  1.14042
+ inf_istrue_genepheno_causation_inference--INV_W_LEMMA_L_2_R_1_[cause of]_[mutation] |  1.12956
+ inf_istrue_genepheno_causation_inference--INV_NGRAM_1_[mutate]                      |  1.11921
+ inf_istrue_genepheno_causation_inference--NGRAM_1_[myopathy]                        |  1.11684
+ inf_istrue_genepheno_causation_inference--NGRAM_3_[and characterize by]             |  1.09931
+ inf_istrue_genepheno_causation_inference--NGRAM_2_[characterize by]                 |  1.09494
+ inf_istrue_genepheno_causation_inference--INV_NGRAM_1_[deletion]                    |  1.05788
+ inf_istrue_genepheno_causation_inference--W_LEMMA_L_2_R_1_[mutation in]_[.]         |  1.05713
+ inf_istrue_genepheno_causation_inference--NGRAM_1_[typically]                       |  1.04585
+ inf_istrue_genepheno_causation_inference--W_LEMMA_L_1_R_1_[.]_[cause]               |  1.04135
+ inf_istrue_genepheno_causation_inference--NGRAM_1_[founder]                         |  1.01655
+ inf_istrue_genepheno_causation_inference--INV_W_LEMMA_L_1_R_1_[of]_[mutation]       |   1.0075
+ inf_istrue_genepheno_causation_inference--W_LEMMA_L_1_R_1_[_]_[cause]               |  1.00643
+ inf_istrue_genepheno_causation_inference--W_LEMMA_L_2_R_1_[mutation of]_[-lrb-]     | 0.954949
+ inf_istrue_genepheno_causation_inference--NGRAM_1_[deletion]                        | 0.951943
+ inf_istrue_genepheno_causation_inference--INV_W_LEMMA_L_1_R_1_[cause]_[and]         | 0.950081
+ inf_istrue_genepheno_causation_inference--INV_W_LEMMA_L_1_R_1_[-lrb-]_[mutation]    | 0.933601
+ inf_istrue_genepheno_causation_inference--NGRAM_2_[and characterize]                | 0.928993
+ inf_istrue_genepheno_causation_inference--W_LEMMA_L_2_R_1_[mutation of]_[,]         | 0.923913
+ inf_istrue_genepheno_causation_inference--INV_W_LEMMA_L_1_R_1_[and]_[-rrb-]         | 0.895072
+(50 rows)
+
+ is_correct | count  
+------------+--------
+            | 307806
+ t          |  40022
+ f          | 116608
+(3 rows)
+
+     supertype      | is_correct | count  
+--------------------+------------+--------
+ DEP_LEMMA_NB_neg_g |            |      5
+ PHRASE_pos         | t          |   5500
+                    |            | 307678
+ CHARITE_SUP_WORDS  |            |     34
+ PHRASE_pos         |            |      4
+ G_P_ADJACENT       | f          |     67
+ PRIMARY_VB_MOD_neg | f          |  11317
+ DEP_LEMMA_NB_neg_g | f          |   3255
+ CHARITE_SUP_WORDS  | t          |  34522
+ PHRASE_neg         | f          | 101969
+ PHRASE_neg         |            |     79
+ PRIMARY_VB_MOD_neg |            |      6
+(12 rows)
+
+ binned_exp | count  
+------------+--------
+ 0          | 278582
+ 0.1        |  47407
+ 0.2        |  22763
+ 0.3        |  14216
+ 0.4        |  10631
+ 0.5        |   8885
+ 0.6        |   7968
+ 0.7        |   8159
+ 0.8        |  10365
+ 0.9        |  38324
+(10 rows)
+
