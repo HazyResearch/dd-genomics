@@ -85,7 +85,7 @@ GENE = {
   'SR' : {
     # Label some P mentions based on the toks / phrases that follow
     'bad-genes': ['ANOVA', 'MRI', 'CO2', 'gamma', 'spatial', 'tau', 'Men', \
-                  'ghrelin', 'MIM', 'NHS', 'STD', 'hole', 'SDS'],
+                  'ghrelin', 'MIM', 'NHS', 'STD', 'hole', 'SDS', 'p12', 'p13', 'p53'],
 
     'post-neighbor-match' : {
       # 'pos' : ['_ mutation', 'mutation', '_ mutations', 'mutations', 'mutant', \
@@ -288,7 +288,7 @@ GENE_PHENO = {
                  'increas',
                  'deficiency'
                  ],
-      'neg-p' : []
+      'neg-p' : ['without']
     },
 
     # Label T all GP pairs in Charite dataset (and that haven't already been labeled T/F)
@@ -325,13 +325,7 @@ GENE_PHENO = {
                'deficiency',
                'activity'
                ],
-      'pos-rgx' : [r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*(implicated?|found).*PHENO',
-                   r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*cause.*PHENO', 
-                  r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*described.*patients.*PHENO',
-                  r'.*patient.*GENE.*present with.*clinical.*PHENO.*',
-                  r'(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO',
-                  r'(mutation|deletion).*GENE.*described.*patients.*PHENO'
-                  ],
+      'pos-rgx' : [],
       # 'pos-rgx' : [],
       'neg-rgx' : [# r'rs\d+', 
                    # r't?SNPs?', 
@@ -343,6 +337,9 @@ GENE_PHENO = {
                    r'^\s*To evaluate', 
                    r'^\s*To investigate',
                    r'^\s*We investigated',
+                   r'^\s*We examined',
+                   r'^\s*To examine',
+                   r'^\s*We requested',
                    '\d+ h ', 
                    r'^\s*To assess', 
                    r'^\s*here we define', 
@@ -405,10 +402,14 @@ CAUSATION_SR = {
                'to find out',
                'inconclusive', 
                'further analysis', 
-               'association'
-               'associated with',
+               'association',
+               'associated'
                ],
-      'pos-rgx' : [],
+      'pos-rgx' : [r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*cause.*PHENO', 
+                  r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*described.*patients.*PHENO',
+                  r'.*patient.*GENE.*present with.*clinical.*PHENO.*',
+                  r'(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO',
+                  r'(mutation|deletion).*GENE.*described.*patients.*PHENO'],
       'neg-rgx' : [],
     },
     # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
