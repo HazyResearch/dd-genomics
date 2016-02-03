@@ -327,7 +327,6 @@ pheno_mentions (
 ).
 
 pheno_mentions_all_phenos_in_dag (
-  id bigint,
   #@references(relation="sentences_input", column="doc_id")
   @distributed_by
   doc_id text,
@@ -1083,16 +1082,16 @@ pheno_acronyms_aggregate(doc_id, pa_section_ids, pa_sent_ids, pa_abbrevs, pheno_
 #We finally union the two temporary tables pheno_mentions_before_union_1 and 2 in the final table pheno_mentions.
 #Hopefully, when the truncating tables done by deepdive will be better dealt for multi processes outputting in the same table, this won't be needed anymore
 
-pheno_mentions_all_phenos_in_dag(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct) *:-
+pheno_mentions_all_phenos_in_dag(doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct) *:-
 pheno_mentions_before_union_1(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct);
 pheno_mentions_before_union_2(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
 
 function pheno_mentions_remove_super_dag_phenos over rows like pheno_mentions_all_phenos_in_dag
 returns rows like pheno_mentions
-implementation "code/pheno_mentions_remove_super_dag_phenos" handles tsv lines.
+implementation "code/pheno_mentions_remove_super_dag_phenos.py" handles tsv lines.
 
-pheno_mentions += pheno_mentions_remove_super_dag_phenos(ARRAY_AGG(id), doc_id, section_id, sent_id, wordidxs, ARRAY_AGG(mention_id), ARRAY_AGG(supertype), ARRAY_AGG(subtype), ARRAY_AGG(entity), words, ARRAY_AGG(is_correct)) :-
-pheno_mentions_all_phenos_in_dag(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
+pheno_mentions += pheno_mentions_remove_super_dag_phenos(doc_id, section_id, sent_id, wordidxs, ARRAY_AGG(mention_id), ARRAY_AGG(supertype), ARRAY_AGG(subtype), ARRAY_AGG(entity), words, ARRAY_AGG(is_correct)) :-
+pheno_mentions_all_phenos_in_dag(doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
 
 #pheno_acronyms_extract_features
 

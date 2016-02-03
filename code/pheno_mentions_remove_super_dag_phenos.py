@@ -7,14 +7,13 @@ import abbreviations
 import config
 import extractor_util as util
 import levenshtein
-from data_util as dutil
+import data_util as dutil
 
 
 CACHE = dict()  # Cache results of disk I/O
 
 # This defines the Row object that we read in to the extractor
 parser = util.RowParser([
-          ('ids', 'int[]'),
           ('doc_id', 'text'),
           ('section_id', 'text'),
           ('sent_id', 'int'),
@@ -52,8 +51,7 @@ def filter_phenos(row):
   wordidxs = None
   words = None
   cands = []
-  for i, mention_id in enumerate(row.mention_ids):
-    ident = ids[i]
+  for i in xrange(len(row.mention_ids)):
     if doc_id is None:
       doc_id = row.doc_id
     assert doc_id == row.doc_id
@@ -70,20 +68,26 @@ def filter_phenos(row):
       words = row.words
     assert words == row.words
 
+    mention_id = row.mention_ids[i]
     supertype = row.supertypes[i]
     subtype = row.subtypes[i]
     entity = row.entities[i]
     is_correct = row.is_corrects[i]
     
-    current_pheno = Mention(None, doc_id, section_id, sent_id, wordidxs, supertype, subtype, entity, words, is_correct)
+    current_pheno = Mention(None, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct)
 
+    found = False
     for i in xrange(len(cands)):
       cand = cands[i]
       if pheno_is_child_of(cand.entity, current_pheno.entity):
+        found = True
         break
       if pheno_is_child_of(current_pheno.entity, cand.entity):
         cands[i] = current_pheno
+        found = True
         break
+    if not found:
+      cands.append(current_pheno)
 
     return cands
 
