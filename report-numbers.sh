@@ -1,16 +1,18 @@
 #! /bin/bash -e
 
-# deepdive mark todo genepheno_causation_inferred
-# deepdive mark todo genepheno_association_inferred
-# deepdive do genepheno_causation_canon
-# deepdive do genepheno_association_canon
-# deepdive redo allowed_phenos
-# deepdive redo charite
-# deepdive redo charite_canon
-# redo_weights="n"
-# echo "Redo weights table? [y/n]"
-# read redo_weights
-# 
+source env_local.sh
+deepdive mark todo genepheno_causation_inferred
+deepdive do genepheno_causation_canon
+deepdive redo allowed_phenos
+deepdive redo charite
+deepdive redo charite_canon
+cd util
+./holdout_patch_ddlog.sh
+cd ..
+redo_weights="n"
+echo -n "Redo weights table? [y/n]: "
+read redo_weights
+
 echo -n "Number of documents: " 
 deepdive sql """ COPY(
 select count(distinct doc_id) from sentences_input) TO STDOUT
@@ -126,20 +128,19 @@ echo "How does the broad genepheno causation supervision picture look? "
 deepdive sql """COPY (
 select supertype, count(supertype) from genepheno_causation group by supertype order by count desc) TO STDOUT
 """ | column -t
-
-echo "... association: TODO"
 echo
+
+if [ $redo_weights -eq "y" ]
+then
+  deepdive do weights
+  deepdive sql """drop table weights;"""
+  deepdive sql """create table weights as (select * from dd_inference_result_weights_mapping w) distributed by (id);"""
+fi
 
 echo -n "How many features do we extract per genepheno causation candidate on average? "
 deepdive sql """ COPY(
 select a.count::float / b.count::float from (select count(*) as count from genepheno_causation c) b, (select count(*) as count from genepheno_features f join genepheno_causation c on (f.relation_id = c.relation_id)) a) TO STDOUT
 """
-
-if [[ $redo_weights = "y" ]]
-then
-  deepdive sql """drop table weights;"""
-  deepdive sql """create table weights as (select * from dd_inference_result_weights_mapping w) distributed by (id);"""
-fi
 
 echo "What are the highest weighted features for gene? "
 deepdive sql """

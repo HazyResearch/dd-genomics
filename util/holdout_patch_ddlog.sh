@@ -21,15 +21,6 @@ from genepheno_causation g,
 genepheno_causation_inference_label_inference ginf
 where ginf.relation_id = g.relation_id;"""
 
-deepdive sql """DROP VIEW IF EXISTS genepheno_association_is_correct_inference CASCADE;
-CREATE VIEW genepheno_association_is_correct_inference AS SELECT
-g.*,
-ginf.category as category, 
-ginf.expectation as expectation
-from genepheno_association g,
-genepheno_association_inference_label_inference ginf
-where ginf.relation_id = g.relation_id;"""
-
 # deepdive sql """
 # DELETE FROM gene_holdout_set 
 # WHERE (doc_id, section_id, sent_id, gene_wordidxs) IN 
