@@ -1,17 +1,9 @@
 #!/bin/bash -e
 set -beEu -o pipefail
 
-if [ $# -ne 1 ]; then
-	echo "$0: ERROR: wrong number of arguments" >&2
-	echo "$0: USAGE: $0 DB" >&2
-	exit 1
-fi
-
-DB=$1
-
-TMPDIR=$(mktemp -d /tmp/dft.XXXXXX)
-SQL_COMMAND_FILE=${TMPDIR}/dft.sql
-cat <<EOF >> ${SQL_COMMAND_FILE}
+cd ..
+source env_local.sh
+deepdive sql """
 COPY (
 SELECT DISTINCT
   l.labeler GENE_FALSE_POSITIVES,
@@ -35,6 +27,4 @@ FROM
 WHERE
   COALESCE(g.expectation, 0) > 0.5 
   AND l.is_correct = 'f') TO STDOUT;
-EOF
-psql -q -X --set ON_ERROR_STOP=1 -d $DB -f ${SQL_COMMAND_FILE} > /dev/stderr
-rm -rf ${TMPDIR}
+"""

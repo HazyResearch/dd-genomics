@@ -38,10 +38,12 @@ Setting the dd-genomics repo:
 
 * You can prepare all the data by simply running script_views.sh 
 Then run the commands displayed by :wq the different vim files (I will try to add a pipeline for that). After a certain time, the run should end after creating all the indexes required for the views.
-You can then launch the views (very quick) by ES_HEAP_SIZE=25g; PORT=$RANDOM mindbender search gui.
+You can then launch the views (very quick) by ES_HEAP_SIZE=25g; PORT=$RANDOM mindbender search gui. These intructions are displayed at the end of the script
 The link to which access your views will be displayed in the terminal.
 
 * A few comments:
+	- is_charite_canon will be true if the element is in charite_canon and null if it is not. To easily access all the elements of a table not in charite canon, you can run the query in elastic search: _missing_: is_charite_canon
+	- is_correct refers to the boolean defined during distant supervision rules. is_correct_labels refers to the boolean defined by the manual labels (and is null if the gene or gp is not labeled).
 	- currently, the script exports all the tables in the database in postgres. This is certainly not optimized if the views have already been created once. Soon some specific scripts to update only part of the tables will come.
 	- Only 6 features and weights are displayed currently in the views (the one with the most important absolute weights). If you want to display more features, you can click on {...} below the sentence and then on [...] in front of features and weights to display all of them. You can also modify the value of "limitTo" in mindbender/search-template/
 	- Greenplum doesn't support the operations through which the views are created. Therefore, we here create another postgres database (done by modifying db.url) on port 15193, currently hosted on /lfs/raiders7/0/tpalo/pgdb_genomics. The scripts export many tables from greenplum to postgres by exporting them in the folder ../tables_for_views. This process could certainly be parallized and made faster. 
@@ -49,71 +51,28 @@ The link to which access your views will be displayed in the terminal.
 
 
 ### Labeling data:
+Go to `labeling/` and follow the documentation
 
-**[Labeling guidelines](https://docs.google.com/document/d/1z16_Rnmoi5iZ2A80zWxG8FpPVlaib6rM_kswL74HGQs/edit?usp=sharing)**
+### Evaluate the System
 
-#### Prerequisites:
-1. Make sure your env_local.sh is correctly setup in the application root directory
-2. Make sure the table of interest is correctly populated. If not, populate it using `deepdive do ..` command. For example: use `deepdive do data/genes` if you'd like to label gene mentions
+run `./evaluation.sh $RELATION [$CONFIDENCE] [$OPTOUT]` where :
+  - $RELATION can be {gene,causation,association} 
+  - $CONFIDENCE is optional (default 0.9). It sets the confidence threshold at which the inference will be considered as true
+  - $OPTOUT is optional and refers to the option of opting out of logging. If you don't want to log your current evaluation, simply write OPTOUT as a third argument. Note that you need to set the confidence if you want to do so.
+  
+The evaluation.sh script will compute the necessary statistics of your current performance using the holdout set and output the following files:
+  - `stats-$RELATION.tsv`: contains the summary statistics plus a breakdown over the labelers
+  - `TP.tsv`: contains the true positives with three columns (relation_id, label, labeler, expectation)
+  - `FP.tsv`: contains the false positives with three columns (relation_id, label, labeler, expectation)
+  - `FN.tsv`: contains the false negatives with three columns (relation_id, label, labeler, expectation)
+  - `holdout_set.tsv`: contains the full holdout set along with the labels and labelers
+  - `input_data`: contains a path to the input sentence data and the number of sentences for sanity check
 
-#### Prepare & launch Mindtagger:
-**Basic**: You can start labeling in two basic steps:
-	
-Run `./start_mindtagging $MENTION [$LABELER_NAME]`: The first argument is required to generate the right hold-out set (gene/pheno/genepheno). The second argument is optional: if none is given, the script will use the `$DDUSER` based on your `env_local.sh`. This script will generate the corresponding hold-out set for your relation, choose an unused port number and launch MindTagger on it. 
+These files are stored under `results_log/$USERNAME/$RELATION-$DATE/`.
 
-**Advanced**: If you wish to customize the labeling pipeline, for instance to have a specific port number, perform the following steps.
-	
-1. Generate adequate hold-out set (`create_new_[g|p|gp]_holdout_set.sh [$LABELER_NAME]`): This script generates a hold-out set for a given relation (g: genes, p: phenotypes, gp: genepheno). The argument is optional: if none is given, the script will use the `$DDUSER` based on your `env_local.sh`.
-2. Choose a port number: for example `export PORT=6593`
-3. Fire Mindtagger: `./start-gui.sh`
-	
-#### Export tags:
-Run `export_tags.sh $MENTION [$LABELER_NAME]`: the arguments are similar to the above. This script will load all the non-null labels to the shared database and update your label_backup file in `labels/$RELATION_$LABELER_NAME`.
-Note that you should consistently use the names if you decide to personalize the `$LABELER_NAME` variable.
+**Note**: Only the stats files are shared via Github
 
-
-Using **genes** as an example:
-
-1. Make sure the env vars are sourced: `source env_local.sh`
-
-2. Load genes table: `deepdive do data/genes`
-
-3. Switch to the labeling directory & un the create holdout set script: `cd labeling && ./create_new_g_holdout_set.sh [DB_NAME]`
-
-4. Append your name to the new folder created (by convention): `mv [DATE]-gene-holdout [DATE]-gene-holdout.[NAME]`
-
-5. Start Mindtagger with a random port, such that: `PORT=8321 ./start-gui.sh`
-
-6. *Label data!*
-
-7. Edit `backup_files_g.txt` with your labeling name / backup directory
-
-8. To append your labels to the holdout set (or replace previous set with your new labels, using `>`): 
-	
-	```
-	python extract_labeling_info_g.py backup_files_g.txt >> ../onto/manual/gene_holdout_labels.tsv
-	```
-
-9. *Commit your labels via git* (may need to `git rm --cached labeling/backup_files_g.txt`)
-
-10. If you replaced the holdout set and want to load all old data, run:
-	
-	```
-	cd ../onto/manual
-	./get_historical_g_labels.sh > gene_holdout_labels.tsv
-	./get_historical_g_holdout_sets.sh > gene_holdout_set.tsv
-	```
-
-11. Then, load with deepdive:
-
-	```
-	deepdive redo data/gene_holdout_set
-	deepdive redo data/gene_holdout_labels
-	```
-
-12. Finally: 
-	* Cmd line printout of precision/recall stats: `cd ../../util && ./g_holdout_stats.sh [DBNAME]`
-	* Cmd line printout of example sentences; for example, for false negs: `./g_holdout_fn_sentences.sh [DBNAME]`
+**CAVEAT**: in the current implementation, changing the input data will require manual modification in the `compute_causation_stats.sh`, `compute_association_stats.sh`, `compute_gene_stats.sh` by updating the path of the sentences_input file.
 
 ### Error Analysis
 

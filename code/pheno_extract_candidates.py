@@ -201,6 +201,14 @@ def create_supervised_mention(row, idxs, entity=None, mention_supertype=None, me
         if match:
           return m._replace(is_correct=val, mention_supertype='%s_POST_MATCH_%s_%s' % (mention_supertype, name, val), mention_subtype=match)
 
+  if SR.get('bad-pheno-names'):
+    if ' '.join(words) in SR['bad-pheno-names']:
+      return m._replace(is_correct=False, mention_supertype='%s_BAD_PHENO_NAME' % mention_supertype)
+  
+  if SR.get('bad-phenos'):
+    if entity in SR['bad-phenos']:
+      return m._replace(is_correct=False, mention_supertype='%s_BAD_PHENO_ENTITY' % mention_supertype)
+
   if SR.get('mesh-supervise'):
     pubmed_id = dutil.get_pubmed_id_for_doc(row.doc_id)
     if pubmed_id and pubmed_id in PMID_TO_HPO:

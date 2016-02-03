@@ -69,22 +69,16 @@ pg_dump -p 6432 -h raiders7 -U tpalo ${database_greenplum} -t genepheno_causatio
 echo 'table genepheno_causation_views.sql dumped'
 pg_dump -p 6432 -h raiders7 -U tpalo ${database_greenplum} -t pheno_mentions_views > ../tables_for_views/pheno_mentions_views.sql
 echo 'table pheno_mentions_views.sql dumped'
-pg_dump -p 6432 -h raiders7 -U tpalo ${database_greenplum} -t genepheno_association_views > ../tables_for_views/genepheno_association_views.sql
-echo 'table genepheno_association_views.sql dumped'
 pg_dump -p 6432 -h raiders7 -U tpalo ${database_greenplum} -t gene_mentions_filtered_inference_label_inference > ../tables_for_views/gene_mentions_filtered_inference_label_inference.sql
 echo 'table gene_mentions_filtered_inference_label_inference.sql dumped'
 pg_dump -p 6432 -h raiders7 -U tpalo ${database_greenplum} -t genepheno_causation_inference_label_inference > ../tables_for_views/genepheno_causation_inference_label_inference.sql
 echo 'table genepheno_causation_inference_label_inference.sql dumped'
-pg_dump -p 6432 -h raiders7 -U tpalo ${database_greenplum} -t genepheno_association_inference_label_inference > ../tables_for_views/genepheno_association_inference_label_inference.sql
-echo 'table genepheno_association_inference_label_inference.sql dumped'
 pg_dump -p 6432 -h raiders7 -U tpalo ${database_greenplum} -t dd_inference_result_variables > ../tables_for_views/dd_inference_result_variables.sql
 echo 'table dd_inference_result_variables.sql dumped'
 pg_dump -p 6432 -h raiders7 -U tpalo ${database_greenplum} -t gene_mentions_filtered_inference > ../tables_for_views/gene_mentions_filtered_inference.sql
 echo 'table gene_mentions_filtered_inference.sql dumped'
 pg_dump -p 6432 -h raiders7 -U tpalo ${database_greenplum} -t genepheno_causation_inference > ../tables_for_views/genepheno_causation_inference.sql
 echo 'table genepheno_causation_inference.sql dumped'
-pg_dump -p 6432 -h raiders7 -U tpalo ${database_greenplum} -t genepheno_association_inference > ../tables_for_views/genepheno_association_inference.sql
-echo 'table genepheno_association_inference.sql dumped'
 
 
 cp db_for_pg.url db.url
@@ -98,8 +92,6 @@ fi
 
 deepdive sql 'truncate table genepheno_causation_views'
 deepdive sql < ../tables_for_views/genepheno_causation_views.sql
-deepdive sql 'truncate table genepheno_association_views'
-deepdive sql < ../tables_for_views/genepheno_association_views.sql 
 deepdive sql 'truncate table gene_mentions_views'
 deepdive sql < ../tables_for_views/gene_mentions_views.sql 
 deepdive sql 'truncate table pheno_mentions_views'
@@ -114,10 +106,6 @@ deepdive sql 'truncate table genepheno_causation_inference'
 deepdive sql < ../tables_for_views/genepheno_causation_inference.sql 
 deepdive sql 'drop view genepheno_causation_inference_label_inference'
 deepdive sql < ../tables_for_views/genepheno_causation_inference_label_inference.sql 
-deepdive sql 'truncate table genepheno_association_inference'
-deepdive sql < ../tables_for_views/genepheno_association_inference.sql 
-deepdive sql 'drop view genepheno_association_inference_label_inference'
-deepdive sql < ../tables_for_views/genepheno_association_inference_label_inference.sql 
 
 
 rm -r ../tables_for_views
@@ -134,9 +122,9 @@ then
    # mindbender search drop
     mindbender search update 
 else
-    mindbender search update genepheno_association_views genepheno_causation_views gene_mentions_views pheno_mentions_views
+    mindbender search update genepheno_causation_views gene_mentions_views pheno_mentions_views
 fi
 
 cp db_for_gp.url db.url
 
-echo 'Great! now you can launch the views with the command: export ES_HEAP_SIZE=10g; PORT=$RANDOM mindbender search gui'
+echo 'Great! now you can launch the views with the command: export ELASTICSEARCH_BASEURL=http://localhost:9${RANDOM:0:3}; export ES_HEAP_SIZE=10g; PORT=$RANDOM mindbender search gui'

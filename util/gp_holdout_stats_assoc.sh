@@ -1,17 +1,9 @@
 #!/bin/bash -e
 set -beEu -o pipefail
 
-if [ $# -ne 1 ]; then
-	echo "$0: ERROR: wrong number of arguments" >&2
-	echo "$0: USAGE: $0 DB" >&2
-	exit 1
-fi
-
-DB=$1
-
-TMPDIR=$(mktemp -d /tmp/dft.XXXXXX)
-SQL_COMMAND_FILE=${TMPDIR}/dft.sql
-cat <<EOF >> ${SQL_COMMAND_FILE}
+cd ..
+source env_local.sh
+deepdive sql """
 SELECT
   labeler,
   true_pos,
@@ -78,7 +70,4 @@ FROM
     AND s.is_correct = 'f'
   GROUP BY labeler) tn
   ON (tn.labeler = COALESCE(fp.labeler, tp.labeler, fn.labeler))) a;
-EOF
-psql -q -X --set ON_ERROR_STOP=1 -d $DB -f ${SQL_COMMAND_FILE} > /dev/stderr
-rm -rf ${TMPDIR}
-
+"""

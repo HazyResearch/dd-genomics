@@ -219,3 +219,5 @@ join -1 1 -2 1 -t$'\t' \
     sort -k1,1) | 
   awk -F '\t' '{OFS="\t"; print $4,$2,$3}' |
   grep -v 'HuGE Navigator' | sort | uniq | grep -e '^ENSG' > data/generifs.tsv
+
+./load_charite.sh

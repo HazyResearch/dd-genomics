@@ -23,7 +23,7 @@ parser = util.RowParser([
           ('lemmas', 'text[]'),
           ('poses', 'text[]'),
           ('ners', 'text[]'),
-          ('gene_wordidx', 'int')])
+          ('gene_wordidx_array', 'int[]')])
 
 
 # This defines the output Mention object
@@ -94,7 +94,7 @@ def create_supervised_mention(row, is_correct,
     supertype = 'FALSE_DEFINITION_IS_GENE_ABBREV'
     # print >>sys.stderr, supertype
     subtype = None
-  if include is not False and is_correct and abbrev in SR['short_words']:
+  if include is not False and is_correct and abbrev in SR['short-words']:
     is_correct = False
     supertype = 'FALSE_SHORT_WORD'
     # print >>sys.stderr, supertype
@@ -135,6 +135,13 @@ if __name__ == '__main__':
   neg_count = 0
   for line in sys.stdin:
     row = parser.parse_tsv_row(line)
+
+    #Specific to ddlog, add two conditions that are not possible directly in the sql query.
+    row.gene_wordidx = row.gene_wordidx_array[0]
+    # print >> sys.stderr, 'patate'
+    # print >> sys.stderr, row
+    if '-LRB-' not in row.words[row.gene_wordidx - 1]:
+      continue
 
     # Skip row if sentence doesn't contain a verb, contains URL, etc.
     if util.skip_row(row):

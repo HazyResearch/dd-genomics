@@ -74,9 +74,17 @@ def create_supervised_mention(row, is_correct,
     supertype = 'DETECTOR_OMITTED_SENTENCE'
     subtype = None
     include = False
-  if include is not False and is_correct and abbrev in SR['short_words']:
+  if include is not False and is_correct and abbrev.islower():
+    is_correct = False
+    supertype = 'FALSE_ALL_LOWERCASE'
+    subtype = None
+  if include is not False and is_correct and abbrev in SR['short-words']:
     is_correct = False
     supertype = 'FALSE_SHORT_WORD'
+    subtype = None
+  if include is not False and is_correct and abbrev in SR['bad-pheno-names']:
+    is_correct = False
+    supertype = 'FALSE_BAD_PHENO_NAME'
     subtype = None
   if include is True or (include is not False and (is_correct is True or (is_correct is False and neg_count < pos_count))):
     m = Mention(None, row.doc_id, row.section_id,
@@ -98,6 +106,12 @@ if __name__ == '__main__':
   for line in sys.stdin:
     row = parser.parse_tsv_row(line)
 
+    try:
+      if '-LRB-' not in row.words[row.pheno_wordidxs[len(row.pheno_wordidxs)-1] + 1]:
+        continue
+    except:
+      pass
+      #print >> sys.stderr, 'error in condition for extractor pheno_acronyms extract candidates'
     # Skip row if sentence doesn't contain a verb, contains URL, etc.
     if util.skip_row(row):
       continue

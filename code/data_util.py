@@ -51,7 +51,7 @@ def read_hpo_dag():
     return Dag(nodes, edges)
 
 
-def get_hpo_phenos(hpo_dag, parent='HP:0000118', exclude_parents=['HP:0002664', 'HP:0002527', 'HP:0002511', 'HP:0001677', 'HP:0002092', 'HP:0100753', 'HP:0012125']):
+def get_hpo_phenos(hpo_dag, parent='HP:0000118', exclude_parents=['HP:0002664', 'HP:0002527', 'HP:0012125']):
   """Get only the children of 'Phenotypic Abnormality' (HP:0000118), excluding all children of neoplasm (0002664) and falls (0002527) and prostate cancer(HP:0012125). Now also excluding coronary artery disease, alzheimer's and pulmonary artery hypertension, and schizophrenia"""
   return [hpo_term for hpo_term in hpo_dag.nodes
           if (hpo_dag.has_child(parent, hpo_term) 
