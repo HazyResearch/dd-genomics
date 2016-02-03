@@ -39,9 +39,3 @@ To compute the precision, or withhold labeled data from being distance supervise
 1- run `import_labels.sh`
 2- run `deepdive redo genepheno_causation_labels` for causation labels. This is done automatically when you run the Deepdive pipeline from the beginning.
 
-#### Get Precision and Recall Numbers
-
-To output the precision and recall stats for a relation, say genepheno\_causation, run the corresponding `./compute_causation_stats.sh [$CONFIDENCE]`. This computes the precision, recall and F1 score and stores them in `stats_causation.tsv`. `$CONFIDENCE` is an optional argument (default: 0.9) to represent the threshold for inference: if the `expectation > $CONFIDENCE`, we classify the relation as true. Otherwise, we classify it as false.
-
-Similarly, run `./compute_association_stats.sh [$CONFIDENCE]`, `./compute_gene_stats.sh [$CONFIDENCE]` for association and gene stats respectively.
-
