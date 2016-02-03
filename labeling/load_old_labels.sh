@@ -12,3 +12,8 @@ echo "Exporting genepheno association"
 cat tmp.tsv | psql -U $DDUSER -p 6432 -d genomics_labels -c 'COPY genepheno_association_labels FROM STDIN;'
 rm tmp.tsv
 
+
+echo "Exporting gene mentions labels"
+
+
+

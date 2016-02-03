@@ -17,7 +17,7 @@ mkdir -p OLD
 mkdir $newdir
 mv *-genepheno-holdout.${NAME} $newdir
 
-echo "Creating new gene-holdout Mindtagger task"
+echo "Creating new genepheno-holdout Mindtagger task"
 ./create-new-task.sh genepheno-holdout
 for FILENAME in *-genepheno-holdout; do
         mv $FILENAME $FILENAME.$NAME

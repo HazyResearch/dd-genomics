@@ -4,8 +4,9 @@ This folder contains logs from runs for reproducibility.
 
 ## Evaluate the current implementation
 
-Go to your `$GDD_HOME`, the application root directory and run `./evaluation.sh $RELATION [$CONFIDENCE] [$OPTOUT]` where :
-  - $RELATION can be {gene,causation,association} 
+Go to your `$GDD_HOME`, the application root directory and run `./evaluation.sh $RELATION $VERSION [$CONFIDENCE] [$OPTOUT]` where :
+  - $RELATION can be either one of {gene,causation,association} 
+  - $VERSION refers to the holdout set version to use for evaluation (starting from 0)
   - $CONFIDENCE is optional (default 0.9). It sets the confidence threshold at which the inference will be considered as true
   - $OPTOUT is optional and refers to the option of opting out of logging. If you don't want to log your current evaluation, simply write OPTOUT as a third argument. Note that you need to set the confidence if you want to do so.
   

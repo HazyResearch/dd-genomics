@@ -2,11 +2,19 @@
 
 import json
 import sys
+import os.path
 
-if len(sys.argv) != 3:
-  print 'Wrong number of arguments'
-  print 'USAGE: export_gene_labels.py $DIR/tags.json $LABELER_NAME'
-  exit(1)
+
+# get the labeling version number
+version = 0 # in case the file doesn't exist
+if os.path.exists('version_labeling'):
+  with open('version_labeling') as f:
+    for i, line in enumerate(f):
+      if i == 0:
+        version = line[0].strip()
+else:
+  print 'version_labeling file doesn\'t exist'
+  print 'setting version to 0'
 
 if __name__ == "__main__":
   tags_file = sys.argv[1]
@@ -21,4 +29,4 @@ if __name__ == "__main__":
           is_correct = 't'
         if rv == False:
           is_correct = 'f'
-        print '%s\t%s\t%s' % (key, is_correct, labeler)
+        print '%s\t%s\t%s\t%s' % (key, is_correct, labeler,version)
