@@ -26,7 +26,7 @@ if __name__ == '__main__':
       if 'HP:0000118' not in parent_ids:
         sys.stderr.write('"{0}": not a phenotypic abnormality\n'.format(hpo_id.strip()))
         continue
-    parent_ids.remove('HP:0000118')
+      parent_ids.remove('HP:0000118')
     for parent_id in parent_ids:
       sys.stdout.write('{0}\t{1}\n'.format(parent_id, ensemble_gene))
     sys.stdout.flush()
