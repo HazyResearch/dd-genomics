@@ -274,6 +274,54 @@ select count(*) from
 ) TO STDOUT
 """
 
+echo "What are the top journals? I.e. the journals where we inferred most genepheno pairs per document? (Requiring at least 1000 documents in journal)"
+deepdive sql """
+SELECT
+  q1.source_name
+  , coalesce(q1.count, 0) as num_docs
+  , coalesce(q5.count, 0) as gp_caus_cands
+  , to_char(coalesce(q5.count, 0)::float / coalesce((CASE WHEN q1.count = 0 THEN 1 ELSE q1.count END), 1)::float, '999999999D99') as gp_caus_cands_per_doc
+  , coalesce(q7.count, 0) as gp_caus_infs
+  , to_char(coalesce(q7.count, 0)::float / coalesce((CASE WHEN q1.count = 0 THEN 1 ELSE q1.count END), 1)::float, '999999999D99') as gp_caus_infs_per_doc
+  FROM
+    (SELECT
+      coalesce(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
+      FROM
+        sentences_input si
+        LEFT OUTER JOIN doc_metadata dm ON (si.doc_id = dm.doc_id)
+      GROUP BY
+        source_name
+      HAVING count(distinct dm.doc_id) > 1000
+      ORDER BY
+        count DESC) q1
+    JOIN
+    (SELECT
+      coalesce(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
+      FROM
+        genepheno_causation gc
+        LEFT OUTER JOIN doc_metadata dm ON (gc.doc_id = dm.doc_id)
+      WHERE is_correct != 'f' OR is_correct IS NULL
+      GROUP BY
+        source_name
+      ORDER BY
+        count DESC) q5
+    ON (q1.source_name = q5.source_name)
+    JOIN
+    (SELECT
+      coalesce(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
+      FROM
+        genepheno_causation_is_correct_inference gc
+        LEFT OUTER JOIN doc_metadata dm ON (gc.doc_id = dm.doc_id)
+      WHERE expectation > 0.9
+      GROUP BY
+        source_name
+      ORDER BY
+        count DESC) q7
+    ON (q5.source_name = q7.source_name)
+ORDER BY gp_caus_infs_per_doc DESC
+LIMIT 10
+"""
+
 echo "What are the top journals? I.e. the journals where we inferred most genepheno pairs per document? (Requiring at least 100 documents in journal)"
 deepdive sql """
 SELECT
