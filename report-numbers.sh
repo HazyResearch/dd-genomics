@@ -130,7 +130,7 @@ select supertype, count(supertype) from genepheno_causation group by supertype o
 """ | column -t
 echo
 
-if [ $redo_weights -eq "y" ]
+if [[ "$redo_weights" -eq "y" ]]
 then
   deepdive do weights
   deepdive sql """drop table weights;"""
