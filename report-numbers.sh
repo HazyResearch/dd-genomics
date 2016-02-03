@@ -1,11 +1,11 @@
 #! /bin/bash -e
 
 source env_local.sh
-deepdive mark todo genepheno_causation_inferred
-deepdive do genepheno_causation_canon
-deepdive redo allowed_phenos
-deepdive redo charite
-deepdive redo charite_canon
+deepdive mark todo genepheno_causation_inferred > /dev/stderr
+deepdive redo genepheno_causation_canon > /dev/stderr
+deepdive redo allowed_phenos > /dev/stderr
+deepdive redo charite > /dev/stderr
+deepdive redo charite_canon > /dev/stderr
 cd util
 ./holdout_patch_ddlog.sh
 cd ..
@@ -132,9 +132,9 @@ echo
 
 if [[ "$redo_weights" -eq "y" ]]
 then
-  deepdive do weights
-  deepdive sql """drop table weights;"""
-  deepdive sql """create table weights as (select * from dd_inference_result_weights_mapping w) distributed by (id);"""
+  deepdive redo weights > /dev/stderr
+  deepdive sql """drop table if exists weights;""" > /dev/stderr
+  deepdive sql """create table weights as (select * from dd_inference_result_weights_mapping w) distributed by (id);""" > /dev/stderr
 fi
 
 echo -n "How many features do we extract per genepheno causation candidate on average? "
@@ -272,6 +272,54 @@ COPY (
 select count(*) from
 (select distinct g.ensembl_id, g.hpo_id from genepheno_causation_canon g left join charite_canon cc on (g.ensembl_id = cc.ensembl_id and g.hpo_id = cc.hpo_id) where cc.hpo_id is null) a
 ) TO STDOUT
+"""
+
+echo "What are the top journals? I.e. the journals where we inferred most genepheno pairs per document? (Requiring at least 100 documents in journal)"
+deepdive sql """
+SELECT
+  q1.source_name
+  , coalesce(q1.count, 0) as num_docs
+  , coalesce(q5.count, 0) as gp_caus_cands
+  , to_char(coalesce(q5.count, 0)::float / coalesce((CASE WHEN q1.count = 0 THEN 1 ELSE q1.count END), 1)::float, '999999999D99') as gp_caus_cands_per_doc
+  , coalesce(q7.count, 0) as gp_caus_infs
+  , to_char(coalesce(q7.count, 0)::float / coalesce((CASE WHEN q1.count = 0 THEN 1 ELSE q1.count END), 1)::float, '999999999D99') as gp_caus_infs_per_doc
+  FROM
+    (SELECT
+      coalesce(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
+      FROM
+        sentences_input si
+        LEFT OUTER JOIN doc_metadata dm ON (si.doc_id = dm.doc_id)
+      GROUP BY
+        source_name
+      HAVING count(distinct dm.doc_id) > 100
+      ORDER BY
+        count DESC) q1
+    JOIN
+    (SELECT
+      coalesce(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
+      FROM
+        genepheno_causation gc
+        LEFT OUTER JOIN doc_metadata dm ON (gc.doc_id = dm.doc_id)
+      WHERE is_correct != 'f' OR is_correct IS NULL
+      GROUP BY
+        source_name
+      ORDER BY
+        count DESC) q5
+    ON (q1.source_name = q5.source_name)
+    JOIN
+    (SELECT
+      coalesce(source_name, 'UNKNOWN') source_name, count(distinct dm.doc_id)
+      FROM
+        genepheno_causation_is_correct_inference gc
+        LEFT OUTER JOIN doc_metadata dm ON (gc.doc_id = dm.doc_id)
+      WHERE expectation > 0.9
+      GROUP BY
+        source_name
+      ORDER BY
+        count DESC) q7
+    ON (q5.source_name = q7.source_name)
+ORDER BY gp_caus_infs_per_doc DESC
+LIMIT 10
 """
 
 echo "What are the top allowed phenos in Charite that we didn't pick up?"
