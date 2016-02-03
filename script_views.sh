@@ -87,7 +87,6 @@ if $sentences_to_be_re_run
 then   
     DEEPDIVE_PLAN_EDIT=false deepdive redo init/db
     deepdive sql < ../tables_for_views/sentences_input_views.sql 
-    deepdive sql "update sentences_input_views set words = replace(words, '|^|', ' ');"
 fi
 
 deepdive sql 'truncate table genepheno_causation_views'
