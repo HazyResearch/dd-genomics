@@ -5,7 +5,7 @@ import sys
 from collections import namedtuple
 from extractor_util import RowParser, run_main_tsv, APP_HOME
 from data_util import read_hpo_dag
-from treedlib import corenlp_to_xmltree, Mention, Between, Filter, Children, Ngrams
+from treedlib import corenlp_to_xmltree, Compile, Ngrams, Mention, Between, Filter, Children, Parents, LeftSiblings, RightSiblings
 
 # This defines the Row object that we read in to the extractor
 parser = RowParser([
@@ -59,66 +59,66 @@ def tag_seq(words, seq, tag):
   return words_out
 
 
-def apply_rules(rules, f, label, default_weight=0):
+def apply_rules(labels, rule_triple, f):
   """
-  Takes as input a list of rules which are each either a pattern or a (pattern, weight) tuple/list
+  Takes as input a triple containing (rule_label, defaul_weight, rules)
+  Where rules is a list of rules which are each either a pattern or a (pattern, weight) tuple/list
   Applies f to the pattern
-  If true, yields a (label, weight) pair, subbing in the deault weight if necessary
+  If true, appends a (label, weight) pair to labels, using the deault weight if necessary
   """
+  label, w, rules = rule_triple
   for rule in rules:
     if type(rule) == list or type(rule) == tuple:
       p, w = rule
     else:
       p = rule
-      w = default_weight
     if f(p):
-      yield [label, w]
+      labels.append([label, w])
 
-def apply_rgx_rules(rules, string, label, default_weight=0, flags=re.I):
-  f = lambda p : re.search(p, string, flags=flags) is not None
-  return apply_rules(rules, f, label, default_weight=default_weight)
+def apply_rgx_rules(labels, rule_triple, string, flags=re.I):
+  apply_rules(labels, rule_triple, lambda p : re.search(p, string, flags=flags) is not None)
 
+def apply_set_rules(labels, rule_triple, word_set):
+  apply_rules(labels, rule_triple, lambda x : x in word_set)
 
-def get_labels(r, root):
-  """Gather the labels produced by each applicable rule, along with the rule weights"""
-  labels = []
-  cids = [r.gene_wordidxs, r.pheno_wordidxs]
-  seq = ' '.join(tag_seq(tag_seq(r.words, r.gene_wordidxs, 'G'), r.pheno_wordidxs, 'P'))
-  
-  # RULE over sequence + charite
-  # Label T if (a) in charite pairs and (b) matches regex
-  # W = 1.0
-  RGX = r'(mutat|delet|duplicat|truncat|SNP).*caus'
-  if (r.pheno_entity, r.gene_name) in CHARITE_PAIRS and re.search(RGX, seq, flags=re.I):
-    labels.append(['CHARITE_SUP_WORDS', 1.0])
-  
-  # RULE over sequence
-  # Label T / F if *any part* of full sentence matches regex
-  # DEFAULT W = 0.15
-  pos = [
+CHARITE_SUP_RGX = (
+  'CHARITE_SUP_RGX',  # Rule supertype label
+  1.0,                # Rule default weight
+  [
+    r'(mutat|delet|duplicat|truncat|SNP).*caus'
+  ])
+
+POS_RGX = (
+  'POS_RGX',
+  0.5,
+  [
     r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*{{G}}.*(implicated?|found).*{{P}}',
     r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*{{G}}.*cause.*{{P}}', 
-    r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*{{G}}.*described.*patients.*{{P}}',
+    r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*{{G}}.*described.*(patient|family).*{{P}}',
     r'.*patient.*{{G}}.*present with.*clinical.*{{P}}.*',
     r'(single nucleotide polymorphisms|SNPs) in {{G}}.*cause.*{{P}}',
     r'(mutation|deletion).*{{G}}.*described.*patients.*{{P}}',
-    'role',
-    'detected',
-    ('{{P}}.*(are|is) (due to|caused by|result of).*{{G}}', 0.7)
-  ]
-  for label in apply_rgx_rules(pos, seq, 'POS_RGX', default_weight=0.15):
-    labels.append(label)
+    ('{{P}}.*(are|is) (attributable to|due to|caused by|result of).*{{G}}', 0.7),
+    r'known {{G}} mutation',
+    r'{{G}}.*responsible for.*{{P}}',
+    r'homozygous for {{G}} mutation.*{{P}}',
+    r'{{G}}\s*-\s*related {{P}}',
+    r'{{G}} symptoms (include|are|consist of).*{{P}}',
+    r'{{P}} results from.*{{G}}'
+  ])
 
-  neg = [
+NEG_RGX = (
+  'NEG_RGX',
+  -0.5,
+  [
     (r'{{P}}.*not cause.*{{G}}', -0.9),
     (r'{{G}}.*not cause.*{{P}}', -0.9),
     r'\?\s*$',
-    r'^\s*To determine', 
-    r'^\s*To evaluate', 
-    r'^\s*To investigate',
-    r'^\s*We investigated',
+    (r'^\s*To (establish|determine|evaluate|investigate|analyze|study|asses)', -0.8),
+    (r'to (establish|detect|determine|evaluate|investigate|analyze|study|asses)', -0.4),
+    (r'^\s*We (evaluated|investigated|analyzed|studied)', -0.4),
+    (r'^(Although|However)', -0.2),
     '\d+ h ', 
-    r'^\s*To assess', 
     r'^\s*here we define', 
     r'^\s*whether',
     'unlikely.*{{G}}.*{{P}}',
@@ -126,68 +126,149 @@ def get_labels(r, root):
     ('{{G}}.*not.*cause of.*{{P}}', -0.9),
     '{{G}}.*linked to.*{{P}}',
     'possible association',
-    'to investigate', 
     'could reveal', 
-    'to determine',
     'could not determine',
-    'unclear', 
+    ('unclear|unknown', -0.5),
     'hypothesize', 
-    'to evaluate', 
     'plasma', 
-    'expression', 
-    'to detect',
+    'expression',
+    'needs',
+    'our aim',
     ('mouse', -0.8),
     ('mice', -0.8),
     'to find out', 
     'inconclusive', 
-    'further analysis',
+    'further (analysis|stud.*)',
     'but not',
     'deficiency',
     'activity',
     'variance', 
-    'gwas', 
+    'gwas',
+    ('suggests|possible', -0.2),
     'association study',
-    'possible association', 
-    'association'
+    ('association', -0.5),
     'associated with',
-    ('conflicting results', -0.8)
-  ]
-  for label in apply_rgx_rules(neg, seq, 'NEG_RGX', default_weight=-0.15):
-    labels.append(label)
+    ('potential role', -0.5),
+    ('conflicting results', -0.8),
+  ])
+
+POS_PATH_BTWN = (
+  'POS_PATH_BTWN',
+  0.7,
+  [
+    'responsible',
+    'attributable',
+    'had',
+    'include'
+  ])
+
+NEG_PATH_BTWN = (
+  'NEG_PATH_BTWN',
+  -0.7,
+  [
+    'unlikely',
+    'suggest',
+    'possible',
+    'role',
+    'associate',
+    'unknown',
+    'potential'
+  ])
+
+NEG_VB_MOD = (
+  'NEG_VB_MOD',
+  -0.8,
+  [
+    'neg'
+  ])
+
+NEG_G_DEP_NB = (
+  'NEG_G_DEP_NB',
+  -0.8,
+  [
+   'express', 
+   'expression', 
+   'coexpression', 
+   'coexpress', 
+   'co-expression',
+   'co-express', 
+   'overexpress', 
+   'overexpression', 
+   'over-expression',
+   'over-express', 
+   'somatic', 
+   'infection', 
+   'interacts', 
+   'regulate',
+   'up-regulate', 
+   'upregulate', 
+   'down-regulate', 
+   'downregulate', 
+   'production',
+   'product', 
+   'increased', 
+   'increase', 
+   'increas',
+   'deficiency'
+  ])
+
+POS_G_DEP_NB = (
+  'POS_G_DEP_NB',
+  0.8,
+  [
+    'known'
+  ])
+
+NEG_P_DEP_NB = (
+  'NEG_P_DEP_NB',
+  -0.8,
+  [
+    'without',
+    'except'
+  ])
+
+POS_P_DEP_NB = (
+  'POS_P_DEP_NB',
+  0.8,
+  [])
+
+def get_labels(r, root):
+  """Gather the labels produced by each applicable rule, along with the rule weights"""
+  labels = []
+  cids = [r.gene_wordidxs, r.pheno_wordidxs]
+  seq = ' '.join(tag_seq(tag_seq(r.words, r.gene_wordidxs, 'G'), r.pheno_wordidxs, 'P'))
   
-  # RULE over dep-tree
-  # Label T / F based on path between
+  # RULE over sequence + charite: Label T if (a) in charite pairs and (b) matches regex
+  if (r.pheno_entity, r.gene_name) in CHARITE_PAIRS:
+    apply_rgx_rules(labels, CHARITE_SUP_RGX, seq)
+  
+  # RULE over sequence: Label if *any part* of full sentence matches regex
+  apply_rgx_rules(labels, POS_RGX, seq)
+  apply_rgx_rules(labels, NEG_RGX, seq)
+  
+  # RULE over dep-tree: Label based on path between
   btwn = Ngrams(Between(Mention(0), Mention(1)), 'lemma', 1).result_set(root, cids)
-  pos = [
-    ('role', 0.3),
-    'detected'
-  ]
-  for label in apply_rules(pos, lambda p : p in btwn, 'POS_PATH_BTWN', 0.5):
-    labels.append(label)
-  
-  neg = [
-    'unlikely'
-  ]
-  for label in apply_rules(neg, lambda p : p in btwn, 'NEG_PATH_BTWN', -0.5):
-    labels.append(label)
+  apply_set_rules(labels, POS_PATH_BTWN, btwn)
+  apply_set_rules(labels, NEG_PATH_BTWN, btwn)
 
-  # RULE over dep-tree
-  # Label T / F based on matches of modifiers of VBs on the shortest path between
-  vb1_mods = Ngrams(Children(Filter(Between(Mention(0), Mention(1)), 'pos', 'VB')), 'dep_label', 1).result_set(root, cids)
-  neg = ['neg']
-  for label in apply_rules(neg, lambda p : p in vb1_mods, 'NEG_VB1_MOD', -0.8):
-    labels.append(label)
+  # RULE over dep-tree: Label based on matches of modifiers of VBs on the shortest path between
+  vb_mods = Ngrams(Children(Filter(Between(Mention(0), Mention(1)), 'pos', 'VB')), 'dep_label', 1).result_set(root, cids)
+  apply_set_rules(labels, NEG_VB_MOD, vb_mods)
 
-  # RULE over dep-tree
-  # Label T / F based on VBs on shortest path between
-  #vbs = Ngrams(Filter(Between(Mention(0), Mention(1)), 'pos', 'VB'), 'lemma', 1).result_set(root, cids)
-  # TODO
+  # RULE over dep-tree:Label if word matches a node within distance D of G / P
+  neighbors = Compile([
+    Ngrams(LeftSiblings(Mention(0)), 'lemma', 1),
+    Ngrams(RightSiblings(Mention(0)), 'lemma', 1),
+    Ngrams(Parents(Mention(0), 1), 'lemma', 1),
+    Ngrams(Children(Mention(0)), 'lemma', 1)
+  ])
+  g_nbs = neighbors.result_set(root, [r.gene_wordidxs])
+  apply_set_rules(labels, NEG_G_DEP_NB, g_nbs)
+  apply_set_rules(labels, POS_G_DEP_NB, g_nbs)
 
-  # RULE over dep-tree
-  # Label T / F if word matches a node within distance D of G / P
-  # DEFAULT W = 0.4, D = 2
-  # TODO
-
+  p_nbs = neighbors.result_set(root, [r.pheno_wordidxs])
+  apply_set_rules(labels, NEG_P_DEP_NB, p_nbs)
+  apply_set_rules(labels, POS_P_DEP_NB, p_nbs)
   return labels
 
 
