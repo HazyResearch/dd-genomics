@@ -60,6 +60,12 @@ def read_pubmed_to_genes():
       pubmed_to_genes[pubmed].add(gene)
   return pubmed_to_genes
 
+def select_mapping_type(mapping_types):
+  mapping_order = HF['ensembl-mapping-types']
+  for m in mapping_order:
+    if m in mapping_types:
+      return m
+  assert False, ','.join(mapping_types)
 
 def extract_candidate_mentions(row):
   gene_name_to_genes = CACHE['gene_name_to_genes']
@@ -73,11 +79,11 @@ def extract_candidate_mentions(row):
       mapping_types = set()
       for (eid, canonical_name, mapping_type) in matches:
         mapping_types.add(mapping_type)
-      for mapping_type in mapping_types:
-        if len(word) >= HF['min-word-len'][mapping_type]:
-          m = create_supervised_mention(row, i, gene_name=word, mapping_type=mapping_type)
-          if m:
-            mentions.append(m)
+      mapping_type = select_mapping_type(mapping_types)
+      if len(word) >= HF['min-word-len'][mapping_type]:
+        m = create_supervised_mention(row, i, gene_name=word, mapping_type=mapping_type)
+        if m:
+          mentions.append(m)
   return mentions
 
 
