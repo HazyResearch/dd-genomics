@@ -6,7 +6,10 @@
 <div ng-if="!searchResult.highlight['text']">
     <strong class="text-muted">Review content:</strong>
     <blockquote>
-        <div>{{source.words}}</div>
+        <big mindtagger-word-array="source.words" array-format="postgres">
+           <mindtagger-highlight-words from="extraction.gene_wordidxs[0]" to="extraction.gene_wordidxs[{{extraction.gene_wordidxs.length}}-1]" array-format="postgres" with-style="background-color: yellow;"/>
+           <mindtagger-highlight-words from="extraction.pheno_wordidxs[0]" to="extraction.pheno_wordidxs[{{extraction.pheno_wordidxs.length}}-1]"  array-format="postgres" with-style="background-color: cyan;"/> 
+        </big>
         <small>{{extraction.relation_id}}</small>
     </blockquote>
     <div class="row">

@@ -1,5 +1,4 @@
 <div ng-if="!searchResult.highlight['sentence']">
     <strong class="text-muted">sentence:</strong>
-    {{source.words}}
-    <!-- <p mindtagger-word-array="source.words"></p> -->
+    <p mindtagger-word-array="source.words" array-format="postgres"></p>
 </div>
