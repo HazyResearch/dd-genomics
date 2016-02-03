@@ -326,6 +326,25 @@ pheno_mentions (
   is_correct boolean
 ).
 
+pheno_mentions_all_phenos_in_dag (
+  id bigint,
+  #@references(relation="sentences_input", column="doc_id")
+  @distributed_by
+  doc_id text,
+  section_id text,
+  sent_id int,
+  wordidxs int[],
+  #@key
+  mention_id text,
+  supertype text,
+  subtype text,
+  #@searchable
+  entity text,
+  words text[],
+  #@navigable
+  is_correct boolean
+).
+
 #Two temporary tables created to avoid that two processus are outputing to the same table (here mostly because processses truncates the table just before putting stuff into it)
 #We then union the two temporary tables
 
@@ -984,7 +1003,7 @@ genevariant_pairs(
 #non_gene_acronyms_extract_candidates
 function non_gene_acronyms_extract_candidates over rows like non_gene_acronyms_extract_candidates_input
 returns rows like non_gene_acronyms
-implementation "code/non_gene_acronyms_extract_candidates_ddlog.py" handles tsv lines.
+implementation "code/non_gene_acronyms_extract_candidates.py" handles tsv lines.
 
 #We extract genes from gene_mentions_temp_before_non_gene_acronyms_delete_candidates and non gene_mentions because the first gene extraction is done in gene_mentions_temp_before_non_gene_acronyms_delete_candidates. Then the non_gene_acronyms_delete_candidates will create gene_mentions which will be used in the rest of the run.
 
@@ -1015,7 +1034,7 @@ non_gene_acronyms(id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs
 
 function pheno_acronyms_extract_candidates over rows like pheno_acronyms_extract_candidates_input
 returns rows like pheno_acronyms
-implementation "code/pheno_acronyms_extract_candidates_ddlog.py" handles tsv lines.
+implementation "code/pheno_acronyms_extract_candidates.py" handles tsv lines.
 
 
 pheno_acronyms_extract_candidates_view_temp_1(doc_id, section_id, sent_id, wordidxs, entity) *:- 
@@ -1064,9 +1083,16 @@ pheno_acronyms_aggregate(doc_id, pa_section_ids, pa_sent_ids, pa_abbrevs, pheno_
 #We finally union the two temporary tables pheno_mentions_before_union_1 and 2 in the final table pheno_mentions.
 #Hopefully, when the truncating tables done by deepdive will be better dealt for multi processes outputting in the same table, this won't be needed anymore
 
-pheno_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct) *:-
+pheno_mentions_all_phenos_in_dag(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct) *:-
 pheno_mentions_before_union_1(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct);
 pheno_mentions_before_union_2(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
+
+function pheno_mentions_remove_super_dag_phenos over rows like pheno_mentions_all_phenos_in_dag
+returns rows like pheno_mentions
+implementation "code/pheno_mentions_remove_super_dag_phenos" handles tsv lines.
+
+pheno_mentions += pheno_mentions_remove_super_dag_phenos(ARRAY_AGG(id), doc_id, section_id, sent_id, wordidxs, ARRAY_AGG(mention_id), ARRAY_AGG(supertype), ARRAY_AGG(subtype), ARRAY_AGG(entity), words, ARRAY_AGG(is_correct)) :-
+pheno_mentions_all_phenos_in_dag(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
 
 #pheno_acronyms_extract_features
 
