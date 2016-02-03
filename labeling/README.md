@@ -20,7 +20,7 @@ Run `./start_mindtagging $MENTION [$LABELER_NAME]`: The first argument is requir
 NOTE: Running a new mindtagger task will automatically store the old ones under 'OLD/' for backup. They are ignored by the gitignore.
 
 #### Export tags:
-Run `export_tags.sh $MENTION [$LABELER_NAME]`: the arguments are similar to the above. This script will load all the non-null labels to the shared database and update your label\_backup file in `labels/$RELATION_$LABELER_NAME`.
+Run `export_labels.sh $MENTION [$LABELER_NAME]`: the arguments are similar to the above. This script will load all the non-null labels to the shared database using the version saved in 'version\_labeling' file and update your label\_backup file in `labels/$RELATION_$LABELER_NAME`. To move to the next version for holdout set, you have to update 'version\_labeling'.
 Note that you should consistently use the names if you decide to personalize the `$LABELER_NAME` variable.
 
 NOTE: When exporting the labels, we also store them as shared backup in 'labels/$RELATION_$LABELER_NAME'. These backups are shared through git and should not cause any conflict assuming that the same labeler works from the same machine or commits when working from a different one.
