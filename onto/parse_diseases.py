@@ -24,4 +24,4 @@ if __name__ == "__main__":
     names += attach_diseases(e.text)
   for e in doc.findall('.//alternativeTitles'):
     altNames += attach_diseases(e.text)
-  print "%s\t%s\t%s" % (mimNumber, '|^|'.join(names), '|^|'.join(altNames))
+  print "OMIM:%s\t%s\t%s" % (mimNumber, '|^|'.join(names), '|^|'.join(altNames))
