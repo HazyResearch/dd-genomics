@@ -55,8 +55,9 @@ Go to `labeling/` and follow the documentation
 
 ### Evaluate the System
 
-run `./evaluation.sh $RELATION [$CONFIDENCE] [$OPTOUT]` where :
-  - $RELATION can be {gene,causation,association} 
+run `./evaluation.sh $RELATION $VERSION [$CONFIDENCE] [$OPTOUT]` where :
+  - $RELATION can be either on of {gene,causation,association} 
+  - $VERSION is a required arguments and refers to the holdout set version to use for evaluation
   - $CONFIDENCE is optional (default 0.9). It sets the confidence threshold at which the inference will be considered as true
   - $OPTOUT is optional and refers to the option of opting out of logging. If you don't want to log your current evaluation, simply write OPTOUT as a third argument. Note that you need to set the confidence if you want to do so.
   

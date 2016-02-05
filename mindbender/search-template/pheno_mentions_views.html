@@ -6,7 +6,9 @@
 <div ng-if="!searchResult.highlight['text']">
     <strong class="text-muted">Review content:</strong>
     <blockquote>
-        <div>{{source.words}}</div>
+         <big mindtagger-word-array="source.words" array-format="postgres"> 
+           <mindtagger-highlight-words from="extraction.wordidxs[0]" to="extraction.wordidxs[{{extraction.wordidxs.length}}-1]"  array-format="postgres" with-style="background-color: cyan;"/>
+        </big>
         <small>{{extraction.mention_id}}</small>
     </blockquote>
 </div>

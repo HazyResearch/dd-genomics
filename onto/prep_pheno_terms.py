@@ -26,12 +26,8 @@ def lemmatize(w):
     # Things involving non-alphabetic characters, don't try to lemmatize
     return w
 
-# STOPWORDS list
 STOPWORDS = [w.strip() for w in open('%s/onto/manual/stopwords.tsv' % (GDD_HOME,), 'rb')]
 
-# TODO: permute word order if there is a comma, e.g. - "HP:0000221      tongue, fissured"
-# TODO: --> why is the above one not getting handled...?
-# TODO: remove non-alphabetic!
 def normalize_phrase(p):
   """Lowercases, removes stop words, and lemmatizes inputted multi-word phrase"""
   out = []
@@ -48,38 +44,26 @@ def normalize_phrase(p):
     out += normalize_phrase(' '.join(cs[::-1]))
   return out
 
-# output a list of (hpo-id, phrase, type) tuples where type is one of:
-# "EXACT" - exact entry (lowercased)
-# "LEMMA" - lemmatized version
-out = []
-seen = {}
-
-# Load the dictionaries
-load_data_tsv = lambda f : [line.split('\t') for line in open('%s/onto/data/%s' % (GDD_HOME, f), 'rb')]
-
-# HPO
-for row in load_data_tsv('hpo_phenotypes.tsv'):
-  hpo_id = row[0]
-  exact = [row[1].lower()]
-
-  # Use the |-delimited list of synonyms supplied by the HPO as well
-  if len(row) > 2:
-    exact += [p.strip().lower() for p in row[2].split('|') if len(p.strip()) > 0]
-  forms = [(hpo_id, p, "EXACT") for p in exact]
-
-  # normalize_phrase returns a list that way we can easily do e.g. word permutation operations here 
-  for p in exact:
-    forms += [(hpo_id, np, "LEMMA") for np in normalize_phrase(p) if len(np.strip()) > 0]
+if __name__ == "__main__":
+  out = []
+  seen = {}
   
-  # Add unique HPO_ID - phrase pairs to output list
-  for f in forms:
-    k = f[0] + f[1]
-    if not seen.has_key(k):
-      seen[k] = 1
-      out.append(f)
-
-# output
-with open("%s/onto/data/pheno_terms.tsv" % (GDD_HOME,), 'wb') as f:
-  for o in out:
-    f.write('\t'.join(o))
-    f.write('\n')
+  load_data_tsv = lambda f : [line.split('\t') for line in open('%s/onto/data/%s' % (GDD_HOME, f), 'rb')]
+  for row in load_data_tsv('hpo_phenotypes.tsv'):
+    hpo_id = row[0]
+    exact = [row[1].lower()]
+    if len(row) > 2:
+      exact += [p.strip().lower() for p in row[2].split('|') if len(p.strip()) > 0]
+    forms = [(hpo_id, p, "EXACT") for p in exact]
+    for p in exact:
+      forms += [(hpo_id, np, "LEMMA") for np in normalize_phrase(p) if len(np.strip()) > 0]
+    for f in forms:
+      k = f[0] + f[1]
+      if not seen.has_key(k):
+        seen[k] = 1
+        out.append(f)
+  
+  with open("%s/onto/data/pheno_terms.tsv" % (GDD_HOME,), 'wb') as f:
+    for o in out:
+      f.write('\t'.join(o))
+      f.write('\n')

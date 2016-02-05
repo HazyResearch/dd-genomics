@@ -221,3 +221,10 @@ join -1 1 -2 1 -t$'\t' \
   grep -v 'HuGE Navigator' | sort | uniq | grep -e '^ENSG' > data/generifs.tsv
 
 ./load_charite.sh
+
+./getDiseases.sh
+./getPhenotypicSeries.sh
+./getSynopses.sh
+
+./parse_diseases.sh
+./parse_phenotypic_series.sh

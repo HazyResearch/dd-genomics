@@ -9,7 +9,7 @@ sentences_input_views(
   section_id text,
   sent_id int,
   @searchable
-  words text,
+  words text[],
   lemmas text,
   poses text,
   ners text,
@@ -18,7 +18,7 @@ sentences_input_views(
   @key
   views_key text).
 
-sentences_input_views(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, doc_id || "@" || section_id || "@" || sent_id) :-
+sentences_input_views(doc_id, section_id, sent_id, STRING_TO_ARRAY(words, "|^|"), lemmas, poses, ners, dep_paths, dep_parents, doc_id || "@" || section_id || "@" || sent_id) :-
   sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
 
 @extraction
