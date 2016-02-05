@@ -54,17 +54,17 @@ elif [ $1 = 'genepheno' ]; then
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE genepheno_causation_labels'
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'ALTER TABLE tmp RENAME TO genepheno_causation_labels'
                 cat tmp.tsv >> "labels/genepheno_causation_$NAME"
-                #rm tmp.tsv
+                rm tmp.tsv
 		# UPDATE ASSOCIATION
-		#./extract_genepheno_association_labels_from_json.py $DIR/tags.json $NAME > tmp.tsv
-		#psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE IF EXISTS tmp'
-                #psql -U $DDUSER -p 6432 -d genomics_labels -c 'CREATE TABLE tmp(relation_id text, is_correct text, labeler text, version int)'
-                #cat tmp.tsv | psql -U $DDUSER -p 6432 -d genomics_labels -c 'COPY tmp FROM STDIN;'
-                #psql -U $DDUSER -p 6432 -d genomics_labels -c 'INSERT INTO tmp SELECT DISTINCT * FROM genepheno_association_labels gl WHERE (gl.relation_id, gl.labeler) NOT IN (SELECT relation_id, labeler FROM tmp)'
-                #psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE genepheno_association_labels'
-                #psql -U $DDUSER -p 6432 -d genomics_labels -c 'ALTER TABLE tmp RENAME TO genepheno_association_labels'
-               #cat tmp.tsv >> "labels/genepheno_association_$NAME"
-               #rm tmp.tsv
+		./extract_genepheno_association_labels_from_json.py $DIR/tags.json $NAME > tmp.tsv
+		psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE IF EXISTS tmp'
+                psql -U $DDUSER -p 6432 -d genomics_labels -c 'CREATE TABLE tmp(relation_id text, is_correct text, labeler text, version int)'
+                cat tmp.tsv | psql -U $DDUSER -p 6432 -d genomics_labels -c 'COPY tmp FROM STDIN;'
+                psql -U $DDUSER -p 6432 -d genomics_labels -c 'INSERT INTO tmp SELECT DISTINCT * FROM genepheno_association_labels gl WHERE (gl.relation_id, gl.labeler) NOT IN (SELECT relation_id, labeler FROM tmp)'
+                psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE genepheno_association_labels'
+                psql -U $DDUSER -p 6432 -d genomics_labels -c 'ALTER TABLE tmp RENAME TO genepheno_association_labels'
+                cat tmp.tsv >> "labels/genepheno_association_$NAME"
+                rm tmp.tsv
         done
 else
         echo "Argument not valid"
