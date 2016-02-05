@@ -62,8 +62,44 @@ if __name__ == "__main__":
       if not seen.has_key(k):
         seen[k] = 1
         out.append(f)
+
+  for line in open('%s/onto/manual/diseases.tsv' % GDD_HOME):
+    row = line.split('\t')
+    omim_id = row[0]
+    names = row[1].split('|^|')
+    alt_names = row[2].split('|^|')
+    forms = []
+    exact = []
+    for p in names:
+      if len(p.strip().lower()) > 0:
+        exact.append(p.strip().lower())
+        forms.append((omim_id, p.strip().lower(), 'EXACT'))
+    for p in alt_names:
+      if len(p.strip().lower()) > 0:
+        exact.append(p.strip().lower())
+        forms.append((omim_id, p.strip().lower(), 'EXACT'))
+    for p in exact:
+      forms += [(omim_id, np.strip(), 'LEMMA') for np in normalize_phrase(p) if len(np.strip()) > 0]
+    for f in forms:
+      k = f[0] + f[1]
+      if not seen.has_key(k):
+        seen[k] = 1
+        out.append(f)
+
+  for line in open('%s/onto/manual/phenotypic_series.tsv' % GDD_HOME):
+    forms = []
+    row = line.split('\t')
+    omim_ps_id = row[0]
+    p = row[1]
+    forms.append((omim_ps_id, p.strip().lower(), 'EXACT'))
+    forms += [(omim_ps_id, np.strip().lower(), 'LEMMA') for np in normalize_phrase(p) if len(np.strip()) > 0]
+    for f in forms:
+      k = f[0] + f[1]
+      if not seen.has_key(k):
+        seen[k] = 1
+        out.append(f)
   
-  with open("%s/onto/data/pheno_terms.tsv" % (GDD_HOME,), 'wb') as f:
+  with open("%s/onto/manual/pheno_terms.tsv" % (GDD_HOME,), 'wb') as f:
     for o in out:
       f.write('\t'.join(o))
       f.write('\n')

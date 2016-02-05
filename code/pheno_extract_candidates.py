@@ -89,7 +89,7 @@ def load_pheno_terms():
   """
   # [See onto/prep_pheno_terms.py]
   # Note: for now, we don't distinguish between lemmatized / exact
-  rows = [line.split('\t') for line in open(onto_path('data/pheno_terms.tsv'), 'rb')]
+  rows = [line.split('\t') for line in open(onto_path('manual/pheno_terms.tsv'), 'rb')]
   rows = enrich_phenos(rows)
   for row in rows:
     hpoid, phrase, entry_type = [x.strip() for x in row]
