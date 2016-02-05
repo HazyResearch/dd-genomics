@@ -1,0 +1,24 @@
+<mindtagger mode="precision">
+
+<template for="each-item">
+  <strong>
+  Document <a href="http://www.ncbi.nlm.nih.gov/pubmed/{{item.doc_id}}" target="_blank">{{item.doc_id}}</a> : 
+  Section {{item.section_id}}, sentence {{item.sent_id}}: 
+  <a href="https://www.google.com/search?q={{item.gene_id}}" target="_blank">{{item.gene_id}}</a> -- 
+  <a href="http://www.human-phenotype-ontology.org/hpoweb/showterm?id={{item.pheno_name}}" target="_blank">{{item.pheno_name}}</a> 
+  (<a href="https://www.google.com/search?q={{item.hpo_name}}" target="_blank">{{item.hpo_name}}</a>) 
+  </strong> in:
+  <blockquote>
+    <big mindtagger-word-array="item.words" array-format="postgres">
+      <mindtagger-highlight-words index-array="item.gene_wordidxs" array-format="postgres" with-style="background-color: yellow; text-decoration: underline;"/>
+      <mindtagger-highlight-words index-array="item.pheno_wordidxs" array-format="postgres" with-style="background-color: aquamarine; text-decoration: underline;"/>
+    </big>
+  </blockquote>
+
+  <div mindtagger-item-details></div>
+</template>
+<template for="tags">
+  <span mindtagger-adhoc-tags></span>
+  <span mindtagger-note-tags></span>
+</template>
+</mindtagger>

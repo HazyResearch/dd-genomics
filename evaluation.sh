@@ -27,6 +27,6 @@ elif [ $1 = 'association' ]; then
 	results_log/compute_association_stats.sh $VERSION $CONFIDENCE $OPTOUT
 else
         echo "Argument not valid"
-        echo "$0: USAGE: $0 {gene,causation,association} [VERSION] [CONFIDENCE] [OPTOUT]" >&2
+        echo "$0: USAGE: $0 {gene,causation,association} VERSION [CONFIDENCE] [OPTOUT]" >&2
         exit 1
 fi
