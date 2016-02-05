@@ -2,6 +2,12 @@
 
 # Currently, the mindbender has some troubles tracing sentence with multiple keys, so tables are created, e.g., *_view with view_key for view
 
+diseases (
+  omim_id text,
+  names text,
+  alt_names text
+).
+
 @source
 sentences_input_views(
   @distributed_by
@@ -17,6 +23,12 @@ sentences_input_views(
   dep_parents text,
   @key
   views_key text).
+
+omim_disease_to_hpo (
+  omim_id text,
+  @distributed_by
+  hpo_id text
+).
 
 sentences_input_views(doc_id, section_id, sent_id, STRING_TO_ARRAY(words, "|^|"), lemmas, poses, ners, dep_paths, dep_parents, doc_id || "@" || section_id || "@" || sent_id) :-
   sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
