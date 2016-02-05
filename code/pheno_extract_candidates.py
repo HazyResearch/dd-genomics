@@ -105,10 +105,27 @@ def load_pheno_terms():
         pheno_sets[phrase_bow] = [(hpoid, entry_type)]
   return phenos, pheno_sets
 
+def load_disease_terms():
+  diseases = {}
+  disease_sets = {}
+  row = [line.split('\t') for line in open(onto_path('manual/disease_terms.tsv'), 'rb')]
+  for row in rows:
+    omimid, phrase, entry_type = [x.strip() for x in row]
+    if phrase in diseases:
+      diseases[phrase].append((omimid, entry_type))
+    else:
+      diseases[phrase] = [(omimid, entry_type)]
+    phrase_bow = frozenset(phrase.split())
+    if phrase_bow in disease_sets:
+      disease_sets[phrase_bow].append((omimid, entry_type))
+    else:
+      disease_sets[phrase_bow] = [(omimid, entry_type)]
+  return diseases, disease_sets
+
 def keep_word(w):
   return (w.lower() not in STOPWORDS and len(w) > HF['min-word-len'] - 1)
 
-def extract_candidate_mentions(row):
+def extract_candidate_mentions(row, terms, term_sets):
   """Extracts candidate phenotype mentions from an input row object"""
   mentions = []
 
@@ -153,8 +170,8 @@ def extract_candidate_mentions(row):
       # If found add to split list so as not to consider subset phrases
       p, lp = map(' '.join, [ws, lws])
 
-      if p in PHENOS or lp in PHENOS:
-        entities = PHENOS[p] if p in PHENOS else PHENOS[lp]
+      if p in terms or lp in terms:
+        entities = terms[p] if p in terms else terms[lp]
         for (entity, entry_type) in entities:
           mentions.append(create_supervised_mention(row, wordidxs, entity, entry_type + '_EXACT'))
         split_indices.update(wordidxs)
@@ -164,8 +181,8 @@ def extract_candidate_mentions(row):
       # Note: avoid repeated words here!
       if HF['permuted']:
         ps, lps = map(frozenset, [ws, lws])
-        if (len(ps)==len(ws) and ps in PHENO_SETS) or (len(lps)==len(lws) and lps in PHENO_SETS):
-          entities = PHENO_SETS[ps] if ps in PHENO_SETS else PHENO_SETS[lps]
+        if (len(ps)==len(ws) and ps in term_sets) or (len(lps)==len(lws) and lps in term_sets):
+          entities = term_sets[ps] if ps in term_sets else term_sets[lps]
           for (entity, entry_type) in entities:
             mentions.append(create_supervised_mention(row, wordidxs, entity, entry_type + '_PERM'))
           continue
@@ -176,8 +193,8 @@ def extract_candidate_mentions(row):
         if len(ws) > 2:
           for omit in range(1, len(ws)-1):
             p, lp = [' '.join([w for i,w in enumerate(x) if i != omit]) for x in [ws, lws]]
-            if p in PHENOS or lp in PHENOS:
-              entities = PHENOS[p] if p in PHENOS else PHENOS[lp]
+            if p in terms or lp in terms:
+              entities = terms[p] if p in terms else terms[lp]
               for (entity, entry_type) in entities:
                 mentions.append(create_supervised_mention(row, wordidxs, entity, entry_type + '_OMIT_%s' % omit))
   return mentions    
@@ -282,6 +299,7 @@ if __name__ == '__main__':
     # DOI_TO_PMID = dutil.read_doi_to_pmid()
     PMID_TO_HPO = dutil.load_pmid_to_hpo()
   PHENOS, PHENO_SETS = load_pheno_terms()
+  DISEASES, DISEASE_SETS = load_disease_terms()
 
   # Read TSV data in as Row objects
   for line in sys.stdin:
@@ -292,7 +310,11 @@ if __name__ == '__main__':
       continue
 
     # find candidate mentions & supervise
-    mentions = extract_candidate_mentions(row)
+    mentions = extract_candidate_mentions(row, DISEASES, DISEASE_SETS)
+    if not mentions:
+      # extract "real" phenos only if we didn't extract disease in the first place
+      mentions = extract_candidate_mentions(row, PHENOS, PHENO_SETS)
+
     if SR.get('rand-negs'):
       mentions += generate_rand_negatives(row, mentions)
 
