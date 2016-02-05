@@ -18,7 +18,8 @@ from
       string_to_array(gene_wordidxs, '|~|')::int[] AS gene_wordidxs,
       string_to_array(pheno_wordidxs, '|~|')::int[] AS pheno_wordidxs,
       gp.gene_mention_id AS gene_mention_id,
-      gp.pheno_mention_id AS pheno_mention_id
+      gp.pheno_mention_id AS pheno_mention_id,
+      gp.gene_mention_id || '_' || gp.pheno_mention_id AS relation_id
     FROM
       genepheno_pairs gp
   ) hs
@@ -33,9 +34,9 @@ from
   join genes
     on (g.gene_name = genes.gene_name)
   join genepheno_causation_inference_label_inference gpi
-    on (gp.relation_id = gpi.relation_id)
+    on (hs.relation_id = gpi.relation_id)
 where
-  AND gpi.expectation > 0.9
+  gpi.expectation > 0.9
 group by
   hs.doc_id
   , hs.section_id
