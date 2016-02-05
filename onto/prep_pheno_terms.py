@@ -72,15 +72,15 @@ if __name__ == "__main__":
     forms = []
     exact = []
     for p in names:
-      if len(p.strip().lower()) > 0:
+      if len(p.strip().lower()) > 0 and len(p.strip().split()) > 1:
         exact.append(p.strip().lower())
         forms.append((omim_id, p.strip().lower(), 'EXACT'))
     for p in alt_names:
-      if len(p.strip().lower()) > 0:
+      if len(p.strip().lower()) > 0 and len(p.strip().split()) > 1:
         exact.append(p.strip().lower())
         forms.append((omim_id, p.strip().lower(), 'EXACT'))
     for p in exact:
-      forms += [(omim_id, np.strip(), 'LEMMA') for np in normalize_phrase(p) if len(np.strip()) > 0]
+      forms += [(omim_id, np.strip(), 'LEMMA') for np in normalize_phrase(p) if len(np.strip()) > 0 and len(np.strip().split()) > 1]
     for f in forms:
       k = f[0] + f[1]
       if not seen.has_key(k):
@@ -92,8 +92,9 @@ if __name__ == "__main__":
     row = line.split('\t')
     omim_ps_id = row[0]
     p = row[1]
-    forms.append((omim_ps_id, p.strip().lower(), 'EXACT'))
-    forms += [(omim_ps_id, np.strip().lower(), 'LEMMA') for np in normalize_phrase(p) if len(np.strip()) > 0]
+    if len(p.strip().split()) > 1:
+      forms.append((omim_ps_id, p.strip().lower(), 'EXACT'))
+      forms += [(omim_ps_id, np.strip().lower(), 'LEMMA') for np in normalize_phrase(p) if len(np.strip()) > 0 and len(np.strip().split()) > 1]
     for f in forms:
       k = f[0] + f[1]
       if not seen.has_key(k):

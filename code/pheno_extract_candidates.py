@@ -108,7 +108,7 @@ def load_pheno_terms():
 def load_disease_terms():
   diseases = {}
   disease_sets = {}
-  row = [line.split('\t') for line in open(onto_path('manual/disease_terms.tsv'), 'rb')]
+  rows = [line.split('\t') for line in open(onto_path('manual/disease_terms.tsv'), 'rb')]
   for row in rows:
     omimid, phrase, entry_type = [x.strip() for x in row]
     if phrase in diseases:
