@@ -228,3 +228,5 @@ join -1 1 -2 1 -t$'\t' \
 
 ./parse_diseases.sh
 ./parse_phenotypic_series.sh
+
+./parse_disease_to_phenotype.sh
