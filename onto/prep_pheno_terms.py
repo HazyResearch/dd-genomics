@@ -45,7 +45,8 @@ def normalize_phrase(p):
   return out
 
 if __name__ == "__main__":
-  out = []
+  out_pheno = []
+  out_disease = []
   seen = {}
   
   load_data_tsv = lambda f : [line.split('\t') for line in open('%s/onto/data/%s' % (GDD_HOME, f), 'rb')]
@@ -61,7 +62,7 @@ if __name__ == "__main__":
       k = f[0] + f[1]
       if not seen.has_key(k):
         seen[k] = 1
-        out.append(f)
+        out_pheno.append(f)
 
   for line in open('%s/onto/manual/diseases.tsv' % GDD_HOME):
     row = line.split('\t')
@@ -84,7 +85,7 @@ if __name__ == "__main__":
       k = f[0] + f[1]
       if not seen.has_key(k):
         seen[k] = 1
-        out.append(f)
+        out_disease.append(f)
 
   for line in open('%s/onto/manual/phenotypic_series.tsv' % GDD_HOME):
     forms = []
@@ -97,9 +98,13 @@ if __name__ == "__main__":
       k = f[0] + f[1]
       if not seen.has_key(k):
         seen[k] = 1
-        out.append(f)
+        out_disease.append(f)
   
   with open("%s/onto/manual/pheno_terms.tsv" % (GDD_HOME,), 'wb') as f:
-    for o in out:
+    for o in out_pheno:
+      f.write('\t'.join(o))
+      f.write('\n')
+  with open("%s/onto/manual/disease_terms.tsv" % (GDD_HOME,), 'wb') as f:
+    for o in out_disease:
       f.write('\t'.join(o))
       f.write('\n')
