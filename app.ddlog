@@ -1413,6 +1413,25 @@ genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_i
   genepheno_causation_all_superv_non_holdout(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype);
   genepheno_causation_all_superv_holdout(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype).
 
+# G-P causation Labels Table
+genepheno_causation_rule_labels(
+  @key
+  relation_id text,
+  @key
+  rule_id text,
+  label int
+).
+
+function genepheno_causation_generate_rule_labels
+over rows like genepheno_causation_supervision_input
+returns rows like genepheno_causation_rule_labels
+implementation "code/genepheno_causation_generate_rule_labels.py" handles tsv lines.
+
+genepheno_causation_rule_labels += genepheno_causation_generate_rule_labels(relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct, words, lemmas, poses, dep_paths, dep_parents) :-
+genepheno_relations(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct), 
+sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
+
+
 #genepheno_no_variant_negatives
 
 variant_mentions_distinct_doc_id_view_temp (doc_id) *:-
