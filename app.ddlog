@@ -414,7 +414,25 @@ genepheno_causation_all_superv_non_holdout (
   subtype text
 ).
 
-genepheno_causation_all_superv_holdout (
+genepheno_causation_all_superv_holdout_1 (
+  id bigint,
+  relation_id text,
+  @distributed_by
+  doc_id text,
+  section_id text,
+  sent_id int,
+  gene_mention_id text,
+  gene_name text,
+  gene_wordidxs int[],
+  pheno_mention_id text,
+  pheno_entity text,
+  pheno_wordidxs int[],
+  is_correct boolean,
+  supertype text,
+  subtype text
+).
+
+genepheno_causation_all_superv_holdout_2 (
   id bigint,
   relation_id text,
   @distributed_by
@@ -1310,15 +1328,18 @@ genepheno_causation_all_superv_non_holdout(id, relation_id, doc_id, section_id, 
   !EXISTS[genepheno_causation_labels(relation_id, _, _, _)],
   !EXISTS[genepheno_causation_precision_labels(relation_id, _, _, _)].
 
-genepheno_causation_all_superv_holdout(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, NULL, supertype, subtype) :-
+genepheno_causation_all_superv_holdout_1(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, NULL, supertype, subtype) :-
   genepheno_causation_all_superv(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, _, supertype, subtype),
-  EXISTS[genepheno_causation_labels(relation_id, _, _, _)];
+  EXISTS[genepheno_causation_labels(relation_id, _, _, _)].
+
+genepheno_causation_all_superv_holdout_2(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, NULL, supertype, subtype) :-
   genepheno_causation_all_superv(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, _, supertype, subtype),
   EXISTS[genepheno_causation_precision_labels(relation_id, _, _, _)].
 
 genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype) :-
   genepheno_causation_all_superv_non_holdout(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype);
-  genepheno_causation_all_superv_holdout(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype).
+  genepheno_causation_all_superv_holdout_1(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype);
+  genepheno_causation_all_superv_holdout_2(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype).
 
 #genepheno_no_variant_negatives
 
