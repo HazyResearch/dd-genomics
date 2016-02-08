@@ -104,15 +104,15 @@ GENE = {
     },
 
     'pre-neighbor-match' : {
-      'pos' : ['gene'],
-      'neg' : [],
+      'pos' : ['gene', 'mutations in'],
+      'neg' : ['encoding'],
       'pos-rgx': [],
       'neg-rgx': []
     },
 
     'neighbor-match': {
-      'pos' : [],
-      'neg' : [],
+      'pos' : ['mutations'],
+      'neg' : ['protein'],
       'pos-rgx': [],
       'neg-rgx': []
     },
@@ -351,6 +351,7 @@ GENE_PHENO = {
                    r'to examine',
                    r'we requested',
                    'to study',
+                   'indicating that',
                    '\d+ h ',
                    r'to assess',
                    r'^\s*here we define',
