@@ -166,34 +166,10 @@ genepheno_causation_views_temp(
   labeler text,
   views_key text).
 
-#genepheno_causation_views_temp(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, ARRAY_AGG(feature), ARRAY_AGG(weights), is_correct_labels, labeler, doc_id || "@" || section_id || "@" || sent_id) :-
-#genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype),
-#genepheno_features ( doc_id, section_id, relation_id, feature),
-#dd_inference_result_variables_mapped_weights_bis(_, _, _, "inf_istrue_genepheno_causation_inference--" ||feature, _, weights),
-#[abs(weights) >0],
-#OPTIONAL[ genepheno_causation_labels(relation_id, is_correct_labels, labeler)].
-
 genepheno_causation_views(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, features, weights, is_correct_labels, labeler, is_charite_canon, views_key) *:-
 genepheno_causation_views_temp(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, features, weights, is_correct_labels, labeler, views_key), 
 OPTIONAL[charite_canon_temp_views(pheno_entity, gene_entity, is_charite_canon)].
 
-
-
-
-#### Declaration tables #####
-#sentences (
-#  @distributed_by
-#  doc_id text,
-#  section_id text,
-#  sent_id int,
-#  ref_doc_id text,
-#  words text[],
-#  lemmas text[],
-#  poses text[],
-#  ners text[],
-#  dep_paths text[],
-#  dep_parents int[]
-# ).
 
 #@source
 sentences_input (
@@ -401,14 +377,6 @@ pheno_features (
   mention_id text,
   feature text
 ).
-
-#variant_features (
-#  @distributed_by
-#  doc_id text,
-#        section_id text,
-#  mention_id text,
-#  feature text
-#).
 
 genepheno_causation_all_superv (
   id bigint,
@@ -696,7 +664,7 @@ gene_holdout_labels (
   doc_id text,
   section_id text,
   sent_id int,
-  is_correct text,
+  is_correct boolean,
   labeler text
 ).
 
@@ -709,25 +677,25 @@ pmid text).
 
 genepheno_causation_labels
 (relation_id text,
-is_correct text,
+is_correct boolean,
 labeler text,
 version int).
 
 genepheno_causation_precision_labels
 (relation_id text,
-is_correct text,
+is_correct boolean,
 labeler text,
 version int).
 
 gene_labels
 (mention_id text, 
-is_correct text, 
+is_correct boolean, 
 labeler text,
 version int).
 
 pheno_labels
 (relation_id text, 
-is_correct text, 
+is_correct boolean, 
 labeler text,
 version int).
 
