@@ -49,7 +49,7 @@ FROM
 WHERE
   gc.relation_id = '$rid'
   AND COALESCE(gc.expectation, 0) > 0.9
-  AND s.is_correct = 'f') TO STDOUT;
+  AND s.is_correct = 't') TO STDOUT;
 """ 
 echo "DISTANT SUPERVISION"
 deepdive sql """
