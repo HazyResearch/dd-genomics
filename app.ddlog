@@ -913,7 +913,8 @@ genepheno_pairs(
   pheno_mention_id text,
   pheno_entity text,
   pheno_wordidxs text,
-  pheno_is_correct boolean).
+  pheno_is_correct boolean,
+  relation_id text).
 
 # Gene and pheno pair candidate
 genepheno_pairs(
@@ -927,7 +928,8 @@ genepheno_pairs(
   pheno_mention_id,
   pheno_entity,
   ARRAY_TO_STRING(pheno_wordidxs, "|~|"),
-  pheno_is_correct) :-
+  pheno_is_correct, 
+  gene_mention_id || "_" || pheno_mention_id) :-
   gene_mentions(gene_id, doc_id, section_id, sent_id, gene_wordidxs, gene_mention_id, gene_mapping_type, gene_supertype, gene_subtype, gene_name, gene_words, gene_is_correct),
   pheno_mentions(pheno_id, doc_id, section_id, sent_id, pheno_wordidxs, pheno_mention_id, pheno_supertype, pheno_subtype, pheno_entity, pheno_words, pheno_is_correct).
 
@@ -954,7 +956,8 @@ genepheno_pairs_sentences(
                   pheno_mention_id,
                   pheno_entity,
                   pheno_wordidxs,
-                  pheno_is_correct).
+                  pheno_is_correct,
+		  _).
 
 
 #get_genevariant_pairs
