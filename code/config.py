@@ -296,7 +296,8 @@ GENE_PHENO = {
                  'increased',
                  'increase',
                  'increas',
-                 'deficiency'
+                 'deficiency',
+                 'exclude'
                  ],
       'neg-p' : ['without', 'except']
     },
