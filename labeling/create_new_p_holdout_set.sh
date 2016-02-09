@@ -19,7 +19,7 @@ newdir=OLD/pheno-holdout-`date +'%Y-%m-%d-%H-%M-%S'`
 echo "Moving old labeling directories to ${newdir}"
 mkdir -p OLD
 mkdir $newdir
-mv *-pheno-holdout.* $newdir
+mv *-pheno-holdout.${NAME} $newdir
 
 echo "Creating new pheno-holdout Mindtagger task"
 ./create-new-task.sh pheno-holdout
