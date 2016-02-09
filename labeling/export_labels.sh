@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 if [ $# -lt 1 ]; then
         echo "$0: ERROR: wrong number of arguments" >&2
@@ -8,6 +8,12 @@ if [ $# -lt 1 ]; then
 fi
 
 . ../env_local.sh
+
+if [ -z $DDUSER ]
+then
+    echo "$0: Please set your DDUSER environemnt variable!"
+    exit 1
+fi
 
 if [ $# -eq 2 ]; then
         echo "Setting name to $2"

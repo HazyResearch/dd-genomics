@@ -104,15 +104,15 @@ GENE = {
     },
 
     'pre-neighbor-match' : {
-      'pos' : ['gene'],
-      'neg' : [],
+      'pos' : ['gene', 'mutations in'],
+      'neg' : ['encoding'],
       'pos-rgx': [],
       'neg-rgx': []
     },
 
     'neighbor-match': {
-      'pos' : [],
-      'neg' : [],
+      'pos' : ['mutations'],
+      'neg' : ['protein'],
       'pos-rgx': [],
       'neg-rgx': []
     },
@@ -296,7 +296,8 @@ GENE_PHENO = {
                  'increased',
                  'increase',
                  'increas',
-                 'deficiency'
+                 'deficiency',
+                 'exclude'
                  ],
       'neg-p' : ['without', 'except']
     },
@@ -340,20 +341,22 @@ GENE_PHENO = {
       'neg-rgx' : [  # r'rs\d+',
                    # r't?SNPs?',
                    # r'\d+(\.\d+)?\s*\%',
-                   r'PHENO.*not cause.*GENE',
-                   r'GENE.*not cause.*PHENO',
+                   r'PHENO.*not.*cause.*GENE',
+                   r'GENE.*not.*cause.*PHENO',
                    r'\?\s*$',
-                   r'^\s*To determine',
-                   r'^\s*To evaluate',
-                   r'^\s*To investigate',
-                   r'^\s*We investigated',
-                   r'^\s*We examined',
-                   r'^\s*To examine',
-                   r'^\s*We requested',
+                   r'to determine',
+                   r'to evaluate',
+                   r'to investigate',
+                   r'we investigated',
+                   r'we examined',
+                   r'to examine',
+                   r'we requested',
+                   'to study',
+                   'indicating that',
                    '\d+ h ',
-                   r'^\s*To assess',
+                   r'to assess',
                    r'^\s*here we define',
-                   r'^\s*whether',
+                   r'whether',
                    'unlikely.*GENE.*PHENO',
                    'PHENO.*not due to.*GENE',
                    'GENE.*linked to.*PHENO',

@@ -2,6 +2,12 @@
 
 # Currently, the mindbender has some troubles tracing sentence with multiple keys, so tables are created, e.g., *_view with view_key for view
 
+diseases (
+  omim_id text,
+  names text,
+  alt_names text
+).
+
 @source
 sentences_input_views(
   @distributed_by
@@ -17,6 +23,12 @@ sentences_input_views(
   dep_parents text,
   @key
   views_key text).
+
+omim_disease_to_hpo (
+  omim_id text,
+  @distributed_by
+  hpo_id text
+).
 
 sentences_input_views(doc_id, section_id, sent_id, STRING_TO_ARRAY(words, "|^|"), lemmas, poses, ners, dep_paths, dep_parents, doc_id || "@" || section_id || "@" || sent_id) :-
   sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
@@ -166,34 +178,10 @@ genepheno_causation_views_temp(
   labeler text,
   views_key text).
 
-#genepheno_causation_views_temp(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, ARRAY_AGG(feature), ARRAY_AGG(weights), is_correct_labels, labeler, doc_id || "@" || section_id || "@" || sent_id) :-
-#genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype),
-#genepheno_features ( doc_id, section_id, relation_id, feature),
-#dd_inference_result_variables_mapped_weights_bis(_, _, _, "inf_istrue_genepheno_causation_inference--" ||feature, _, weights),
-#[abs(weights) >0],
-#OPTIONAL[ genepheno_causation_labels(relation_id, is_correct_labels, labeler)].
-
 genepheno_causation_views(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, features, weights, is_correct_labels, labeler, is_charite_canon, views_key) *:-
 genepheno_causation_views_temp(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype, features, weights, is_correct_labels, labeler, views_key), 
 OPTIONAL[charite_canon_temp_views(pheno_entity, gene_entity, is_charite_canon)].
 
-
-
-
-#### Declaration tables #####
-#sentences (
-#  @distributed_by
-#  doc_id text,
-#  section_id text,
-#  sent_id int,
-#  ref_doc_id text,
-#  words text[],
-#  lemmas text[],
-#  poses text[],
-#  ners text[],
-#  dep_paths text[],
-#  dep_parents int[]
-# ).
 
 #@source
 sentences_input (
@@ -402,14 +390,6 @@ pheno_features (
   feature text
 ).
 
-#variant_features (
-#  @distributed_by
-#  doc_id text,
-#        section_id text,
-#  mention_id text,
-#  feature text
-#).
-
 genepheno_causation_all_superv (
   id bigint,
   relation_id text,
@@ -446,7 +426,25 @@ genepheno_causation_all_superv_non_holdout (
   subtype text
 ).
 
-genepheno_causation_all_superv_holdout (
+genepheno_causation_all_superv_holdout_1 (
+  id bigint,
+  relation_id text,
+  @distributed_by
+  doc_id text,
+  section_id text,
+  sent_id int,
+  gene_mention_id text,
+  gene_name text,
+  gene_wordidxs int[],
+  pheno_mention_id text,
+  pheno_entity text,
+  pheno_wordidxs int[],
+  is_correct boolean,
+  supertype text,
+  subtype text
+).
+
+genepheno_causation_all_superv_holdout_2 (
   id bigint,
   relation_id text,
   @distributed_by
@@ -696,7 +694,7 @@ gene_holdout_labels (
   doc_id text,
   section_id text,
   sent_id int,
-  is_correct text,
+  is_correct boolean,
   labeler text
 ).
 
@@ -709,7 +707,13 @@ pmid text).
 
 genepheno_causation_labels
 (relation_id text,
-is_correct text,
+is_correct boolean,
+labeler text,
+version int).
+
+genepheno_causation_precision_labels
+(relation_id text,
+is_correct boolean,
 labeler text,
 version int).
 
@@ -721,13 +725,13 @@ version int).
 
 gene_labels
 (mention_id text, 
-is_correct text, 
+is_correct boolean, 
 labeler text,
 version int).
 
 pheno_labels
 (relation_id text, 
-is_correct text, 
+is_correct boolean, 
 labeler text,
 version int).
 
@@ -1339,15 +1343,21 @@ sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_pat
 
 genepheno_causation_all_superv_non_holdout(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype) :-
   genepheno_causation_all_superv(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype),
-  !EXISTS[genepheno_causation_labels(relation_id, _, _, _)].
+  !EXISTS[genepheno_causation_labels(relation_id, _, _, _)],
+  !EXISTS[genepheno_causation_precision_labels(relation_id, _, _, _)].
 
-genepheno_causation_all_superv_holdout(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, NULL, supertype, subtype) :-
+genepheno_causation_all_superv_holdout_1(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, NULL, supertype, subtype) :-
   genepheno_causation_all_superv(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, _, supertype, subtype),
   EXISTS[genepheno_causation_labels(relation_id, _, _, _)].
 
+genepheno_causation_all_superv_holdout_2(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, NULL, supertype, subtype) :-
+  genepheno_causation_all_superv(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, _, supertype, subtype),
+  EXISTS[genepheno_causation_precision_labels(relation_id, _, _, _)].
+
 genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype) :-
   genepheno_causation_all_superv_non_holdout(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype);
-  genepheno_causation_all_superv_holdout(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype).
+  genepheno_causation_all_superv_holdout_1(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype);
+  genepheno_causation_all_superv_holdout_2(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype).
 
 #genepheno_no_variant_negatives
 
@@ -1384,6 +1394,18 @@ genepheno_causation_canon (
   ensembl_id text
 ).
 
+genepheno_causation_canon_1 (
+  @distributed_by 
+  hpo_id text,
+  ensembl_id text
+).
+
+genepheno_causation_canon_2 (
+  @distributed_by 
+  hpo_id text,
+  ensembl_id text
+).
+
 genepheno_causation_inferred (
   @distributed_by 
   hpo_id text,
@@ -1394,8 +1416,17 @@ function canonicalize_genepheno_relations over rows like genepheno_causation_can
 returns rows like genepheno_causation_canon
 implementation "onto/canonicalize_gene_phenotype.sh" handles tsv lines.
 
-genepheno_causation_canon += canonicalize_genepheno_relations(hpo_id, ensembl_id) :-
-  genepheno_causation_inferred(hpo_id, ensembl_id).
+genepheno_causation_canon_1(hpo_id, ensembl_id) :-
+  genepheno_causation_inferred(omim_id, ensembl_id),
+  omim_disease_to_hpo(omim_id, hpo_id).
+
+genepheno_causation_canon_2(hpo_id, ensembl_id) :-
+  genepheno_causation_inferred(hpo_id, ensembl_id),
+  hpo_id LIKE "HP:%".
+
+genepheno_causation_canon += canonicalize_genepheno_relations(hpo_id, ensembl_id) *:-
+  genepheno_causation_canon_1(hpo_id, ensembl_id);
+  genepheno_causation_canon_2(hpo_id, ensembl_id).
 
 ##### Declare Variable Relations #####
 

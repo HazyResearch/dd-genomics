@@ -6,10 +6,11 @@ source env_local.sh
 deepdive sql """
 COPY (
 SELECT DISTINCT
-  s.labeler ASSOCIATION_FALSE_POSITIVES,
+  l.labeler CAUSATION_FALSE_NEGATIVES,
   si.doc_id,
   si.section_id,
   si.sent_id,
+  gc.expectation,
   gc.gene_name,
   gc.gene_wordidxs,
   gc.pheno_wordidxs,
@@ -17,12 +18,15 @@ SELECT DISTINCT
   array_to_string(string_to_array(si.words, '|^|'), ' ') words,
   array_to_string(string_to_array(si.lemmas, '|^|'), ' ') lemmas
 FROM
-  genepheno_association_is_correct_inference gc 
-  RIGHT JOIN genepheno_association_labels s 
-    ON (s.relation_id = gc.relation_id)
+  genepheno_causation_is_correct_inference gc 
+  RIGHT JOIN (select distinct * from
+      ((select * from genepheno_causation_labels)
+      union (select * from genepheno_causation_precision_labels)) a) l
+    ON (l.relation_id = gc.relation_id)
   JOIN sentences_input si
     ON (si.doc_id = gc.doc_id AND si.section_id = gc.section_id AND si.sent_id = gc.sent_id)
 WHERE
-  COALESCE(gc.expectation, 0) > 0.9 
-  AND s.is_correct = 'f') TO STDOUT;
+  COALESCE(gc.expectation, 0) <= 0.9 
+  AND l.is_correct = 't')
+TO STDOUT;
 """

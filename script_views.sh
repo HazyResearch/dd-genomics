@@ -59,6 +59,7 @@ export PATH=/dfs/scratch0/netj/postgresql/9.4.4/bin:$PATH
 
 if $sentences_to_be_re_run
 then   
+    DEEPDIVE_PLAN_EDIT=false deepdive do sentences_input_views
     pg_dump -p 6432 -h raiders7 -U tpalo ${database_greenplum} -t sentences_input_views > ../tables_for_views/sentences_input_views.sql
     echo 'table sentences_input_views.sql dumped'
 fi

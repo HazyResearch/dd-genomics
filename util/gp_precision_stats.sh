@@ -24,11 +24,11 @@ FROM
     labeler,
     COUNT(DISTINCT s.relation_id) fp
   FROM
-    genepheno_association_is_correct_inference gc 
-    RIGHT JOIN genepheno_association_labels s 
-      ON (gc.relation_id = s.relation_id)
+    genepheno_causation_is_correct_inference gc 
+    RIGHT JOIN genepheno_causation_precision_labels s 
+      ON (s.relation_id = gc.relation_id)
   WHERe
-    COALESCE(gc.expectation, 0) > 0.5 
+    COALESCE(gc.expectation, 0) > 0.9 
     AND s.is_correct = 'f'
   GROUP BY labeler) fp
   FULL OUTER JOIN
@@ -36,24 +36,24 @@ FROM
     labeler,
     COUNT(DISTINCT s.relation_id) tp
   FROM
-    genepheno_association_is_correct_inference gc 
-    RIGHT JOIN genepheno_association_labels s 
+    genepheno_causation_is_correct_inference gc 
+    RIGHT JOIN genepheno_causation_precision_labels s 
       ON (s.relation_id = gc.relation_id)
   WHERe
-    COALESCE(gc.expectation, 0) > 0.5 
+    COALESCE(gc.expectation, 0) > 0.9 
     AND s.is_correct = 't'
   GROUP BY labeler) tp
-  ON (tp.labeler = fp.labeler)
+  ON (fp.labeler = tp.labeler)
   FULL OUTER JOIN
   (SELECT
     labeler,
     COUNT(DISTINCT s.relation_id) fn
   FROM
-    genepheno_association_is_correct_inference gc 
-    RIGHT JOIN genepheno_association_labels s 
+    genepheno_causation_is_correct_inference gc 
+    RIGHT JOIN genepheno_causation_precision_labels s 
       ON (s.relation_id = gc.relation_id)
   WHERe
-    COALESCE(gc.expectation, 0) <= 0.5
+    COALESCE(gc.expectation, 0) <= 0.9
     AND s.is_correct = 't'
   GROUP BY labeler) fn
   ON (fn.labeler = COALESCE(fp.labeler, tp.labeler))
@@ -62,11 +62,11 @@ FROM
     labeler,
     COUNT(DISTINCT s.relation_id) tn
   FROM
-    genepheno_association_is_correct_inference gc 
-    RIGHT JOIN genepheno_association_labels s 
+    genepheno_causation_is_correct_inference gc 
+    RIGHT JOIN genepheno_causation_precision_labels s 
       ON (s.relation_id = gc.relation_id)
   WHERe
-    COALESCE(gc.expectation, 0) <= 0.5
+    COALESCE(gc.expectation, 0) <= 0.9
     AND s.is_correct = 'f'
   GROUP BY labeler) tn
   ON (tn.labeler = COALESCE(fp.labeler, tp.labeler, fn.labeler))) a;
