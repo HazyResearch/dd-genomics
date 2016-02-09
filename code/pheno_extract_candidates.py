@@ -312,7 +312,7 @@ if __name__ == '__main__':
     # find candidate mentions & supervise
     disease_mentions = extract_candidate_mentions(row, DISEASES, DISEASE_SETS)
     pheno_mentions = extract_candidate_mentions(row, PHENOS, PHENO_SETS)
-    dwi = set([d.wordidxs for d in disease_mentions])
+    dwi = [d.wordidxs for d in disease_mentions]
     pheno_mentions_2 = []
     for p in pheno_mentions:
       if p.wordidxs not in dwi:
