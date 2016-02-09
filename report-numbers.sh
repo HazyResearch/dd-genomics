@@ -1,5 +1,6 @@
 #! /bin/bash -e
 
+export NUMERIC=en_US
 source env_local.sh
 deepdive mark todo genepheno_causation_inferred > /dev/stderr
 deepdive redo genepheno_causation_canon > /dev/stderr
@@ -16,94 +17,95 @@ read redo_weights
 echo -n "Number of documents: " 
 deepdive sql """ COPY(
 select count(distinct doc_id) from sentences_input) TO STDOUT
-"""
+""" | xargs printf "%'.f\n"
 echo -n "Number of documents with body: " 
 deepdive sql """ COPY(
 select count(distinct doc_id) from sentences_input where section_id like 'Body%') TO STDOUT
-"""
+""" | xargs printf "%'.f\n"
 echo -n "Number of sentences: " 
 deepdive sql """ COPY(
 select count(*) from sentences_input) TO STDOUT
 """
-echo
+echo | xargs printf "%'.f\n"
 
 echo -n "Number of gene objects: "
 deepdive sql """ COPY(
 select count(distinct gene_name) from genes where name_type = 'CANONICAL_SYMBOL') TO STDOUT
-"""
+""" | xargs printf "%'.f\n"
 deepdive sql """ COPY(
-select name_type, count(name_type) from genes group by name_type) TO STDOUT
+select name_type, count(name_type), count(name_type)::float * 100 / (select count(*) from genes) as percentage from genes group by name_type) TO STDOUT
 """ | column -t
 
-echo -n "How many gene candidates are there in total? "
+echo -n "How many gene mention candidates are there in total? "
 deepdive sql """ COPY(
 select count(*) from (select distinct * from gene_mentions where gene_name is not null) a) TO STDOUT
-"""
+""" | xargs printf "%'.f\n"
 
 echo -n "How many distinct gene objects do we pick up as candidates? "
 deepdive sql """ COPY(
 select count(*) from (select distinct g.canonical_name from gene_mentions m join genes g on (m.gene_name = g.gene_name)) a) TO STDOUT
-"""
+""" | xargs printf "%'.f\n"
 
 echo -n "How many distinct gene objects does Charite contain? "
 deepdive sql """ COPY(
 select count(*) from (select distinct g.canonical_name from charite c join genes g on c.ensembl_id = g.ensembl_id) a) TO STDOUT
-"""
+""" | xargs printf "%'.f\n"
 
 echo -n "How many distinct gene objects in Charite that we don't pick up as a candidate? "
 deepdive sql """ COPY(
 select count(*) from (select distinct c.ensembl_id from charite c left join genes g on c.ensembl_id = g.ensembl_id where g.ensembl_id is null) a) TO STDOUT
-"""
+""" | xargs printf "%'.f\n"
 
+echo "Breakdown of the gene pickup. WARNING: SQL cannot count NULL values, so random negatives always counted as null:"
 deepdive sql """ COPY(
-select mapping_type, count(mapping_type) from (select distinct * from gene_mentions) a group by mapping_type) TO STDOUT
+select mapping_type, count(mapping_type), count(mapping_type)::float * 100 / (select count(*) from (select distinct * from gene_mentions) b) as percentage from (select distinct * from gene_mentions) a group by mapping_type) TO STDOUT
 """ | column -t
 
 echo -n "How many non-gene-acronym definitions do we pick up? "
 deepdive sql """ COPY(
 select count(*) from non_gene_acronyms) TO STDOUT
-"""
+""" | xargs printf "%'.f\n"
 
-echo -n "How many genes do we supervise false as a result of acronym detection? "
+echo -n "How many gene mentions do we supervise false as a result of acronym detection? "
 deepdive sql """ COPY(
 select count(*) from gene_mentions where supertype like '%ABBREV%') TO STDOUT
-"""
+""" | xargs printf "%'.f\n"
 echo
 
 echo -n "How many 'allowed' (non-cancer) HPO phenotypes are there? "
 deepdive sql """ COPY(
 select count(distinct hpo_id) from allowed_phenos) TO STDOUT
-"""
+""" | xargs printf "%'.f\n"
 
 echo -n "How many pheno candidates are there in total? "
 deepdive sql """ COPY(
 select count(*) from (select distinct * from pheno_mentions where entity is not null) a) TO STDOUT
-"""
+""" | xargs printf "%'.f\n"
 
 echo -n "How many distinct pheno objects do we pick up as candidates? "
 deepdive sql """ COPY(
 select count(*) from (select distinct entity from pheno_mentions) a) TO STDOUT
-"""
+""" | xargs printf "%'.f\n"
 
 echo -n "How many distinct phenos are there in Charite (non-canonicalized)? "
 deepdive sql """ COPY (
 select count(distinct hpo_id) from charite
-) TO STDOUT"""
+) TO STDOUT""" | xargs printf "%'.f\n"
 
 echo -n "How many phenos in Charite (non-canonicalized) that we don't even pick up? "
 deepdive sql """ COPY(
 select count(*) from (select distinct c.hpo_id from charite c left join pheno_mentions pm on (c.hpo_id = pm.entity) where pm.entity is null) a) TO STDOUT
-"""
+""" | xargs printf "%'.f\n"
 
-echo "Classification of pheno candidates (top 10 classes):"
+echo "Classification of pheno candidates (top 10 classes) (AGAIN WARNING: SQL CANNOT COUNT NULL VALUES):"
 deepdive sql """ COPY(
-select supertype, count(supertype) from pheno_mentions group by supertype order by count desc) TO STDOUT
+select supertype, count(supertype), count(supertype)::float * 100 / (select count(*) from pheno_mentions) as percentage from pheno_mentions group by supertype order by count desc) TO STDOUT
 """ | column -t | head -n 10
 echo
 
-echo -n "How many sentences in which no gene and no pheno candidate occur? "
-deepdive sql """ COPY (
-select count(*) from (
+echo "How many sentences in which no gene and no pheno candidate occur? "
+deepdive sql """
+select count(*), count(*)::float * 100 / (select count(*) from sentences_input) AS percentage from (
 select a.doc_id, a.section_id, a.sent_id, a.count num_gene_mentions, b.count num_pheno_mentions 
 from (
   select si.doc_id, si.section_id, si.sent_id, count(distinct gm.mention_id) 
@@ -118,12 +120,11 @@ from (
     on (si.doc_id = pm.doc_id and si.section_id = pm.section_id and si.sent_id = pm.sent_id) 
   group by si.doc_id, si.section_id, si.sent_id) b 
 on (a.doc_id = b.doc_id and a.section_id = b.section_id and a.sent_id = b.sent_id)) c 
-where (num_gene_mentions = 0 and num_pheno_mentions = 0);
-) TO STDOUT """
+where (num_gene_mentions = 0 and num_pheno_mentions = 0)"""
 
-echo -n "How many sentences in which at least one gene and pheno candidate occur? "
-deepdive sql """ COPY (
-select count(*) from (
+echo "How many sentences in which at least one gene and pheno candidate occur? "
+deepdive sql """
+select count(*), count(*)::float * 100 / (select count(*) from sentences_input) AS percentage from (
 select a.doc_id, a.section_id, a.sent_id, a.count num_gene_mentions, b.count num_pheno_mentions 
 from (
   select si.doc_id, si.section_id, si.sent_id, count(distinct gm.mention_id) 
@@ -138,12 +139,11 @@ from (
     on (si.doc_id = pm.doc_id and si.section_id = pm.section_id and si.sent_id = pm.sent_id) 
   group by si.doc_id, si.section_id, si.sent_id) b 
 on (a.doc_id = b.doc_id and a.section_id = b.section_id and a.sent_id = b.sent_id)) c 
-where (num_gene_mentions >= 1 and num_pheno_mentions >= 1);
-) TO STDOUT """
+where (num_gene_mentions >= 1 and num_pheno_mentions >= 1)"""
 
 echo -n "How many sentences in which at least 2genes+3phenos or 3genes+2phenos occur? "
-deepdive sql """ COPY (
-select count(*) from (
+deepdive sql """
+select count(*), count(*)::float * 100 / (select count(*) from sentences_input) AS percentage from (
 select a.doc_id, a.section_id, a.sent_id, a.count num_gene_mentions, b.count num_pheno_mentions 
 from (
   select si.doc_id, si.section_id, si.sent_id, count(distinct gm.mention_id) 
@@ -158,10 +158,9 @@ from (
     on (si.doc_id = pm.doc_id and si.section_id = pm.section_id and si.sent_id = pm.sent_id) 
   group by si.doc_id, si.section_id, si.sent_id) b 
 on (a.doc_id = b.doc_id and a.section_id = b.section_id and a.sent_id = b.sent_id)) c 
-where (num_gene_mentions >= 2 and num_pheno_mentions >= 3) or (num_gene_mentions >= 3 and num_pheno_mentions >= 2);
-) TO STDOUT """
+where (num_gene_mentions >= 2 and num_pheno_mentions >= 3) or (num_gene_mentions >= 3 and num_pheno_mentions >= 2)"""
 
-echo -n "How many gene name+pheno pairs occur in total single sentences (no random negatives)? "
+echo -n "How many gene mention+pheno mention pairs occur in total single sentences (no random negatives)? "
 deepdive sql """ COPY(
 select count(*) from (select gm.gene_name, pm.entity from genepheno_pairs p join gene_mentions gm on (p.gene_mention_id = gm.mention_id) join pheno_mentions pm on (p.pheno_mention_id = pm.mention_id) where gm.gene_name is not null and pm.entity is not null) a) TO STDOUT
 """
@@ -169,14 +168,14 @@ select count(*) from (select gm.gene_name, pm.entity from genepheno_pairs p join
 echo -n "How many distinct gene object+pheno pairs occur in total single sentences (no random negatives)? "
 deepdive sql """ COPY(
 select count(*) from (select distinct canonical_name, pheno_entity from genepheno_pairs p join gene_mentions gm on (p.gene_mention_id = gm.mention_id) join pheno_mentions pm on (p.pheno_mention_id = pm.mention_id) join genes g on (gm.gene_name = g.gene_name) where gm.gene_name is not null and pm.entity is not null) a) TO STDOUT
-"""
+""" | xargs printf "%'.f\n"
 
-echo -n "How many gene name+pheno pairs do we subject to inference? (I.e. after all filtering by dependency path distance; after filtering out genes+phenos we CURRENTLY don't like ...) "
+echo -n "How many gene mention+pheno pairs do we subject to inference? (I.e. after all filtering by dependency path distance; after filtering out genes+phenos we CURRENTLY don't like ...) "
 deepdive sql """ COPY(
 select count(*) from genepheno_causation) TO STDOUT
-"""
+""" | xargs printf "%'.f\n"
 
-echo "How does the broad gene distant supervision picture look? "
+echo "How does the broad gene mention distant supervision picture look? "
 deepdive sql """ COPY(
 select supertype, count(supertype) from gene_mentions group by supertype order by count desc) TO STDOUT
 """ | column -t
@@ -202,7 +201,7 @@ deepdive sql """ COPY(
 select a.count::float / b.count::float from (select count(*) as count from genepheno_causation c) b, (select count(*) as count from genepheno_features f join genepheno_causation c on (f.relation_id = c.relation_id)) a) TO STDOUT
 """
 
-echo "What are the highest weighted features for gene? "
+echo "What are the highest weighted features for gene mentions? "
 deepdive sql """
 COPY (
   select description, weight from weights w where w.description like '%gene_mentions_filtered%' order by weight desc limit 10
@@ -210,7 +209,7 @@ COPY (
 """ | column -s $'\t' -t
 echo
 
-echo "What are the lowest weighted features for gene? "
+echo "What are the lowest weighted features for gene mentions? "
 deepdive sql """
 COPY (
   select description, weight from weights w where w.description like '%gene_mentions_filtered%' order by weight asc limit 10
@@ -243,7 +242,6 @@ echo
 
 echo "What does the expectation-distribution for gene look like? "
 deepdive sql """
-COPY (
 SELECT
   CASE
     WHEN expectation BETWEEN 0 and 0.1 THEN '0'
@@ -257,16 +255,16 @@ SELECT
     WHEN expectation BETWEEN 0.8 and 0.9 THEN '0.8'
     WHEN expectation BETWEEN 0.9 and 1 THEN '0.9'
   END AS binned_exp,
-  COUNT(*)
+  COUNT(*) as count,
+  COUNT(*)::float * 100 / (select count(*) from gene_mentions_filtered_inference_label_inference) as percentage
 FROM gene_mentions_filtered_inference_label_inference
 GROUP BY binned_exp
-ORDER BY binned_exp) TO STDOUT
+ORDER BY binned_exp
 """ | column -t
 echo
 
 echo "What does the expectation-distribution for genepheno look like? "
 deepdive sql """
-COPY (
 SELECT
   CASE
     WHEN expectation BETWEEN 0 and 0.1 THEN '0'
@@ -280,11 +278,11 @@ SELECT
     WHEN expectation BETWEEN 0.8 and 0.9 THEN '0.8'
     WHEN expectation BETWEEN 0.9 and 1 THEN '0.9'
   END AS binned_exp,
-  COUNT(*)
+  COUNT(*),
+  COUNT(*)::float * 100 / (select count(*) from genepheno_causation_inference_label_inference) as percentage
 FROM genepheno_causation_inference_label_inference
 GROUP BY binned_exp
 ORDER BY binned_exp
-) TO STDOUT
 """ | column -t
 echo
 
@@ -294,21 +292,21 @@ COPY (
 select count(*) from
 (select distinct g.canonical_name, c.pheno_entity from genepheno_causation_inference_label_inference i join genepheno_causation c on (i.relation_id = c.relation_id) join genes g on (c.gene_name = g.gene_name) where i.expectation > 0.9 )a
 ) TO STDOUT
-"""
+""" | xargs printf "%'.f\n"
 
 echo -n "How many distinct gene object-pheno causation pairs do we infer with expectation > 0.9? (canonicalized pheno) "
 deepdive sql """
 COPY (
 select count(*) from (select distinct * from genepheno_causation_canon) a
 ) TO STDOUT
-"""
+""" | xargs printf "%'.f\n"
 
 echo -n "How many distinct gene object-pheno pairs does Charite contain (canonicalized phenotypes) with 'allowed' pheno (phenotypic abnormality, non-cancer)? "
 deepdive sql """
 COPY (
 select count(*) from (select distinct c.hpo_id, ensembl_id from charite_canon c join allowed_phenos a on c.hpo_id = a.hpo_id) a
 ) TO STDOUT
-"""
+""" | xargs printf "%'.f\n"
 
 echo -n "How many distinct gene objects do we have in genepheno pairs with expectation > 0.9? "
 deepdive sql """
@@ -316,7 +314,7 @@ COPY (
 select count(*) from
 (select distinct g.ensembl_id from genepheno_causation_canon g) a
 ) TO STDOUT
-"""
+""" | xargs printf "%'.f\n"
 
 echo -n "How many distinct phenos do we have in genepheno pairs with expectation > 0.9? (canonicalized pheno)? "
 deepdive sql """
@@ -324,7 +322,7 @@ COPY (
 select count(*) from
 (select distinct hpo_id from genepheno_causation_canon) a
 ) TO STDOUT
-"""
+""" | xargs printf "%'.f\n"
 
 echo -n "How many distinct gene object-pheno (canonicalized) pairs do we have inferred that are not in canonicalized Charite? "
 deepdive sql """
@@ -332,7 +330,7 @@ COPY (
 select count(*) from
 (select distinct g.ensembl_id, g.hpo_id from genepheno_causation_canon g left join charite_canon cc on (g.ensembl_id = cc.ensembl_id and g.hpo_id = cc.hpo_id) where cc.hpo_id is null) a
 ) TO STDOUT
-"""
+""" | xargs printf "%'.f\n"
 
 echo "What are the top journals? I.e. the journals where we inferred most genepheno pairs per document? (Requiring at least 1000 documents in journal)"
 deepdive sql """
