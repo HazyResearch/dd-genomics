@@ -420,6 +420,8 @@ select
   doc_id,
   section_id,
   sent_id,
+  ARRAY_AGG(ensembl_id),
+  ARRAY_AGG(pheno_entity),
   ARRAY_AGG(gene_name),
   ARRAY_AGG(pheno_word),
   sentence
@@ -428,6 +430,8 @@ FROM (
     si.doc_id,
     si.section_id,
     si.sent_id,
+    g.ensembl_id,
+    gc.pheno_entity,
     gc.gene_name,
     (STRING_TO_ARRAY(si.words, '|^|'))[gc.pheno_wordidxs[1]+1] pheno_word,
     ARRAY_TO_STRING(STRING_TO_ARRAY(si.words, '|^|'), ' ') sentence

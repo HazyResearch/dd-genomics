@@ -1,0 +1,84 @@
+##### SUMMARY #####
+True positives:	36
+True negatives:	1461
+False positives:	7
+False negatives:	113
+
+
+Precision:	0.837209302326
+Recall:	0.241610738255
+F1 score:	0.375
+
+
+##### tpalo #####
+True positives:	1
+True negatives:	92
+False positives:	1
+False negatives:	3
+
+
+Precision:	0.5
+Recall:	0.25
+F1 score:	0.333333333333
+
+
+##### CHLOE #####
+True positives:	1
+True negatives:	306
+False positives:	3
+False negatives:	8
+
+
+Precision:	0.25
+Recall:	0.111111111111
+F1 score:	0.153846153846
+
+
+##### yahres #####
+True positives:	0
+True negatives:	2
+False positives:	0
+False negatives:	0
+
+
+Precision:	N/A (not enough examples)
+Recall:	N/A (not enough examples)
+F1 score:	N/A (not enough examples)
+
+
+##### JOHANNES #####
+True positives:	33
+True negatives:	1057
+False positives:	3
+False negatives:	99
+
+
+Precision:	0.916666666667
+Recall:	0.25
+F1 score:	0.392857142857
+
+
+##### AARON #####
+True positives:	1
+True negatives:	4
+False positives:	0
+False negatives:	3
+
+
+Precision:	1.0
+Recall:	0.25
+F1 score:	0.4
+
+
+##### HARENDRA #####
+True positives:	0
+True negatives:	0
+False positives:	0
+False negatives:	0
+
+
+Precision:	N/A (not enough examples)
+Recall:	N/A (not enough examples)
+F1 score:	N/A (not enough examples)
+
+
