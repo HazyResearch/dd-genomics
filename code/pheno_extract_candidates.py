@@ -310,10 +310,14 @@ if __name__ == '__main__':
       continue
 
     # find candidate mentions & supervise
-    mentions = extract_candidate_mentions(row, DISEASES, DISEASE_SETS)
-    if not mentions:
-      # extract "real" phenos only if we didn't extract disease in the first place
-      mentions = extract_candidate_mentions(row, PHENOS, PHENO_SETS)
+    disease_mentions = extract_candidate_mentions(row, DISEASES, DISEASE_SETS)
+    pheno_mentions = extract_candidate_mentions(row, PHENOS, PHENO_SETS)
+    dwi = set([d.wordidxs for d in disease_mentions])
+    pheno_mentions_2 = []
+    for p in pheno_mentions:
+      if p.wordidxs not in dwi:
+        pheno_mentions_2.append(p)
+    mentions = disease_mentions + pheno_mentions_2
 
     if SR.get('rand-negs'):
       mentions += generate_rand_negatives(row, mentions)
