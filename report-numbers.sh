@@ -101,6 +101,66 @@ select supertype, count(supertype) from pheno_mentions group by supertype order 
 """ | column -t | head -n 10
 echo
 
+echo -n "How many sentences in which no gene and no pheno candidate occur? "
+deepdive sql """ COPY (
+select count(*) from (
+select a.doc_id, a.section_id, a.sent_id, a.count num_gene_mentions, b.count num_pheno_mentions 
+from (
+  select si.doc_id, si.section_id, si.sent_id, count(distinct gm.mention_id) 
+  from sentences_input si 
+  left join gene_mentions gm 
+    on (si.doc_id = gm.doc_id and si.section_id = gm.section_id and si.sent_id = gm.sent_id) 
+  group by si.doc_id, si.section_id, si.sent_id) a 
+  join (
+  select si.doc_id, si.section_id, si.sent_id, count(distinct pm.mention_id) 
+  from sentences_input si 
+  left join pheno_mentions pm 
+    on (si.doc_id = pm.doc_id and si.section_id = pm.section_id and si.sent_id = pm.sent_id) 
+  group by si.doc_id, si.section_id, si.sent_id) b 
+on (a.doc_id = b.doc_id and a.section_id = b.section_id and a.sent_id = b.sent_id)) c 
+where (num_gene_mentions = 0 and num_pheno_mentions = 0);
+) TO STDOUT """
+
+echo -n "How many sentences in which at least one gene and pheno candidate occur? "
+deepdive sql """ COPY (
+select count(*) from (
+select a.doc_id, a.section_id, a.sent_id, a.count num_gene_mentions, b.count num_pheno_mentions 
+from (
+  select si.doc_id, si.section_id, si.sent_id, count(distinct gm.mention_id) 
+  from sentences_input si 
+  left join gene_mentions gm 
+    on (si.doc_id = gm.doc_id and si.section_id = gm.section_id and si.sent_id = gm.sent_id) 
+  group by si.doc_id, si.section_id, si.sent_id) a 
+  join (
+  select si.doc_id, si.section_id, si.sent_id, count(distinct pm.mention_id) 
+  from sentences_input si 
+  left join pheno_mentions pm 
+    on (si.doc_id = pm.doc_id and si.section_id = pm.section_id and si.sent_id = pm.sent_id) 
+  group by si.doc_id, si.section_id, si.sent_id) b 
+on (a.doc_id = b.doc_id and a.section_id = b.section_id and a.sent_id = b.sent_id)) c 
+where (num_gene_mentions >= 1 and num_pheno_mentions >= 1);
+) TO STDOUT """
+
+echo -n "How many sentences in which at least 2genes+3phenos or 3genes+2phenos occur? "
+deepdive sql """ COPY (
+select count(*) from (
+select a.doc_id, a.section_id, a.sent_id, a.count num_gene_mentions, b.count num_pheno_mentions 
+from (
+  select si.doc_id, si.section_id, si.sent_id, count(distinct gm.mention_id) 
+  from sentences_input si 
+  left join gene_mentions gm 
+    on (si.doc_id = gm.doc_id and si.section_id = gm.section_id and si.sent_id = gm.sent_id) 
+  group by si.doc_id, si.section_id, si.sent_id) a 
+  join (
+  select si.doc_id, si.section_id, si.sent_id, count(distinct pm.mention_id) 
+  from sentences_input si 
+  left join pheno_mentions pm 
+    on (si.doc_id = pm.doc_id and si.section_id = pm.section_id and si.sent_id = pm.sent_id) 
+  group by si.doc_id, si.section_id, si.sent_id) b 
+on (a.doc_id = b.doc_id and a.section_id = b.section_id and a.sent_id = b.sent_id)) c 
+where (num_gene_mentions >= 2 and num_pheno_mentions >= 3) or (num_gene_mentions >= 3 and num_pheno_mentions >= 2);
+) TO STDOUT """
+
 echo -n "How many gene name+pheno pairs occur in total single sentences (no random negatives)? "
 deepdive sql """ COPY(
 select count(*) from (select gm.gene_name, pm.entity from genepheno_pairs p join gene_mentions gm on (p.gene_mention_id = gm.mention_id) join pheno_mentions pm on (p.pheno_mention_id = pm.mention_id) where gm.gene_name is not null and pm.entity is not null) a) TO STDOUT
