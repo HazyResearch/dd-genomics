@@ -3,10 +3,37 @@
 # Currently, the mindbender has some troubles tracing sentence with multiple keys, so tables are created, e.g., *_view with view_key for view
 
 diseases (
+  @distributed_by
   omim_id text,
   names text,
   alt_names text
 ).
+
+diseases_concat_names (
+  @distributed_by
+  omim_id text,
+  names text
+).
+
+diseases_concat_names(omim_id, names || "|^|" || alt_names) :-
+  diseases(omim_id, names, alt_names).
+
+phenotypic_series (
+  @distributed_by
+  omim_id text,
+  name text
+).
+
+pheno_names (
+  @distributed_by
+  id text,
+  names text
+).
+
+pheno_names(id, names) :-
+  diseases_concat_names(id, names);
+  allowed_phenos_concat_names(id, names);
+  phenotypic_series(id, names).
 
 @source
 sentences_input_views(
@@ -688,6 +715,15 @@ allowed_phenos (
   hpo_id text,
   names text,
   synonyms text).
+
+allowed_phenos_concat_names (
+  @distributed_by
+  hpo_id text,
+  names text).
+
+allowed_phenos_concat_names(omim_id, names || "|^|" || alt_names) :-
+  allowed_phenos(omim_id, names, alt_names).
+
 
 gene_holdout_set (
         @distributed_by
@@ -1404,9 +1440,9 @@ genepheno_causation_canon (
   ensembl_id text
 ).
 
-genepheno_causation_canon_disease (
+genepheno_causation_disease (
   @distributed_by 
-  hpo_id text,
+  omim_id text,
   ensembl_id text
 ).
 
@@ -1426,9 +1462,9 @@ function canonicalize_genepheno_relations over rows like genepheno_causation_can
 returns rows like genepheno_causation_canon
 implementation "onto/canonicalize_gene_phenotype.sh" handles tsv lines.
 
-genepheno_causation_canon_disease(hpo_id, ensembl_id) :-
+genepheno_causation_disease(omim_id, ensembl_id) :-
   genepheno_causation_inferred(omim_id, ensembl_id),
-  omim_disease_to_hpo(omim_id, hpo_id).
+  omim_id LIKE "OMIM:%".
 
 genepheno_causation_canon_pheno(hpo_id, ensembl_id) :-
   genepheno_causation_inferred(hpo_id, ensembl_id),
