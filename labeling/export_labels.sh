@@ -38,7 +38,7 @@ if [ $1 = 'gene' ]; then
 	done
 elif [ $1 = 'pheno' ]; then
         for DIR in *-pheno-holdout.$NAME; do
-                ./extract_labels_from_json.py $DIR/tags.json $NAME > tmp.tsv
+                ./extract_pheno_labels_from_json.py $DIR/tags.json $NAME > tmp.tsv
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE IF EXISTS tmp'  
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'CREATE TABLE tmp(mention_id text, is_correct text, labeler text, version int)'
                 cat tmp.tsv | psql -U $DDUSER -p 6432 -d genomics_labels -c 'COPY tmp FROM STDIN;'  

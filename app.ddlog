@@ -1436,7 +1436,7 @@ genepheno_causation_canon += canonicalize_genepheno_relations(hpo_id, ensembl_id
 gene_mentions_filtered_inference?(
   @references(relation="gene_mentions_views", column="mention_id")
 mention_id text).
-#pheno_mentions_filtered_inference?(mention_id text).
+pheno_mentions_filtered_inference?(mention_id text).
 genepheno_causation_inference?(
   @references(relation="genepheno_causation_views", column="relation_id")
 relation_id text).
@@ -1450,7 +1450,7 @@ non_gene_acronyms_inference?(mention_id text).
 gene_mentions_filtered_inference(mention_id) = is_correct :- gene_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct).
 
 #@label(is_correct)
-#pheno_mentions_filtered_inference(mention_id) :- pheno_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
+pheno_mentions_filtered_inference(mention_id) = is_correct :- pheno_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
 
 
 @label(is_correct)
@@ -1472,10 +1472,10 @@ gene_mentions_filtered_inference(mention_id) :-
   gene_features(_, _, mention_id, feature).
 
 #pheno_inference
-#@weight(feature)
-#pheno_mentions_filtered_inference(mention_id) :-
-#  pheno_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct),
-#  pheno_features(_, _, mention_id, feature).
+@weight(feature)
+pheno_mentions_filtered_inference(mention_id) :-
+  pheno_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct),
+  pheno_features(_, _, mention_id, feature).
 
 #non_gene_acronyms_inference
 @weight(feature)
