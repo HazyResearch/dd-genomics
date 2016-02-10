@@ -36,6 +36,18 @@ if [ $1 = 'gene' ]; then
 		cat tmp.tsv >> "labels/gene_$NAME"
 		rm tmp.tsv
 	done
+elif [ $1 = 'gene_precision' ]; then
+        for DIR in *-gene-holdout-high-precision.$NAME; do
+                ./extract_gene_labels_from_json.py $DIR/tags.json $NAME > tmp.tsv
+                psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE IF EXISTS tmp'
+                psql -U $DDUSER -p 6432 -d genomics_labels -c 'CREATE TABLE tmp(mention_id text, is_correct text, labeler text, version int)'
+                cat tmp.tsv | psql -U $DDUSER -p 6432 -d genomics_labels -c 'COPY tmp FROM STDIN;'
+                psql -U $DDUSER -p 6432 -d genomics_labels -c 'INSERT INTO tmp SELECT * FROM gene_precision_labels gl WHERE (gl.mention_id,  gl.labeler) NOT IN (SELECT mention_id, labeler FROM tmp)'
+                psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE gene_precision_labels'
+                psql -U $DDUSER -p 6432 -d genomics_labels -c 'ALTER TABLE tmp RENAME TO gene_precision_labels'
+                cat tmp.tsv >> "labels/gene_precision_$NAME"
+                rm tmp.tsv
+        done
 elif [ $1 = 'pheno' ]; then
         for DIR in *-pheno-holdout.$NAME; do
                 ./extract_labels_from_json.py $DIR/tags.json $NAME > tmp.tsv
@@ -86,7 +98,7 @@ elif [ $1 = 'genepheno_causation_precision' ]; then
         done
 else
         echo "Argument not valid"
-        echo "$0: USAGE: $0 {gene,pheno,genepheno,genepheno_causation_precision} OPTIONAL_NAME" >&2
+        echo "$0: USAGE: $0 {gene,pheno,genepheno,genepheno_causation_precision,gene_precision} OPTIONAL_NAME" >&2
         exit 1
 fi
 
