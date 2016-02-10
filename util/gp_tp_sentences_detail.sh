@@ -1,6 +1,13 @@
 #!/bin/bash -e
 set -beEu -o pipefail
 
+if [ $# -eq 1 ]
+then
+  version_string="AND version = $1"
+else
+  version_string=""
+fi
+
 cd ..
 source env_local.sh
 
@@ -21,7 +28,8 @@ FROM
     ON (s.relation_id = gc.relation_id)
 WHERE
   COALESCE(gc.expectation, 0) > 0.9 
-  AND s.is_correct = 'f') TO STDOUT;
+  AND s.is_correct = 'f'
+  $version_string) TO STDOUT;
 """ | while read rid
 do
 echo "BASE INFO"

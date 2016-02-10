@@ -1,6 +1,13 @@
 #!/bin/bash -e
 set -beEu -o pipefail
 
+if [ $# -eq 1 ]
+then
+  version_string="AND version = $1"
+else
+  version_string=""
+fi
+
 cd ..
 source env_local.sh
 deepdive sql """
@@ -27,9 +34,10 @@ FROM
     genepheno_causation_is_correct_inference gc 
     RIGHT JOIN genepheno_causation_precision_labels s 
       ON (s.relation_id = gc.relation_id)
-  WHERe
+  WHERE
     COALESCE(gc.expectation, 0) > 0.9 
     AND s.is_correct = 'f'
+    $version_string
   GROUP BY labeler) fp
   FULL OUTER JOIN
   (SELECT
@@ -39,9 +47,10 @@ FROM
     genepheno_causation_is_correct_inference gc 
     RIGHT JOIN genepheno_causation_precision_labels s 
       ON (s.relation_id = gc.relation_id)
-  WHERe
+  WHERE
     COALESCE(gc.expectation, 0) > 0.9 
     AND s.is_correct = 't'
+    $version_string
   GROUP BY labeler) tp
   ON (fp.labeler = tp.labeler)
   FULL OUTER JOIN
@@ -52,9 +61,10 @@ FROM
     genepheno_causation_is_correct_inference gc 
     RIGHT JOIN genepheno_causation_precision_labels s 
       ON (s.relation_id = gc.relation_id)
-  WHERe
+  WHERE
     COALESCE(gc.expectation, 0) <= 0.9
     AND s.is_correct = 't'
+    $version_string
   GROUP BY labeler) fn
   ON (fn.labeler = COALESCE(fp.labeler, tp.labeler))
   FULL OUTER JOIN
@@ -65,9 +75,10 @@ FROM
     genepheno_causation_is_correct_inference gc 
     RIGHT JOIN genepheno_causation_precision_labels s 
       ON (s.relation_id = gc.relation_id)
-  WHERe
+  WHERE
     COALESCE(gc.expectation, 0) <= 0.9
     AND s.is_correct = 'f'
+    $version_string
   GROUP BY labeler) tn
   ON (tn.labeler = COALESCE(fp.labeler, tp.labeler, fn.labeler))) a;
 """

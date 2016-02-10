@@ -4,6 +4,13 @@ set -beEu -o pipefail
 cd ..
 source env_local.sh
 
+if [ $# -eq 1 ]
+then
+  version_string="AND version = $1"
+else
+  version_string=""
+fi
+
 #deepdive sql """
 #drop table weights;
 #create table weights as (select * from dd_inference_result_variables_mapped_weights) distributed by (id);
@@ -21,7 +28,8 @@ FROM
     ON (s.relation_id = gc.relation_id)
 WHERE
   COALESCE(gc.expectation, 0) > 0.9 
-  AND s.is_correct = 'f') TO STDOUT;
+  AND s.is_correct = 'f'
+  $version_string) TO STDOUT;
 """ | while read rid
 do
 echo "BASE INFO"
