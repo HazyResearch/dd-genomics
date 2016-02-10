@@ -14,5 +14,5 @@ join -1 2 -2 1 -t $'\t' \
     grep 'CANONICAL' | 
     awk -F '[:\t]' '{OFS="\t"; print $1, $2, $3, $4}' | 
     cut -f 1,3 | sort -k1,1) | 
-    awk '{OFS="\t"; print $3, $2}' |
+    awk '{OFS="\t"; print $2, $3}' |
     sort | uniq > manual/charite_supervision.tsv

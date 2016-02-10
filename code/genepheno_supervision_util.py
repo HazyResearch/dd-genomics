@@ -65,7 +65,10 @@ def read_supervision():
   with open('%s/onto/manual/charite_supervision.tsv' % util.APP_HOME) as f:
     for line in f:
       hpo_id, gene_name = line.strip().split('\t')
-      hpo_ids = [hpo_id] + [parent for parent in HPO_DAG.edges[hpo_id]]
+      if hpo_id in HPO_DAG.edges:
+        hpo_ids = [hpo_id] + [parent for parent in HPO_DAG.edges[hpo_id]]
+      else:
+        hpo_ids = [hpo_id]
       for h in hpo_ids:
         supervision_pairs.add((h, gene_name))
   return supervision_pairs
