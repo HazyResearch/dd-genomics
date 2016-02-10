@@ -92,8 +92,8 @@ gene_mentions_views(
   features text[],
   @searchable
   weights text[],
-  @searchable
-  is_correct_labels text,
+  @navigable
+  is_correct_labels boolean,
   @navigable
   labeler text,
   @references(relation="sentences_input_views", column="views_key", alias="sent_gene")
@@ -180,7 +180,7 @@ genepheno_causation_views(
   features text[],
   @searchable
   weights text[],
-  @searchable
+  @navigable
   is_correct_labels boolean,
   @navigable
   labeler text,
