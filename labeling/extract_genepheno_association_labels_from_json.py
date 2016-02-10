@@ -12,7 +12,7 @@ if os.path.exists('version_labeling'):
     for i, line in enumerate(f):
       if i == 0:
         version = line[0].strip()
-else:
+else: 
   print 'version_labeling file doesn\'t exist'
   print 'setting version to 0'
 
@@ -25,24 +25,16 @@ if __name__ == "__main__":
     if 'is_correct' in results['by_key'][key]:
       rv = results['by_key'][key]['is_correct']
       type_value = None
-      if u'Causation' in results['by_key'][key]:
-        val = results['by_key'][key]['Causation']
-        if val == True:
-          type_value = None
-          rv = False
-      elif u'Association' in results['by_key'][key]:
-        val = results['by_key'][key]['Association']
-        if val == True:
-          type_value = 'association'
-      elif u'causation' in results['by_key'][key]:
-        val = results['by_key'][key]['causation']
-        if val == True:
-          type_value = None
-          rv = False
-      elif u'association' in results['by_key'][key]:
-        val = results['by_key'][key]['association']
-        if val == True:
-          type_value = 'association'
+      if u'Causation' in results['by_key'][key] and results['by_key'][key]['Causation'] == True:
+        type_value = None
+        rv = False
+      elif u'Association' in results['by_key'][key] and results['by_key'][key]['Association']:
+        type_value = 'association'
+      elif u'causation' in results['by_key'][key] and results['by_key'][key]['causation'] == True:
+        type_value = None
+        rv = False
+      elif u'association' in results['by_key'][key] and results['by_key'][key]['association'] == True:
+        type_value = 'association'
       is_correct = None
       if rv == True:
         is_correct = 't'
