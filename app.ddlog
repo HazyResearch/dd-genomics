@@ -597,6 +597,13 @@ charite (
   source text
 ).
 
+charite_disease (
+  @distributed_by
+  hpo_id text,
+  ensembl_id text,
+  omim_id text
+).
+
 hgvs_hpo (
   variant text,
   hpo_id text
@@ -1397,13 +1404,13 @@ genepheno_causation_canon (
   ensembl_id text
 ).
 
-genepheno_causation_canon_1 (
+genepheno_causation_canon_disease (
   @distributed_by 
   hpo_id text,
   ensembl_id text
 ).
 
-genepheno_causation_canon_2 (
+genepheno_causation_canon_pheno (
   @distributed_by 
   hpo_id text,
   ensembl_id text
@@ -1419,17 +1426,16 @@ function canonicalize_genepheno_relations over rows like genepheno_causation_can
 returns rows like genepheno_causation_canon
 implementation "onto/canonicalize_gene_phenotype.sh" handles tsv lines.
 
-genepheno_causation_canon_1(hpo_id, ensembl_id) :-
+genepheno_causation_canon_disease(hpo_id, ensembl_id) :-
   genepheno_causation_inferred(omim_id, ensembl_id),
   omim_disease_to_hpo(omim_id, hpo_id).
 
-genepheno_causation_canon_2(hpo_id, ensembl_id) :-
+genepheno_causation_canon_pheno(hpo_id, ensembl_id) :-
   genepheno_causation_inferred(hpo_id, ensembl_id),
   hpo_id LIKE "HP:%".
 
 genepheno_causation_canon += canonicalize_genepheno_relations(hpo_id, ensembl_id) *:-
-  genepheno_causation_canon_1(hpo_id, ensembl_id);
-  genepheno_causation_canon_2(hpo_id, ensembl_id).
+  genepheno_causation_canon_pheno(hpo_id, ensembl_id).
 
 ##### Declare Variable Relations #####
 
