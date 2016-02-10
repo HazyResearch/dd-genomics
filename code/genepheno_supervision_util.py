@@ -1,4 +1,4 @@
-emport collections
+import collections
 import extractor_util as util
 import data_util as dutil
 import dep_util as deps
