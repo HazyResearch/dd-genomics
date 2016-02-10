@@ -50,7 +50,12 @@ DEEPDIVE_PLAN_EDIT=false deepdive do dd_inference_result_variables_mapped_weight
 #deepdive sql "insert into dd_inference_result_variables_mapped_weights_bis select * from dd_inference_result_variables_mapped_weights;"
 deepdive sql 'drop table if exists dd_inference_result_variables_mapped_weights_bis; drop view if exists dd_inference_result_variables_mapped_weights_bis; create view dd_inference_result_variables_mapped_weights_bis as (select * from dd_inference_result_variables_mapped_weights);'
 
-DEEPDIVE_PLAN_EDIT=false deepdive redo dumb_for_views
+DEEPDIVE_PLAN_EDIT=false deepdive do sentences_input_views
+DEEPDIVE_PLAN_EDIT=false deepdive do gene_mentions_views
+DEEPDIVE_PLAN_EDIT=false deepdive do pheno_mentions_views
+DEEPDIVE_PLAN_EDIT=false deepdive do genepheno_causation_views
+
+
 
 database_greenplum=$(cat db_for_gp.url | sed 's/.*:\/\/.*\///')
 
@@ -59,7 +64,6 @@ export PATH=/dfs/scratch0/netj/postgresql/9.4.4/bin:$PATH
 
 if $sentences_to_be_re_run
 then   
-    DEEPDIVE_PLAN_EDIT=false deepdive do sentences_input_views
     pg_dump -p 6432 -h raiders7 -U tpalo ${database_greenplum} -t sentences_input_views > ../tables_for_views/sentences_input_views.sql
     echo 'table sentences_input_views.sql dumped'
 fi

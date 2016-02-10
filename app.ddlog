@@ -175,7 +175,7 @@ genepheno_causation_views(
   @searchable
   weights text[],
   @searchable
-  is_correct_labels text,
+  is_correct_labels boolean,
   @navigable
   labeler text,
   @navigable
@@ -201,7 +201,7 @@ genepheno_causation_views_temp(
   subtype text,
   features text[],
   weights text[],
-  is_correct_labels text,
+  is_correct_labels boolean,
   labeler text,
   views_key text).
 
