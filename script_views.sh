@@ -84,6 +84,11 @@ echo 'table genepheno_causation_inference.sql dumped'
 
 cp db_for_pg.url db.url
 
+function finish {
+    cp db_for_gp.url db.url
+}
+trap finish EXIT
+
 if $sentences_to_be_re_run
 then   
     DEEPDIVE_PLAN_EDIT=false deepdive redo init/db
