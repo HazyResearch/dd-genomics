@@ -780,7 +780,7 @@ version int).
 
 genepheno_causation_precision_labels
 (relation_id text,
-is_correct text,
+is_correct boolean,
 labeler text,
 version int).
 
