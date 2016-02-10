@@ -513,6 +513,53 @@ order by random() limit 10
 """
 echo
 
+echo "Printing 10 random sentences with gene-disease pairs that are inferred true and not in Charite:"
+deepdive sql """
+COPY (
+SELECT 
+  doc_id, 
+  section_id, 
+  sent_id, 
+  ARRAY_AGG(gene_name), 
+  ARRAY_AGG(supertype), 
+  ARRAY_AGG(pheno_entity), 
+  ARRAY_AGG(pheno_name), 
+  sentence
+FROM (
+  select distinct 
+    si.doc_id, 
+    si.section_id, 
+    si.sent_id, 
+    gc.gene_name, 
+    gc.supertype, 
+    gc.pheno_entity, 
+    (STRING_TO_ARRAY(pn.names, '|^|'))[1] pheno_name, 
+    ARRAY_TO_STRING(STRING_TO_ARRAY(si.words, '|^|'), ' ') sentence 
+  from 
+    sentences_input si 
+    join genepheno_causation gc 
+      on (si.doc_id = gc.doc_id and si.section_id = gc.section_id and si.sent_id = gc.sent_id) 
+    join genepheno_causation_inference_label_inference i 
+      on (gc.relation_id = i.relation_id) 
+    join genes g 
+      on (g.gene_name = gc.gene_name) 
+    join pheno_names pn 
+      on (pn.id = gc.pheno_entity) 
+    left join charite_disease_canon d 
+      on (g.ensembl_id = d.ensembl_id and gc.pheno_entity = d.omim_id) 
+  where 
+    d.ensembl_id is null 
+    and expectation > 0.9 
+    and gc.pheno_entity like 'OMIM:%' 
+    and pn.names not like '%CANCER%' 
+    and pn.names not like '%CARCINOMA%') a 
+group by 
+  doc_id, section_id, sent_id, sentence 
+order by random()
+limit 100
+) TO STDOUT
+"""
+
 echo "Genepheno holdout false positives for causation: "
 ./gp_holdout_fp_caus_sentences.sh
 echo

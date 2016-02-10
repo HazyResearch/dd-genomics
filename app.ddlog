@@ -24,6 +24,12 @@ phenotypic_series (
   name text
 ).
 
+phenotypic_series_to_omim (
+  ps_id text,
+  @distributed_by
+  omim_id text
+).
+
 pheno_names (
   @distributed_by
   id text,
@@ -630,6 +636,18 @@ charite_disease (
   ensembl_id text,
   omim_id text
 ).
+
+charite_disease_canon (
+  @distributed_by
+  hpo_id text,
+  ensembl_id text,
+  omim_id text
+).
+
+charite_disease_canon(hpo_id, ensembl_id, id) *:-
+  charite_disease(hpo_id, ensembl_id, id);
+  charite_disease(hpo_id, ensembl_id, omim_id),
+  phenotypic_series_to_omim(id, omim_id).
 
 hgvs_hpo (
   variant text,
