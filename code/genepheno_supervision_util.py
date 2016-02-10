@@ -62,7 +62,7 @@ def replace_opts(opts, replaceList):
 def read_supervision():
   """Reads genepheno supervision data (from charite)."""
   supervision_pairs = set()
-  with open('%s/onto/manual/charite_supervision' % util.APP_HOME) as f:
+  with open('%s/onto/manual/charite_supervision.tsv' % util.APP_HOME) as f:
     for line in f:
       hpo_id, gene_name = line.strip().split('\t')
       hpo_ids = [hpo_id] + [parent for parent in HPO_DAG.edges[hpo_id]]
