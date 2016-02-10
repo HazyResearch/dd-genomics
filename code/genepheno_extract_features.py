@@ -4,6 +4,7 @@ from collections import namedtuple
 import os
 import sys
 import ddlib
+from treedlib import corenlp_to_xmltree, get_relation_features
 
 parser = util.RowParser([
           ('relation_id', 'text'),
@@ -19,13 +20,15 @@ parser = util.RowParser([
           ('poses', 'text[]'),
           ('ners', 'text[]'),
           ('dep_paths', 'text[]'),
-          ('dep_parents', 'int[]')])
+          ('dep_parents', 'int[]'),
+          ('num_gene_mentions', 'int'),
+          ('num_pheno_mentions', 'int')])
 
 
 Feature = namedtuple('Feature', ['doc_id', 'section_id', 'relation_id', 'name'])
 
-          
-def get_features_for_candidate(row):
+
+def get_features_for_candidate_ddlib(row):
   """Extract features for candidate mention- both generic ones from ddlib & custom features"""
   features = []
   f = Feature(doc_id=row.doc_id, section_id=row.section_id, relation_id=row.relation_id, name=None)
@@ -38,9 +41,28 @@ def get_features_for_candidate(row):
                     for feat in ddlib.get_generic_features_relation(dds, gene_span, pheno_span)]
   return features
 
+CoreNLPSentence = namedtuple('CoreNLPSentence', 'words, lemmas, poses, ners, dep_paths, dep_parents')
+
+def get_features_for_candidate_treedlib(r):
+  """Extract features using treedlib"""
+  f = Feature(doc_id=r.doc_id, section_id=r.section_id, relation_id=r.relation_id, name=None)
+  s = CoreNLPSentence(words=r.words, lemmas=r.lemmas, poses=r.poses, ners=r.ners, dep_paths=r.dep_paths, dep_parents=r.dep_parents)
+
+  # Create XMLTree representation of sentence
+  xt = corenlp_to_xmltree(s)
+
+  # Get features
+  for feature in get_relation_features(xt.root, r.gene_wordidxs, r.pheno_wordidxs):
+    yield f._replace(name=feature)
 
 # Helper for loading in manually defined keywords
 onto_path = lambda p : '%s/onto/%s' % (os.environ['GDD_HOME'], p)
+
+def get_features_for_candidate(row):
+  if row.num_gene_candidates >= 2 and row.num_pheno_candidates >= 2:
+    return get_features_for_candidate_treedlib(row)
+  else:
+    return get_features_for_candidate_ddlib(row)
 
 if __name__ == '__main__':
   ddlib.load_dictionary(onto_path("manual/genepheno_keywords.txt"), dict_id="gp_relation_kws")
