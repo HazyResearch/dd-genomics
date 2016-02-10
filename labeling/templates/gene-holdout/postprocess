@@ -4,15 +4,6 @@ import sys
 
 input_csv = sys.argv[1]
 
-def create_row_id(row):
-  row_id = ''
-  row_id += row[0]
-  row_id += '_'
-  row_id += row[1]
-  row_id += '_'
-  row_id += row[2]
-  return row_id
-
 writer = csv.writer(sys.stdout)
 with open(input_csv) as f:
   reader = csv.reader(f)
@@ -24,6 +15,6 @@ with open(input_csv) as f:
       row[5] = row[5].replace('-RRB-', ')')
       row[5] = row[5].replace('-LSB-', '[')
       row[5] = row[5].replace('-RSB-', ']')
-      row_id = row[-1]#create_row_id(row)
+      row_id = row[-1]
       new_row = [row_id] + row
     writer.writerow(new_row)
