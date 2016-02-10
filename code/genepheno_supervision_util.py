@@ -1,4 +1,4 @@
-import collections
+emport collections
 import extractor_util as util
 import data_util as dutil
 import dep_util as deps
@@ -62,7 +62,7 @@ def replace_opts(opts, replaceList):
 def read_supervision():
   """Reads genepheno supervision data (from charite)."""
   supervision_pairs = set()
-  with open('%s/onto/data/canon_phenotype_to_gene.map' % util.APP_HOME) as f:
+  with open('%s/onto/manual/charite_supervision' % util.APP_HOME) as f:
     for line in f:
       hpo_id, gene_name = line.strip().split('\t')
       hpo_ids = [hpo_id] + [parent for parent in HPO_DAG.edges[hpo_id]]
@@ -146,7 +146,7 @@ def config_supervise(r, row, pheno_entity, gene_name, gene, pheno,
     match = util.rgx_mult_search(phrase + ' ' + 
                                  lemma_phrase, [], 
                                  opts, flags=re.I)
-    if match:
+    if match and (pheno_entity, gene_name) in charite_pairs:
       return r._replace(is_correct=True, relation_supertype='CHARITE_SUP_WORDS', 
                         relation_subtype=non_alnum.sub('_', match))
     
