@@ -14,4 +14,4 @@ do
   do
     echo -e "OMIM:${number}\tOMIM:${omimNumber}"
   done
-done > manual/phenotypic_series_to_omim.tsv
+done | sort | uniq > manual/phenotypic_series_to_omim.tsv
