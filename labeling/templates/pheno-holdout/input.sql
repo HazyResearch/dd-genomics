@@ -14,8 +14,8 @@ from
     on (p.doc_id = si.doc_id
         and p.section_id = si.section_id
         and p.sent_id = si.sent_id)
-  join allowed_phenos ap
-    on (ap.hpo_id = p.entity)
+  join pheno_names ap
+    on (ap.id = p.entity)
 where
   p.entity is not null
 group by
