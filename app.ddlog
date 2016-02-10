@@ -1388,6 +1388,8 @@ genevariant_relations ( _, _, _, _, _, _, _, mention_id, _, _, _, _, _, _, _, _,
 #Pheno_filter_candidates
 #? Exctractor seems wrong in the application.conf (What is g ?)
 
+
+
 #genepheno_extract_features
 function genepheno_extract_features over rows like genepheno_extract_features_input returns rows like genepheno_features
 implementation "code/genepheno_extract_features.py" handles tsv lines.
@@ -1560,8 +1562,8 @@ genepheno_causation_inference(relation_id) => gene_mentions_filtered_inference(g
   genepheno_causation(_, relation_id, doc_id, section_id, _, gene_mention_id, _, _, _, _, _, _, _, _), 
   gene_mentions_filtered(_, doc_id, section_id, _, _, gene_mention_id, _, _, _, _, _, _).
 
-# @weight("?")
-# AND(genepheno_causation_inference(relation_id_outer_1), genepheno_causation_inference(relation_id_outer_2)) => NOT(genepheno_causation_inference(relation_id_inner)) :-
+# @weight("-0.5")
+# genepheno_causation_inference(relation_id_outer_1), genepheno_causation_inference(relation_id_outer_2) => genepheno_causation_inference(relation_id_inner) :-
 #   genepheno_causation(_, relation_id_outer_1, doc_id, section_id, sent_id, gene_mention_id_outer_1, _, gene_wordidxs_outer_1, pheno_mention_id_outer_1, _, pheno_wordidxs_outer_1, _, _, _),
 #   genepheno_causation(_, relation_id_outer_2, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, gene_wordidxs_outer_2, pheno_mention_id_outer_2, _, pheno_wordidxs_outer_2, _, _, _),
 #   genepheno_causation(_, relation_id_inner, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, _, pheno_mention_id_outer_1, _, _, _, _, _),
