@@ -1382,15 +1382,38 @@ genevariant_relations ( _, _, _, _, _, _, _, mention_id, _, _, _, _, _, _, _, _,
 #Pheno_filter_candidates
 #? Exctractor seems wrong in the application.conf (What is g ?)
 
+num_gene_candidates (
+  doc_id text,
+  section_id text,
+  sent_id int,
+  num_gene_candidates int
+).
+
+num_gene_candidates(doc_id, section_id, sent_id, COUNT(mention_id)) :-
+  gene_mentions(_, doc_id, section_id, sent_id, _, mention_id, _, _, _, gene_name, _, _),
+  [gene_name IS NOT NULL].
+
+num_pheno_candidates (
+  doc_id text,
+  section_id text,
+  sent_id int,
+  num_pheno_candidates int
+).
+
+num_pheno_candidates(doc_id, section_id, sent_id, COUNT(mention_id)) :-
+  pheno_mentions(_, doc_id, section_id, sent_id, _, mention_id, _, _, entity, _, _),
+  [entity IS NOT NULL].
 
 
 #genepheno_extract_features
 function genepheno_extract_features over rows like genepheno_extract_features_input returns rows like genepheno_features
 implementation "code/genepheno_extract_features.py" handles tsv lines.
 
-genepheno_features += genepheno_extract_features( relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_wordidxs, pheno_mention_id, pheno_wordidxs, words, lemmas, poses, ners, dep_paths, dep_parents) :- 
-genepheno_relations(id,relation_id,doc_id,section_id,sent_id,gene_mention_id,gene_name,gene_wordidxs,gene_is_correct,pheno_mention_id,pheno_entity,pheno_wordidxs,pheno_is_correct),
-sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
+genepheno_features += genepheno_extract_features( relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_wordidxs, pheno_mention_id, pheno_wordidxs, words, lemmas, poses, ners, dep_paths, dep_parents, num_gene_candidates, num_pheno_candidates) :- 
+  genepheno_relations(id,relation_id,doc_id,section_id,sent_id,gene_mention_id,gene_name,gene_wordidxs,gene_is_correct,pheno_mention_id,pheno_entity,pheno_wordidxs,pheno_is_correct),
+  num_gene_candidates(doc_id, section_id, sent_id, num_gene_candidates),
+  num_pheno_candidates(doc_id, section_id, sent_id, num_pheno_candidates),
+  sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
 
 #genepheno_causation_supervision
 
