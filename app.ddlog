@@ -778,12 +778,6 @@ is_correct boolean,
 labeler text,
 version int).
 
-genepheno_causation_precision_labels
-(relation_id text,
-is_correct text,
-labeler text,
-version int).
-
 gene_labels
 (mention_id text, 
 is_correct boolean, 
