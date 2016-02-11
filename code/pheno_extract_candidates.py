@@ -105,24 +105,24 @@ def load_pheno_terms():
         pheno_sets[phrase_bow] = [(hpoid, entry_type)]
   return phenos, pheno_sets
 
+allowed_diseases = [line.strip() for line in open(onto_path('manual/allowed_diseases.tsv'))]
+
 def load_disease_terms():
   diseases = {}
   disease_sets = {}
   rows = [line.split('\t') for line in open(onto_path('manual/disease_terms.tsv'), 'rb')]
   for row in rows:
     omimid, phrase, entry_type = [x.strip() for x in row]
-    for disallowed_phrase in HF['disallowed-phrases']:
-      if disallowed_phrase in phrase:
-        continue
-    if phrase in diseases:
-      diseases[phrase].append((omimid, entry_type))
-    else:
-      diseases[phrase] = [(omimid, entry_type)]
-    phrase_bow = frozenset(phrase.split())
-    if phrase_bow in disease_sets:
-      disease_sets[phrase_bow].append((omimid, entry_type))
-    else:
-      disease_sets[phrase_bow] = [(omimid, entry_type)]
+    if omimid in allowed_diseases:
+      if phrase in diseases:
+        diseases[phrase].append((omimid, entry_type))
+      else:
+        diseases[phrase] = [(omimid, entry_type)]
+      phrase_bow = frozenset(phrase.split())
+      if phrase_bow in disease_sets:
+        disease_sets[phrase_bow].append((omimid, entry_type))
+      else:
+        disease_sets[phrase_bow] = [(omimid, entry_type)]
   return diseases, disease_sets
 
 def keep_word(w):

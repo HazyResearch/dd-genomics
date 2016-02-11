@@ -231,3 +231,5 @@ join -1 1 -2 1 -t$'\t' \
 ./omim_alt_names_to_series.py manual/diseases.tsv manual/phenotypic_series.tsv manual/phenotypic_series_to_omim.tsv
 
 python prep_pheno_terms.py
+
+./create_allowed_diseases.sh
