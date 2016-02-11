@@ -32,6 +32,8 @@ WHERE
   $version_string) TO STDOUT;
 """ | while read rid
 do
+echo "RELATION ID"
+echo $rid
 echo "BASE INFO"
 deepdive sql """
 COPY (

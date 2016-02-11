@@ -45,6 +45,7 @@ CoreNLPSentence = namedtuple('CoreNLPSentence', 'words, lemmas, poses, ners, dep
 
 def get_features_for_candidate_treedlib(r):
   """Extract features using treedlib"""
+  features = []
   f = Feature(doc_id=r.doc_id, section_id=r.section_id, relation_id=r.relation_id, name=None)
   s = CoreNLPSentence(words=r.words, lemmas=r.lemmas, poses=r.poses, ners=r.ners, dep_paths=r.dep_paths, dep_parents=r.dep_parents)
 
@@ -53,7 +54,8 @@ def get_features_for_candidate_treedlib(r):
 
   # Get features
   for feature in get_relation_features(xt.root, r.gene_wordidxs, r.pheno_wordidxs):
-    yield f._replace(name=feature)
+    features += [f._replace(name=feature)]
+  return features
 
 # Helper for loading in manually defined keywords
 onto_path = lambda p : '%s/onto/%s' % (os.environ['GDD_HOME'], p)

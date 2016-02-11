@@ -36,7 +36,7 @@ from
   join genepheno_causation_inference_label_inference gpi
     on (hs.relation_id = gpi.relation_id)
 where
-  gpi.expectation > 0.9
+  gpi.expectation > 0.75
 group by
   hs.doc_id
   , hs.section_id
