@@ -181,7 +181,9 @@ PHENO = {
     # Consider exact matches with one ommited *interior* word
     'omitted-interior' : True,
 
-    'rand-negs' : True
+    'rand-negs' : True,
+
+    'disallowed-phrases' : ['cancer', 'carcinoma']
   },
 
   # # Supervision Rules
