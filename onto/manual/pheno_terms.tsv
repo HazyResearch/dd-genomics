@@ -100,7 +100,9 @@ HP:0000052	urethral atresia, male	EXACT
 HP:0000052	urethral atresia male	LEMMA
 HP:0000052	male urethral atresia	LEMMA
 HP:0000053	macroorchidism	EXACT
+HP:0000053	large testicles	EXACT
 HP:0000053	large testis	EXACT
+HP:0000053	large testicle	LEMMA
 HP:0000054	micropenis	EXACT
 HP:0000054	short penis	EXACT
 HP:0000054	small penis	EXACT
@@ -494,22 +496,11 @@ HP:0000217	xerostomia	EXACT
 HP:0000217	dry mouth	EXACT
 HP:0000217	reduced salivation	EXACT
 HP:0000218	high palate	EXACT
-HP:0000218	high arched palate	EXACT
-HP:0000218	high narrow palate	EXACT
 HP:0000218	high, arched palate	EXACT
 HP:0000218	high-arched palate	EXACT
-HP:0000218	narrow and high arched palate	EXACT
-HP:0000218	narrow, high-arched palate	EXACT
-HP:0000218	narrow, highly arched palate	EXACT
-HP:0000218	palate high-arched	EXACT
+HP:0000218	high arched palate	LEMMA
 HP:0000218	arched palate high	LEMMA
 HP:0000218	higharched palate	LEMMA
-HP:0000218	narrow high arched palate	LEMMA
-HP:0000218	narrow higharched palate	LEMMA
-HP:0000218	higharched palate narrow	LEMMA
-HP:0000218	narrow highly arched palate	LEMMA
-HP:0000218	highly arched palate narrow	LEMMA
-HP:0000218	palate higharched	LEMMA
 HP:0000219	thin upper lip vermilion	EXACT
 HP:0000219	thin upper lip	EXACT
 HP:0000219	thin vermilion border of upper lip	EXACT
@@ -517,6 +508,9 @@ HP:0000219	thin vermilion border upper lip	LEMMA
 HP:0000220	velopharyngeal insufficiency	EXACT
 HP:0000220	velopharyngeal incompetence	EXACT
 HP:0000221	furrowed tongue	EXACT
+HP:0000221	fissured tongue	EXACT
+HP:0000221	lingue plicata	EXACT
+HP:0000221	plicated tongue	EXACT
 HP:0000221	prominent tongue grooves	EXACT
 HP:0000221	scrotal tongue	EXACT
 HP:0000221	prominent tongue groove	LEMMA
@@ -528,9 +522,8 @@ HP:0000223	abnormality taste sensation	LEMMA
 HP:0000224	decreased taste sensation	EXACT
 HP:0000224	decreased taste	EXACT
 HP:0000225	gingival bleeding	EXACT
-HP:0000225	oral bleeding	EXACT
 HP:0000227	tongue telangiectasia	EXACT
-HP:0000228	oral cavity teleangiectasia	EXACT
+HP:0000228	oral cavity telangiectasia	EXACT
 HP:0000230	gingivitis	EXACT
 HP:0000232	everted lower lip vermilion	EXACT
 HP:0000232	drooping lower lip	EXACT
@@ -565,7 +558,6 @@ HP:0000239	large fontanel	EXACT
 HP:0000239	large fontanelle	EXACT
 HP:0000239	large fontanels	EXACT
 HP:0000239	wide fontanelles	EXACT
-HP:0000239	big fontanelle	EXACT
 HP:0000239	enlarged fontanelle	LEMMA
 HP:0000239	wide fontanelle	LEMMA
 HP:0000240	abnormality of skull size	EXACT
@@ -581,13 +573,14 @@ HP:0000243	wedge shaped cranium	EXACT
 HP:0000243	wedge shaped skull	EXACT
 HP:0000244	brachyturricephaly	EXACT
 HP:0000244	turribrachycephaly	EXACT
-HP:0000245	abnormality of the sinuses	EXACT
-HP:0000245	abnormality sinus	LEMMA
+HP:0000245	abnormality of the paranasal sinuses	EXACT
+HP:0000245	abnormality of the sinuses of the head	EXACT
+HP:0000245	abnormality paranasal sinus	LEMMA
+HP:0000245	abnormality sinus head	LEMMA
 HP:0000246	sinusitis	EXACT
 HP:0000248	brachycephaly	EXACT
 HP:0000250	dense calvaria	EXACT
 HP:0000252	microcephaly	EXACT
-HP:0000252	decreased head circumference	EXACT
 HP:0000252	reduced head circumference	EXACT
 HP:0000252	small head circumference	EXACT
 HP:0000252	decreased circumference of cranium	EXACT
@@ -602,7 +595,6 @@ HP:0000253	progressive postnatal microcephaly	LEMMA
 HP:0000253	microcephaly progressive	LEMMA
 HP:0000255	acute sinusitis	EXACT
 HP:0000256	macrocephaly	EXACT
-HP:0000256	increased head circumference	EXACT
 HP:0000256	large head	EXACT
 HP:0000256	large head circumference	EXACT
 HP:0000256	macrocrania	EXACT
@@ -636,9 +628,9 @@ HP:0000269	protruding occiput	EXACT
 HP:0000269	prominent back skull	LEMMA
 HP:0000270	delayed cranial suture closure	EXACT
 HP:0000270	broad late closing cranial sutures	EXACT
-HP:0000270	delayed closure of fontanels	EXACT
 HP:0000270	delayed closure of fontanel	EXACT
 HP:0000270	delayed closure of fontanelles	EXACT
+HP:0000270	delayed closure of fontanels	EXACT
 HP:0000270	delayed closure of the fontanelles	EXACT
 HP:0000270	delayed fontanel closure	EXACT
 HP:0000270	delayed fontanelle closure	EXACT
@@ -658,16 +650,28 @@ HP:0000271	abnormal face	EXACT
 HP:0000271	abnormality face	LEMMA
 HP:0000272	malar flattening	EXACT
 HP:0000272	depressed malar region	EXACT
-HP:0000272	flat midface	EXACT
 HP:0000272	malar hypoplasia	EXACT
-HP:0000272	mid-face hypoplasia	EXACT
-HP:0000272	midface hypoplasia	LEMMA
+HP:0000272	zygomatic flattening	EXACT
 HP:0000273	facial grimacing	EXACT
 HP:0000274	small face	EXACT
+HP:0000274	facial hypoplasia	EXACT
+HP:0000274	hypoplasia of face	EXACT
+HP:0000274	microface	EXACT
+HP:0000274	microfacies	EXACT
+HP:0000274	short and narrow face	EXACT
 HP:0000274	small facies	EXACT
+HP:0000274	hypoplasia face	LEMMA
+HP:0000274	short narrow face	LEMMA
 HP:0000275	narrow face	EXACT
 HP:0000275	narrow facies	EXACT
 HP:0000276	long face	EXACT
+HP:0000276	vertical facial excess	EXACT
+HP:0000276	vertical elongation of face	EXACT
+HP:0000276	vertical enlargement of face	EXACT
+HP:0000276	vertical overgrowth of face	EXACT
+HP:0000276	vertical elongation face	LEMMA
+HP:0000276	vertical enlargement face	LEMMA
+HP:0000276	vertical overgrowth face	LEMMA
 HP:0000277	abnormality of the mandible	EXACT
 HP:0000277	abnormality mandible	LEMMA
 HP:0000278	retrognathia	EXACT
@@ -679,8 +683,11 @@ HP:0000280	coarse facies	EXACT
 HP:0000280	coarse facial feature	LEMMA
 HP:0000282	facial edema	EXACT
 HP:0000283	broad face	EXACT
-HP:0000284	abnormality of the ocular region	EXACT
-HP:0000284	abnormality ocular region	LEMMA
+HP:0000283	wide face	EXACT
+HP:0000284	obsolete abnormality of the ocular region	EXACT
+HP:0000284	ocular abnormalities	EXACT
+HP:0000284	obsolete abnormality ocular region	LEMMA
+HP:0000284	ocular abnormality	LEMMA
 HP:0000286	epicanthus	EXACT
 HP:0000286	epicanthal fold	EXACT
 HP:0000286	epicanthal folds	EXACT
@@ -706,7 +713,13 @@ HP:0000292	loss facial adipose tissue	LEMMA
 HP:0000292	loss facial subcutaneous adipose tissue	LEMMA
 HP:0000292	loss subcutaneous adipose tissue face	LEMMA
 HP:0000293	full cheeks	EXACT
+HP:0000293	apple cheeks	EXACT
+HP:0000293	big cheeks	EXACT
+HP:0000293	large cheeks	EXACT
 HP:0000293	full cheek	LEMMA
+HP:0000293	apple cheek	LEMMA
+HP:0000293	big cheek	LEMMA
+HP:0000293	large cheek	LEMMA
 HP:0000294	low anterior hairline	EXACT
 HP:0000294	low frontal hairline	EXACT
 HP:0000294	low-set frontal hairline	EXACT
@@ -714,17 +727,31 @@ HP:0000294	lowset frontal hairline	LEMMA
 HP:0000295	doll-like facies	EXACT
 HP:0000295	dolllike facies	LEMMA
 HP:0000297	facial hypotonia	EXACT
+HP:0000297	decreased facial muscle tone	EXACT
+HP:0000297	low facial muscle tone	EXACT
+HP:0000297	reduced facial muscle tone	EXACT
 HP:0000298	mask-like facies	EXACT
 HP:0000298	amimia	EXACT
 HP:0000298	expressionless face	EXACT
+HP:0000298	lack of facial expression	EXACT
 HP:0000298	masklike facies	EXACT
+HP:0000298	lack facial expression	LEMMA
 HP:0000300	oval face	EXACT
 HP:0000301	abnormality of facial musculature	EXACT
 HP:0000301	abnormality facial musculature	LEMMA
 HP:0000303	mandibular prognathia	EXACT
+HP:0000303	big lower jaw	EXACT
+HP:0000303	big mandible	EXACT
 HP:0000303	enlarged mandible	EXACT
+HP:0000303	large lower jaw	EXACT
 HP:0000303	large mandible	EXACT
+HP:0000303	lower jaw excess	EXACT
+HP:0000303	lower jaw hyperplasia	EXACT
+HP:0000303	macromandible	EXACT
 HP:0000303	mandible prognathism	EXACT
+HP:0000303	mandibular excess	EXACT
+HP:0000303	mandibular hyperplasia	EXACT
+HP:0000303	mandibular macrognathia	EXACT
 HP:0000303	mandibular prognathism	EXACT
 HP:0000303	prognathia	EXACT
 HP:0000303	prognathism	EXACT
@@ -734,7 +761,10 @@ HP:0000303	relative mandibular prognathism	EXACT
 HP:0000306	abnormality of the chin	EXACT
 HP:0000306	abnormality chin	LEMMA
 HP:0000307	pointed chin	EXACT
+HP:0000307	pointy chin	EXACT
 HP:0000307	small pointed chin	EXACT
+HP:0000307	witch's chin	EXACT
+HP:0000307	witch chin	LEMMA
 HP:0000308	microretrognathia	EXACT
 HP:0000308	retromicrognathia	EXACT
 HP:0000309	abnormality of the midface	EXACT
@@ -744,6 +774,7 @@ HP:0000309	anomaly midface	LEMMA
 HP:0000311	round face	EXACT
 HP:0000311	round facial appearance	EXACT
 HP:0000311	round facies	EXACT
+HP:0000311	circular face	EXACT
 HP:0000315	abnormality of the orbital region	EXACT
 HP:0000315	abnormality orbital region	LEMMA
 HP:0000316	hypertelorism	EXACT
@@ -767,29 +798,51 @@ HP:0000321	square face	EXACT
 HP:0000322	short philtrum	EXACT
 HP:0000324	facial asymmetry	EXACT
 HP:0000324	asymmetric facies	EXACT
+HP:0000324	asymmetry of right and left side of face	EXACT
+HP:0000324	crooked face	EXACT
+HP:0000324	unsymmetrical face	EXACT
+HP:0000324	asymmetry right left side face	LEMMA
 HP:0000325	triangular face	EXACT
+HP:0000325	face with broad temples and narrow chin	EXACT
 HP:0000325	triangular facies	EXACT
+HP:0000325	face broad temple narrow chin	LEMMA
 HP:0000326	abnormality of the maxilla	EXACT
+HP:0000326	abnormality of the upper jaw bone	EXACT
 HP:0000326	abnormality maxilla	LEMMA
+HP:0000326	abnormality upper jaw bone	LEMMA
 HP:0000327	hypoplasia of the maxilla	EXACT
-HP:0000327	hypoplastic maxilla	EXACT
 HP:0000327	hypoplastic maxillary bones	EXACT
-HP:0000327	maxillar hypoplasia	EXACT
-HP:0000327	maxillary hypoplasia	EXACT
+HP:0000327	maxillary deficiency	EXACT
+HP:0000327	maxillary micrognathia	EXACT
+HP:0000327	maxillary retrognathia	EXACT
+HP:0000327	maxillary retrusion	EXACT
+HP:0000327	micromaxilla	EXACT
 HP:0000327	small maxilla	EXACT
+HP:0000327	small upper jaw	EXACT
+HP:0000327	upper jaw deficiency	EXACT
+HP:0000327	upper jaw retrusion	EXACT
 HP:0000327	hypoplasia maxilla	LEMMA
 HP:0000327	hypoplastic maxillary bone	LEMMA
 HP:0000329	facial hemangioma	EXACT
 HP:0000329	facial hemangiomata	EXACT
 HP:0000331	short chin	EXACT
+HP:0000331	short lower third of face	EXACT
+HP:0000331	vertical hypoplasia of chin	EXACT
+HP:0000331	short lower third face	LEMMA
+HP:0000331	vertical hypoplasia chin	LEMMA
 HP:0000336	prominent supraorbital ridges	EXACT
+HP:0000336	prominent brow	EXACT
 HP:0000336	prominent supraorbital ridge	EXACT
+HP:0000336	protruding supraorbital ridge	EXACT
 HP:0000337	broad forehead	EXACT
+HP:0000337	increased bitemporal dimension	EXACT
+HP:0000337	increased bitemporal width	EXACT
 HP:0000337	wide forehead	EXACT
 HP:0000338	hypomimic face	EXACT
 HP:0000338	dull facial expression	EXACT
 HP:0000339	pugilistic facies	EXACT
 HP:0000340	sloping forehead	EXACT
+HP:0000340	inclined forehead	EXACT
 HP:0000340	receding forehead	EXACT
 HP:0000341	narrow forehead	EXACT
 HP:0000341	bitemporal narrowing	EXACT
@@ -797,6 +850,7 @@ HP:0000341	bitemporal narrowness	EXACT
 HP:0000341	bitemporal skull narrowing	EXACT
 HP:0000341	intertemporal narrowing	EXACT
 HP:0000341	narrow bitemporal diameter	EXACT
+HP:0000341	narrow bitemporal width	EXACT
 HP:0000341	temporal narrowness	EXACT
 HP:0000343	long philtrum	EXACT
 HP:0000346	whistling appearance	EXACT
@@ -805,9 +859,14 @@ HP:0000347	hypoplasia of mandible	EXACT
 HP:0000347	hypoplastic mandible	EXACT
 HP:0000347	hypoplastic mandible condyle	EXACT
 HP:0000347	mandibular hypoplasia	EXACT
+HP:0000347	micrognathia of lower jaw	EXACT
+HP:0000347	robin mandible	EXACT
+HP:0000347	severe hypoplasia of mandible	EXACT
 HP:0000347	small jaw	EXACT
 HP:0000347	small mandible	EXACT
 HP:0000347	hypoplasia mandible	LEMMA
+HP:0000347	micrognathia lower jaw	LEMMA
+HP:0000347	severe hypoplasia mandible	LEMMA
 HP:0000348	high forehead	EXACT
 HP:0000349	widow's peak	EXACT
 HP:0000349	widow peak	LEMMA
@@ -890,7 +949,6 @@ HP:0000376	incomplete partition of the cochlea type ii	EXACT
 HP:0000376	incomplete partition cochlea type ii	LEMMA
 HP:0000377	abnormality of the pinna	EXACT
 HP:0000377	abnormal form of ears	EXACT
-HP:0000377	abnormality of the external ear	EXACT
 HP:0000377	abnormally shaped ears	EXACT
 HP:0000377	auricular malformation	EXACT
 HP:0000377	deformed auricles	EXACT
@@ -905,7 +963,6 @@ HP:0000377	poorly defined conchae	EXACT
 HP:0000377	simple ears	EXACT
 HP:0000377	abnormality pinna	LEMMA
 HP:0000377	abnormal form ear	LEMMA
-HP:0000377	abnormality external ear	LEMMA
 HP:0000377	abnormally shaped ear	LEMMA
 HP:0000377	deformed auricle	LEMMA
 HP:0000377	deformed ear	LEMMA
@@ -941,8 +998,10 @@ HP:0000385	small earlobes	EXACT
 HP:0000385	hypoplastic earlobe	LEMMA
 HP:0000385	hypoplastic lobule	LEMMA
 HP:0000387	absent earlobe	EXACT
+HP:0000387	absent ear lobes	EXACT
 HP:0000387	earlobe, absent	EXACT
 HP:0000387	lobeless ears	EXACT
+HP:0000387	absent ear lobe	LEMMA
 HP:0000387	earlobe absent	LEMMA
 HP:0000387	lobeless ear	LEMMA
 HP:0000388	otitis media	EXACT
@@ -1215,7 +1274,9 @@ HP:0000486	strabismus	EXACT
 HP:0000486	cross-eyed	EXACT
 HP:0000486	heterotropia	EXACT
 HP:0000486	squint	EXACT
+HP:0000486	squint eyes	EXACT
 HP:0000486	crosseyed	LEMMA
+HP:0000486	squint eye	LEMMA
 HP:0000487	congenital strabismus	EXACT
 HP:0000488	retinopathy	EXACT
 HP:0000489	obsolete abnormality of globe location or size	EXACT
@@ -1238,7 +1299,6 @@ HP:0000494	downslanted palpebral fissures	EXACT
 HP:0000494	antimongoloid eye slant	EXACT
 HP:0000494	antimongoloid slant of palpebral fissures	EXACT
 HP:0000494	antimongoloid slanted palpebral fissures	EXACT
-HP:0000494	downward slanting palpebral fissures	EXACT
 HP:0000494	down slanting palpebral fissures	EXACT
 HP:0000494	down-slanted palpebral fissures	EXACT
 HP:0000494	down-slanting palpebral fissure	EXACT
@@ -1246,14 +1306,15 @@ HP:0000494	down-slanting palpebral fissures	EXACT
 HP:0000494	downslanting palpebral fissure	EXACT
 HP:0000494	downslanting palpebral fissures	EXACT
 HP:0000494	downward slanted palpebral fissures	EXACT
+HP:0000494	downward slanting palpebral fissures	EXACT
 HP:0000494	downward-slanting palpebral fissures	EXACT
 HP:0000494	palpebral fissures down-slanted	EXACT
 HP:0000494	downslanted palpebral fissure	LEMMA
 HP:0000494	antimongoloid slant palpebral fissure	LEMMA
 HP:0000494	antimongoloid slanted palpebral fissure	LEMMA
-HP:0000494	downward slanting palpebral fissure	LEMMA
 HP:0000494	slanting palpebral fissure	LEMMA
 HP:0000494	downward slanted palpebral fissure	LEMMA
+HP:0000494	downward slanting palpebral fissure	LEMMA
 HP:0000494	downwardslanting palpebral fissure	LEMMA
 HP:0000494	palpebral fissure downslanted	LEMMA
 HP:0000495	recurrent corneal erosions	EXACT
@@ -1269,11 +1330,15 @@ HP:0000496	abnormal extraocular movements	EXACT
 HP:0000496	abnormal eye motility	EXACT
 HP:0000496	abnormal eye movement	EXACT
 HP:0000496	abnormal eye movements	EXACT
+HP:0000496	abnormal motility of the globe of the eye	EXACT
+HP:0000496	abnormal movement of the globe of the eye	EXACT
 HP:0000496	abnormal ocular movements	EXACT
 HP:0000496	eye movement abnormalities	EXACT
 HP:0000496	ocular movement abnormalities	EXACT
 HP:0000496	oculomotor abnormalities	EXACT
 HP:0000496	abnormality eye movement	LEMMA
+HP:0000496	abnormal motility globe eye	LEMMA
+HP:0000496	abnormal movement globe eye	LEMMA
 HP:0000496	abnormal ocular movement	LEMMA
 HP:0000496	eye movement abnormality	LEMMA
 HP:0000496	ocular movement abnormality	LEMMA
@@ -1292,7 +1357,9 @@ HP:0000502	abnormality conjunctiva	LEMMA
 HP:0000503	tortuosity of conjunctival vessels	EXACT
 HP:0000503	tortuosity conjunctival vessel	LEMMA
 HP:0000504	abnormality of vision	EXACT
+HP:0000504	abnormality of sight	EXACT
 HP:0000504	abnormality vision	LEMMA
+HP:0000504	abnormality sight	LEMMA
 HP:0000505	visual impairment	EXACT
 HP:0000505	impaired vision	EXACT
 HP:0000505	poor vision	EXACT
@@ -1315,8 +1382,11 @@ HP:0000512	abnormal electroretinography	EXACT
 HP:0000512	erg abnormal	EXACT
 HP:0000512	abnormal electroretinogram erg	LEMMA
 HP:0000514	slow saccadic eye movements	EXACT
+HP:0000514	slow eye movements	EXACT
 HP:0000514	slow saccades	EXACT
+HP:0000514	slow visual tracking	EXACT
 HP:0000514	slow saccadic eye movement	LEMMA
+HP:0000514	slow eye movement	LEMMA
 HP:0000514	slow saccade	LEMMA
 HP:0000517	abnormality of the lens	EXACT
 HP:0000517	abnormality lens	LEMMA
@@ -1349,6 +1419,11 @@ HP:0000520	prominent eye	LEMMA
 HP:0000520	prominent globe	LEMMA
 HP:0000520	protruding eye	LEMMA
 HP:0000522	alacrima	EXACT
+HP:0000522	absence of tears in the eyes	EXACT
+HP:0000522	absent lacrimal fluids	EXACT
+HP:0000522	absent tear secretion	EXACT
+HP:0000522	absence tear eye	LEMMA
+HP:0000522	absent lacrimal fluid	LEMMA
 HP:0000523	subcapsular cataract	EXACT
 HP:0000523	subcapsular cataracts	EXACT
 HP:0000523	subcapsular lenticular cataracts	EXACT
@@ -1370,10 +1445,18 @@ HP:0000527	unusually long eyelash	LEMMA
 HP:0000528	anophthalmia	EXACT
 HP:0000528	anophthalmia, clinical	EXACT
 HP:0000528	clinical anophthalmia, unilateral/bilateral	EXACT
+HP:0000528	missing eyeball	EXACT
+HP:0000528	missing globe of eye	EXACT
+HP:0000528	no eyeball	EXACT
+HP:0000528	no globe of eye	EXACT
+HP:0000528	ocular absence	EXACT
 HP:0000528	anophthalmia clinical	LEMMA
 HP:0000528	clinical anophthalmia	LEMMA
 HP:0000528	clinical anophthalmia unilateralbilateral	LEMMA
 HP:0000528	unilateralbilateral clinical anophthalmia	LEMMA
+HP:0000528	missing globe eye	LEMMA
+HP:0000528	eyeball	LEMMA
+HP:0000528	globe eye	LEMMA
 HP:0000529	progressive visual loss	EXACT
 HP:0000529	loss of visual acuity	EXACT
 HP:0000529	progressive loss of vision	EXACT
@@ -1420,8 +1503,17 @@ HP:0000543	optic disc pallor	EXACT
 HP:0000543	pale optic disc	EXACT
 HP:0000543	pale optic disk	EXACT
 HP:0000544	external ophthalmoplegia	EXACT
+HP:0000544	cpeo	EXACT
+HP:0000544	chronic progressive external ophthalmoplegia	EXACT
 HP:0000544	ophthalmoplegia externa	EXACT
+HP:0000544	progressive paralysis or weakness of muscles of eye motility	EXACT
+HP:0000544	progressive paralysis or weakness of muscles of eye movement	EXACT
+HP:0000544	progressive paralysis weakness muscle eye motility	LEMMA
+HP:0000544	progressive paralysis weakness muscle eye movement	LEMMA
 HP:0000545	myopia	EXACT
+HP:0000545	close sighted	EXACT
+HP:0000545	near sighted	EXACT
+HP:0000545	near sightedness	EXACT
 HP:0000546	retinal degeneration	EXACT
 HP:0000547	tapetoretinal degeneration	EXACT
 HP:0000548	cone/cone-rod dystrophy	EXACT
@@ -1444,6 +1536,7 @@ HP:0000551	abnormality of color vision	EXACT
 HP:0000551	abnormal color vision	EXACT
 HP:0000551	abnormality color vision	LEMMA
 HP:0000552	tritanomaly	EXACT
+HP:0000552	blue yellow color blindness	EXACT
 HP:0000552	blue-yellow dyschromatopsia	EXACT
 HP:0000552	dyschromatopsia, blue-yellow	EXACT
 HP:0000552	blueyellow dyschromatopsia	LEMMA
@@ -1469,8 +1562,8 @@ HP:0000565	esotropia	EXACT
 HP:0000565	convergent strabismus	EXACT
 HP:0000567	chorioretinal coloboma	EXACT
 HP:0000567	choroidoretinal coloboma	EXACT
-HP:0000568	microphthalmos	EXACT
 HP:0000568	microphthalmia	EXACT
+HP:0000568	microphthalmos	EXACT
 HP:0000570	abnormality of saccadic eye movements	EXACT
 HP:0000570	abnormality saccadic eye movement	LEMMA
 HP:0000571	hypometric saccades	EXACT
@@ -1554,6 +1647,8 @@ HP:0000594	shallow anterior chamber	EXACT
 HP:0000597	ophthalmoparesis	EXACT
 HP:0000597	extraocular muscle palsy	EXACT
 HP:0000597	extraocular muscle paralysis	EXACT
+HP:0000597	weakness of extraocular eye movement	EXACT
+HP:0000597	weakness extraocular eye movement	LEMMA
 HP:0000598	abnormality of the ear	EXACT
 HP:0000598	ear anomaly	EXACT
 HP:0000598	abnormality ear	LEMMA
@@ -1566,6 +1661,9 @@ HP:0000601	closely spaced eyes	EXACT
 HP:0000601	ocular hypotelorism	EXACT
 HP:0000601	closely spaced eye	LEMMA
 HP:0000602	ophthalmoplegia	EXACT
+HP:0000602	eye muscle paralysis	EXACT
+HP:0000602	paralysis of extraocular eye movement	EXACT
+HP:0000602	paralysis extraocular eye movement	LEMMA
 HP:0000603	central scotoma	EXACT
 HP:0000603	central scotomata	EXACT
 HP:0000605	supranuclear gaze palsy	EXACT
@@ -1593,6 +1691,7 @@ HP:0000612	coloboma of the iris	EXACT
 HP:0000612	keyhole iris	EXACT
 HP:0000612	coloboma iris	LEMMA
 HP:0000613	photophobia	EXACT
+HP:0000613	extreme light sensitivity	EXACT
 HP:0000613	light hypersensitivity	EXACT
 HP:0000614	abnormality of the nasolacrimal system	EXACT
 HP:0000614	abnormality nasolacrimal system	LEMMA
@@ -1654,15 +1753,23 @@ HP:0000639	nystagmus	EXACT
 HP:0000640	gaze-evoked nystagmus	EXACT
 HP:0000640	gazeevoked nystagmus	LEMMA
 HP:0000641	dysmetric saccades	EXACT
+HP:0000641	dysmetric eye movements	EXACT
 HP:0000641	dysmetric eye saccades	EXACT
 HP:0000641	dysmetric saccade	LEMMA
+HP:0000641	dysmetric eye movement	LEMMA
 HP:0000641	dysmetric eye saccade	LEMMA
 HP:0000642	red-green dyschromatopsia	EXACT
 HP:0000642	dyschromatopsia with red-green confusion	EXACT
+HP:0000642	red green color blindness	EXACT
 HP:0000642	redgreen dyschromatopsia	LEMMA
 HP:0000642	dyschromatopsia redgreen confusion	LEMMA
 HP:0000643	blepharospasm	EXACT
+HP:0000643	eyelid spasm	EXACT
+HP:0000643	eyelid twitching	EXACT
 HP:0000646	amblyopia	EXACT
+HP:0000646	lazy eye	EXACT
+HP:0000646	wandering eye	EXACT
+HP:0000646	wandering eyes	EXACT
 HP:0000647	sclerocornea	EXACT
 HP:0000648	optic atrophy	EXACT
 HP:0000648	optic nerve atrophy	EXACT
@@ -1684,7 +1791,7 @@ HP:0000650	abnormal amplitude pattern reversal visual evoked potential	LEMMA
 HP:0000651	diplopia	EXACT
 HP:0000651	double vision	EXACT
 HP:0000652	lower eyelid coloboma	EXACT
-HP:0000652	coloboma of  lower eyelid	EXACT
+HP:0000652	coloboma of lower eyelid	EXACT
 HP:0000652	lower lid coloboma	EXACT
 HP:0000652	coloboma lower eyelid	LEMMA
 HP:0000653	sparse eyelashes	EXACT
@@ -1721,6 +1828,7 @@ HP:0000661	palpebral fissure narrowing adduction	LEMMA
 HP:0000662	nyctalopia	EXACT
 HP:0000662	night blindness	EXACT
 HP:0000662	night-blindness	EXACT
+HP:0000662	poor night vision	EXACT
 HP:0000662	nightblindness	LEMMA
 HP:0000664	synophrys	EXACT
 HP:0000664	synophris	EXACT
@@ -2107,6 +2215,7 @@ HP:0000823	delayed pubertal development	EXACT
 HP:0000823	delayed pubertal growth	EXACT
 HP:0000823	delayed puberty (female)	EXACT
 HP:0000823	delayed puberty (male)	EXACT
+HP:0000823	pubertal delay	EXACT
 HP:0000823	delayed puberty female	LEMMA
 HP:0000823	delayed puberty male	LEMMA
 HP:0000824	growth hormone deficiency	EXACT
@@ -2422,7 +2531,6 @@ HP:0000961	cyanosis	EXACT
 HP:0000962	hyperkeratosis	EXACT
 HP:0000963	thin skin	EXACT
 HP:0000964	eczema	EXACT
-HP:0000964	dermatitis	EXACT
 HP:0000965	cutis marmorata	EXACT
 HP:0000965	livedo reticularis	EXACT
 HP:0000966	hypohidrosis	EXACT
@@ -2479,15 +2587,18 @@ HP:0000987	atypical scarring skin	LEMMA
 HP:0000988	skin rash	EXACT
 HP:0000988	exanthem	EXACT
 HP:0000989	pruritus	EXACT
+HP:0000989	pruritis	EXACT
 HP:0000991	xanthomatosis	EXACT
 HP:0000991	xanthomata	EXACT
 HP:0000992	cutaneous photosensitivity	EXACT
 HP:0000992	photosensitive skin	EXACT
 HP:0000992	photosensitive skin rashes	EXACT
 HP:0000992	photosensitivity	EXACT
+HP:0000992	sensitivity to sunlight	EXACT
 HP:0000992	skin photosensitivity	EXACT
 HP:0000992	sun sensitivity	EXACT
 HP:0000992	photosensitive skin rash	LEMMA
+HP:0000992	sensitivity sunlight	LEMMA
 HP:0000993	molluscoid pseudotumors	EXACT
 HP:0000993	molluscoid pseudotumor	EXACT
 HP:0000995	melanocytic nevus	EXACT
@@ -2773,9 +2884,9 @@ HP:0001129	large central visual field defect	EXACT
 HP:0001131	corneal dystrophy	EXACT
 HP:0001132	lens subluxation	EXACT
 HP:0001133	constriction of peripheral visual field	EXACT
-HP:0001133	constricted visual fields	EXACT
 HP:0001133	concentric narrowing of visual field	EXACT
 HP:0001133	constricted visual field	EXACT
+HP:0001133	constricted visual fields	EXACT
 HP:0001133	depressed visual field	EXACT
 HP:0001133	reduced visual fields	EXACT
 HP:0001133	visual field constriction	EXACT
@@ -2911,10 +3022,7 @@ HP:0001191	abnormal carpal bone	LEMMA
 HP:0001191	anomalous carpal bone	LEMMA
 HP:0001191	carpal bone anomaly	LEMMA
 HP:0001193	ulnar deviation of the hand or of fingers of the hand	EXACT
-HP:0001193	ulnar deviation of hands	EXACT
-HP:0001193	ulnar deviation of the hands	EXACT
 HP:0001193	ulnar deviation hand finger hand	LEMMA
-HP:0001193	ulnar deviation hand	LEMMA
 HP:0001194	abnormalities of placenta or umbilical cord	EXACT
 HP:0001194	abnormality placenta umbilical cord	LEMMA
 HP:0001195	single umbilical artery	EXACT
@@ -3327,7 +3435,6 @@ HP:0001347	increased reflex	LEMMA
 HP:0001348	brisk reflexes	EXACT
 HP:0001348	brisk reflex	LEMMA
 HP:0001349	facial diplegia	EXACT
-HP:0001349	bilateral facial palsy	EXACT
 HP:0001349	bilateral facial weakness	EXACT
 HP:0001349	facial paresis, bilateral	EXACT
 HP:0001349	facial paresis bilateral	LEMMA
@@ -3571,10 +3678,12 @@ HP:0001487	obsolete hypopigmented fundi	EXACT
 HP:0001487	hypopigmented ocular fundus	EXACT
 HP:0001487	obsolete hypopigmented fundus	LEMMA
 HP:0001488	bilateral ptosis	EXACT
+HP:0001489	posterior vitreous detachment	EXACT
 HP:0001489	vitreous detachment	EXACT
 HP:0001491	congenital fibrosis of extraocular muscles	EXACT
 HP:0001491	congenital fibrosis of extraocular muscles (cfeom)	EXACT
 HP:0001491	congenital fibrosis of the extraocular muscles	EXACT
+HP:0001491	congenital ophthalmoplegia	EXACT
 HP:0001491	congenital fibrosis extraocular muscle	LEMMA
 HP:0001491	congenital fibrosis extraocular muscle cfeom	LEMMA
 HP:0001492	axenfeld anomaly	EXACT
@@ -3741,7 +3850,9 @@ HP:0001572	large teeth	EXACT
 HP:0001574	abnormality of the integument	EXACT
 HP:0001574	abnormality integument	LEMMA
 HP:0001575	mood changes	EXACT
+HP:0001575	mood alterations	EXACT
 HP:0001575	mood change	LEMMA
+HP:0001575	mood alteration	LEMMA
 HP:0001578	hypercortisolism	EXACT
 HP:0001578	cushing syndrome	EXACT
 HP:0001578	increased cortisol production	EXACT
@@ -3784,7 +3895,6 @@ HP:0001595	hair abnormality	EXACT
 HP:0001595	abnormality hair	LEMMA
 HP:0001596	alopecia	EXACT
 HP:0001596	hair loss	EXACT
-HP:0001596	scalp hair loss	EXACT
 HP:0001597	abnormality of the nail	EXACT
 HP:0001597	abnormality nail	LEMMA
 HP:0001598	concave nail	EXACT
@@ -3842,30 +3952,34 @@ HP:0001623	breech presentation birth	LEMMA
 HP:0001626	abnormality of the cardiovascular system	EXACT
 HP:0001626	cardiovascular abnormality	EXACT
 HP:0001626	abnormality cardiovascular system	LEMMA
+HP:0001627	abnormal heart morphology	EXACT
 HP:0001627	abnormality of cardiac morphology	EXACT
 HP:0001627	abnormality of the heart	EXACT
 HP:0001627	cardiac abnormality	EXACT
 HP:0001627	cardiac anomalies	EXACT
+HP:0001627	congenital heart defect	EXACT
+HP:0001627	congenital heart defects	EXACT
 HP:0001627	abnormality cardiac morphology	LEMMA
 HP:0001627	abnormality heart	LEMMA
 HP:0001627	cardiac anomaly	LEMMA
 HP:0001629	ventricular septal defect	EXACT
 HP:0001629	ventricular septal defects	EXACT
 HP:0001629	ventriculoseptal defect	EXACT
-HP:0001631	defect in the atrial septum	EXACT
-HP:0001631	atrial septal defect (asd)	EXACT
 HP:0001631	atria septal defect	EXACT
 HP:0001631	atrial septal defect	EXACT
-HP:0001631	defect atrial septum	LEMMA
-HP:0001631	atrial septal defect asd	LEMMA
+HP:0001631	atrial septal defect (asd)	EXACT
+HP:0001631	defect in the atrial septum	EXACT
 HP:0001631	atrium septal defect	LEMMA
+HP:0001631	atrial septal defect asd	LEMMA
+HP:0001631	defect atrial septum	LEMMA
 HP:0001633	abnormality of the mitral valve	EXACT
 HP:0001633	abnormality mitral valve	LEMMA
 HP:0001634	mitral valve prolapse	EXACT
 HP:0001635	congestive heart failure	EXACT
-HP:0001635	cardiac failures	EXACT
 HP:0001635	cardiac failure	EXACT
+HP:0001635	cardiac failures	EXACT
 HP:0001635	cardiac insufficiency	EXACT
+HP:0001635	chronic heart failure	EXACT
 HP:0001635	heart failure	EXACT
 HP:0001636	tetralogy of fallot	EXACT
 HP:0001636	tetrology of fallot	EXACT
@@ -3913,7 +4027,6 @@ HP:0001653	mitral valve insufficiency	EXACT
 HP:0001653	mitral valve regurgitation	EXACT
 HP:0001654	abnormality of the heart valves	EXACT
 HP:0001654	valvular abnormality	EXACT
-HP:0001654	valvular heart disease	EXACT
 HP:0001654	abnormality heart valve	LEMMA
 HP:0001655	patent foramen ovale	EXACT
 HP:0001657	prolonged qt interval	EXACT
@@ -4540,11 +4653,11 @@ HP:0001963	abnormal speech discrimination	EXACT
 HP:0001963	poor speech discrimination	EXACT
 HP:0001964	aplasia/hypoplasia of metatarsal bones	EXACT
 HP:0001964	absent or hypoplastic metatarsal	EXACT
-HP:0001964	absent/hypoplastic metacarpals	EXACT
+HP:0001964	absent/hypoplastic metatarsals	EXACT
 HP:0001964	aplastic/hypoplastic metatarsals	EXACT
 HP:0001964	aplasiahypoplasia metatarsal bone	LEMMA
 HP:0001964	absent hypoplastic metatarsal	LEMMA
-HP:0001964	absenthypoplastic metacarpal	LEMMA
+HP:0001964	absenthypoplastic metatarsal	LEMMA
 HP:0001964	aplastichypoplastic metatarsal	LEMMA
 HP:0001965	abnormality of the scalp	EXACT
 HP:0001965	abnormality scalp	LEMMA
@@ -4560,8 +4673,6 @@ HP:0001970	nephritis tubulointerstitial	LEMMA
 HP:0001971	hypersplenism	EXACT
 HP:0001972	macrocytic anemia	EXACT
 HP:0001973	autoimmune thrombocytopenia	EXACT
-HP:0001973	idiopathic thrombocytopenia	EXACT
-HP:0001973	idiopathic thrombocytopenic purpura	EXACT
 HP:0001973	immune thrombocytopenia	EXACT
 HP:0001974	leukocytosis	EXACT
 HP:0001975	decreased platelet glycoprotein iib-iiia	EXACT
@@ -4622,7 +4733,6 @@ HP:0001997	gout	EXACT
 HP:0001997	gouty arthritis	EXACT
 HP:0001998	neonatal hypoglycemia	EXACT
 HP:0001999	abnormal facial shape	EXACT
-HP:0001999	craniofacial dysmorphism	EXACT
 HP:0001999	distinctive facies	EXACT
 HP:0001999	dysmorphic facial features	EXACT
 HP:0001999	dysmorphic facies	EXACT
@@ -4751,6 +4861,8 @@ HP:0002069	grand mal seizures	EXACT
 HP:0002069	seizures, generalized tonic-clonic	EXACT
 HP:0002069	seizures, generalized, tonic-clonic	EXACT
 HP:0002069	seizures, tonic-clonic	EXACT
+HP:0002069	tonic-clonic convulsion	EXACT
+HP:0002069	tonic-clonic convulsions	EXACT
 HP:0002069	generalized tonicclonic seizure	LEMMA
 HP:0002069	generalised tonicclonic seizure	LEMMA
 HP:0002069	generalized clonictonic seizure	LEMMA
@@ -4760,6 +4872,7 @@ HP:0002069	seizure generalized tonicclonic	LEMMA
 HP:0002069	tonicclonic generalized seizure	LEMMA
 HP:0002069	seizure tonicclonic	LEMMA
 HP:0002069	tonicclonic seizure	LEMMA
+HP:0002069	tonicclonic convulsion	LEMMA
 HP:0002070	limb ataxia	EXACT
 HP:0002070	appendicular ataxia	EXACT
 HP:0002071	abnormality of extrapyramidal motor function	EXACT
@@ -5062,7 +5175,6 @@ HP:0002207	diffuse reticular or finely nodular infiltrations	EXACT
 HP:0002207	diffuse reticular finely nodular infiltration	LEMMA
 HP:0002208	coarse hair	EXACT
 HP:0002208	coarse hair texture	EXACT
-HP:0002208	rough hair texture	EXACT
 HP:0002209	sparse scalp hair	EXACT
 HP:0002209	scalp hair, thinning	EXACT
 HP:0002209	sparse, thin scalp hair	EXACT
@@ -5162,10 +5274,8 @@ HP:0002251	congenital megacolon	EXACT
 HP:0002251	hirschsprung disease	EXACT
 HP:0002251	hirschsprung megacolon	EXACT
 HP:0002251	megacolon	EXACT
-HP:0002253	colonic diverticulosis	EXACT
-HP:0002253	colon diverticula	EXACT
 HP:0002253	colonic diverticula	EXACT
-HP:0002253	colon diverticulum	LEMMA
+HP:0002253	colonic diverticulosis	EXACT
 HP:0002253	colonic diverticulum	LEMMA
 HP:0002254	intermittent diarrhea	EXACT
 HP:0002256	small bowel diverticula	EXACT
@@ -5237,6 +5347,7 @@ HP:0002292	frontal balding	EXACT
 HP:0002292	frontal balding (male pattern baldness)	EXACT
 HP:0002292	frontal balding male pattern baldness	LEMMA
 HP:0002293	alopecia of scalp	EXACT
+HP:0002293	scalp hair loss	EXACT
 HP:0002293	alopecia scalp	LEMMA
 HP:0002296	progressive hypotrichosis	EXACT
 HP:0002297	red hair	EXACT
@@ -5703,12 +5814,12 @@ HP:0002561	athelia	EXACT
 HP:0002562	low-set nipples	EXACT
 HP:0002562	lowset nipple	LEMMA
 HP:0002563	constrictive pericarditis	EXACT
-HP:0002564	malformation of the heart and great vessels	EXACT
+HP:0002564	obsolete malformation of the heart and great vessels	EXACT
 HP:0002564	cardiovascular malformations	EXACT
 HP:0002564	congenital heart defect	EXACT
 HP:0002564	congenital heart defects	EXACT
 HP:0002564	congenital heart disease	EXACT
-HP:0002564	malformation heart great vessel	LEMMA
+HP:0002564	obsolete malformation heart great vessel	LEMMA
 HP:0002564	cardiovascular malformation	LEMMA
 HP:0002566	intestinal malrotation	EXACT
 HP:0002566	malrotation	EXACT
@@ -5769,7 +5880,6 @@ HP:0002604	gastrointestinal telangiectasia	EXACT
 HP:0002605	hepatic necrosis	EXACT
 HP:0002607	bowel incontinence	EXACT
 HP:0002607	anal incontinence	EXACT
-HP:0002607	encopresis	EXACT
 HP:0002607	fecal incontinence	EXACT
 HP:0002608	celiac disease	EXACT
 HP:0002608	celiac sprue	EXACT
@@ -5923,7 +6033,7 @@ HP:0002684	thickened cranium	EXACT
 HP:0002684	thickening of the calvaria	EXACT
 HP:0002684	thickening calvaria	LEMMA
 HP:0002686	prenatal maternal abnormality	EXACT
-HP:0002687	abnormality of the frontal sinuses	EXACT
+HP:0002687	abnormality of frontal sinus	EXACT
 HP:0002687	abnormality frontal sinus	LEMMA
 HP:0002688	absent frontal sinuses	EXACT
 HP:0002688	absence of frontal sinuses	EXACT
@@ -5981,8 +6091,20 @@ HP:0002700	enlarged foramen magnum	EXACT
 HP:0002703	abnormality of skull ossification	EXACT
 HP:0002703	abnormality skull ossification	LEMMA
 HP:0002705	high, narrow palate	EXACT
-HP:0002705	high narrow palate	LEMMA
+HP:0002705	high arched palate	EXACT
+HP:0002705	high narrow palate	EXACT
+HP:0002705	narrow and high arched palate	EXACT
+HP:0002705	narrow, high-arched palate	EXACT
+HP:0002705	narrow, highly arched palate	EXACT
+HP:0002705	palate, high-arched	EXACT
 HP:0002705	narrow palate high	LEMMA
+HP:0002705	narrow high arched palate	LEMMA
+HP:0002705	narrow higharched palate	LEMMA
+HP:0002705	higharched palate narrow	LEMMA
+HP:0002705	narrow highly arched palate	LEMMA
+HP:0002705	highly arched palate narrow	LEMMA
+HP:0002705	palate higharched	LEMMA
+HP:0002705	higharched palate	LEMMA
 HP:0002707	palate telangiectasia	EXACT
 HP:0002707	palate telangiectases	EXACT
 HP:0002707	palate teleangiectases	EXACT
@@ -6160,7 +6282,7 @@ HP:0002783	lower respiratory tract infection	LEMMA
 HP:0002783	recurrent chest infection	LEMMA
 HP:0002786	tracheobronchomalacia	EXACT
 HP:0002787	tracheal calcification	EXACT
-HP:0002787	calcification  of the trachea	EXACT
+HP:0002787	calcification of the trachea	EXACT
 HP:0002787	tracheal calcifications	EXACT
 HP:0002787	tracheal ectopic calcification	EXACT
 HP:0002787	calcification trachea	LEMMA
@@ -6247,8 +6369,8 @@ HP:0002823	abnormality of the femora	EXACT
 HP:0002823	abnormality femur	LEMMA
 HP:0002825	caudal appendage	EXACT
 HP:0002825	coccygeal tail	EXACT
-HP:0002826	halberd-shaped pelvis bone {xref="hpo:skoehler"}	EXACT
-HP:0002826	halberdshaped pelvis bone xrefhposkoehler	LEMMA
+HP:0002826	halberd-shaped pelvis	EXACT
+HP:0002826	halberdshaped pelvis	LEMMA
 HP:0002827	hip dislocation	EXACT
 HP:0002827	dislocated hips	EXACT
 HP:0002827	dislocation of hip	EXACT
@@ -7044,6 +7166,7 @@ HP:0003194	short nasal bridge	EXACT
 HP:0003196	short nose	EXACT
 HP:0003196	hypoplastic nose	EXACT
 HP:0003196	nasal hypoplasia	EXACT
+HP:0003196	shortened nose	EXACT
 HP:0003198	myopathy	EXACT
 HP:0003198	myopathic changes	EXACT
 HP:0003198	myopathic change	LEMMA
@@ -8993,11 +9116,13 @@ HP:0004311	abnormality macrophage	LEMMA
 HP:0004311	abnormality histiocyte	LEMMA
 HP:0004312	abnormality of reticulocytes	EXACT
 HP:0004312	abnormality reticulocyte	LEMMA
-HP:0004313	hypogammaglobulinemia	EXACT
+HP:0004313	decreased antibody level in blood	EXACT
 HP:0004313	decreased immunoglobulin level	EXACT
 HP:0004313	decreased serum immunoglobulin	EXACT
+HP:0004313	hypogammaglobulinemia	EXACT
 HP:0004313	immunoglobulin deficiency	EXACT
 HP:0004313	reduced immunoglobulin levels	EXACT
+HP:0004313	decreased antibody level blood	LEMMA
 HP:0004313	reduced immunoglobulin level	LEMMA
 HP:0004315	igg deficiency	EXACT
 HP:0004315	decreased igg level	EXACT
@@ -9031,10 +9156,14 @@ HP:0004325	weight le 3rd percentile	LEMMA
 HP:0004326	cachexia	EXACT
 HP:0004327	abnormality of the vitreous humor	EXACT
 HP:0004327	abnormality vitreous humor	LEMMA
-HP:0004328	abnormality of the anterior segment of the eye	EXACT
-HP:0004328	abnormality anterior segment eye	LEMMA
-HP:0004329	abnormality of the posterior segment of the eye	EXACT
-HP:0004329	abnormality posterior segment eye	LEMMA
+HP:0004328	abnormality of the anterior segment of the globe	EXACT
+HP:0004328	abnormality of the anterior segment of the eyeball	EXACT
+HP:0004328	abnormality anterior segment globe	LEMMA
+HP:0004328	abnormality anterior segment eyeball	LEMMA
+HP:0004329	abnormality of the posterior segment of the globe	EXACT
+HP:0004329	abnormality of the posterior segment of the eyeball	EXACT
+HP:0004329	abnormality posterior segment globe	LEMMA
+HP:0004329	abnormality posterior segment eyeball	LEMMA
 HP:0004330	increased skull ossification	EXACT
 HP:0004330	hyperossification of skull	EXACT
 HP:0004330	hyperostosis of skull	EXACT
@@ -9234,6 +9363,7 @@ HP:0004422	biparietal narrowing	EXACT
 HP:0004423	cranium bifidum occultum	EXACT
 HP:0004425	flat forehead	EXACT
 HP:0004425	flattened forehead	EXACT
+HP:0004426	abnormality of the cheek	EXACT
 HP:0004426	abnormality of the cheeks	EXACT
 HP:0004426	abnormality cheek	LEMMA
 HP:0004428	elfin facies	EXACT
@@ -9315,6 +9445,7 @@ HP:0004467	preauricular pits	EXACT
 HP:0004467	preauricular sinus	EXACT
 HP:0004467	preauricular fistula	LEMMA
 HP:0004468	anomalous tracheal cartilage	EXACT
+HP:0004468	abnormal tracheal cartilaginous ring	EXACT
 HP:0004469	chronic bronchitis	EXACT
 HP:0004470	atretic occipital cephalocele	EXACT
 HP:0004471	aplasia cutis congenita over the scalp vertex	EXACT
@@ -9437,8 +9568,8 @@ HP:0004570	tall vertebral bodies	EXACT
 HP:0004570	tall vertebral body	LEMMA
 HP:0004571	widening of cervical spinal canal	EXACT
 HP:0004571	widening cervical spinal canal	LEMMA
-HP:0004573	anterior wedging of  t11	EXACT
-HP:0004573	anterior wedging of  the 11th thoracic vertebra	EXACT
+HP:0004573	anterior wedging of t11	EXACT
+HP:0004573	anterior wedging of the 11th thoracic vertebra	EXACT
 HP:0004573	wedge-shaped 11th thoracic vertebra	EXACT
 HP:0004573	anterior wedging t11	LEMMA
 HP:0004573	anterior wedging 11th thoracic vertebra	LEMMA
@@ -9869,8 +10000,6 @@ HP:0004947	arteriovenous fistula	EXACT
 HP:0004947	arteriovenous fistulas	EXACT
 HP:0004948	vascular tortuosity	EXACT
 HP:0004950	peripheral arterial disease	EXACT
-HP:0004950	peripheral vascular-disease	EXACT
-HP:0004950	peripheral vasculardisease	LEMMA
 HP:0004952	pulmonary arteriovenous fistulas	EXACT
 HP:0004952	pulmonary arteriovenous fistula	LEMMA
 HP:0004953	abdominal aortic aneurysm	EXACT
@@ -10293,6 +10422,7 @@ HP:0005280	flat nasal root	EXACT
 HP:0005280	flat, nasal bridge	EXACT
 HP:0005280	flattened nasal bridge	EXACT
 HP:0005280	low nasal bridge	EXACT
+HP:0005280	low nasal root	EXACT
 HP:0005280	nasal bridge flat	LEMMA
 HP:0005281	hypoplastic nasal bridge	EXACT
 HP:0005285	absent nasal bridge	EXACT
@@ -10310,11 +10440,11 @@ HP:0005293	venous insufficiency	EXACT
 HP:0005294	arterial dissection	EXACT
 HP:0005295	pseudocoarctation of the aorta	EXACT
 HP:0005295	pseudocoarctation aorta	LEMMA
-HP:0005296	occlusive vascular disease	EXACT
+HP:0005296	obsolete occlusive vascular disease	EXACT
 HP:0005297	premature occlusive vascular disease	EXACT
 HP:0005298	atrioventricular canal defect with right ventricle aorta and pulmonary atresia	EXACT
 HP:0005298	atrioventricular canal defect right ventricle aorta pulmonary atresia	LEMMA
-HP:0005299	premature peripheral vascular disease	EXACT
+HP:0005299	obsolete premature peripheral vascular disease	EXACT
 HP:0005300	nodular inflammatory vasculitis	EXACT
 HP:0005301	persistent left superior vena cava	EXACT
 HP:0005302	carotid artery tortuosity	EXACT
@@ -10331,7 +10461,7 @@ HP:0005306	capillary hemangioma	EXACT
 HP:0005307	postural hypotension with compensatory tachycardia	EXACT
 HP:0005307	postural hypotension compensatory tachycardia	LEMMA
 HP:0005308	pulmonary artery vasoconstriction	EXACT
-HP:0005309	peripheral vascular insufficiency	EXACT
+HP:0005309	obsolete peripheral vascular insufficiency	EXACT
 HP:0005310	large vessel vasculitis	EXACT
 HP:0005311	agenesis of pulmonary vessels	EXACT
 HP:0005311	agenesis pulmonary vessel	LEMMA
@@ -10339,7 +10469,11 @@ HP:0005312	pulmonary aterial intimal fibrosis	EXACT
 HP:0005313	arterial fibromuscular dysplasia	EXACT
 HP:0005314	anomalous branches of internal carotid artery	EXACT
 HP:0005314	anomalous branch internal carotid artery	LEMMA
+HP:0005315	peripheral artery occlusive disease	EXACT
+HP:0005315	a narrowing of the peripheral arteries (i.e., of arteries other than thos that supply the heart and the brain).	EXACT
 HP:0005315	occlusive arterial disease	EXACT
+HP:0005315	narrowing peripheral artery ie artery tho supply heart brain	LEMMA
+HP:0005315	artery tho supply heart brain narrowing peripheral artery ie	LEMMA
 HP:0005316	peripheral pulmonary vessel aplasia	EXACT
 HP:0005317	increased pulmonary vascular resistance	EXACT
 HP:0005318	cerebral vasculitis	EXACT
@@ -10348,6 +10482,16 @@ HP:0005320	lack facial subcutaneous fat	LEMMA
 HP:0005321	mandibulofacial dysostosis	EXACT
 HP:0005322	prominent nasal septum	EXACT
 HP:0005323	hemifacial hypertrophy	EXACT
+HP:0005323	enlargement of half of face	EXACT
+HP:0005323	facial hemihypertophy	EXACT
+HP:0005323	hemifacial enlargement	EXACT
+HP:0005323	hypertrophy of half of face	EXACT
+HP:0005323	increase in size of half of face	EXACT
+HP:0005323	overgrowth of half of face	EXACT
+HP:0005323	enlargement half face	LEMMA
+HP:0005323	hypertrophy half face	LEMMA
+HP:0005323	increase size half face	LEMMA
+HP:0005323	overgrowth half face	LEMMA
 HP:0005324	disturbance of facial expression	EXACT
 HP:0005324	disturbance facial expression	LEMMA
 HP:0005325	extension of hair growth on temples to lateral eyebrow	EXACT
@@ -10529,8 +10673,6 @@ HP:0005446	obtuse angle mandible	LEMMA
 HP:0005449	bridged sella turcica	EXACT
 HP:0005450	calvarial osteosclerosis	EXACT
 HP:0005451	decreased cranial base ossification	EXACT
-HP:0005452	obliteration of frontal sinuses	EXACT
-HP:0005452	obliteration frontal sinus	LEMMA
 HP:0005453	absent/hypoplastic paranasal sinuses	EXACT
 HP:0005453	absenthypoplastic paranasal sinus	LEMMA
 HP:0005456	absent ethmoidal sinuses	EXACT
@@ -10547,10 +10689,19 @@ HP:0005462	calcification falx cerebri	LEMMA
 HP:0005463	elongated sella turcica	EXACT
 HP:0005464	craniofacial osteosclerosis	EXACT
 HP:0005465	facial hyperostosis	EXACT
+HP:0005465	enlargment of the facial bones	EXACT
 HP:0005465	hyperostosis of facial bones	EXACT
+HP:0005465	hypertrophy of the facial bones	EXACT
+HP:0005465	increase in size of the facial bones	EXACT
+HP:0005465	overgrowth of the facial bones	EXACT
+HP:0005465	enlargment facial bone	LEMMA
 HP:0005465	hyperostosis facial bone	LEMMA
-HP:0005466	frontal bone hypoplasia	EXACT
+HP:0005465	hypertrophy facial bone	LEMMA
+HP:0005465	increase size facial bone	LEMMA
+HP:0005465	overgrowth facial bone	LEMMA
+HP:0005466	hypoplasia of the frontal bone	EXACT
 HP:0005466	hypoplastic frontal bones	EXACT
+HP:0005466	hypoplasia frontal bone	LEMMA
 HP:0005466	hypoplastic frontal bone	LEMMA
 HP:0005469	flat occiput	EXACT
 HP:0005469	posterior flattening of the skull	EXACT
@@ -11419,9 +11570,11 @@ HP:0006180	crowded carpal bone	LEMMA
 HP:0006184	decreased palmar creases	EXACT
 HP:0006184	hypoplastic palmar creases	EXACT
 HP:0006184	poorly formed palmar creases	EXACT
+HP:0006184	shallow palmar creases	EXACT
 HP:0006184	decreased palmar crease	LEMMA
 HP:0006184	hypoplastic palmar crease	LEMMA
 HP:0006184	poorly formed palmar crease	LEMMA
+HP:0006184	shallow palmar crease	LEMMA
 HP:0006185	enlarged proximal interphalangeal joints	EXACT
 HP:0006185	enlarged proximal interphalangeal joint	LEMMA
 HP:0006187	fusion of midphalangeal joints	EXACT
@@ -11650,7 +11803,7 @@ HP:0006353	hypoplasia tooth germ	LEMMA
 HP:0006355	agenesis of mandibular central incisor	EXACT
 HP:0006355	agenesis mandibular central incisor	LEMMA
 HP:0006357	premature loss of permanent teeth	EXACT
-HP:0006357	premature  loss of secondary teeth	EXACT
+HP:0006357	premature loss of secondary teeth	EXACT
 HP:0006357	premature loss permanent teeth	LEMMA
 HP:0006357	premature loss secondary teeth	LEMMA
 HP:0006358	shovel-shaped maxillary central incisors	EXACT
@@ -11679,12 +11832,12 @@ HP:0006375	dumbbellshaped femur	LEMMA
 HP:0006376	limited elbow flexion	EXACT
 HP:0006378	osteolysis of patellae	EXACT
 HP:0006378	osteolysis patella	LEMMA
-HP:0006379	proximal tibial hypopolasia	EXACT
+HP:0006379	proximal tibial hypoplasia	EXACT
 HP:0006380	knee flexion contracture	EXACT
 HP:0006380	contractures of knees	EXACT
 HP:0006380	contractures of the knees	EXACT
-HP:0006380	flexion contractures at both knees	EXACT
 HP:0006380	flexion contracture of knees	EXACT
+HP:0006380	flexion contractures at both knees	EXACT
 HP:0006380	flexion contractures of knees	EXACT
 HP:0006380	flexion deformity of the knee	EXACT
 HP:0006380	knee contracture	EXACT
@@ -11819,9 +11972,7 @@ HP:0006465	periosteal thickening long tubular bone	LEMMA
 HP:0006466	ankle contracture	EXACT
 HP:0006466	ankle contractures	EXACT
 HP:0006466	contractures of the ankles	EXACT
-HP:0006466	knee and ankle contractures	EXACT
 HP:0006466	contracture ankle	LEMMA
-HP:0006466	knee ankle contracture	LEMMA
 HP:0006467	limited shoulder movement	EXACT
 HP:0006470	thin long bone diaphyses	EXACT
 HP:0006470	thin diaphyses of long bones	EXACT
@@ -12295,6 +12446,7 @@ HP:0006782	malignant eosinophil proliferation	EXACT
 HP:0006783	posterior pharyngeal cleft	EXACT
 HP:0006784	paranasal sinus hypoplasia	EXACT
 HP:0006785	limb-girdle muscular dystrophy	EXACT
+HP:0006785	limb girdle muscular dystrophy	EXACT
 HP:0006785	limbgirdle muscular dystrophy	LEMMA
 HP:0006789	mitochondrial encephalopathy	EXACT
 HP:0006790	cerebral cortex with spongiform changes	EXACT
@@ -12326,7 +12478,7 @@ HP:0006813	hemiclonic seizures	EXACT
 HP:0006813	unilateral clonic seizures	EXACT
 HP:0006813	hemiclonic seizure	LEMMA
 HP:0006813	unilateral clonic seizure	LEMMA
-HP:0006817	aplasia/hypoplasia of the  cerebellar vermis	EXACT
+HP:0006817	aplasia/hypoplasia of the cerebellar vermis	EXACT
 HP:0006817	cerebellar vermis aplasia/hypoplasia	EXACT
 HP:0006817	hypo/aplastic vermis	EXACT
 HP:0006817	aplasiahypoplasia cerebellar vermis	LEMMA
@@ -13275,6 +13427,7 @@ HP:0007633	microphthalmia bilateral	LEMMA
 HP:0007633	bilateral microphthalmia	LEMMA
 HP:0007634	nonarteritic anterior ischemic optic neuropathy	EXACT
 HP:0007641	dyschromatopsia	EXACT
+HP:0007641	colorblindness	EXACT
 HP:0007642	congenital stationary night blindness	EXACT
 HP:0007642	congenital night blindness	EXACT
 HP:0007642	static congenital hemeralopia	EXACT
@@ -13447,6 +13600,10 @@ HP:0007770	hypoplasia of the retina	EXACT
 HP:0007770	retinal hypoplasia	EXACT
 HP:0007770	hypoplasia retina	LEMMA
 HP:0007772	impaired smooth pursuit	EXACT
+HP:0007772	abnormality of visual tracking	EXACT
+HP:0007772	impairment of visual pursuit	EXACT
+HP:0007772	abnormality visual tracking	LEMMA
+HP:0007772	impairment visual pursuit	LEMMA
 HP:0007773	vitreoretinopathy	EXACT
 HP:0007773	vitreoretinal abnormality	EXACT
 HP:0007774	hypoplasia of the ciliary body	EXACT
@@ -13456,8 +13613,8 @@ HP:0007776	partial absence of lower eyelashes	EXACT
 HP:0007776	sparse lower eyelash	LEMMA
 HP:0007776	partial absence lower eyelash	LEMMA
 HP:0007777	chorioretinal scar	EXACT
-HP:0007778	neovascularization of peripheral and posterior retina	EXACT
-HP:0007778	neovascularization peripheral posterior retina	LEMMA
+HP:0007778	posterior retinal neovascularization	EXACT
+HP:0007778	posterior retinal neovascularisation	EXACT
 HP:0007779	anterior segment of eye aplasia	EXACT
 HP:0007779	anterior segment eye aplasia	LEMMA
 HP:0007780	cortical pulverulent cataract	EXACT
@@ -13518,7 +13675,9 @@ HP:0007820	atretic lacrimal puncta	EXACT
 HP:0007822	central retinal exudate	EXACT
 HP:0007824	total ophthalmoplegia	EXACT
 HP:0007824	complete ophthalmoplegia	EXACT
+HP:0007824	global paralysis of gaze	EXACT
 HP:0007824	total internal and external ophthalmoplegia	EXACT
+HP:0007824	global paralysis gaze	LEMMA
 HP:0007824	total internal external ophthalmoplegia	LEMMA
 HP:0007825	obsolete cataracts develop in second or third decade	EXACT
 HP:0007825	obsolete cataract develop second third decade	LEMMA
@@ -13540,7 +13699,9 @@ HP:0007838	progressive ptosis	EXACT
 HP:0007840	long upper eyelashes	EXACT
 HP:0007840	long upper eyelash	LEMMA
 HP:0007841	amyloid deposition in the vitreous humor	EXACT
+HP:0007841	vitreous amyloid deposits	EXACT
 HP:0007841	amyloid deposition vitreous humor	LEMMA
+HP:0007841	vitreous amyloid deposit	LEMMA
 HP:0007843	attenuation of retinal blood vessels	EXACT
 HP:0007843	attenuation retinal blood vessel	LEMMA
 HP:0007850	retinal vascular proliferation	EXACT
@@ -13731,6 +13892,7 @@ HP:0007992	lattice retinal degeneration	EXACT
 HP:0007993	malformed lacrimal ducts	EXACT
 HP:0007993	malformed lacrimal duct	LEMMA
 HP:0007994	peripheral visual field loss	EXACT
+HP:0007994	kalnienk vision	EXACT
 HP:0008000	decreased corneal reflex	EXACT
 HP:0008000	decreased blink reflex	EXACT
 HP:0008000	reduced corneal reflex	EXACT
@@ -14871,11 +15033,11 @@ HP:0008897	postnatal growth deficiency	EXACT
 HP:0008897	postnatal growth failure	EXACT
 HP:0008897	growth retardation child	LEMMA
 HP:0008905	rhizomelia	EXACT
-HP:0008905	rhizomelic shortening	EXACT
 HP:0008905	rhizomelic dwarfism	EXACT
 HP:0008905	rhizomelic limb shortening	EXACT
 HP:0008905	rhizomelic short limbs	EXACT
 HP:0008905	rhizomelic short stature	EXACT
+HP:0008905	rhizomelic shortening	EXACT
 HP:0008905	short stature, rhizomelic	EXACT
 HP:0008905	symmetrical rhizomelic limb shortening	EXACT
 HP:0008905	rhizomelic short limb	LEMMA
@@ -15149,7 +15311,27 @@ HP:0009116	aplasiahypoplasia involving bone skull	LEMMA
 HP:0009117	aplasia/hypoplasia of the maxilla	EXACT
 HP:0009117	aplasiahypoplasia maxilla	LEMMA
 HP:0009118	aplasia/hypoplasia of the mandible	EXACT
+HP:0009118	absence of lower jaw	EXACT
+HP:0009118	absence of mandible	EXACT
+HP:0009118	little lower jaw	EXACT
+HP:0009118	little mandible	EXACT
+HP:0009118	lower jaw deficiency	EXACT
+HP:0009118	lower jaw hypoplasia	EXACT
+HP:0009118	lower jaw retrognathia	EXACT
+HP:0009118	lower jaw retrusion	EXACT
+HP:0009118	mandibular deficiency	EXACT
+HP:0009118	mandibular micrognathia	EXACT
+HP:0009118	mandibular retrognathia	EXACT
+HP:0009118	mandibular retrusion	EXACT
+HP:0009118	micromandible	EXACT
+HP:0009118	small lower jaw	EXACT
+HP:0009118	underdevelopment of lower jaw	EXACT
+HP:0009118	underdevelopment of mandible	EXACT
 HP:0009118	aplasiahypoplasia mandible	LEMMA
+HP:0009118	absence lower jaw	LEMMA
+HP:0009118	absence mandible	LEMMA
+HP:0009118	underdevelopment lower jaw	LEMMA
+HP:0009118	underdevelopment mandible	LEMMA
 HP:0009119	aplasia/hypoplasia of the frontal sinuses	EXACT
 HP:0009119	aplasiahypoplasia frontal sinus	LEMMA
 HP:0009120	aplasia/hypoplasia involving the sinuses	EXACT
@@ -16034,6 +16216,8 @@ HP:0009486	radial deviation of the hand	EXACT
 HP:0009486	radial deviation of hands	EXACT
 HP:0009486	radial deviation hand	LEMMA
 HP:0009487	ulnar deviation of the hand	EXACT
+HP:0009487	ulnar deviation of hands	EXACT
+HP:0009487	ulnar deviation of the hands	EXACT
 HP:0009487	ulnar deviation hand	LEMMA
 HP:0009488	absent epiphyses of the 2nd finger	EXACT
 HP:0009488	absent epiphysis 2nd finger	LEMMA
@@ -16702,8 +16886,7 @@ HP:0009717	cortical tubers	EXACT
 HP:0009717	cortical tuber	LEMMA
 HP:0009718	subependymal giant-cell astrocytoma	EXACT
 HP:0009718	subependymal giantcell astrocytoma	LEMMA
-HP:0009719	hypomelanotic macules	EXACT
-HP:0009719	hypomelanotic macule	LEMMA
+HP:0009719	hypomelanotic macule	EXACT
 HP:0009720	adenoma sebaceum	EXACT
 HP:0009720	facial angiofibromas	EXACT
 HP:0009720	sebaceous adenoma	EXACT
@@ -16892,6 +17075,7 @@ HP:0009794	branchial anomalies	EXACT
 HP:0009795	branchial fistula	EXACT
 HP:0009795	branchial cleft fistula	EXACT
 HP:0009796	branchial cyst	EXACT
+HP:0009796	branchial cysts	EXACT
 HP:0009797	cholesteatoma	EXACT
 HP:0009798	euthyroid goiter	EXACT
 HP:0009799	supernumerary spleens	EXACT
@@ -16944,11 +17128,9 @@ HP:0009812	amelia involving upper limb	LEMMA
 HP:0009813	upper limb phocomelia	EXACT
 HP:0009814	upper limb peromelia	EXACT
 HP:0009815	aplasia/hypoplasia of the extremities	EXACT
-HP:0009815	aplasia/hypoplasia involving bones of the extremities	EXACT
 HP:0009815	short or absent limbs	EXACT
 HP:0009815	shortened limbs	EXACT
 HP:0009815	aplasiahypoplasia extremity	LEMMA
-HP:0009815	aplasiahypoplasia involving bone extremity	LEMMA
 HP:0009815	short absent limb	LEMMA
 HP:0009815	shortened limb	LEMMA
 HP:0009816	lower limb undergrowth	EXACT
@@ -16985,8 +17167,8 @@ HP:0009825	aplasia involving bones of the extremities	EXACT
 HP:0009825	aplasia involving bone extremity	LEMMA
 HP:0009826	limb undergrowth	EXACT
 HP:0009826	hypoplasia involving bones of the extremities	EXACT
-HP:0009826	short limbs	EXACT
 HP:0009826	short limb	EXACT
+HP:0009826	short limbs	EXACT
 HP:0009826	limb shortening	EXACT
 HP:0009826	hypoplasia involving bone extremity	LEMMA
 HP:0009827	amelia	EXACT
@@ -17151,12 +17333,12 @@ HP:0009891	underdeveloped supraorbital ridges	EXACT
 HP:0009891	depressed supraorbital ridge	EXACT
 HP:0009891	flat supraorbital ridge	EXACT
 HP:0009891	hypoplasia of the supraorbital ridges	EXACT
-HP:0009891	hypoplastic supraorbital ridge	EXACT
 HP:0009891	hypoplastic supraorbital ridges	EXACT
 HP:0009891	shallow orbital ridges	EXACT
 HP:0009891	shallow supraorbital ridge	EXACT
 HP:0009891	underdeveloped supraorbital ridge	LEMMA
 HP:0009891	hypoplasia supraorbital ridge	LEMMA
+HP:0009891	hypoplastic supraorbital ridge	LEMMA
 HP:0009891	shallow orbital ridge	LEMMA
 HP:0009892	anotia	EXACT
 HP:0009893	telangiectasia of the ear	EXACT
@@ -17229,6 +17411,8 @@ HP:0009912	abnormality tragus	LEMMA
 HP:0009913	aplasia/hypoplasia of the tragus	EXACT
 HP:0009913	aplasiahypoplasia tragus	LEMMA
 HP:0009914	cyclopia	EXACT
+HP:0009914	cyclops eye	EXACT
+HP:0009914	single central eye	EXACT
 HP:0009915	corneal asymmetry	EXACT
 HP:0009915	asymmetry of the corneas	EXACT
 HP:0009915	asymmetry cornea	LEMMA
@@ -17246,6 +17430,10 @@ HP:0009920	congenital melanosis bulbi	EXACT
 HP:0009920	oculodermal melanocytosis	EXACT
 HP:0009920	nevus ota	LEMMA
 HP:0009921	duane anomaly	EXACT
+HP:0009921	limited eye motility from duane anomaly	EXACT
+HP:0009921	limited eye movement from duane anomaly	EXACT
+HP:0009921	limited eye motility duane anomaly	LEMMA
+HP:0009921	limited eye movement duane anomaly	LEMMA
 HP:0009922	persistence of the hyaloid artery	EXACT
 HP:0009922	persistence hyaloid artery	LEMMA
 HP:0009924	aplasia/hypoplasia involving the nose	EXACT
@@ -17294,11 +17482,23 @@ HP:0009935	aplasiahypoplasia nasal septum	LEMMA
 HP:0009936	narrow nasal septum	EXACT
 HP:0009937	facial hirsutism	EXACT
 HP:0009938	sunken cheeks	EXACT
+HP:0009938	depressed cheeks	EXACT
+HP:0009938	hollow cheeks	EXACT
 HP:0009938	sunken cheek	LEMMA
+HP:0009938	depressed cheek	LEMMA
+HP:0009938	hollow cheek	LEMMA
 HP:0009939	mandibular aplasia	EXACT
 HP:0009939	absent mandible	EXACT
 HP:0009940	asymmetry of the mandible	EXACT
+HP:0009940	asymmetry of lower jaw	EXACT
+HP:0009940	deviation of lower jaw	EXACT
+HP:0009940	deviation of mandible	EXACT
+HP:0009940	lower jaw shifted to one side	EXACT
 HP:0009940	asymmetry mandible	LEMMA
+HP:0009940	asymmetry lower jaw	LEMMA
+HP:0009940	deviation lower jaw	LEMMA
+HP:0009940	deviation mandible	LEMMA
+HP:0009940	lower jaw shifted one side	LEMMA
 HP:0009941	asymmetry of the mouth	EXACT
 HP:0009941	asymmetry mouth	LEMMA
 HP:0009942	duplication of thumb phalanx	EXACT
@@ -17338,9 +17538,9 @@ HP:0009948	partial/complete duplication of the distal phalanx of the 2nd finger	
 HP:0009948	duplication distal phalanx 2nd finger	LEMMA
 HP:0009948	partialcomplete duplication distal phalanx 2nd finger	LEMMA
 HP:0009949	duplication of the middle phalanx of the 2nd finger	EXACT
-HP:0009949	<new synonym>partial/complete duplication of the middle phalanx of the 2nd finger	EXACT
+HP:0009949	partial/complete duplication of the middle phalanx of the 2nd finger	EXACT
 HP:0009949	duplication middle phalanx 2nd finger	LEMMA
-HP:0009949	new synonympartialcomplete duplication middle phalanx 2nd finger	LEMMA
+HP:0009949	partialcomplete duplication middle phalanx 2nd finger	LEMMA
 HP:0009950	complete duplication of the distal phalanx of the 2nd finger	EXACT
 HP:0009950	complete duplication distal phalanx 2nd finger	LEMMA
 HP:0009951	partial duplication of the distal phalanx of the 2nd finger	EXACT
@@ -17611,9 +17811,9 @@ HP:0010054	abnormality of the first metatarsal bone	EXACT
 HP:0010054	abnormality first metatarsal bone	LEMMA
 HP:0010055	broad hallux	EXACT
 HP:0010055	abnormally broad great toes	EXACT
-HP:0010055	broad halluces	EXACT
 HP:0010055	broad great toe	EXACT
 HP:0010055	broad great toes	EXACT
+HP:0010055	broad halluces	EXACT
 HP:0010055	abnormally broad great toe	LEMMA
 HP:0010056	abnormality of the epiphyses of the hallux	EXACT
 HP:0010056	abnormality epiphysis hallux	LEMMA
@@ -18216,7 +18416,6 @@ HP:0010287	abnormality submandibular gland	LEMMA
 HP:0010288	abnormality of the sublingual glands	EXACT
 HP:0010288	abnormality sublingual gland	LEMMA
 HP:0010289	alveolar ridge cleft	EXACT
-HP:0010289	gingival cleft	EXACT
 HP:0010290	short hard palate	EXACT
 HP:0010291	prominent palatine ridges	EXACT
 HP:0010291	prominent lateral palatal ridges	EXACT
@@ -18920,11 +19119,11 @@ HP:0010601	abnormality of the proximal ulnar epiphysis	EXACT
 HP:0010601	abnormality proximal ulnar epiphysis	LEMMA
 HP:0010602	type 2 muscle fiber predominance	EXACT
 HP:0010602	type ii muscle fiber predominance	EXACT
+HP:0010603	odontogenic keratocysts of the jaw	EXACT
 HP:0010603	keratocystic odontogenic tumor	EXACT
 HP:0010603	keratocysts of the jaw	EXACT
-HP:0010603	odontogenic keratocysts of the jaw	EXACT
-HP:0010603	keratocysts jaw	LEMMA
 HP:0010603	odontogenic keratocysts jaw	LEMMA
+HP:0010603	keratocysts jaw	LEMMA
 HP:0010604	cyst of the eyelid	EXACT
 HP:0010604	cyst eyelid	LEMMA
 HP:0010605	chalazion	EXACT
@@ -18945,13 +19144,15 @@ HP:0010616	lung fibroma	EXACT
 HP:0010617	cardiac fibroma	EXACT
 HP:0010618	ovarian fibroma	EXACT
 HP:0010619	fibroadenoma of the breast	EXACT
-HP:0010619	breast fibroadenomas	EXACT
 HP:0010619	breast fibroadenoma	EXACT
+HP:0010619	breast fibroadenomas	EXACT
 HP:0010619	fibroadenoma breast	LEMMA
 HP:0010620	malar prominence	EXACT
+HP:0010620	cheekbone prominence	EXACT
+HP:0010620	malar excess	EXACT
 HP:0010620	malar hyperplasia	EXACT
+HP:0010620	midface hyperplasia	EXACT
 HP:0010620	prominent malar region	EXACT
-HP:0010620	prominent midface	EXACT
 HP:0010621	cutaneous syndactyly of toes	EXACT
 HP:0010621	cutaneous syndactyly (feet)	EXACT
 HP:0010621	syndactyly, cutaneous (feet)	EXACT
@@ -19021,9 +19222,21 @@ HP:0010648	dermal translucency	EXACT
 HP:0010648	translucent skin	EXACT
 HP:0010649	flat nasal alae	EXACT
 HP:0010649	flat nasal ala	LEMMA
+HP:0010650	hypoplasia of the premaxilla	EXACT
+HP:0010650	hypoplasia of the intermaxillary bone	EXACT
+HP:0010650	hypoplasia of the primary palate bone	EXACT
+HP:0010650	premaxillary bone deficiency	EXACT
 HP:0010650	premaxillary underdevelopment	EXACT
-HP:0010650	hypoplastic_premaxilla	EXACT
-HP:0010650	hypoplasticpremaxilla	LEMMA
+HP:0010650	primary palate bone deficiency	EXACT
+HP:0010650	small premaxilla	EXACT
+HP:0010650	small primary palate bone	EXACT
+HP:0010650	underdevelopment of the premaxilla	EXACT
+HP:0010650	underdevelopment of the primary palate bone	EXACT
+HP:0010650	hypoplasia premaxilla	LEMMA
+HP:0010650	hypoplasia intermaxillary bone	LEMMA
+HP:0010650	hypoplasia primary palate bone	LEMMA
+HP:0010650	underdevelopment premaxilla	LEMMA
+HP:0010650	underdevelopment primary palate bone	LEMMA
 HP:0010651	abnormality of the meninges	EXACT
 HP:0010651	abnormality meninges	LEMMA
 HP:0010652	abnormality of the dura mater	EXACT
@@ -19076,8 +19289,8 @@ HP:0010667	aplasia of the maxilla	EXACT
 HP:0010667	aplasia maxilla	LEMMA
 HP:0010668	abnormality of the zygomatic bone	EXACT
 HP:0010668	abnormality zygomatic bone	LEMMA
-HP:0010669	cheekbone underdevelopment	EXACT
 HP:0010669	hypoplasia of the zygomatic bone	EXACT
+HP:0010669	cheekbone underdevelopment	EXACT
 HP:0010669	hypoplasia zygomatic bone	LEMMA
 HP:0010672	abnormality of the third metatarsal bone	EXACT
 HP:0010672	abnormality third metatarsal bone	LEMMA
@@ -19139,14 +19352,16 @@ HP:0010701	abnormal serum immunoglobulin concentration	EXACT
 HP:0010701	abnormal serum level of immunoglobulin	EXACT
 HP:0010701	abnormal serum immunoglobulin level	LEMMA
 HP:0010701	abnormal serum level immunoglobulin	LEMMA
-HP:0010702	hypergammaglobulinemia	EXACT
+HP:0010702	increased antibody level in blood	EXACT
 HP:0010702	elevated immunoglobulin levels	EXACT
 HP:0010702	hypergammaglobulinaemia	EXACT
+HP:0010702	hypergammaglobulinemia	EXACT
 HP:0010702	hyperglobulinemia	EXACT
 HP:0010702	increased gamma globulin	EXACT
 HP:0010702	increased immunoglobulin level	EXACT
 HP:0010702	increased serum gamma globulin	EXACT
 HP:0010702	raised immunoglobulin levels	EXACT
+HP:0010702	increased antibody level blood	LEMMA
 HP:0010702	elevated immunoglobulin level	LEMMA
 HP:0010702	raised immunoglobulin level	LEMMA
 HP:0010704	1-2 finger syndactyly	EXACT
@@ -19259,21 +19474,60 @@ HP:0010748	abnormal position lacrimal punctum	LEMMA
 HP:0010749	blepharochalasis	EXACT
 HP:0010750	dermatochalasis	EXACT
 HP:0010751	chin dimple	EXACT
+HP:0010751	chin butt	EXACT
+HP:0010751	chin skin dimple	EXACT
 HP:0010752	cleft mandible	EXACT
+HP:0010752	cleft lower jaw	EXACT
 HP:0010753	midline defect of mandible	EXACT
 HP:0010753	midline defect mandible	LEMMA
 HP:0010754	abnormality of the temporomandibular joint	EXACT
 HP:0010754	abnormality temporomandibular joint	LEMMA
 HP:0010755	asymmetry of the maxilla	EXACT
+HP:0010755	asymmetry of right and left side of the maxilla	EXACT
+HP:0010755	canted maxilla	EXACT
+HP:0010755	crooked maxilla	EXACT
+HP:0010755	tilted maxilla	EXACT
+HP:0010755	tilted upper jaw	EXACT
+HP:0010755	unequal sides of maxilla	EXACT
 HP:0010755	asymmetry maxilla	LEMMA
+HP:0010755	asymmetry right left side maxilla	LEMMA
+HP:0010755	unequal side maxilla	LEMMA
 HP:0010756	aplasia/hypoplasia of the premaxilla	EXACT
 HP:0010756	aplasiahypoplasia premaxilla	LEMMA
 HP:0010757	aplasia of the premaxilla	EXACT
+HP:0010757	absence of the intermaxillary bone	EXACT
+HP:0010757	absence of the premaxilla	EXACT
+HP:0010757	absence of the primary palate bone	EXACT
+HP:0010757	aplasia of the intermaxillary bone	EXACT
+HP:0010757	aplasia of the primary palate bone	EXACT
+HP:0010757	missing premaxilla	EXACT
+HP:0010757	missing primary palate bone	EXACT
 HP:0010757	aplasia premaxilla	LEMMA
+HP:0010757	absence intermaxillary bone	LEMMA
+HP:0010757	absence premaxilla	LEMMA
+HP:0010757	absence primary palate bone	LEMMA
+HP:0010757	aplasia intermaxillary bone	LEMMA
+HP:0010757	aplasia primary palate bone	LEMMA
 HP:0010758	abnormality of the premaxilla	EXACT
+HP:0010758	abnormality of the intermaxillary bone	EXACT
+HP:0010758	abnormality of the intermaxillary segment of the maxilla	EXACT
+HP:0010758	abnormality of the premaxillary bone	EXACT
+HP:0010758	abnormality of the primary palate bone	EXACT
 HP:0010758	abnormality premaxilla	LEMMA
-HP:0010759	premaxillary prominence	EXACT
-HP:0010759	prominent premaxilla	EXACT
+HP:0010758	abnormality intermaxillary bone	LEMMA
+HP:0010758	abnormality intermaxillary segment maxilla	LEMMA
+HP:0010758	abnormality premaxillary bone	LEMMA
+HP:0010758	abnormality primary palate bone	LEMMA
+HP:0010759	prominence of the premaxilla	EXACT
+HP:0010759	anterior position of the premaxilla	EXACT
+HP:0010759	anterior position of the primary palate bone	EXACT
+HP:0010759	prominence of the intermaxillary bone	EXACT
+HP:0010759	prominence of the primary palate bone	EXACT
+HP:0010759	prominence premaxilla	LEMMA
+HP:0010759	anterior position premaxilla	LEMMA
+HP:0010759	anterior position primary palate bone	LEMMA
+HP:0010759	prominence intermaxillary bone	LEMMA
+HP:0010759	prominence primary palate bone	LEMMA
 HP:0010760	absent toe	EXACT
 HP:0010760	aplasia of toe	EXACT
 HP:0010760	aplasia toe	LEMMA
@@ -19568,7 +19822,6 @@ HP:0010885	avascular necrosis	EXACT
 HP:0010885	bone infarction	EXACT
 HP:0010885	ischemic bone necrosis	EXACT
 HP:0010885	osteochondronecrosis	EXACT
-HP:0010885	osteochondrosis	EXACT
 HP:0010885	osteonecrosis	EXACT
 HP:0010886	osteochondrosis dissecans	EXACT
 HP:0010886	osteochondritis dissecans	EXACT
@@ -19808,6 +20061,9 @@ HP:0011002	osteopetrosis	EXACT
 HP:0011003	severe myopia	EXACT
 HP:0011003	high myopia	EXACT
 HP:0011003	severe myopia (> -6.00 diopters)	EXACT
+HP:0011003	severe near sightedness	EXACT
+HP:0011003	severely close sighted	EXACT
+HP:0011003	severely near sighted	EXACT
 HP:0011003	severe myopia  600 diopter	LEMMA
 HP:0011004	abnormality of the systemic arterial tree	EXACT
 HP:0011004	systemic artery abnormality	EXACT
@@ -19815,7 +20071,7 @@ HP:0011004	abnormality systemic arterial tree	LEMMA
 HP:0011005	mixed cirrhosis	EXACT
 HP:0011006	abnormality of the musculature of the neck	EXACT
 HP:0011006	abnormality musculature neck	LEMMA
-HP:0011008	termporal pattern	EXACT
+HP:0011008	temporal pattern	EXACT
 HP:0011008	speed of onset	EXACT
 HP:0011008	speed onset	LEMMA
 HP:0011009	acute	EXACT
@@ -20234,9 +20490,17 @@ HP:0011217	abnormal shape back skull	LEMMA
 HP:0011218	abnormal shape of the frontal region	EXACT
 HP:0011218	abnormal shape frontal region	LEMMA
 HP:0011219	short face	EXACT
+HP:0011219	vertical facial deficiency	EXACT
+HP:0011219	vertical facial insufficiency	EXACT
+HP:0011219	vertical shortening of face	EXACT
+HP:0011219	vertical shortening face	LEMMA
 HP:0011220	prominent forehead	EXACT
+HP:0011220	protruding forehead	EXACT
 HP:0011221	vertical forehead creases	EXACT
+HP:0011221	vertical forehead rhytids	EXACT
+HP:0011221	vertical forehead wrinkles	EXACT
 HP:0011221	vertical forehead crease	LEMMA
+HP:0011221	vertical forehead wrinkle	LEMMA
 HP:0011222	depressed glabella	EXACT
 HP:0011223	metopic depression	EXACT
 HP:0011223	depression of frontal cranial suture	EXACT
@@ -20263,7 +20527,7 @@ HP:0011230	laterally extended eyebrow	EXACT
 HP:0011231	prominent eyelashes	EXACT
 HP:0011231	prominent eyelash	LEMMA
 HP:0011232	infra-orbital fold	EXACT
-HP:0011232	infraorbital fold	LEMMA
+HP:0011232	infraorbital fold	EXACT
 HP:0011233	antihelical shelf	EXACT
 HP:0011233	conchal shelf	EXACT
 HP:0011234	absent antihelix	EXACT
@@ -20532,6 +20796,13 @@ HP:0011330	metopic synostosis	EXACT
 HP:0011330	metopic suture craniosynostosis	EXACT
 HP:0011330	metopic craniosynostosis	EXACT
 HP:0011331	hemifacial atrophy	EXACT
+HP:0011331	atrophy of half of face	EXACT
+HP:0011331	decrease in size of half of face	EXACT
+HP:0011331	facial hemiatrophy	EXACT
+HP:0011331	shrinking of half of face	EXACT
+HP:0011331	atrophy half face	LEMMA
+HP:0011331	decrease size half face	LEMMA
+HP:0011331	shrinking half face	LEMMA
 HP:0011332	hemifacial hypoplasia	EXACT
 HP:0011333	asymmetric crying face	EXACT
 HP:0011333	asymmetric cry face	LEMMA
@@ -20703,8 +20974,8 @@ HP:0011418	vas previa	LEMMA
 HP:0011419	placental abruption	EXACT
 HP:0011419	abruptio placentae	EXACT
 HP:0011419	abruptio placenta	LEMMA
-HP:0011420	time of death	EXACT
-HP:0011420	time death	LEMMA
+HP:0011420	age of death	EXACT
+HP:0011420	age death	LEMMA
 HP:0011421	death in adolescence	EXACT
 HP:0011421	death adolescence	LEMMA
 HP:0011422	abnormality of chloride homeostasis	EXACT
@@ -20823,8 +21094,10 @@ HP:0011483	cornea-iris adhesion	EXACT
 HP:0011483	anterior synechiae anterior chamber	LEMMA
 HP:0011483	corneairis adhesion	LEMMA
 HP:0011484	posterior synechiae of the anterior chamber	EXACT
+HP:0011484	iridolenticular adhesions	EXACT
 HP:0011484	posterior synechiae	EXACT
 HP:0011484	posterior synechiae anterior chamber	LEMMA
+HP:0011484	iridolenticular adhesion	LEMMA
 HP:0011485	corneolenticular adhesion	EXACT
 HP:0011486	abnormality of corneal thickness	EXACT
 HP:0011486	abnormality corneal thickness	LEMMA
@@ -20884,7 +21157,7 @@ HP:0011516	rod monochromatism	EXACT
 HP:0011517	cone monochromacy	EXACT
 HP:0011518	dichromacy	EXACT
 HP:0011519	anomalous trichromacy	EXACT
-HP:0011520	deuteranomoly	EXACT
+HP:0011520	deuteranomaly	EXACT
 HP:0011521	deuteranopia	EXACT
 HP:0011522	protanopia	EXACT
 HP:0011523	iris cyst	EXACT
@@ -20899,12 +21172,15 @@ HP:0011528	single isolated congenital hypertrophy of retinal pigment epithelium	
 HP:0011528	solitary congenital hypertrophy retinal pigment epithelium	LEMMA
 HP:0011528	single isolated congenital hypertrophy retinal pigment epithelium	LEMMA
 HP:0011529	multiple bilateral congenital hypertrophy of retinal pigment epithelium	EXACT
-HP:0011529	multiple bilateral  chrpe	EXACT
+HP:0011529	multiple bilateral chrpe	EXACT
 HP:0011529	multiple bilateral congenital hypertrophy retinal pigment epithelium	LEMMA
-HP:0011529	multiple bilateral chrpe	LEMMA
 HP:0011530	retinal hole	EXACT
+HP:0011530	retinal holes	EXACT
+HP:0011531	vitritis	EXACT
+HP:0011531	hyalitis	EXACT
 HP:0011531	vitreitis	EXACT
 HP:0011532	subretinal exudate	EXACT
+HP:0011533	snowflake vitreoretinal degeneration	EXACT
 HP:0011533	snowflake retinal degeneration	EXACT
 HP:0011534	abnormal spatial orientation of the cardiac segments	EXACT
 HP:0011534	abnormal spatial orientation cardiac segment	LEMMA
@@ -21231,7 +21507,6 @@ HP:0011701	ectopic atrial tachycardia	EXACT
 HP:0011702	abnormal electrophysiology of sinoatrial node origin	EXACT
 HP:0011702	abnormal electrophysiology sinoatrial node origin	LEMMA
 HP:0011703	sinus tachycardia	EXACT
-HP:0011703	inappropriate sinus tachycardia	EXACT
 HP:0011704	sick sinus syndrome	EXACT
 HP:0011705	first degree atrioventricular block	EXACT
 HP:0011706	second degree atrioventricular block	EXACT
@@ -21398,7 +21673,12 @@ HP:0011797	papillary renal cell carcinoma type 1	EXACT
 HP:0011798	renal oncocytoma	EXACT
 HP:0011799	abnormality of facial soft tissue	EXACT
 HP:0011799	abnormality facial soft tissue	LEMMA
+HP:0011800	hypoplasia of midface	EXACT
+HP:0011800	midface deficiency	EXACT
+HP:0011800	midface hypoplasia	EXACT
 HP:0011800	midface retrusion	EXACT
+HP:0011800	retrusive midface	EXACT
+HP:0011800	hypoplasia midface	LEMMA
 HP:0011801	enlargement of parotid gland	EXACT
 HP:0011801	hyperplasia of parotid gland	EXACT
 HP:0011801	enlargement parotid gland	LEMMA
@@ -21431,6 +21711,7 @@ HP:0011820	membranous choanal atresia	EXACT
 HP:0011821	abnormality of facial skeleton	EXACT
 HP:0011821	abnormality facial skeleton	LEMMA
 HP:0011822	broad chin	EXACT
+HP:0011822	wide chin	EXACT
 HP:0011823	chin with horizontal crease	EXACT
 HP:0011823	chin horizontal crease	LEMMA
 HP:0011824	chin with h-shaped crease	EXACT
@@ -21671,8 +21952,7 @@ HP:0011954	nodular regenerative hyperplasia liver	LEMMA
 HP:0011954	nodular transformation liver	LEMMA
 HP:0011954	partial nodular transformation liver	LEMMA
 HP:0011955	hepatic granulomatosis	EXACT
-HP:0011956	intestinal lymphoid nodular  hyperplasia	EXACT
-HP:0011956	intestinal lymphoid nodular hyperplasia	LEMMA
+HP:0011956	intestinal lymphoid nodular hyperplasia	EXACT
 HP:0011957	abnormality of the pectoral muscle	EXACT
 HP:0011957	abnormality pectoral muscle	LEMMA
 HP:0011958	retinal perforation	EXACT
@@ -21827,6 +22107,7 @@ HP:0012045	retinal fleck	LEMMA
 HP:0012046	areflexia of upper limbs	EXACT
 HP:0012046	areflexia upper limb	LEMMA
 HP:0012047	hemeralopia	EXACT
+HP:0012047	day blindness	EXACT
 HP:0012048	oromandibular dystonia	EXACT
 HP:0012048	cranial dystonia	EXACT
 HP:0012049	laryngeal dystonia	EXACT
@@ -22046,6 +22327,7 @@ HP:0012176	abnormal nk cell	LEMMA
 HP:0012177	abnormal natural killer cell physiology	EXACT
 HP:0012178	reduced natural killer cell activity	EXACT
 HP:0012179	craniofacial dystonia	EXACT
+HP:0012179	abnormal craniofacial muscle tone	EXACT
 HP:0012180	cystic medial necrosis	EXACT
 HP:0012180	arterial cystic medial necrosis	EXACT
 HP:0012181	entrapment neuropathy	EXACT
@@ -22365,16 +22647,19 @@ HP:0012366	basilar invagination	EXACT
 HP:0012367	extra fontanelles	EXACT
 HP:0012367	extra fontanelle	LEMMA
 HP:0012368	flat face	EXACT
+HP:0012368	flat facial profile	EXACT
+HP:0012369	abnormality of malar bones	EXACT
 HP:0012369	malar anomaly	EXACT
-HP:0012370	cheekbone prominence	EXACT
-HP:0012370	zygomatic hyperplasia	EXACT
-HP:0012370	zygomatic prominence	EXACT
-HP:0012371	midface prominence	EXACT
-HP:0012371	hyperplasia of the maxilla	EXACT
-HP:0012371	maxillary hyperplasia	EXACT
-HP:0012371	midface hyperplasia	EXACT
-HP:0012371	midface hypertrophy	EXACT
-HP:0012371	hyperplasia maxilla	LEMMA
+HP:0012369	abnormality malar bone	LEMMA
+HP:0012370	prominence of the zygomatic bone	EXACT
+HP:0012370	malar hypertrophy	EXACT
+HP:0012370	prominence of cheekbone	EXACT
+HP:0012370	prominence zygomatic bone	LEMMA
+HP:0012370	prominence cheekbone	LEMMA
+HP:0012371	hyperplasia of midface	EXACT
+HP:0012371	midfacial excess	EXACT
+HP:0012371	midfacial prominence	EXACT
+HP:0012371	hyperplasia midface	LEMMA
 HP:0012372	abnormal eye morphology	EXACT
 HP:0012373	abnormal eye physiology	EXACT
 HP:0012374	abnormality of the globe	EXACT
@@ -22436,6 +22721,7 @@ HP:0012405	decreased urine citrate concentration	EXACT
 HP:0012406	hypercitraturia	EXACT
 HP:0012406	increased urine citrate concentration	EXACT
 HP:0012407	scissor gait	EXACT
+HP:0012407	scissors gait	EXACT
 HP:0012408	medullary nephrocalcinosis	EXACT
 HP:0012409	cortical nephrocalcinosis	EXACT
 HP:0012410	pure red cell aplasia	EXACT
@@ -22521,6 +22807,7 @@ HP:0012462	geniospasm	EXACT
 HP:0012463	elevated transferrin saturation	EXACT
 HP:0012464	decreased transferrin saturation	EXACT
 HP:0012465	elevated hepatic iron concentration	EXACT
+HP:0012465	increased liver iron level	EXACT
 HP:0012466	chronic respiratory acidosis	EXACT
 HP:0012467	acute respiratory acidosis	EXACT
 HP:0012468	chronic acidosis	EXACT
@@ -23046,6 +23333,7 @@ HP:0012800	extra cranial suture	EXACT
 HP:0012800	supernumary cranial suture	EXACT
 HP:0012801	narrow jaw	EXACT
 HP:0012801	narrow lower face	EXACT
+HP:0012801	narrow lower jaw	EXACT
 HP:0012801	narrow mandible	EXACT
 HP:0012802	broad jaw	EXACT
 HP:0012802	broad lower face	EXACT
@@ -23697,6 +23985,8 @@ HP:0030318	angular cheilosis	EXACT
 HP:0030318	angular stomatitis	EXACT
 HP:0030318	commissural cheilitis	EXACT
 HP:0030319	weakness of facial musculature	EXACT
+HP:0030319	decreased facial muscle strength	EXACT
+HP:0030319	reduced facial muscle strength	EXACT
 HP:0030319	weakness facial musculature	LEMMA
 HP:0030320	increased intervertebral space	EXACT
 HP:0030321	abnormality of the vertebral artery	EXACT
@@ -23830,8 +24120,11 @@ HP:0030405	pancreatic endocrine tumor	EXACT
 HP:0030406	primary peritoneal carcinoma	EXACT
 HP:0030407	pineocytoma	EXACT
 HP:0030408	pineoblastoma	EXACT
+HP:0030408	pinealoblastoma	EXACT
 HP:0030409	renal transitional cell carcinoma	EXACT
 HP:0030409	renal urothelial carcinoma	EXACT
+HP:0030409	renal tcc	EXACT
+HP:0030409	transitional renal cell carcinoma	EXACT
 HP:0030410	sebaceous gland carcinoma	EXACT
 HP:0030410	sebaceous carcinoma	EXACT
 HP:0030411	jejunal adenocarcinoma	EXACT
@@ -24257,7 +24550,71 @@ HP:0030648	mid-peripheral	EXACT
 HP:0030649	pericentral	EXACT
 HP:0030650	focal	EXACT
 HP:0030651	multifocal	EXACT
-HP:0030652	diffuse	EXACT
+HP:0030652	vitreous haze	EXACT
+HP:0030654	umbilical cord cyst	EXACT
+HP:0030655	umbilical cord knot	EXACT
+HP:0030656	umbilical vein varix	EXACT
+HP:0030657	umbilical cord hematoma	EXACT
+HP:0030657	umbilical cord haematoma	EXACT
+HP:0030658	marginal umbilical cord insertion	EXACT
+HP:0030658	marginal cord insertion	EXACT
+HP:0030659	velamentous cord insertion	EXACT
+HP:0030660	furcate cord insertion	EXACT
+HP:0030661	vitreous snowballs	EXACT
+HP:0030661	vitreous snowball	LEMMA
+HP:0030662	vitreous inflammatory cells	EXACT
+HP:0030662	vitreous inflammatory cell	LEMMA
+HP:0030663	optically empty vitreous	EXACT
+HP:0030664	beevor's sign	EXACT
+HP:0030664	beevors sign	LEMMA
+HP:0030665	rubral tremor	EXACT
+HP:0030665	holmes' tremor	EXACT
+HP:0030665	holmes tremor	LEMMA
+HP:0030666	retinal neovascularization	EXACT
+HP:0030666	retinal neovascularisation	EXACT
+HP:0030667	peripheral retinal neovascularization	EXACT
+HP:0030668	periorbital dermoid cyst	EXACT
+HP:0030669	abnormal morphology of the ocular adnexa	EXACT
+HP:0030669	abnormal morphology ocular adnexa	LEMMA
+HP:0030670	hamartoma of the orbital region	EXACT
+HP:0030670	hamartoma orbital region	LEMMA
+HP:0030671	abnormality of the common tendinous ring	EXACT
+HP:0030671	abnormality common tendinous ring	LEMMA
+HP:0030672	asteroid hyalosis	EXACT
+HP:0030673	erosive vitreoretinopathy	EXACT
+HP:0030674	antenatal onset	EXACT
+HP:0030675	contracture of proximal interphalangeal joints of 2nd-5th fingers	EXACT
+HP:0030675	contracture proximal interphalangeal joint 2nd5th finger	LEMMA
+HP:0030676	satyr ear	EXACT
+HP:0030676	devil ear	EXACT
+HP:0030677	mozart ear	EXACT
+HP:0030679	ash-leaf spot	EXACT
+HP:0030679	ashleaf spot	LEMMA
+HP:0030680	abnormality of cardiovascular system morphology	EXACT
+HP:0030680	cardiovascular malformations	EXACT
+HP:0030680	abnormality cardiovascular system morphology	LEMMA
+HP:0030680	cardiovascular malformation	LEMMA
+HP:0030681	abnormal morphology of myocardial trabeculae	EXACT
+HP:0030681	abnormal morphology myocardial trabecula	LEMMA
+HP:0030682	left ventricular noncompaction	EXACT
+HP:0030683	vaginitis	EXACT
+HP:0030684	abnormal adiponectin level	EXACT
+HP:0030685	decreased adiponectin level	EXACT
+HP:0030686	increased adiponectin level	EXACT
+HP:0030687	abnormal glucagon level	EXACT
+HP:0030688	increased glucagon level	EXACT
+HP:0030689	decreased glucagon level	EXACT
+HP:0030690	gingival cleft	EXACT
+HP:0030691	divergence nystagmus	EXACT
+HP:0030691	a condition in which both eyes beat ourward simultaneously.	EXACT
+HP:0030691	condition eye beat ourward simultaneously	LEMMA
+HP:0030692	brain neoplasm	EXACT
+HP:0030692	brain tumor	EXACT
+HP:0030692	brain tumour	EXACT
+HP:0030693	supratentorial neoplasm	EXACT
+HP:0030693	pineal parenchymal tumor	EXACT
+HP:0030693	pineal parenchymal tumour	EXACT
+HP:0030694	pineal parenchymal cell neoplasm	EXACT
 HP:0040004	abnormality of corneal shape	EXACT
 HP:0040004	abnormality corneal shape	LEMMA
 HP:0040006	mortality/aging	EXACT
@@ -24391,8 +24748,8 @@ HP:0040087	abnormal serum folate	EXACT
 HP:0040087	abnormality folate blood	LEMMA
 HP:0040088	abnormal lymphocyte count	EXACT
 HP:0040088	abnormal lymphocyte counts	EXACT
-HP:0040088	abnormal numbers of lymphocytes	EXACT
 HP:0040088	abnormal number of lymphocytes	EXACT
+HP:0040088	abnormal numbers of lymphocytes	EXACT
 HP:0040088	abnormality of lymphocyte number	EXACT
 HP:0040088	abnormal number lymphocyte	LEMMA
 HP:0040088	abnormality lymphocyte number	LEMMA
@@ -24482,8 +24839,8 @@ HP:0040127	abnormal sweat homeostasis	EXACT
 HP:0040128	abnormal sweat electrolytes	EXACT
 HP:0040128	abnormal sweat electrolyte	LEMMA
 HP:0040129	abnormal nerve conduction velocity	EXACT
-HP:0040129	abnormal nerve conduction velocities	EXACT
 HP:0040129	abnormal nerve conduction	EXACT
+HP:0040129	abnormal nerve conduction velocities	EXACT
 HP:0040129	nerve conduction abnormalities	EXACT
 HP:0040129	nerve conduction abnormality	LEMMA
 HP:0040130	abnormal serum iron	EXACT
@@ -24491,6 +24848,7 @@ HP:0040131	abnormal motor nerve conduction velocity	EXACT
 HP:0040132	abnormal sensory nerve conduction velocity	EXACT
 HP:0040133	abnormal serum ferritin	EXACT
 HP:0040134	abnormal hepatic iron concentration	EXACT
+HP:0040134	abnormal liver iron level	EXACT
 HP:0040135	abnormal transferrin saturation	EXACT
 HP:0040137	comodogenic acne	EXACT
 HP:0040138	mucinous histiocytosis	EXACT
@@ -24557,6 +24915,87 @@ HP:0040173	abnormality of the tongue muscle	EXACT
 HP:0040173	abnormality tongue muscle	LEMMA
 HP:0040174	abnormality of extrinsic muscle of tongue	EXACT
 HP:0040174	abnormality extrinsic muscle tongue	LEMMA
+HP:0040175	platelet-activating factor acetylhydrolase deficiency	EXACT
+HP:0040175	plateletactivating factor acetylhydrolase deficiency	LEMMA
+HP:0040176	abnormal level of phospholipids	EXACT
+HP:0040176	abnormal level phospholipid	LEMMA
+HP:0040177	abnormal level of platelet-activating factor	EXACT
+HP:0040177	abnormal level of paf	EXACT
+HP:0040177	abnormal level plateletactivating factor	LEMMA
+HP:0040177	abnormal level paf	LEMMA
+HP:0040178	increased level of platelet-activating factor	EXACT
+HP:0040178	increased level of paf	EXACT
+HP:0040178	increased level plateletactivating factor	LEMMA
+HP:0040178	increased level paf	LEMMA
+HP:0040179	decreased level of platelet-activating factor	EXACT
+HP:0040179	decreased level of paf	EXACT
+HP:0040179	decreased level plateletactivating factor	LEMMA
+HP:0040179	decreased level paf	LEMMA
+HP:0040180	hyperkeratosis pilaris	EXACT
+HP:0040181	chapped lip	EXACT
+HP:0040181	chapped lips	EXACT
+HP:0040181	dry lips	EXACT
+HP:0040181	dry lip	LEMMA
+HP:0040182	inappropriate sinus tachycardia	EXACT
+HP:0040183	encopresis	EXACT
+HP:0040184	oral bleeding	EXACT
+HP:0040185	macrothrombocytopenia	EXACT
+HP:0040186	maculopapular exanthema	EXACT
+HP:0040187	neonatal sepsis	EXACT
+HP:0040188	osteochondrosis	EXACT
+HP:0040189	scaling skin	EXACT
+HP:0040189	desquamation	EXACT
+HP:0040189	flaking skin	EXACT
+HP:0040189	peeling skin	EXACT
+HP:0040189	scaly skin	EXACT
+HP:0040190	white scaling skin	EXACT
+HP:0040191	rectus femoris muscle atrophy	EXACT
+HP:0040191	atrophy of the rectus femoris muscles	EXACT
+HP:0040191	atrophy rectus femoris muscle	LEMMA
+HP:0040192	apudoma	EXACT
+HP:0040192	amine precursor uptake and decarboxylation tumours	EXACT
+HP:0040192	amine precursor uptake decarboxylation tumour	LEMMA
+HP:0040193	obsolete pinealoblastoma	EXACT
+HP:0040194	increased head circumference	EXACT
+HP:0040195	decreased head circumference	EXACT
+HP:0040196	mild microcephaly	EXACT
+HP:0040197	encephalomalacia	EXACT
+HP:0040197	cerebral softening	EXACT
+HP:0040198	non-medullary thyroid carcinoma	EXACT
+HP:0040198	nonmedullary thyroid carcinoma	EXACT
+HP:0040198	thyroid cancer, nonmedullary	EXACT
+HP:0040198	thyroid cancer nonmedullary	LEMMA
+HP:0040198	nonmedullary thyroid cancer	LEMMA
+HP:0040199	flat midface	EXACT
+HP:0040199	midface, flat	EXACT
+HP:0040199	midface flat	LEMMA
+HP:0040200	motor impersistence	EXACT
+HP:0040200	negative chorea	EXACT
+HP:0040201	simultanapraxia	EXACT
+HP:0040202	abnormal consumption behavior	EXACT
+HP:0040203	abnormal csf neopterin level	EXACT
+HP:0040204	elevated csf neopterin level	EXACT
+HP:0040205	decreased csf neopterin level	EXACT
+HP:0040206	abnormal level of neopterin	EXACT
+HP:0040206	abnormal level neopterin	LEMMA
+HP:0040207	abnormal csf biopterin level	EXACT
+HP:0040208	elevated csf biopterin level	EXACT
+HP:0040209	decreased csf biopterin level	EXACT
+HP:0040210	abnormal level of biopterin	EXACT
+HP:0040210	abnormal level biopterin	LEMMA
+HP:0040211	abnormality of the skin of the palm	EXACT
+HP:0040211	abnormality skin palm	LEMMA
+HP:0040212	risus sardonicus	EXACT
+HP:0040212	rictus grin	EXACT
+HP:0040213	hypopnea	EXACT
+HP:0040214	abnormal insulin level	EXACT
+HP:0040215	abnormal circulating insulin level	EXACT
+HP:0040216	hypoinsulinemia	EXACT
+HP:0040217	increased hba1c levels	EXACT
+HP:0040217	increased hba1c level	LEMMA
+HP:0040218	reduced natural killer cell number	EXACT
+HP:0040219	absent natural killer cells	EXACT
+HP:0040219	absent natural killer cell	LEMMA
 HP:0045001	abnormal ossification of the trapezium	EXACT
 HP:0045001	abnormal ossification trapezium	LEMMA
 HP:0045002	absent ossification of the trapezium	EXACT
@@ -24601,6 +25040,54 @@ HP:0045029	eosinophilic fasciitis	EXACT
 HP:0045034	elevated urinary aminoisobutyric acid	EXACT
 HP:0045035	decreased urinary copper concentration	EXACT
 HP:0045036	abnormal urinary copper concentration	EXACT
+HP:0045037	abnormality of jaw muscles	EXACT
+HP:0045037	abnormality jaw muscle	LEMMA
+HP:0045038	gastric lymphoma	EXACT
+HP:0045038	primary gastric lymphoma	EXACT
+HP:0045039	osteolysis involving bones of the upper limbs	EXACT
+HP:0045039	osteolysis involving bone upper limb	LEMMA
+HP:0045040	abnormal lactate dehydrogenase activity	EXACT
+HP:0045041	lactate dehydrogenase b deficiency	EXACT
+HP:0045042	decreased serum complement c4	EXACT
+HP:0045043	decreased serum complement c4a	EXACT
+HP:0045044	decreased serum complement c4b	EXACT
+HP:0045044	c4b deficiency	EXACT
+HP:0045044	complement component 4b deficiency	EXACT
+HP:0045045	elevated plasma acylcarnitine levels	EXACT
+HP:0045045	elevated plasma acylcarnitine level	LEMMA
+HP:0045046	decreased levels of acid labile subunit	EXACT
+HP:0045046	acid-labile subunit deficiency	EXACT
+HP:0045046	decreased level acid labile subunit	LEMMA
+HP:0045046	acidlabile subunit deficiency	LEMMA
+HP:0045047	hbs hemoglobin	EXACT
+HP:0045047	hb hemoglobin	LEMMA
+HP:0045048	increased hba2 hemoglobin	EXACT
+HP:0045049	abnormal dlco	EXACT
+HP:0045049	abnormal tlco	EXACT
+HP:0045049	abnormal diffusing capacity	EXACT
+HP:0045049	abnormal transfer factor of the lung for carbon monoxide	EXACT
+HP:0045049	abnormal transfer factor lung carbon monoxide	LEMMA
+HP:0045050	increased dlco	EXACT
+HP:0045050	increased diffusing capacity	EXACT
+HP:0045051	decreased dlco	EXACT
+HP:0045051	decreased diffusing capacity	EXACT
+HP:0045052	abnormality of the brachial nerve plexus	EXACT
+HP:0045052	abnormality brachial nerve plexus	LEMMA
+HP:0045053	abnormality of the lumbosacral nerve plexus	EXACT
+HP:0045053	abnormality lumbosacral nerve plexus	LEMMA
+HP:0045054	brachial plexus neuropathy	EXACT
+HP:0045055	tiger tail banding	EXACT
+HP:0045056	abnormal levels of alpha-fetoprotein	EXACT
+HP:0045056	abnormal level alphafetoprotein	LEMMA
+HP:0045057	decreased levels of alpha-fetoprotein	EXACT
+HP:0045057	decreased level alphafetoprotein	LEMMA
+HP:0045058	abnormality of the testis size	EXACT
+HP:0045058	abnormality testis size	LEMMA
+HP:0045059	hyperkeratotic papule	EXACT
+HP:0045060	aplasia/hypoplasia involving bones of the extremities	EXACT
+HP:0045060	aplasiahypoplasia involving bone extremity	LEMMA
+HP:0045061	decreased carnitine level in liver	EXACT
+HP:0045061	decreased carnitine level liver	LEMMA
 HP:0100000	early onset of sexual maturation	EXACT
 HP:0100000	early onset sexual maturation	LEMMA
 HP:0100001	malignant mesothelioma	EXACT
@@ -24634,8 +25121,6 @@ HP:0100014	macular pucker	EXACT
 HP:0100014	premacular fibrosis	EXACT
 HP:0100015	stahl ear	EXACT
 HP:0100015	additional crus	EXACT
-HP:0100015	antihelix	EXACT
-HP:0100015	satyr ear	EXACT
 HP:0100015	spock ear	EXACT
 HP:0100015	third crus	EXACT
 HP:0100015	vulcan ear	EXACT
@@ -25227,9 +25712,9 @@ HP:0100315	lewy bodies	EXACT
 HP:0100315	lewy body	LEMMA
 HP:0100316	hirano bodies	EXACT
 HP:0100316	hirano body	LEMMA
-HP:0100317	agyrophilic inclusion bodies	EXACT
+HP:0100317	argyrophilic inclusion bodies	EXACT
 HP:0100317	pick inclusion bodies	EXACT
-HP:0100317	agyrophilic inclusion body	LEMMA
+HP:0100317	argyrophilic inclusion body	LEMMA
 HP:0100317	pick inclusion body	LEMMA
 HP:0100318	lafora bodies	EXACT
 HP:0100318	lafora body	LEMMA
@@ -25747,6 +26232,7 @@ HP:0100501	recurrent bronchiolitis	EXACT
 HP:0100502	vitamin b12 deficiency	EXACT
 HP:0100503	vitamin b1 deficiency	EXACT
 HP:0100504	vitamin b2 deficiency	EXACT
+HP:0100504	riboflavin deficiency	EXACT
 HP:0100505	vitamin b5 deficiency	EXACT
 HP:0100506	vitamin b8 deficiency	EXACT
 HP:0100507	folate deficiency	EXACT
@@ -25902,8 +26388,8 @@ HP:0100582	nasal polyp	LEMMA
 HP:0100583	corneal perforation	EXACT
 HP:0100583	iridocele	EXACT
 HP:0100584	endocarditis	EXACT
-HP:0100585	teleangiectasia of the skin	EXACT
-HP:0100585	teleangiectasia skin	LEMMA
+HP:0100585	telangiectasia of the skin	EXACT
+HP:0100585	telangiectasia skin	LEMMA
 HP:0100586	aseptic leukocyturia	EXACT
 HP:0100587	abnormality of the preputium	EXACT
 HP:0100587	abnormality preputium	LEMMA
@@ -26378,9 +26864,7 @@ HP:0100851	abnormal emotion/affect behaviour	EXACT
 HP:0100851	abnormal emotionaffect behavior	LEMMA
 HP:0100851	abnormal emotionaffect behaviour	LEMMA
 HP:0100852	abnormal fear/anxiety-related behavior	EXACT
-HP:0100852	mood alterations	EXACT
 HP:0100852	abnormal fearanxietyrelated behavior	LEMMA
-HP:0100852	mood alteration	LEMMA
 HP:0100853	hypoplastic areola	EXACT
 HP:0100853	hypoplastic areolae	EXACT
 HP:0100854	aplasia of the musculature	EXACT
@@ -26414,9 +26898,8 @@ HP:0100869	teleangiectases of palms	EXACT
 HP:0100869	telangiectases palm sol	LEMMA
 HP:0100869	teleangiectases palm	LEMMA
 HP:0100870	plantar telangiectasia	EXACT
-HP:0100870	plantar teleangiectasia	EXACT
-HP:0100870	teleangiectases of soles	EXACT
-HP:0100870	teleangiectases sol	LEMMA
+HP:0100870	telangiectases of soles	EXACT
+HP:0100870	telangiectases sol	LEMMA
 HP:0100871	abnormality of the palm	EXACT
 HP:0100871	abnormality palm	LEMMA
 HP:0100872	abnormality of the plantar skin of foot	EXACT
@@ -26428,9 +26911,9 @@ HP:0100874	increased follicular density	EXACT
 HP:0100874	increased hair density	EXACT
 HP:0100875	hemimacroglossia	EXACT
 HP:0100876	infra-orbital crease	EXACT
+HP:0100876	infraorbital crease	EXACT
 HP:0100876	infraorbital creases	EXACT
 HP:0100876	underorbital skin creases	EXACT
-HP:0100876	infraorbital crease	LEMMA
 HP:0100876	underorbital skin crease	LEMMA
 HP:0100877	renal diverticulum	EXACT
 HP:0100877	caliceal diverticulum	EXACT
@@ -26802,7 +27285,6 @@ HP:0200111	absent stapes head	EXACT
 HP:0200113	aphalangy of hands and feet	EXACT
 HP:0200113	aphalangy hand foot	LEMMA
 HP:0200114	metabolic alkalosis	EXACT
-HP:0200115	scalp hair loss	EXACT
 HP:0200116	distal ileal atresia	EXACT
 HP:0200117	recurrent upper and lower respiratory tract infections	EXACT
 HP:0200117	recurrent upper lower respiratory tract infection	LEMMA
@@ -26931,7 +27413,75 @@ HP:0430011	defect palpebral conjunctiva	LEMMA
 HP:0430012	incomplete ossification of palatine bone	EXACT
 HP:0430012	incomplete ossification palatine bone	LEMMA
 HP:0430013	absent palatine bone ossification	EXACT
-HP:3000001	abnormal heart morphology	EXACT
+HP:0430014	abnormality of musculature of soft palate	EXACT
+HP:0430014	abnormality of soft palate muscles	EXACT
+HP:0430014	abnormality musculature soft palate	LEMMA
+HP:0430014	abnormality soft palate muscle	LEMMA
+HP:0430015	abnormality of musculature of pharynx	EXACT
+HP:0430015	abnormality of muscles of the pharynx	EXACT
+HP:0430015	abnormality of pharyngeal musculature	EXACT
+HP:0430015	abnormality of pharynx musculature	EXACT
+HP:0430015	abnormality musculature pharynx	LEMMA
+HP:0430015	abnormality muscle pharynx	LEMMA
+HP:0430015	abnormality pharyngeal musculature	LEMMA
+HP:0430015	abnormality pharynx musculature	LEMMA
+HP:0430016	abnormality of tensor veli palatini muscle	EXACT
+HP:0430016	abnormality tensor veli palatini muscle	LEMMA
+HP:0430017	abnormality of uvular muscle	EXACT
+HP:0430017	abnormality of musculus uvulae	EXACT
+HP:0430017	abnormality uvular muscle	LEMMA
+HP:0430017	abnormality musculus uvula	LEMMA
+HP:0430018	abnormality of nasal musculature	EXACT
+HP:0430018	abnormality of muscle of nose	EXACT
+HP:0430018	abnormality of musculature of the nose	EXACT
+HP:0430018	abnormality nasal musculature	LEMMA
+HP:0430018	abnormality muscle nose	LEMMA
+HP:0430018	abnormality musculature nose	LEMMA
+HP:0430019	abnormality of muscle of facial expression	EXACT
+HP:0430019	abnormality of musculature of facial expression	EXACT
+HP:0430019	abnormality muscle facial expression	LEMMA
+HP:0430019	abnormality musculature facial expression	LEMMA
+HP:0430020	abnormality of levator labii superioris alaeque nasi muscle	EXACT
+HP:0430020	abnormality levator labii superioris alaeque nasi muscle	LEMMA
+HP:0430021	abnormality of the common carotid artery	EXACT
+HP:0430021	abnormality common carotid artery	LEMMA
+HP:0430022	abnormality of the sphenoid sinus	EXACT
+HP:0430022	abnormality of the sphenoidal sinus	EXACT
+HP:0430022	abnormality sphenoid sinus	LEMMA
+HP:0430022	abnormality sphenoidal sinus	LEMMA
+HP:0430023	abnormality of the maxillary sinus	EXACT
+HP:0430023	abnormality of the antrum of highmore	EXACT
+HP:0430023	abnormality of the maxillary antrum	EXACT
+HP:0430023	abnormality maxillary sinus	LEMMA
+HP:0430023	abnormality antrum highmore	LEMMA
+HP:0430023	abnormality maxillary antrum	LEMMA
+HP:0430024	abnormality of external jugular vein	EXACT
+HP:0430024	abnormality external jugular vein	LEMMA
+HP:0430025	bilateral facial palsy	EXACT
+HP:0430026	abnormality of the shape of the midface	EXACT
+HP:0430026	abnormality shape midface	LEMMA
+HP:0430028	hyperplasia of the maxilla	EXACT
+HP:0430028	big maxilla	EXACT
+HP:0430028	big upper jaw	EXACT
+HP:0430028	large maxilla	EXACT
+HP:0430028	large upper jaw	EXACT
+HP:0430028	maxillary excess	EXACT
+HP:0430028	maxillary macrognathia	EXACT
+HP:0430028	maxillary prominence	EXACT
+HP:0430028	prominent upper jaw	EXACT
+HP:0430028	upper jaw excess	EXACT
+HP:0430028	hyperplasia maxilla	LEMMA
+HP:0430029	hyperplasia of the premaxilla	EXACT
+HP:0430029	hyperplasia of the intermaxillary bone	EXACT
+HP:0430029	hyperplasia of the primary palate bone	EXACT
+HP:0430029	large premaxilla	EXACT
+HP:0430029	large primary palate bone	EXACT
+HP:0430029	premaxillary excess	EXACT
+HP:0430029	primary palate bone excess	EXACT
+HP:0430029	hyperplasia premaxilla	LEMMA
+HP:0430029	hyperplasia intermaxillary bone	LEMMA
+HP:0430029	hyperplasia primary palate bone	LEMMA
+HP:3000001	obsolete abnormal heart morphology	EXACT
 HP:3000002	abnormal inner ear epithelium morphology	EXACT
 HP:3000003	abnormality of mandibular ramus	EXACT
 HP:3000003	abnormality mandibular ramus	LEMMA
@@ -26957,15 +27507,11 @@ HP:3000013	abnormality of platysma	EXACT
 HP:3000013	abnormality of the platysma muscle	EXACT
 HP:3000013	abnormality platysma	LEMMA
 HP:3000013	abnormality platysma muscle	LEMMA
-HP:3000014	abnormality of procerus	EXACT
 HP:3000014	abnormality of procerus muscle	EXACT
-HP:3000014	abnormality procerus	LEMMA
 HP:3000014	abnormality procerus muscle	LEMMA
 HP:3000015	abnormality of risorius muscle	EXACT
 HP:3000015	abnormality risorius muscle	LEMMA
-HP:3000016	abnormality of styloglossus	EXACT
 HP:3000016	abnormality of styloglossus muscle	EXACT
-HP:3000016	abnormality styloglossus	LEMMA
 HP:3000016	abnormality styloglossus muscle	LEMMA
 HP:3000017	abnormality of temporalis muscle	EXACT
 HP:3000017	abnormality temporalis muscle	LEMMA
@@ -26979,8 +27525,8 @@ HP:3000021	abnormality of buccal fat pad	EXACT
 HP:3000021	abnormality buccal fat pad	LEMMA
 HP:3000022	abnormality of cartilage of external ear	EXACT
 HP:3000022	abnormality cartilage external ear	LEMMA
-HP:3000023	abnormality of ocular angle artery	EXACT
-HP:3000023	abnormality ocular angle artery	LEMMA
+HP:3000023	abnormality of angular artery	EXACT
+HP:3000023	abnormality angular artery	LEMMA
 HP:3000024	abnormality of facial artery	EXACT
 HP:3000024	abnormality facial artery	LEMMA
 HP:3000025	abnormality of ciliary ganglion	EXACT
@@ -26995,36 +27541,54 @@ HP:3000029	abnormality of depressor labii inferioris	EXACT
 HP:3000029	abnormality of depressor labii inferioris muscle	EXACT
 HP:3000029	abnormality depressor labii inferioris	LEMMA
 HP:3000029	abnormality depressor labii inferioris muscle	LEMMA
-HP:3000030	abnormality of orbit of skull	EXACT
-HP:3000030	abnormality of bony orbit	EXACT
-HP:3000030	abnormality orbit skull	LEMMA
-HP:3000030	abnormality bony orbit	LEMMA
+HP:3000030	abnormality of bony orbit of skull	EXACT
+HP:3000030	abnormality of the bony eye socket	EXACT
+HP:3000030	abnormality of the orbital bones of skull	EXACT
+HP:3000030	abnormality of bones of the orbit of the skull	EXACT
+HP:3000030	abnormality bony orbit skull	LEMMA
+HP:3000030	abnormality bony eye socket	LEMMA
+HP:3000030	abnormality orbital bone skull	LEMMA
+HP:3000030	abnormality bone orbit skull	LEMMA
 HP:3000031	abnormality of anterior ethmoidal artery	EXACT
 HP:3000031	abnormality anterior ethmoidal artery	LEMMA
 HP:3000032	abnormality of central retinal artery	EXACT
 HP:3000032	abnormality central retinal artery	LEMMA
+HP:3000033	abnormality of nasopharyngeal adenoids	EXACT
+HP:3000033	abnormality of adenoids	EXACT
+HP:3000033	abnormality of nasopharyngeal tonsil	EXACT
 HP:3000033	abnormality of pharyngeal tonsil	EXACT
-HP:3000033	abnormality of adenoid	EXACT
-HP:3000033	abnormality pharyngeal tonsil	LEMMA
+HP:3000033	abnormality nasopharyngeal adenoid	LEMMA
 HP:3000033	abnormality adenoid	LEMMA
+HP:3000033	abnormality nasopharyngeal tonsil	LEMMA
+HP:3000033	abnormality pharyngeal tonsil	LEMMA
 HP:3000034	abnormality of cartilage of nasal septum	EXACT
 HP:3000034	abnormality cartilage nasal septum	LEMMA
 HP:3000035	abnormality of cervical plexus	EXACT
 HP:3000035	abnormality cervical plexus	LEMMA
 HP:3000036	abnormality of head blood vessel	EXACT
+HP:3000036	abnormality of vasculature of head	EXACT
 HP:3000036	abnormality of blood vessel of head	EXACT
 HP:3000036	abnormality head blood vessel	LEMMA
+HP:3000036	abnormality vasculature head	LEMMA
 HP:3000036	abnormality blood vessel head	LEMMA
 HP:3000037	abnormality of neck blood vessel	EXACT
+HP:3000037	abnormality of the cervical blood vessels	EXACT
+HP:3000037	abnormality of the cervical vasculature	EXACT
+HP:3000037	abnormality of the vasculature of the neck	EXACT
 HP:3000037	abnormality of blood vessel of neck	EXACT
 HP:3000037	abnormality neck blood vessel	LEMMA
+HP:3000037	abnormality cervical blood vessel	LEMMA
+HP:3000037	abnormality cervical vasculature	LEMMA
+HP:3000037	abnormality vasculature neck	LEMMA
 HP:3000037	abnormality blood vessel neck	LEMMA
 HP:3000038	abnormality of cricoid cartilage	EXACT
 HP:3000038	abnormality cricoid cartilage	LEMMA
 HP:3000039	abnormality of dorsal nasal artery	EXACT
 HP:3000039	abnormality dorsal nasal artery	LEMMA
 HP:3000040	abnormality of ethmoid sinus	EXACT
+HP:3000040	abnormality of ethmoidal air cells	EXACT
 HP:3000040	abnormality ethmoid sinus	LEMMA
+HP:3000040	abnormality ethmoidal air cell	LEMMA
 HP:3000041	abnormality of external carotid artery	EXACT
 HP:3000041	abnormality external carotid artery	LEMMA
 HP:3000042	abnormality of jugular vein	EXACT
@@ -27100,8 +27664,8 @@ HP:3000071	abnormality of levator labii superioris	EXACT
 HP:3000071	abnormality levator labii superioris	LEMMA
 HP:3000072	abnormality of levator palpebrae superioris	EXACT
 HP:3000072	abnormality levator palpebrae superioris	LEMMA
-HP:3000073	abnormality of levator veli palatini	EXACT
-HP:3000073	abnormality levator veli palatini	LEMMA
+HP:3000073	abnormality of levator veli palatini muscle	EXACT
+HP:3000073	abnormality levator veli palatini muscle	LEMMA
 HP:3000074	abnormality of lingual artery	EXACT
 HP:3000074	abnormality lingual artery	LEMMA
 HP:3000075	abnormality of lingual nerve	EXACT
