@@ -9,19 +9,11 @@ diseases (
   alt_names text
 ).
 
-diseases_concat_names (
-  @distributed_by
-  omim_id text,
-  names text
-).
-
-diseases_concat_names(omim_id, names || "|^|" || alt_names) :-
-  diseases(omim_id, names, alt_names).
-
 phenotypic_series (
   @distributed_by
   omim_id text,
-  name text
+  name text,
+  alt_names text
 ).
 
 phenotypic_series_to_omim (
@@ -36,10 +28,10 @@ pheno_names (
   names text
 ).
 
-pheno_names(id, names) :-
-  diseases_concat_names(id, names);
-  allowed_phenos_concat_names(id, names);
-  phenotypic_series(id, names).
+pheno_names(id, names || "|^|" || alt_names) :-
+  diseases(id, names, alt_names);
+  allowed_phenos(id, names, alt_names);
+  phenotypic_series(id, names, alt_names).
 
 @source
 sentences_input_views(
@@ -733,15 +725,6 @@ allowed_phenos (
   hpo_id text,
   names text,
   synonyms text).
-
-allowed_phenos_concat_names (
-  @distributed_by
-  hpo_id text,
-  names text).
-
-allowed_phenos_concat_names(omim_id, names || "|^|" || alt_names) :-
-  allowed_phenos(omim_id, names, alt_names).
-
 
 gene_holdout_set (
         @distributed_by
@@ -1598,12 +1581,12 @@ gene_mentions_filtered_inference(mention_id1) = gene_mentions_filtered_inference
 #   subtype text
 # ).
 
-genepheno_causation_to_gene
- @weight("?")
- genepheno_causation_inference(relation_id) => gene_mentions_filtered_inference(gene_mention_id) :-
-   genepheno_causation(_, relation_id, doc_id, section_id, _, gene_mention_id, _, _, _, _, _, _, _, _), 
-   gene_mentions_filtered(_, doc_id, section_id, _, _, gene_mention_id, _, _, _, _, _, _).
-# 
+#genepheno_causation_to_gene
+@weight("?")
+genepheno_causation_inference(relation_id) => gene_mentions_filtered_inference(gene_mention_id) :-
+  genepheno_causation(_, relation_id, doc_id, section_id, _, gene_mention_id, _, _, _, _, _, _, _, _), 
+  gene_mentions_filtered(_, doc_id, section_id, _, _, gene_mention_id, _, _, _, _, _, _).
+ 
 # @weight("-0.5")
 # !genepheno_causation_inference(relation_id_outer_1) v !genepheno_causation_inference(relation_id_outer_2) v !genepheno_causation_inference(relation_id_inner) :-
 #   genepheno_causation(_, relation_id_outer_1, doc_id, section_id, sent_id, gene_mention_id_outer_1, _, gene_wordidx_outer_1, pheno_mention_id_outer_1, _, pheno_wordidx_outer_1, _, _, _),
