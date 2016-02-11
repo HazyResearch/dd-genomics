@@ -35,7 +35,7 @@ FROM
     RIGHT JOIN genepheno_causation_labels s 
       ON (s.relation_id = gc.relation_id)
   WHERE
-    COALESCE(gc.expectation, 0) > 0.9 
+    COALESCE(gc.expectation, 0) > 0.5 
     AND s.is_correct = 'f'
     $version_string
   GROUP BY labeler) fp
@@ -48,7 +48,7 @@ FROM
     RIGHT JOIN genepheno_causation_labels s 
       ON (s.relation_id = gc.relation_id)
   WHERE
-    COALESCE(gc.expectation, 0) > 0.9 
+    COALESCE(gc.expectation, 0) > 0.5 
     AND s.is_correct = 't'
     $version_string
   GROUP BY labeler) tp
@@ -62,7 +62,7 @@ FROM
     RIGHT JOIN genepheno_causation_labels s 
       ON (s.relation_id = gc.relation_id)
   WHERE
-    COALESCE(gc.expectation, 0) <= 0.9
+    COALESCE(gc.expectation, 0) <= 0.5
     AND s.is_correct = 't'
     $version_string
   GROUP BY labeler) fn
@@ -76,7 +76,7 @@ FROM
     RIGHT JOIN genepheno_causation_labels s 
       ON (s.relation_id = gc.relation_id)
   WHERE
-    COALESCE(gc.expectation, 0) <= 0.9
+    COALESCE(gc.expectation, 0) <= 0.5
     AND s.is_correct = 'f'
     $version_string
   GROUP BY labeler) tn

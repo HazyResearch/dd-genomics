@@ -230,3 +230,5 @@ join -1 1 -2 1 -t$'\t' \
 ./parse_phenotypic_series.sh
 
 ./parse_disease_to_phenotype.sh
+
+./omim_alt_names_to_series.py manual/diseases.tsv manual/phenotypic_series.tsv manual/phenotypic_series_to_omim.tsv

@@ -33,7 +33,7 @@ FROM
   JOIN sentences_input si
     ON (si.doc_id = gc.doc_id AND si.section_id = gc.section_id AND si.sent_id = gc.sent_id)
 WHERE
-  COALESCE(gc.expectation, 0) > 0.9 
+  COALESCE(gc.expectation, 0) > 0.5 
   AND s.is_correct = 'f'
   $version_string) TO STDOUT;
 """
