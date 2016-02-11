@@ -28,7 +28,7 @@ if [ $1 = 'gene' ]; then
         for DIR in *-gene-holdout.$NAME; do
         	./extract_gene_labels_from_json.py $DIR/tags.json $NAME > tmp.tsv
 		psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE IF EXISTS tmp'
-		psql -U $DDUSER -p 6432 -d genomics_labels -c 'CREATE TABLE tmp(mention_id text, is_correct text, labeler text, version int)'
+		psql -U $DDUSER -p 6432 -d genomics_labels -c 'CREATE TABLE tmp(mention_id text, is_correct boolean, labeler text, version int)'
                 cat tmp.tsv | psql -U $DDUSER -p 6432 -d genomics_labels -c 'COPY tmp FROM STDIN;'
 		psql -U $DDUSER -p 6432 -d genomics_labels -c 'INSERT INTO tmp SELECT * FROM gene_labels gl WHERE (gl.mention_id,  gl.labeler) NOT IN (SELECT mention_id, labeler FROM tmp)'
 		psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE gene_labels'
@@ -40,7 +40,7 @@ elif [ $1 = 'gene_precision' ]; then
         for DIR in *-gene-holdout-high-precision.$NAME; do
                 ./extract_gene_labels_from_json.py $DIR/tags.json $NAME > tmp.tsv
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE IF EXISTS tmp'
-                psql -U $DDUSER -p 6432 -d genomics_labels -c 'CREATE TABLE tmp(mention_id text, is_correct text, labeler text, version int)'
+                psql -U $DDUSER -p 6432 -d genomics_labels -c 'CREATE TABLE tmp(mention_id text, is_correct boolean, labeler text, version int)'
                 cat tmp.tsv | psql -U $DDUSER -p 6432 -d genomics_labels -c 'COPY tmp FROM STDIN;'
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'INSERT INTO tmp SELECT * FROM gene_precision_labels gl WHERE (gl.mention_id,  gl.labeler) NOT IN (SELECT mention_id, labeler FROM tmp)'
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE gene_precision_labels'
@@ -52,7 +52,7 @@ elif [ $1 = 'pheno' ]; then
         for DIR in *-pheno-holdout.$NAME; do
                 ./extract_pheno_labels_from_json.py $DIR/tags.json $NAME > tmp.tsv
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE IF EXISTS tmp'  
-                psql -U $DDUSER -p 6432 -d genomics_labels -c 'CREATE TABLE tmp(mention_id text, is_correct text, labeler text, version int)'
+                psql -U $DDUSER -p 6432 -d genomics_labels -c 'CREATE TABLE tmp(mention_id text, is_correct boolean, labeler text, version int)'
                 cat tmp.tsv | psql -U $DDUSER -p 6432 -d genomics_labels -c 'COPY tmp FROM STDIN;'  
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'INSERT INTO tmp SELECT * FROM pheno_labels pl WHERE (pl.mention_id, pl.labeler) NOT IN (SELECT mention_id, labeler FROM tmp)'
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE pheno_labels'
@@ -65,7 +65,7 @@ elif [ $1 = 'genepheno' ]; then
                 ./extract_genepheno_causation_labels_from_json.py $DIR/tags.json $NAME > tmp.tsv
 		# UPDATE CAUSATION
 		psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE IF EXISTS tmp'
-                psql -U $DDUSER -p 6432 -d genomics_labels -c 'CREATE TABLE tmp(relation_id text, is_correct text, labeler text, version int)'
+                psql -U $DDUSER -p 6432 -d genomics_labels -c 'CREATE TABLE tmp(relation_id text, is_correct boolean, labeler text, version int)'
                 cat tmp.tsv | psql -U $DDUSER -p 6432 -d genomics_labels -c 'COPY tmp FROM STDIN;'
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'INSERT INTO tmp SELECT DISTINCT * FROM genepheno_causation_labels gl WHERE (gl.relation_id, gl.labeler) NOT IN (SELECT relation_id, labeler FROM tmp)'
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE genepheno_causation_labels'
@@ -75,7 +75,7 @@ elif [ $1 = 'genepheno' ]; then
 		# UPDATE ASSOCIATION
 		./extract_genepheno_association_labels_from_json.py $DIR/tags.json $NAME > tmp.tsv
 		psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE IF EXISTS tmp'
-                psql -U $DDUSER -p 6432 -d genomics_labels -c 'CREATE TABLE tmp(relation_id text, is_correct text, labeler text, version int)'
+                psql -U $DDUSER -p 6432 -d genomics_labels -c 'CREATE TABLE tmp(relation_id text, is_correct boolean, labeler text, version int)'
                 cat tmp.tsv | psql -U $DDUSER -p 6432 -d genomics_labels -c 'COPY tmp FROM STDIN;'
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'INSERT INTO tmp SELECT DISTINCT * FROM genepheno_association_labels gl WHERE (gl.relation_id, gl.labeler) NOT IN (SELECT relation_id, labeler FROM tmp)'
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE genepheno_association_labels'
@@ -88,7 +88,7 @@ elif [ $1 = 'genepheno_causation_precision' ]; then
                 ./extract_genepheno_causation_labels_from_json.py $DIR/tags.json $NAME > tmp.tsv
                 # UPDATE CAUSATION PRECISION
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE IF EXISTS tmp'
-                psql -U $DDUSER -p 6432 -d genomics_labels -c 'CREATE TABLE tmp(relation_id text, is_correct text, labeler text, version int)'
+                psql -U $DDUSER -p 6432 -d genomics_labels -c 'CREATE TABLE tmp(relation_id text, is_correct boolean, labeler text, version int)'
                 cat tmp.tsv | psql -U $DDUSER -p 6432 -d genomics_labels -c 'COPY tmp FROM STDIN;'
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'INSERT INTO tmp SELECT DISTINCT * FROM genepheno_causation_precision_labels gl WHERE (gl.relation_id, gl.labeler) NOT IN (SELECT relation_id, labeler FROM tmp)'
                 psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE genepheno_causation_precision_labels'

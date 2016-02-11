@@ -1,6 +1,13 @@
 #!/bin/bash -e
 set -beEu -o pipefail
 
+if [ $# -eq 1 ]
+then
+  version_string="AND version = $1"
+else
+  version_string=""
+fi
+
 cd ..
 source env_local.sh
 deepdive sql """
@@ -27,6 +34,7 @@ FROM
     ON (si.doc_id = gc.doc_id AND si.section_id = gc.section_id AND si.sent_id = gc.sent_id)
 WHERE
   COALESCE(gc.expectation, 0) <= 0.9 
-  AND l.is_correct = 't')
+  AND l.is_correct = 't'
+  $version_string)
 TO STDOUT;
 """

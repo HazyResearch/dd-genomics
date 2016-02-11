@@ -3,7 +3,7 @@
 if [ $# -lt 1 ]; then
         echo "$0: ERROR: wrong number of arguments" >&2
         echo "$0: Please select a relation to extract gene, pheno or genepheno" >&2
-        echo "$0: USAGE: $0 {gene,pheno,genepheno} OPTIONAL_NAME" >&2
+        echo "$0: USAGE: $0 {gene,pheno,genepheno,genepheno_precision} OPTIONAL_NAME" >&2
         exit 1
 fi
 
@@ -24,9 +24,11 @@ elif [ $1 = 'pheno' ]; then
 	./create_new_p_holdout_set.sh $NAME
 elif [ $1 = 'genepheno' ]; then
 	./create_new_gp_holdout_set.sh $NAME
+elif [ $1 = 'genepheno_precision' ]; then
+	./create_new_gp_precision_set.sh $NAME
 else 
 	echo "Argument not valid"
-	echo "$0: USAGE: $0 {gene,pheno,genepheno} OPTIONAL_NAME" >&2
+	echo "$0: USAGE: $0 {gene,pheno,genepheno,genepheno_precision} OPTIONAL_NAME" >&2
         exit 1
 fi
 

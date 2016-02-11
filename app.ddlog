@@ -1382,6 +1382,8 @@ genevariant_relations ( _, _, _, _, _, _, _, mention_id, _, _, _, _, _, _, _, _,
 #Pheno_filter_candidates
 #? Exctractor seems wrong in the application.conf (What is g ?)
 
+
+
 #genepheno_extract_features
 function genepheno_extract_features over rows like genepheno_extract_features_input returns rows like genepheno_features
 implementation "code/genepheno_extract_features.py" handles tsv lines.
@@ -1532,9 +1534,9 @@ pheno_mentions_filtered_inference(mention_id) :-
   pheno_features(_, _, mention_id, feature).
 
 #non_gene_acronyms_inference
-@weight(feature)
-non_gene_acronyms_inference(mention_id) :- non_gene_acronyms(id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs, mention_id, supertype, subtype, abbrev, definition, is_correct), 
-non_gene_acronyms_features (_, _, mention_id, feature).
+#@weight(feature)
+#non_gene_acronyms_inference(mention_id) :- non_gene_acronyms(id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs, mention_id, supertype, subtype, abbrev, definition, is_correct), 
+#non_gene_acronyms_features (_, _, mention_id, feature).
 
 #genepheno_causation_inference
 @weight(feature)
@@ -1544,16 +1546,43 @@ genepheno_causation_inference(relation_id) :-
 
 #New rule to link the different gene_mentions in a document
 @weight("?")
-gene_mentions_filtered_inference(mention_id1) = 
-gene_mentions_filtered_inference(mention_id2) :-
-gene_mentions_filtered(_, doc_id,_, _, _, mention_id1, _, _, _, gene_name, _, _),
-gene_mentions_filtered(_, doc_id,_, _, _, mention_id2, _, _, _, gene_name, _, _).
+gene_mentions_filtered_inference(mention_id1) = gene_mentions_filtered_inference(mention_id2) :-
+  gene_mentions_filtered(_, doc_id,_, _, _, mention_id1, _, _, _, gene_name, _, _),
+  gene_mentions_filtered(_, doc_id,_, _, _, mention_id2, _, _, _, gene_name, _, _).
+
+# genepheno_causation_first (
+#   id bigint,
+#   relation_id text,
+#   @distributed_by
+#   doc_id text,
+#   section_id text,
+#   sent_id int,
+#   gene_mention_id text,
+#   gene_name text,
+#   gene_wordidx int,
+#   pheno_mention_id text,
+#   pheno_entity text,
+#   pheno_wordidx int,
+#   is_correct boolean,
+#   supertype text,
+#   subtype text
+# ).
 
 #genepheno_causation_to_gene
-@weight("?")
-genepheno_causation_inference(relation_id) => gene_mentions_filtered_inference(gene_mention_id) :-
-genepheno_causation(_, relation_id, doc_id, section_id, _, gene_mention_id, _, _, _, _, _, _, _, _), 
-gene_mentions_filtered(_, doc_id, section_id, _, _, gene_mention_id, _, _, _, _, _, _).
+# @weight("?")
+# genepheno_causation_inference(relation_id) => gene_mentions_filtered_inference(gene_mention_id) :-
+#   genepheno_causation(_, relation_id, doc_id, section_id, _, gene_mention_id, _, _, _, _, _, _, _, _), 
+#   gene_mentions_filtered(_, doc_id, section_id, _, _, gene_mention_id, _, _, _, _, _, _).
+# 
+# @weight("-0.5")
+# !genepheno_causation_inference(relation_id_outer_1) v !genepheno_causation_inference(relation_id_outer_2) v !genepheno_causation_inference(relation_id_inner) :-
+#   genepheno_causation(_, relation_id_outer_1, doc_id, section_id, sent_id, gene_mention_id_outer_1, _, gene_wordidx_outer_1, pheno_mention_id_outer_1, _, pheno_wordidx_outer_1, _, _, _),
+#   genepheno_causation(_, relation_id_outer_2, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, gene_wordidx_outer_2, pheno_mention_id_outer_2, _, pheno_wordidx_outer_2, _, _, _),
+#   genepheno_causation(_, relation_id_inner, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, _, pheno_mention_id_outer_1, _, _, _, _, _),
+#   [gene_wordidx_outer_1 < pheno_wordidx_outer_1],
+#   [pheno_wordidx_outer_1 < gene_wordidx_outer_2],
+#   [gene_wordidx_outer_2 < pheno_wordidx_outer_2].
+  
 
 #genepheno_causation_to_pheno
 #@weight("?")
@@ -1563,16 +1592,3 @@ gene_mentions_filtered(_, doc_id, section_id, _, _, gene_mention_id, _, _, _, _,
 
 #What is difference between variant_inference and genevariant_inference ?
 #The variant_inference not even defined as variable, maybe just old stuff
-
-#variant_inference
-#@weight(feature)
-#variant_mentions_filtered_inference(relation_id) :- 
-#variant_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, variant_type, ivsnum, pos, posplus, frompos, topos, seq, fromseq, toseq, words, is_correct),
-#variant_features ( _, _, mention_id, feature).
-
-#TO FINISH:
-#genevariant_inference
-#@weight(feature)
-#genevariant_relations_inference(relation_id) :-
-#genevariant_relations (_, relation_id, _, _, sent1_id, section2_id, sent2_id, variant_mention_id, variant_entity, variant_wordidxs, variant_is_correct, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, is_correct, supertype, subtype), 
-#genevariant_features ( _, _, relation_id, feature).

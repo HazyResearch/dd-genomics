@@ -334,7 +334,11 @@ GENE_PHENO = {
                'further analysis',
                'but not',
                'deficiency',
-               'activity'
+               'activity',
+               'unravel',
+               'how',
+               'fish',
+               'sheep'
                ],
       'pos-rgx' : [],
       # 'pos-rgx' : [],
@@ -360,6 +364,7 @@ GENE_PHENO = {
                    'unlikely.*GENE.*PHENO',
                    'PHENO.*not due to.*GENE',
                    'GENE.*linked to.*PHENO',
+                   'attracted.*interest'
                     ]
     },
 
