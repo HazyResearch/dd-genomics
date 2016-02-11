@@ -4,24 +4,26 @@ from xml.etree.ElementTree import ElementTree
 import sys
 import re
 
-def attach_diseases(diseases):
-  ret = []
+def attach_diseases(diseases, excludes):
+  excludes = [set(d.strip().split()) for d in excludes]
   for line in diseases.split('\n'):
     names = line.strip().split(';')
     for name in names:
-      if name.strip():
-        ret.append(re.sub(r'\W+', ' ', name.strip()))
-  return ret
+#       if 'GLOMERULOSCLEROSIS' in name:
+#         print >> sys.stderr, excludes
+#         print >> sys.stderr, set(re.sub(r'\W+', ' ', name.strip()).split(' '))
+      if len(name.strip()) > 0 and set(re.sub(r'\W+', ' ', name.strip()).split(' ')) not in excludes:
+        yield re.sub(r'\W+', ' ', name.strip())
 
 if __name__ == "__main__":
   filename = sys.argv[1]
   doc = ElementTree(file=filename)
   e = doc.findall('.//mimNumber')[0]
-  mimNumber = e.text
+  mim_number = e.text
   names = []
-  altNames = []
+  alt_names = []
   for e in doc.findall('.//preferredTitle'):
-    names += attach_diseases(e.text)
+    names += attach_diseases(e.text, [])
   for e in doc.findall('.//alternativeTitles'):
-    altNames += attach_diseases(e.text)
-  print "OMIM:%s\t%s\t%s" % (mimNumber, '|^|'.join(names), '|^|'.join(altNames))
+    alt_names += attach_diseases(e.text, names)
+  print "OMIM:%s\t%s\t%s" % (mim_number, '|^|'.join(names), '|^|'.join(alt_names))
