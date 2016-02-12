@@ -81,7 +81,7 @@ def extract_candidate_mentions(row, pos_count, neg_count):
         mentions.append(m)
         found = True
   if not found:
-    is_correct, abbrev, definition, detector_message = detect_manual(row.words, abbrev_index=row.gene_wordidx)
+    is_correct, abbrev, definition, detector_message = detect_manual(row.words, row.gene_wordidx)
     if is_correct:
       m = create_supervised_mention(row, is_correct, abbrev, definition, detector_message, pos_count, neg_count)
       if m:

@@ -14,27 +14,27 @@ __author__ = 'Vincent Van Asch, Johannes Birgmeier'
 
 import re
 
-def getcandidates(sentence):
+def get_candidates(sentence):
   rv = []
   if '-LRB-' in sentence:
     # XXX HACK (?) Johannes
     # The original version checks some sentence properties here first:
     # balanced parentheses and that the first paren is a left one
     # We don't care that much since we only admit one-word abbrevs
-    closeindex = -1
+    close_idx = -1
     while 1:
       # Look for parenOpen parenthesis
       try:
-        openindex = closeindex + 1 + sentence[closeindex + 1:].index('-LRB-')
+        open_idx = close_idx + 1 + sentence[close_idx + 1:].index('-LRB-')
       except ValueError:
         break
-      closeindex = openindex + 2
+      close_idx = open_idx + 2
       
       # XXX HACK (?) Johannes
       # The original version picks up acronyms that include parentheses and multiple words.
       # Since there are no such gene abbreviations, such words won't be confused for being 
       # genes anyways, so I just stop after the first word in the parenthesis
-      start = openindex + 1
+      start = open_idx + 1
       stop = start + 1
       if start >= len(sentence):
         break
@@ -58,12 +58,12 @@ def conditions(string):
 
   return True
 
-def getdefinition((startAbbrev, stopAbbrev, abbrev), sentence, stopLastAbbrev):
+def get_def((start_abbrev, stop_abbrev, abbrev), sentence, stop_last_abbrev):
   ':type candidate: (int, int, list[str])'
   ':type sentence: list[str]'
-  startTokens = stopLastAbbrev + 1
+  start_tokens = stop_last_abbrev + 1
   # Take the tokens in front of the candidate
-  tokens = [word.lower() for word in sentence[startTokens:startAbbrev - 1]]
+  tokens = [word.lower() for word in sentence[start_tokens:start_abbrev - 1]]
 
   # the char that we are looking for
   key = abbrev[0].lower()
@@ -73,112 +73,112 @@ def getdefinition((startAbbrev, stopAbbrev, abbrev), sentence, stopLastAbbrev):
 
   # Count the number of tokens that start with the same character as the
   # candidate
-  firstchars = [t[0] for t in tokens if len(t) > 0]
+  first_chars = [t[0] for t in tokens if len(t) > 0]
 
-  definitionfreq = firstchars.count(key)
-  candidatefreq = abbrev.lower().count(key)
+  def_freq = first_chars.count(key)
+  candidate_freq = abbrev.lower().count(key)
 
   # Look for the list of tokens in front of candidate that
   # have a sufficient number of tokens starting with key
-  if candidatefreq <= definitionfreq:
+  if candidate_freq <= def_freq:
     # we should at least have a good number of starts
     count = 0
     start = 0
-    startindex = len(firstchars) - 1
-    while count < candidatefreq:
-      if abs(start) > len(firstchars):
+    start_idx = len(first_chars) - 1
+    while count < candidate_freq:
+      if abs(start) > len(first_chars):
         raise ValueError('not found')
 
       start -= 1
       # Look up key in the definition
       try:
-        startindex = firstchars.index(key, len(firstchars) + start)
+        start_idx = first_chars.index(key, len(first_chars) + start)
       except ValueError:
         pass
 
       # Count the number of keys in definition
-      count = firstchars[startindex:].count(key)
+      count = first_chars[start_idx:].count(key)
 
     # We found enough keys in the definition so return the definition as a
     # definition candidate
-    string = sentence[startindex + startTokens:startAbbrev - 1]
-    rv = (startindex + startTokens, startAbbrev - 1, string)
+    string = sentence[start_idx + start_tokens:start_abbrev - 1]
+    rv = (start_idx + start_tokens, start_abbrev - 1, string)
     return rv
 
   else:
     raise ValueError(
       '[SUP] Not enough keys')
 
-def definitionselection((startDefinition, stopDefinition, definition), (startAbbrev, stopAbbrev, abbrev)):
+def def_selection((start_def, stop_def, definition), (start_abbrev, stop_abbrev, abbrev)):
   if abbrev.lower() in [word.lower() for word in definition]:
     raise ValueError('[SUP] Abbrv = full word of def')
 
-  definitionStr = ' '.join(definition)
+  def_str = ' '.join(definition)
 
-  if len(definitionStr) < len(abbrev):
+  if len(def_str) < len(abbrev):
     raise ValueError('[SUP] Abbrv longer than def')
 
-  sIndex = -1
-  lWordIndex = -1
-  lCharacterIndex = -1
+  s_idx = -1
+  l_word_idx = -1
+  l_char_idx = -1
 
-  stopDefinition = -1
+  stop_def = -1
 
   # find all except the first char of the abbreviation
   while 1:
-    assert sIndex < 0
-    assert sIndex >= -len(abbrev), (sIndex, abbrev)
-    shortChar = abbrev[sIndex].lower()
+    assert s_idx < 0
+    assert s_idx >= -len(abbrev), (s_idx, abbrev)
+    short_char = abbrev[s_idx].lower()
 
     if len(definition) == 0:
       raise ValueError('[SUP] definition candidate is empty')
 
-    assert -lWordIndex <= len(definition), (definition, lWordIndex, len(definition))
+    assert -l_word_idx <= len(definition), (definition, l_word_idx, len(definition))
     
-    if len(definition[lWordIndex]) == 0:
-      lCharacterIndex = -1
-      lWordIndex -= 1
-      if -lWordIndex >= (len(definition) + 1):
+    if len(definition[l_word_idx]) == 0:
+      l_char_idx = -1
+      l_word_idx -= 1
+      if -l_word_idx >= (len(definition) + 1):
         raise ValueError('[SUP] Abbrv not in def')
       continue
 
-    assert lWordIndex < 0
-    assert -lWordIndex <= len(definition), (len(definition), lWordIndex)
-    assert lCharacterIndex < 0
-    assert -lCharacterIndex <= len(definition[lWordIndex]), (len(definition[lWordIndex]), lCharacterIndex)
-    longChar = definition[lWordIndex][lCharacterIndex].lower()
+    assert l_word_idx < 0
+    assert -l_word_idx <= len(definition), (len(definition), l_word_idx)
+    assert l_char_idx < 0
+    assert -l_char_idx <= len(definition[l_word_idx]), (len(definition[l_word_idx]), l_char_idx)
+    long_char = definition[l_word_idx][l_char_idx].lower()
     
-    if shortChar == longChar:
-      if stopDefinition == -1:
-        stopDefinition = startDefinition + len(definition) + lWordIndex + 1
-      sIndex -= 1
-    if (lCharacterIndex == -1 * len(definition[lWordIndex])):
-      lCharacterIndex = -1
-      lWordIndex -= 1
+    if short_char == long_char:
+      if stop_def == -1:
+        stop_def = start_def + len(definition) + l_word_idx + 1
+      s_idx -= 1
+    if (l_char_idx == -1 * len(definition[l_word_idx])):
+      l_char_idx = -1
+      l_word_idx -= 1
     else:
-      lCharacterIndex -= 1
+      l_char_idx -= 1
 
-    if -lWordIndex >= (len(definition) + 1):
+    if -l_word_idx >= (len(definition) + 1):
       raise ValueError('[SUP] Abbrv not in def')
-    if -sIndex == len(abbrev):
+    if -s_idx == len(abbrev):
       break;
       
   # find the first char of the abbreviation as the first char of a word
   while 1:
-    if len(definition[lWordIndex]) == 0:
-      lWordIndex -= 1
-      if -lWordIndex >= (len(definition) + 1):
+    if len(definition[l_word_idx]) == 0:
+      l_word_idx -= 1
+      if -l_word_idx >= (len(definition) + 1):
         raise ValueError('[SUP] Abbrv not in def')
-    assert sIndex == -1 * len(abbrev)
-    shortChar = abbrev[sIndex].lower()
-    longChar = definition[lWordIndex][0].lower()
-    if shortChar == longChar:
+    assert s_idx == -1 * len(abbrev)
+    short_char = abbrev[s_idx].lower()
+    long_char = definition[l_word_idx][0].lower()
+    if short_char == long_char:
       break;
-    lWordIndex -= 1
-    if -lWordIndex >= (len(definition) + 1):
+    l_word_idx -= 1
+    if -l_word_idx >= (len(definition) + 1):
       raise ValueError('[SUP] Abbrv not in def')
 
-  definition = definition[len(definition) + lWordIndex:stopDefinition]
+  definition = definition[len(definition) + l_word_idx:stop_def]
   tokens = len(definition)
   length = len(abbrev)
 
@@ -190,16 +190,16 @@ def definitionselection((startDefinition, stopDefinition, definition), (startAbb
     raise ValueError(
       '[SUP] Unbalanced paren in def')
 
-  return (startDefinition, stopDefinition, definition)
+  return (start_def, stop_def, definition)
 
-def getabbreviations(sentence, abbrevIndex=None):
+def getabbreviations(sentence, abbrev_index=None):
   rv = []
   try:
-    if not abbrevIndex:
-      abbrevs = getcandidates(sentence)
+    if not abbrev_index:
+      abbrevs = get_candidates(sentence)
     else:
-      if conditions(sentence[abbrevIndex]):
-        abbrevs = [(abbrevIndex, abbrevIndex+1, sentence[abbrevIndex])]
+      if conditions(sentence[abbrev_index]):
+        abbrevs = [(abbrev_index, abbrev_index+1, sentence[abbrev_index])]
       else:
         abbrevs = []
   except ValueError, e:
@@ -207,31 +207,31 @@ def getabbreviations(sentence, abbrevIndex=None):
     # sys.stderr.write('Reason: %s\n' % e.args[0])
     return rv
 
-  lastStopAbbreviation = -1
+  last_stop_abbrev = -1
   for abbrev in abbrevs:
     try:
-      definition = getdefinition(abbrev, sentence, lastStopAbbreviation)
+      definition = get_def(abbrev, sentence, last_stop_abbrev)
       # sys.stderr.write(abbrev[2] + '=' + str(definition) + '\n')
     except ValueError, e:
       # sys.stderr.write('Omitting abbreviation candidate %s\n' % abbrev[2])
       # sys.stderr.write('Reason: %s\n' % e.args[0])
       if e.args[0].startswith('[SUP]'):
-        startFakeDefinition = max(abbrev[0] - 2 - len(abbrev[2]), 0)
-        stopFakeDefinition = abbrev[0] - 2
-        rv.append((False, abbrev, (startFakeDefinition, stopFakeDefinition,
-                                 sentence[startFakeDefinition:stopFakeDefinition]), e.args[0]))
+        start_fake_def = max(abbrev[0] - 2 - len(abbrev[2]), 0)
+        stop_fake_def = abbrev[0] - 2
+        rv.append((False, abbrev, (start_fake_def, stop_fake_def,
+                                 sentence[start_fake_def:stop_fake_def]), e.args[0]))
     else:
       try:
-        definition = definitionselection(definition, abbrev)
+        definition = def_selection(definition, abbrev)
       except ValueError, e:
         # sys.stderr.write('Omitting abbreviation candidate %s\n' % abbrev[2])
         # sys.stderr.write('Reason: %s\n' % e.args[0])
         if e.args[0].startswith('[SUP]'):
-          startFakeDefinition = max(abbrev[0] - 2 - len(abbrev[2]), 0)
-          stopFakeDefinition = abbrev[1] - 2
-          rv.append((False, abbrev, (startFakeDefinition, stopFakeDefinition,
-                                 sentence[startFakeDefinition:stopFakeDefinition]), e.args[0]))
+          start_fake_def = max(abbrev[0] - 2 - len(abbrev[2]), 0)
+          stop_fake_def = abbrev[1] - 2
+          rv.append((False, abbrev, (start_fake_def, stop_fake_def,
+                                 sentence[start_fake_def:stop_fake_def]), e.args[0]))
       else:
         rv.append((True, abbrev, definition, ''))
-        lastStopAbbreviation = abbrev[1]
+        last_stop_abbrev = abbrev[1]
   return rv
