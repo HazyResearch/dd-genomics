@@ -45,13 +45,48 @@ Mention = collections.namedtuple('Mention', [
 # HF = config.NON_GENE_ACRONYMS['HF']
 SR = config.NON_GENE_ACRONYMS['SR']
 
+def contains_sublist(lst, sublst):
+  if len(sublst) < len(lst):
+    return False, None
+  n = len(sublst)
+  for i in xrange(len(lst) - n + 1):
+    if i+n <= len(lst):
+      if sublst == lst[i:i+n]:
+        return True, (i,i+n)
+  return False
+
+def detect_manual(words, gene_idx):
+  gene_name = words[gene_idx]
+  manual_pairs = SR['manual-pairs']
+  if gene_name in manual_pairs:
+    for definition in manual_pairs[gene_name]:
+      def_lst = definition.split()
+      contains, def_boundaries = contains_sublist(words, def_lst)
+      if contains:
+        def_start, def_stop = def_boundaries
+        definition = words[def_start:def_stop]
+        abbrev = gene_name
+        abbrev_start = gene_idx
+        abbrev_stop = gene_idx + 1
+        return contains, (abbrev_start, abbrev_stop, abbrev), (def_start, def_stop, definition), 'MANUAL'
+  return False, None, None, None
+
 def extract_candidate_mentions(row, pos_count, neg_count):
   mentions = []
+  found = False
   if abbreviations.conditions(row.words[row.gene_wordidx]):
-    for (is_correct, abbrev, definition, detector_message) in abbreviations.getabbreviations(row.words, abbrevIndex=row.gene_wordidx):
+    for (is_correct, abbrev, definition, detector_message) in abbreviations.getabbreviations(row.words, abbrev_index=row.gene_wordidx):
       m = create_supervised_mention(row, is_correct, abbrev, definition, detector_message, pos_count, neg_count)
       if m:
         mentions.append(m)
+        found = True
+  if not found:
+    is_correct, abbrev, definition, detector_message = detect_manual(row.words, abbrev_index=row.gene_wordidx)
+    if is_correct:
+      m = create_supervised_mention(row, is_correct, abbrev, definition, detector_message, pos_count, neg_count)
+      if m:
+        mentions.append(m)
+        found = True
   return mentions
 
 ### DISTANT SUPERVISION ###

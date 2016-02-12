@@ -37,7 +37,15 @@ NON_GENE_ACRONYMS = {
 
   'SR' : {
     'levenshtein_cutoff' : 0.2,
-    'short-words': { 'the', 'and', 'or', 'at', 'in', 'see', 'as', 'an', 'data', 'for', 'not', 'our', 'ie', 'to', 'eg', 'one', 'age', 'on', 'center', 'right', 'left', 'from', 'based', 'total', 'via', 'but', 'resp', 'no' }
+    'short-words': { 'the', 'and', 'or', 'at', 'in', 'see', 'as', \
+                    'an', 'data', 'for', 'not', 'our', 'ie', 'to', \
+                    'eg', 'one', 'age', 'on', 'center', 'right', 'left', \
+                    'from', 'based', 'total', 'via', 'but', 'resp', 'no' },
+    'manual-pairs' : { 'FRAXA' : ['fragile X'], 'IL2' : ['intracellular loop'],
+                      'IL3' : ['intracellular loop'], 'IL1' : ['intracellular loop'],
+                      'IL4' : ['extracellular loop'], 'EL2' : ['extracellular loop'],
+                      'EL3' : ['extracellular loop'], 'EL1' : ['extracellular loop'],
+                      'EL4' : ['extracellular loop']}
   }
 }
 
