@@ -27,7 +27,7 @@ FROM
       union (select * from genepheno_causation_precision_labels)) a) s
     ON (s.relation_id = gc.relation_id)
 WHERE
-  COALESCE(gc.expectation, 0) > 0.9 
+  COALESCE(gc.expectation, 0) > 0.75 
   AND s.is_correct = 'f'
   $version_string) TO STDOUT;
 """ | while read rid
@@ -58,7 +58,7 @@ FROM
     ON (si.doc_id = gc.doc_id AND si.section_id = gc.section_id AND si.sent_id = gc.sent_id)
 WHERE
   gc.relation_id = '$rid'
-  AND COALESCE(gc.expectation, 0) > 0.9
+  AND COALESCE(gc.expectation, 0) > 0.75
   AND s.is_correct = 'f') TO STDOUT;
 """ 
 echo "DISTANT SUPERVISION"
@@ -80,7 +80,7 @@ from
   genepheno_relations r 
   join genepheno_features f 
     on (f.relation_id = r.relation_id) 
-  join weights w 
+  join dd_inference_result_weights_mapping w 
     on (w.description = ('inf_istrue_genepheno_causation_inference--' || f.feature)) 
 where 
   r.relation_id = '$rid'

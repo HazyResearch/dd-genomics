@@ -78,7 +78,7 @@ from
   genepheno_relations r 
   join genepheno_features f 
     on (f.relation_id = r.relation_id) 
-  join weights w 
+  join dd_inference_result_weights_mapping w 
     on (w.description = ('inf_istrue_genepheno_causation_inference--' || f.feature)) 
 where 
   r.relation_id = '$rid'
