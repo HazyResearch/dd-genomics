@@ -4,10 +4,11 @@ select
   , hs.section_id
   , hs.sent_id
   , array_agg(DISTINCT genes.ensembl_id) as gene_id
-  , p.entity as pheno_name
+  , p.entity as pheno_id
   , g.wordidxs as gene_wordidxs
   , p.wordidxs as pheno_wordidxs
   , string_to_array(si.words, '|^|') as words
+  , ap.names as pheno_name
   , g.mention_id
   , p.mention_id
 from
@@ -35,6 +36,8 @@ from
     on (g.gene_name = genes.gene_name)
   join genepheno_causation_inference_label_inference gpi
     on (hs.relation_id = gpi.relation_id)
+  join pheno_names ap 
+    on (ap.id = p.entity)
 where
   gpi.expectation > 0.75
 group by
@@ -45,6 +48,7 @@ group by
   , g.wordidxs
   , p.wordidxs
   , si.words
+  , ap.names
   , g.mention_id
   , p.mention_id
 order by random()

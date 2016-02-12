@@ -4,10 +4,11 @@ select
   , hs.section_id
   , hs.sent_id
   , array_agg(DISTINCT genes.ensembl_id) as gene_id
-  , p.entity as pheno_name
+  , p.entity as pheno_id
   , g.wordidxs as gene_wordidxs
   , p.wordidxs as pheno_wordidxs
   , string_to_array(si.words, '|^|') as words
+  , ap.names as pheno_name
   , g.mention_id
   , p.mention_id
 from
@@ -32,6 +33,8 @@ from
         and hs.sent_id = si.sent_id)
   join genes
     on (g.gene_name = genes.gene_name)
+  join pheno_names ap
+    on (ap.id = p.entity)
 where
   g.gene_name is not null
   AND p.entity is not null
@@ -43,6 +46,7 @@ group by
   , g.wordidxs
   , p.wordidxs
   , si.words
+  , ap.names
   , g.mention_id
   , p.mention_id
 order by random()
