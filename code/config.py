@@ -425,11 +425,11 @@ CAUSATION_SR = {
                'association',
                'associated'
                ],
-      'pos-rgx' : [r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*cause.*PHENO',
-                  r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*described.*patients.*PHENO',
-                  r'.*patient.*GENE.*present with.*clinical.*PHENO.*',
-                  r'(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO',
-                  r'(mutation|deletion).*GENE.*described.*patients.*PHENO'],
+      'pos-rgx' : [#r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*cause.*PHENO',
+                  #r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*described.*patients.*PHENO',
+                  #r'.*patient.*GENE.*present with.*clinical.*PHENO.*',
+                  #r'(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO',
+                  #r'(mutation|deletion).*GENE.*described.*patients.*PHENO'],
       'neg-rgx' : [],
     },
     # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
