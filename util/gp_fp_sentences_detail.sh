@@ -1,6 +1,8 @@
 #!/bin/bash -e
 set -beEu -o pipefail
 
+GP_CUTOFF=`cat gp_cutoff`
+
 cd ..
 source env_local.sh
 
@@ -27,7 +29,7 @@ FROM
       union (select * from genepheno_causation_precision_labels)) a) s
     ON (s.relation_id = gc.relation_id)
 WHERE
-  COALESCE(gc.expectation, 0) > 0.75 
+  COALESCE(gc.expectation, 0) > $GP_CUTOFF 
   AND s.is_correct = 'f'
   $version_string) TO STDOUT;
 """ | while read rid
@@ -58,7 +60,7 @@ FROM
     ON (si.doc_id = gc.doc_id AND si.section_id = gc.section_id AND si.sent_id = gc.sent_id)
 WHERE
   gc.relation_id = '$rid'
-  AND COALESCE(gc.expectation, 0) > 0.75
+  AND COALESCE(gc.expectation, 0) > $GP_CUTOFF
   AND s.is_correct = 'f') TO STDOUT;
 """ 
 echo "DISTANT SUPERVISION"

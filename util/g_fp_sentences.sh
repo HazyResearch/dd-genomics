@@ -1,6 +1,8 @@
 #!/bin/bash -e
 set -beEu -o pipefail
 
+G_CUTOFF=`cat g_cutoff`
+
 cd ..
 source env_local.sh
 deepdive sql """
@@ -25,6 +27,6 @@ FROM
   JOIN sentences_input si
     ON (si.doc_id = l.doc_id AND si.section_id = l.section_id AND si.sent_id = l.sent_id)
 WHERE
-  COALESCE(g.expectation, 0) > 0.5 
+  COALESCE(g.expectation, 0) > $G_CUTOFF 
   AND l.is_correct = 'f') TO STDOUT;
 """
