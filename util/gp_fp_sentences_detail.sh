@@ -84,7 +84,6 @@ from
     on (w.description = ('inf_istrue_genepheno_causation_inference--' || f.feature)) 
 where 
   r.relation_id = '$rid'
-  AND abs(w.weight) > 0
 order by abs(weight) desc
 limit 25;
 """
