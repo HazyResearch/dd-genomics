@@ -9,6 +9,7 @@ import extractor_util as util
 import data_util as dutil
 import config
 
+onto_path = lambda p : '%s/onto/%s' % (os.environ['GDD_HOME'], p)
 
 # This defines the Row object that we read in to the extractor
 parser = util.RowParser([
@@ -105,7 +106,7 @@ def load_pheno_terms():
         pheno_sets[phrase_bow] = [(hpoid, entry_type)]
   return phenos, pheno_sets
 
-allowed_diseases = [line.strip() for line in open(onto_path('manual/allowed_diseases.tsv'))]
+allowed_diseases = [line.strip() for line in open(onto_path('manual/allowed_omim_ps.tsv'))]
 
 def load_disease_terms():
   diseases = {}
@@ -289,7 +290,6 @@ def generate_rand_negatives(s, candidates):
   return negs
 
 if __name__ == '__main__':
-  onto_path = lambda p : '%s/onto/%s' % (os.environ['GDD_HOME'], p)
 
   # Load static dictionaries
   # TODO: any simple ways to speed this up? 
