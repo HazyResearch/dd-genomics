@@ -61,9 +61,9 @@ def get_features_for_candidate_treedlib(r):
 onto_path = lambda p : '%s/onto/%s' % (os.environ['GDD_HOME'], p)
 
 def get_features_for_candidate(row):
-  if row.num_gene_candidates >= 2 and row.num_pheno_candidates >= 2:
-    return get_features_for_candidate_treedlib(row)
-  else:
+#   if row.num_gene_candidates >= 2 and row.num_pheno_candidates >= 2:
+#     return get_features_for_candidate_treedlib(row)
+#   else:
     return get_features_for_candidate_ddlib(row)
 
 if __name__ == '__main__':
