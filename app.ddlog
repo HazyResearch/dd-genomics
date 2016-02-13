@@ -1625,24 +1625,24 @@ genepheno_causation_first (
 #   [pheno_wordidx_outer_1[1] < gene_wordidx_outer_2[1]],
 #   [gene_wordidx_outer_2[1] < pheno_wordidx_outer_2[1]].
 
-genepheno_factor(relation_id_outer_1, relation_id_inner, relation_id_outer_2, ARRAY_TO_STRING(STRING_TO_ARRAY(words, "|^|"), " "), gene_wordidx_outer_1, gene_name_outer_1, pheno_wordidx_outer_1, gene_wordidx_outer_2, gene_name_outer_2, pheno_wordidx_outer_2) :-
-  sentences_input(doc_id, section_id, sent_id, words, _, _, _, _, _),
-  genepheno_causation_first(_, relation_id_outer_1, doc_id, section_id, sent_id, gene_mention_id_outer_1, gene_name_outer_1, gene_wordidx_outer_1, pheno_mention_id_outer_1, _, pheno_wordidx_outer_1, _, _, _),
-  genepheno_causation_first(_, relation_id_outer_2, doc_id, section_id, sent_id, gene_mention_id_outer_2, gene_name_outer_2, gene_wordidx_outer_2, pheno_mention_id_outer_2, _, pheno_wordidx_outer_2, _, _, _),
-  genepheno_causation_first(_, relation_id_inner, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, _, pheno_mention_id_outer_1, _, _, _, _, _),
-  [gene_wordidx_outer_1 < pheno_wordidx_outer_1],
-  [pheno_wordidx_outer_1 < gene_wordidx_outer_2],
-  [gene_wordidx_outer_2 < pheno_wordidx_outer_2].
-  
-  
-@weight("?")
-!genepheno_causation_inference(relation_id_outer_1) v !genepheno_causation_inference(relation_id_outer_2) v !genepheno_causation_inference(relation_id_inner) :-
-  genepheno_causation_first(_, relation_id_outer_1, doc_id, section_id, sent_id, gene_mention_id_outer_1, _, gene_wordidx_outer_1, pheno_mention_id_outer_1, _, pheno_wordidx_outer_1, _, _, _),
-  genepheno_causation_first(_, relation_id_outer_2, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, gene_wordidx_outer_2, pheno_mention_id_outer_2, _, pheno_wordidx_outer_2, _, _, _),
-  genepheno_causation_first(_, relation_id_inner, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, _, pheno_mention_id_outer_1, _, _, _, _, _),
-  [gene_wordidx_outer_1 < pheno_wordidx_outer_1],
-  [pheno_wordidx_outer_1 < gene_wordidx_outer_2],
-  [gene_wordidx_outer_2 < pheno_wordidx_outer_2].
+# genepheno_factor(relation_id_outer_1, relation_id_inner, relation_id_outer_2, ARRAY_TO_STRING(STRING_TO_ARRAY(words, "|^|"), " "), gene_wordidx_outer_1, gene_name_outer_1, pheno_wordidx_outer_1, gene_wordidx_outer_2, gene_name_outer_2, pheno_wordidx_outer_2) :-
+#   sentences_input(doc_id, section_id, sent_id, words, _, _, _, _, _),
+#   genepheno_causation_first(_, relation_id_outer_1, doc_id, section_id, sent_id, gene_mention_id_outer_1, gene_name_outer_1, gene_wordidx_outer_1, pheno_mention_id_outer_1, _, pheno_wordidx_outer_1, _, _, _),
+#   genepheno_causation_first(_, relation_id_outer_2, doc_id, section_id, sent_id, gene_mention_id_outer_2, gene_name_outer_2, gene_wordidx_outer_2, pheno_mention_id_outer_2, _, pheno_wordidx_outer_2, _, _, _),
+#   genepheno_causation_first(_, relation_id_inner, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, _, pheno_mention_id_outer_1, _, _, _, _, _),
+#   [gene_wordidx_outer_1 < pheno_wordidx_outer_1],
+#   [pheno_wordidx_outer_1 < gene_wordidx_outer_2],
+#   [gene_wordidx_outer_2 < pheno_wordidx_outer_2].
+#   
+#   
+# @weight("?")
+# !genepheno_causation_inference(relation_id_outer_1) v !genepheno_causation_inference(relation_id_outer_2) v !genepheno_causation_inference(relation_id_inner) :-
+#   genepheno_causation_first(_, relation_id_outer_1, doc_id, section_id, sent_id, gene_mention_id_outer_1, _, gene_wordidx_outer_1, pheno_mention_id_outer_1, _, pheno_wordidx_outer_1, _, _, _),
+#   genepheno_causation_first(_, relation_id_outer_2, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, gene_wordidx_outer_2, pheno_mention_id_outer_2, _, pheno_wordidx_outer_2, _, _, _),
+#   genepheno_causation_first(_, relation_id_inner, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, _, pheno_mention_id_outer_1, _, _, _, _, _),
+#   [gene_wordidx_outer_1 < pheno_wordidx_outer_1],
+#   [pheno_wordidx_outer_1 < gene_wordidx_outer_2],
+#   [gene_wordidx_outer_2 < pheno_wordidx_outer_2].
   
 
 #genepheno_causation_to_pheno
