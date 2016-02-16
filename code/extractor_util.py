@@ -92,7 +92,7 @@ def tsv_string_to_list(s, func=lambda x : x, sep='|^|'):
   return [func(x) for x in split]
 
 
-def tsv_string_to_listoflists(s, func=lambda x : x, sep1='|~|', sep2='|^|'):
+def tsv_string_to_listoflists(s, func=lambda x : x, sep1='|^|', sep2='|~|'):
   """Convert a TSV string from sentences_input table to a list of lists"""
   return tsv_string_to_list(s, func=lambda x : tsv_string_to_list(x, func=func, sep=sep1), sep=sep2)
 

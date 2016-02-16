@@ -20,14 +20,14 @@ parser = util.RowParser([
           ('poses', 'text[]'),
           ('dep_paths', 'text[]'),
           ('dep_parents', 'int[]'),
-          ('gene_mention_ids', 'text[]'),
-          ('gene_names', 'text[]'),
-          ('gene_wordidxs', 'int[][]'),
-          ('gene_is_corrects', 'boolean[]'),
-          ('pheno_mention_ids', 'text[]'),
-          ('pheno_entities', 'text[]'),
-          ('pheno_wordidxs', 'int[][]'),
-          ('pheno_is_corrects', 'boolean[]')])
+          ('gene_mention_id', 'text'),
+          ('gene_name', 'text'),
+          ('gene_wordidxs', 'int[]'),
+          ('gene_is_correct', 'boolean'),
+          ('pheno_mention_id', 'text'),
+          ('pheno_entity', 'text'),
+          ('pheno_wordidxs', 'int[]'),
+          ('pheno_is_correct', 'boolean')])
 
 
 # This defines the output Relation object
@@ -62,46 +62,25 @@ def extract_candidate_relations(row):
   dep_dag = deps.DepPathDAG(row.dep_parents, row.dep_paths, row.words, max_path_len=HF['max-dep-path-dist'])
 
   # Go through the G-P pairs in the sentence, which are passed in serialized format
-  # E.g. the ith pair is row.gene_mention_ids[i], row.pheno_mention_ids[i]
   pairs = []
-  for i in range(len(row.gene_mention_ids)):
-    rid = '%s_%s' % (row.gene_mention_ids[i], row.pheno_mention_ids[i])
-    r = Relation(None, rid, row.doc_id, row.section_id, row.sent_id, \
-          row.gene_mention_ids[i], row.gene_names[i], \
-          row.gene_wordidxs[i], row.gene_is_corrects[i], \
-          row.pheno_mention_ids[i], row.pheno_entities[i], \
-          row.pheno_wordidxs[i], row.pheno_is_corrects[i])
+  rid = '%s_%s' % (row.gene_mention_id, row.pheno_mention_id)
+  r = Relation(None, rid, row.doc_id, row.section_id, row.sent_id, \
+        row.gene_mention_id, row.gene_name, \
+        row.gene_wordidxs, row.gene_is_correct, \
+        row.pheno_mention_id, row.pheno_entity, \
+        row.pheno_wordidxs, row.pheno_is_correct)
 
-    # Do not consider overlapping mention pairs
-    if len(set(r.gene_wordidxs).intersection(r.pheno_wordidxs)) > 0:
-      continue
+  # Do not consider overlapping mention pairs
+  if len(set(r.gene_wordidxs).intersection(r.pheno_wordidxs)) > 0:
+    return []
 
-    # Get the min path length between any of the g / p phrase words
-    d = dep_dag.path_len_sets(r.gene_wordidxs, r.pheno_wordidxs)
-    pairs.append((d, r))
+  # Get the min path length between any of the g / p phrase words
+  d = dep_dag.path_len_sets(r.gene_wordidxs, r.pheno_wordidxs)
+  if d is not None:
+    if d > HF['max-dep-path-dist']:
+      return []
 
-  # Select which of the pairs will be considered
-  pairs.sort()
-  seen_g = {}
-  seen_p = {}
-  seen_pairs = {}
-  for d, r in pairs:
-    if HF.get('take-best-only-dups'):
-      e = '%s_%s' % (r.gene_name, r.pheno_entity)
-      if e in seen_pairs and d > seen_pairs[e]:
-        continue
-      else:
-        seen_pairs[e] = d
-    
-    if HF.get('take-best-only'):
-      if (r.gene_mention_id in seen_g and seen_g[r.gene_mention_id] < d) \
-        or (r.pheno_mention_id in seen_p and seen_p[r.pheno_mention_id] < d):
-        continue
-
-    seen_g[r.gene_mention_id] = d
-    seen_p[r.pheno_mention_id] = d
-    relations.append(r)
-  return relations
+  return [r]
 
 if __name__ == '__main__':
   for line in sys.stdin:

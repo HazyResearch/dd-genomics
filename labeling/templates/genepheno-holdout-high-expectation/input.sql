@@ -16,8 +16,8 @@ from
       doc_id,
       section_id,
       sent_id,
-      string_to_array(gene_wordidxs, '|~|')::int[] AS gene_wordidxs,
-      string_to_array(pheno_wordidxs, '|~|')::int[] AS pheno_wordidxs,
+      string_to_array(gene_wordidxs, '|^|')::int[] AS gene_wordidxs,
+      string_to_array(pheno_wordidxs, '|^|')::int[] AS pheno_wordidxs,
       gp.gene_mention_id AS gene_mention_id,
       gp.pheno_mention_id AS pheno_mention_id,
       gp.gene_mention_id || '_' || gp.pheno_mention_id AS relation_id

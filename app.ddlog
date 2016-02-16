@@ -646,21 +646,6 @@ hgvs_hpo (
   hpo_id text
 ).
 
-genepheno_pairs_sentences(
-  @distributed_by
- doc_id            text,     
- section_id        text,      
- sent_id           integer,  
- gene_mention_ids  text,      
- gene_names        text[], 
- gene_wordidxs     text,      
- gene_is_corrects  boolean[],
- pheno_mention_ids text,      
- pheno_entities    text[],
- pheno_wordidxs    text,      
- pheno_is_corrects boolean[]
-).
-
 ensembl_protein_sequences (
   @distributed_by
   ensembl_transcript text,
@@ -993,42 +978,15 @@ genepheno_pairs(
   sent_id,
   gene_mention_id,
   gene_name,
-  ARRAY_TO_STRING(gene_wordidxs, "|~|"),
+  ARRAY_TO_STRING(gene_wordidxs, "|^|"),
   gene_is_correct,
   pheno_mention_id,
   pheno_entity,
-  ARRAY_TO_STRING(pheno_wordidxs, "|~|"),
+  ARRAY_TO_STRING(pheno_wordidxs, "|^|"),
   pheno_is_correct, 
-  gene_mention_id || "_" || pheno_mention_id) :-
+  gene_mention_id || "_" || pheno_mention_id) *:-
   gene_mentions(gene_id, doc_id, section_id, sent_id, gene_wordidxs, gene_mention_id, gene_mapping_type, gene_supertype, gene_subtype, gene_name, gene_words, gene_is_correct),
   pheno_mentions(pheno_id, doc_id, section_id, sent_id, pheno_wordidxs, pheno_mention_id, pheno_supertype, pheno_subtype, pheno_entity, pheno_words, pheno_is_correct).
-
-genepheno_pairs_sentences(
-  doc_id,
-  section_id,
-  sent_id,
-  array_to_string(ARRAY_AGG(gene_mention_id), "|^|"),
-  ARRAY_AGG(gene_name),
-  array_to_string(ARRAY_AGG(gene_wordidxs), "|^|"),
-  ARRAY_AGG(gene_is_correct),
-  array_to_string(ARRAY_AGG(pheno_mention_id), "|^|"),
-  ARRAY_AGG(pheno_entity),
-  array_to_string(ARRAY_AGG(pheno_wordidxs), "|^|"),
-  ARRAY_AGG(pheno_is_correct)
-  ) :-
-  genepheno_pairs(doc_id, 
-                  section_id, 
-                  sent_id, 
-                  gene_mention_id, 
-                  gene_name,
-                  gene_wordidxs,
-                  gene_is_correct,
-                  pheno_mention_id,
-                  pheno_entity,
-                  pheno_wordidxs,
-                  pheno_is_correct,
-		  _).
-
 
 #get_genevariant_pairs
 genevariant_pairs(
@@ -1197,9 +1155,9 @@ returns rows like genepheno_relations
 implementation "code/genepheno_extract_candidates.py" handles tsv lines.
 
 genepheno_relations += genepheno_extract_candidates( doc_id, section_id, sent_id, words, lemmas, poses, dep_paths, dep_parents, gene_mention_ids, gene_names, gene_wordidxs, gene_is_corrects, pheno_mention_ids, pheno_entities, pheno_wordidxs, pheno_is_corrects) :-
-sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
-genepheno_pairs_sentences(doc_id, section_id, sent_id, gene_mention_ids, gene_names, gene_wordidxs, gene_is_corrects, pheno_mention_ids, pheno_entities, pheno_wordidxs, pheno_is_corrects).
-
+  sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
+  genepheno_pairs(doc_id, section_id, sent_id, gene_mention_ids, gene_names, gene_wordidxs, gene_is_corrects, pheno_mention_ids, pheno_entities, pheno_wordidxs, pheno_is_corrects).
+  
 
 
 
@@ -1217,14 +1175,14 @@ gene_to_transcripts(gene_name text,
 
 gene_to_transcripts(
             gene_name,
-            array_to_string(ARRAY_AGG(ensembl_id), "|~|"),
-            array_to_string(ARRAY_AGG(name), "|~|"),
-            array_to_string(ARRAY_AGG(chrom), "|~|"),
-            array_to_string(ARRAY_AGG(strand), "|~|"),
-            array_to_string(ARRAY_AGG(cdsstart), "|~|"),
-            array_to_string(ARRAY_AGG(cdsend), "|~|"),
-            array_to_string(ARRAY_AGG(exonstarts), "|~|"),
-            array_to_string(ARRAY_AGG(exonends), "|~|")) *:-
+            array_to_string(ARRAY_AGG(ensembl_id), "|^|"),
+            array_to_string(ARRAY_AGG(name), "|^|"),
+            array_to_string(ARRAY_AGG(chrom), "|^|"),
+            array_to_string(ARRAY_AGG(strand), "|^|"),
+            array_to_string(ARRAY_AGG(cdsstart), "|^|"),
+            array_to_string(ARRAY_AGG(cdsend), "|^|"),
+            array_to_string(ARRAY_AGG(exonstarts), "|^|"),
+            array_to_string(ARRAY_AGG(exonends), "|^|")) *:-
 genes(ensembl_id, canonical_name, gene_name, name_type),
 ensgene( bin, name, chrom, strand, txstart, txend, cdsstart, cdsend, exoncount, exonstarts, exonends, score, ensembl_id, cdsstartstat, cdsendstat, exonframes).
 
@@ -1616,33 +1574,46 @@ genepheno_causation_first (
   subtype text
 ).
 
-# @weight("2.0")
-# genepheno_causation_inference(relation_id_outer_1), genepheno_causation_inference(relation_id_outer_2) => !genepheno_causation_inference(relation_id_inner) :-
-#   genepheno_causation(_, relation_id_outer_1, doc_id, section_id, sent_id, gene_mention_id_outer_1, _, gene_wordidx_outer_1, pheno_mention_id_outer_1, _, pheno_wordidx_outer_1[1], _, _, _),
-#   genepheno_causation(_, relation_id_outer_2, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, gene_wordidx_outer_2, pheno_mention_id_outer_2, _, pheno_wordidx_outer_2, _, _, _),
-#   genepheno_causation(_, relation_id_inner, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, _, pheno_mention_id_outer_1, _, _, _, _, _),
-#   [gene_wordidx_outer_1[1] < pheno_wordidx_outer_1[1]],
-#   [pheno_wordidx_outer_1[1] < gene_wordidx_outer_2[1]],
-#   [gene_wordidx_outer_2[1] < pheno_wordidx_outer_2[1]].
+#@weight("2.0")
+#genepheno_causation_inference(relation_id_outer_1), genepheno_causation_inference(relation_id_outer_2) => !genepheno_causation_inference(relation_id_inner) :-
+#  genepheno_causation(_, relation_id_outer_1, doc_id, section_id, sent_id, gene_mention_id_outer_1, _, gene_wordidx_outer_1, pheno_mention_id_outer_1, _, pheno_wordidx_outer_1[1], _, _, _),
+#  genepheno_causation(_, relation_id_outer_2, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, gene_wordidx_outer_2, pheno_mention_id_outer_2, _, pheno_wordidx_outer_2, _, _, _),
+#  genepheno_causation(_, relation_id_inner, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, _, pheno_mention_id_outer_1, _, _, _, _, _),
+#  [gene_wordidx_outer_1[1] < pheno_wordidx_outer_1[1]],
+#  [pheno_wordidx_outer_1[1] < gene_wordidx_outer_2[1]],
+#  [gene_wordidx_outer_2[1] < pheno_wordidx_outer_2[1]].
 
-# genepheno_factor(relation_id_outer_1, relation_id_inner, relation_id_outer_2, ARRAY_TO_STRING(STRING_TO_ARRAY(words, "|^|"), " "), gene_wordidx_outer_1, gene_name_outer_1, pheno_wordidx_outer_1, gene_wordidx_outer_2, gene_name_outer_2, pheno_wordidx_outer_2) :-
-#   sentences_input(doc_id, section_id, sent_id, words, _, _, _, _, _),
-#   genepheno_causation_first(_, relation_id_outer_1, doc_id, section_id, sent_id, gene_mention_id_outer_1, gene_name_outer_1, gene_wordidx_outer_1, pheno_mention_id_outer_1, _, pheno_wordidx_outer_1, _, _, _),
-#   genepheno_causation_first(_, relation_id_outer_2, doc_id, section_id, sent_id, gene_mention_id_outer_2, gene_name_outer_2, gene_wordidx_outer_2, pheno_mention_id_outer_2, _, pheno_wordidx_outer_2, _, _, _),
-#   genepheno_causation_first(_, relation_id_inner, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, _, pheno_mention_id_outer_1, _, _, _, _, _),
-#   [gene_wordidx_outer_1 < pheno_wordidx_outer_1],
-#   [pheno_wordidx_outer_1 < gene_wordidx_outer_2],
-#   [gene_wordidx_outer_2 < pheno_wordidx_outer_2].
-#   
-#   
-# @weight("?")
-# !genepheno_causation_inference(relation_id_outer_1) v !genepheno_causation_inference(relation_id_outer_2) v !genepheno_causation_inference(relation_id_inner) :-
-#   genepheno_causation_first(_, relation_id_outer_1, doc_id, section_id, sent_id, gene_mention_id_outer_1, _, gene_wordidx_outer_1, pheno_mention_id_outer_1, _, pheno_wordidx_outer_1, _, _, _),
-#   genepheno_causation_first(_, relation_id_outer_2, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, gene_wordidx_outer_2, pheno_mention_id_outer_2, _, pheno_wordidx_outer_2, _, _, _),
-#   genepheno_causation_first(_, relation_id_inner, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, _, pheno_mention_id_outer_1, _, _, _, _, _),
-#   [gene_wordidx_outer_1 < pheno_wordidx_outer_1],
-#   [pheno_wordidx_outer_1 < gene_wordidx_outer_2],
-#   [gene_wordidx_outer_2 < pheno_wordidx_outer_2].
+genepheno_factor(
+  relation_id_outer_1 text,
+  @distributed_by
+  relation_id_inner text, 
+  relation_id_outer_2 text, 
+  words text,
+  gene_wordidx_outer_1 int, 
+  gene_name_outer_1 text, 
+  pheno_wordidx_outer_1 int, 
+  gene_wordidx_outer_2 int, 
+  gene_name_outer_2 text, 
+  pheno_wordidx_outer_2 int).
+
+genepheno_factor(relation_id_outer_1, relation_id_inner, relation_id_outer_2, ARRAY_TO_STRING(STRING_TO_ARRAY(words, "|^|"), " "), gene_wordidx_outer_1, gene_name_outer_1, pheno_wordidx_outer_1, gene_wordidx_outer_2, gene_name_outer_2, pheno_wordidx_outer_2) :-
+  sentences_input(doc_id, section_id, sent_id, words, _, _, _, _, _),
+  genepheno_causation_first(_, relation_id_outer_1, doc_id, section_id, sent_id, gene_mention_id_outer_1, gene_name_outer_1, gene_wordidx_outer_1, pheno_mention_id_outer_1, _, pheno_wordidx_outer_1, _, _, _),
+  genepheno_causation_first(_, relation_id_outer_2, doc_id, section_id, sent_id, gene_mention_id_outer_2, gene_name_outer_2, gene_wordidx_outer_2, pheno_mention_id_outer_2, _, pheno_wordidx_outer_2, _, _, _),
+  genepheno_causation_first(_, relation_id_inner, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, _, pheno_mention_id_outer_1, _, _, _, _, _),
+  [gene_wordidx_outer_1 < pheno_wordidx_outer_1],
+  [pheno_wordidx_outer_1 < gene_wordidx_outer_2],
+  [gene_wordidx_outer_2 < pheno_wordidx_outer_2].
+   
+   
+@weight("?")
+genepheno_causation_inference(relation_id_outer_1), genepheno_causation_inference(relation_id_outer_2) => !genepheno_causation_inference(relation_id_inner) :-
+  genepheno_causation_first(_, relation_id_outer_1, doc_id, section_id, sent_id, gene_mention_id_outer_1, _, gene_wordidx_outer_1, pheno_mention_id_outer_1, _, pheno_wordidx_outer_1, _, _, _),
+  genepheno_causation_first(_, relation_id_outer_2, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, gene_wordidx_outer_2, pheno_mention_id_outer_2, _, pheno_wordidx_outer_2, _, _, _),
+  genepheno_causation_first(_, relation_id_inner, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, _, pheno_mention_id_outer_1, _, _, _, _, _),
+  [gene_wordidx_outer_1 < pheno_wordidx_outer_1],
+  [pheno_wordidx_outer_1 < gene_wordidx_outer_2],
+  [gene_wordidx_outer_2 < pheno_wordidx_outer_2].
   
 
 #genepheno_causation_to_pheno
@@ -1650,6 +1621,3 @@ genepheno_causation_first (
 #genepheno_causation_inference(relation_id) => pheno_mentions_filtered_inference(pheno_mention_id) :-
 #pheno_mentions_filtered(_, doc_id, section_id, _, _, pheno_mention_id, _,_,_,_,_),
 #genepheno_causation(_, relation_id, doc_id, section_id, _,_,_,_, pheno_mention_id, _, _, _, _, _).
-
-#What is difference between variant_inference and genevariant_inference ?
-#The variant_inference not even defined as variable, maybe just old stuff

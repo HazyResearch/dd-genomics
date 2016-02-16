@@ -241,13 +241,8 @@ GENE_PHENO = {
   # # Hard Filters (for candidate extraction)
   'HF' : {
     # Upper-bound the max min-dependency-path length between G and P
-    'max-dep-path-dist' : 10,
+    'max-dep-path-dist' : 20,
 
-    # Only consider the closest GP pairs for duplicate GP pairs
-    'take-best-only-dups' : False,
-
-    # Only consider the closest GP pairs by dep-path distance such that all G,P are covered
-    'take-best-only' : False
   },
 
   'vals' : BOOL_VALS,
