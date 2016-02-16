@@ -12,7 +12,7 @@ fi
 
 if [ $# -ge 2 ]; then
         echo "Setting confidence to $2"
-        CONFIDENCE=$1
+        CONFIDENCE=$2
 else
         echo "Setting confidence to 0.9"
         CONFIDENCE=.9
