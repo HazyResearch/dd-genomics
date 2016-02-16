@@ -4,21 +4,23 @@ See Milestones/Issues.
 
 ### SETUP:
 
-Setting the dd-genomics repo: 
+Setting the dd-genomics repo:
 
-1. Define a `db.url` file, such as: `[postgres|greenplum]://localhost:6432/genomics_tpalo`
+1. Initialize \& update submodules: `git submodule update --init`.  (Note: you will need to have an SSH key for the computer being used set up with github, as well as have permission to access the submodule repos)
 
-2. Copy template file `env.sh` to `env_local.sh` and modify this file with your local settings (it's ignored by git, and prefered by the run script).  Make sure to set your `PATH` so that the correct version of `psql` is on it. Be sure in particular to define the variable APP_HOME as the path to your dd-genomics repo. 
+2. Define a `db.url` file, such as: `[postgres|greenplum]://localhost:6432/genomics_tpalo`
 
-3.  Install nltk: `sudo pip install nltk`. Download the corpora wordnet: in Python: `import nltk; nltk.download()` and download the corpora wordnet.
+3. Copy template file `env.sh` to `env_local.sh` and modify this file with your local settings (it's ignored by git, and prefered by the run script).  Make sure to set your `PATH` so that the correct version of `psql` is on it. Be sure in particular to define the variable APP_HOME as the path to your dd-genomics repo. 
 
-4.  Fetch and process ontology files: `cd onto; ./make_all.sh`
+4.  Install nltk: `sudo pip install nltk`. Download the corpora wordnet: in Python: `import nltk; nltk.download()` and download the corpora wordnet.
 
-5. Pre-process & load the data: See the [Parser README](https://github.com/HazyResearch/dd-genomics/tree/master/parser) for detailed instructions; then save the output table to `input/sentences_input.*` (or copy an existing sentences_input table to this location).
+5.  Fetch and process ontology files. All the code to make the files in onto is in `make_all.sh` (in principle). However, the script is extremely brittle. What you should do in fact is delete or rename your own onto directory, then copy Johannes' main onto directory from `/lfs/raiders7/0/jbirgmei/onto`.
 
-6. Source the environment vars: `source env_local.sh`.  **NOTE that this should be done before any deepdive run or action!**
+6. Pre-process & load the data: See the [Parser README](https://github.com/HazyResearch/dd-genomics/tree/master/parser) for detailed instructions; then save the output table to `input/sentences_input.*` (or copy an existing sentences_input table to this location).
+
+7. Source the environment vars: `source env_local.sh`.  **NOTE that this should be done before any deepdive run or action!**
  
-7. Compile the application: `deepdive compile`
+8. Compile the application: `deepdive compile`
 
 
 ### Running DeepDive: 
@@ -74,6 +76,16 @@ These files are stored under `results_log/$USERNAME/$RELATION-$DATE/`.
 **Note**: Only the stats files are shared via Github
 
 **CAVEAT**: in the current implementation, changing the input data will require manual modification in the `compute_causation_stats.sh`, `compute_association_stats.sh`, `compute_gene_stats.sh` by updating the path of the sentences_input file.
+
+**More detailed evaluation**: Go to the util directory and execute the scripts
+there. They names hopefully explain what they're for. E.g., execute `cd util;
+./gp_precision_stats 3` to get precision holdout statistics for labeling set
+version 3; execute `cd util; ./gp_precision_stats` to get precision statistics
+for all labeling set versions.
+
+**CURRENT EXPECTATION CUTOFFS:**
+
+The files `results_log/*_cutoff` (e.g., g_cutoff and gp_cutoff) contain the current expectation cutoff (e.g., 0.5 and 0.75).
 
 ### Error Analysis
 

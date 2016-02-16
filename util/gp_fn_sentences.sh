@@ -8,7 +8,7 @@ else
   version_string=""
 fi
 
-GP_CUTOFF=`cat $gp_cutoff`
+GP_CUTOFF=`cat ../results_log/gp_cutoff`
 
 cd ..
 source env_local.sh

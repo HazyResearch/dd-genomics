@@ -12,10 +12,11 @@ fi
 
 if [ $# -ge 2 ]; then
         echo "Setting confidence to $2"
-        CONFIDENCE=$1
+        CONFIDENCE=$2
 else
-        echo "Setting confidence to 0.9"
-        CONFIDENCE=.9
+        cutoff=`cat ${GDD_HOME}/results_log/gp_cutoff`
+        echo "Setting confidence to $cutoff"
+        CONFIDENCE=$cutoff
 fi
 
 # extract all labels from the genepheno labels that are true
