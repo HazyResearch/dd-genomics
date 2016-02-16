@@ -4,6 +4,7 @@ deepdive sql """
 COPY (
 select
   id,
+  relation_id,
   doc_id,
   section_id,
   sent_id,

@@ -4,9 +4,7 @@ cp dicts/english_words.tsv data/english_words.tsv
 
 # Download and parse HPO term list (with synonyms and graph edges)
 RAW="raw/hpo.obo"
-if [ ! -e "$RAW" ]; then
-	wget http://compbio.charite.de/hudson/job/hpo/lastStableBuild/artifact/hp/hp.obo -O "$RAW"
-fi
+wget http://compbio.charite.de/hudson/job/hpo/lastStableBuild/artifact/hp/hp.obo -O "$RAW"
 python parse_hpo.py "$RAW" data/hpo_phenotypes.tsv
 
 RAW="raw/protein-coding_gene.txt"
@@ -142,7 +140,6 @@ fi
 # Join to get HPO to pubmed ID map through MeSH
 join -t $'\t' -1 2 -2 1 -o 1.1,2.2 <(cut -f1,7 data/hpo_phenotypes.tsv | egrep -v $'\t''$' | sort -k2) data/meshToPmid.tsv > data/hpo_to_pmid_via_mesh.tsv
 
-python prep_pheno_terms.py
 
 # Get map between PMIDs and DOIs.
 RAW="raw/PMC-ids.csv"
@@ -230,3 +227,9 @@ join -1 1 -2 1 -t$'\t' \
 ./parse_phenotypic_series.sh
 
 ./parse_disease_to_phenotype.sh
+
+./omim_alt_names_to_series.py manual/diseases.tsv manual/phenotypic_series.tsv manual/phenotypic_series_to_omim.tsv
+
+python prep_pheno_terms.py
+
+./create_allowed_diseases.sh

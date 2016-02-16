@@ -2,7 +2,7 @@
 
 if [ -z $DDUSER ]
 then
-  echo "set dduser/source env_local!"
+  echo "set dduser/source env_local!" >> /dev/stderr
   exit 1
 fi
 

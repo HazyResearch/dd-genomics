@@ -9,6 +9,7 @@ import extractor_util as util
 import data_util as dutil
 import config
 
+onto_path = lambda p : '%s/onto/%s' % (os.environ['GDD_HOME'], p)
 
 # This defines the Row object that we read in to the extractor
 parser = util.RowParser([
@@ -105,21 +106,24 @@ def load_pheno_terms():
         pheno_sets[phrase_bow] = [(hpoid, entry_type)]
   return phenos, pheno_sets
 
+allowed_diseases = [line.strip() for line in open(onto_path('manual/allowed_omim_ps.tsv'))]
+
 def load_disease_terms():
   diseases = {}
   disease_sets = {}
   rows = [line.split('\t') for line in open(onto_path('manual/disease_terms.tsv'), 'rb')]
   for row in rows:
     omimid, phrase, entry_type = [x.strip() for x in row]
-    if phrase in diseases:
-      diseases[phrase].append((omimid, entry_type))
-    else:
-      diseases[phrase] = [(omimid, entry_type)]
-    phrase_bow = frozenset(phrase.split())
-    if phrase_bow in disease_sets:
-      disease_sets[phrase_bow].append((omimid, entry_type))
-    else:
-      disease_sets[phrase_bow] = [(omimid, entry_type)]
+    if omimid in allowed_diseases:
+      if phrase in diseases:
+        diseases[phrase].append((omimid, entry_type))
+      else:
+        diseases[phrase] = [(omimid, entry_type)]
+      phrase_bow = frozenset(phrase.split())
+      if phrase_bow in disease_sets:
+        disease_sets[phrase_bow].append((omimid, entry_type))
+      else:
+        disease_sets[phrase_bow] = [(omimid, entry_type)]
   return diseases, disease_sets
 
 def keep_word(w):
@@ -286,7 +290,6 @@ def generate_rand_negatives(s, candidates):
   return negs
 
 if __name__ == '__main__':
-  onto_path = lambda p : '%s/onto/%s' % (os.environ['GDD_HOME'], p)
 
   # Load static dictionaries
   # TODO: any simple ways to speed this up? 

@@ -105,60 +105,42 @@ echo
 
 echo "How many sentences in which no gene and no pheno candidate occur? "
 deepdive sql """
-select count(*), count(*)::float * 100 / (select count(*) from sentences_input) AS percentage from (
-select a.doc_id, a.section_id, a.sent_id, a.count num_gene_mentions, b.count num_pheno_mentions 
-from (
-  select si.doc_id, si.section_id, si.sent_id, count(distinct gm.mention_id) 
-  from sentences_input si 
-  left join gene_mentions gm 
-    on (si.doc_id = gm.doc_id and si.section_id = gm.section_id and si.sent_id = gm.sent_id) 
-  group by si.doc_id, si.section_id, si.sent_id) a 
-  join (
-  select si.doc_id, si.section_id, si.sent_id, count(distinct pm.mention_id) 
-  from sentences_input si 
-  left join pheno_mentions pm 
-    on (si.doc_id = pm.doc_id and si.section_id = pm.section_id and si.sent_id = pm.sent_id) 
-  group by si.doc_id, si.section_id, si.sent_id) b 
-on (a.doc_id = b.doc_id and a.section_id = b.section_id and a.sent_id = b.sent_id)) c 
-where (num_gene_mentions = 0 and num_pheno_mentions = 0)"""
+select count(*), count(*)::float * 100 / (select count(*) from sentences_input) AS percentage FROM (
+  select distinct si.doc_id, si.section_id, si.sent_id, COALESCE(a.num_gene_candidates, 0) num_gene, COALESCE(b.num_pheno_candidates, 0) num_pheno
+  from 
+    sentences_input si 
+    left join num_gene_candidates a 
+      on (si.doc_id = a.doc_id and si.section_id = a.section_id and si.sent_id = a.sent_id)
+    left join num_pheno_candidates b 
+      on (a.doc_id = b.doc_id and a.section_id = b.section_id and a.sent_id = b.sent_id)
+) c
+where num_gene = 0 and num_pheno = 0;"""
 
-echo "How many sentences in which at least one gene and pheno candidate occur? "
+echo "How many sentences in which at least one gene mention and one pheno mention occur? "
 deepdive sql """
-select count(*), count(*)::float * 100 / (select count(*) from sentences_input) AS percentage from (
-select a.doc_id, a.section_id, a.sent_id, a.count num_gene_mentions, b.count num_pheno_mentions 
-from (
-  select si.doc_id, si.section_id, si.sent_id, count(distinct gm.mention_id) 
-  from sentences_input si 
-  left join gene_mentions gm 
-    on (si.doc_id = gm.doc_id and si.section_id = gm.section_id and si.sent_id = gm.sent_id) 
-  group by si.doc_id, si.section_id, si.sent_id) a 
-  join (
-  select si.doc_id, si.section_id, si.sent_id, count(distinct pm.mention_id) 
-  from sentences_input si 
-  left join pheno_mentions pm 
-    on (si.doc_id = pm.doc_id and si.section_id = pm.section_id and si.sent_id = pm.sent_id) 
-  group by si.doc_id, si.section_id, si.sent_id) b 
-on (a.doc_id = b.doc_id and a.section_id = b.section_id and a.sent_id = b.sent_id)) c 
-where (num_gene_mentions >= 1 and num_pheno_mentions >= 1)"""
+select count(*), count(*)::float * 100 / (select count(*) from sentences_input) AS percentage FROM (
+  select distinct si.doc_id, si.section_id, si.sent_id, COALESCE(a.num_gene_candidates, 0) num_gene, COALESCE(b.num_pheno_candidates, 0) num_pheno
+  from 
+    sentences_input si 
+    left join num_gene_candidates a 
+      on (si.doc_id = a.doc_id and si.section_id = a.section_id and si.sent_id = a.sent_id)
+    left join num_pheno_candidates b 
+      on (a.doc_id = b.doc_id and a.section_id = b.section_id and a.sent_id = b.sent_id)
+) c
+where num_gene >= 1 and num_pheno >= 1;"""
 
-echo -n "How many sentences in which at least 2genes+3phenos or 3genes+2phenos occur? "
+echo -n "How many sentences in which at least 2gene mentionss+2pheno mentions occur? "
 deepdive sql """
-select count(*), count(*)::float * 100 / (select count(*) from sentences_input) AS percentage from (
-select a.doc_id, a.section_id, a.sent_id, a.count num_gene_mentions, b.count num_pheno_mentions 
-from (
-  select si.doc_id, si.section_id, si.sent_id, count(distinct gm.mention_id) 
-  from sentences_input si 
-  left join gene_mentions gm 
-    on (si.doc_id = gm.doc_id and si.section_id = gm.section_id and si.sent_id = gm.sent_id) 
-  group by si.doc_id, si.section_id, si.sent_id) a 
-  join (
-  select si.doc_id, si.section_id, si.sent_id, count(distinct pm.mention_id) 
-  from sentences_input si 
-  left join pheno_mentions pm 
-    on (si.doc_id = pm.doc_id and si.section_id = pm.section_id and si.sent_id = pm.sent_id) 
-  group by si.doc_id, si.section_id, si.sent_id) b 
-on (a.doc_id = b.doc_id and a.section_id = b.section_id and a.sent_id = b.sent_id)) c 
-where (num_gene_mentions >= 2 and num_pheno_mentions >= 3) or (num_gene_mentions >= 3 and num_pheno_mentions >= 2)"""
+select count(*), count(*)::float * 100 / (select count(*) from sentences_input) AS percentage FROM (
+  select distinct si.doc_id, si.section_id, si.sent_id, COALESCE(a.num_gene_candidates, 0) num_gene, COALESCE(b.num_pheno_candidates, 0) num_pheno
+  from 
+    sentences_input si 
+    left join num_gene_candidates a 
+      on (si.doc_id = a.doc_id and si.section_id = a.section_id and si.sent_id = a.sent_id)
+    left join num_pheno_candidates b 
+      on (a.doc_id = b.doc_id and a.section_id = b.section_id and a.sent_id = b.sent_id)
+) c
+where (num_gene >= 2 and num_pheno >= 2);"""
 
 echo -n "How many gene mention+pheno mention pairs occur in total single sentences (no random negatives)? "
 deepdive sql """ COPY(

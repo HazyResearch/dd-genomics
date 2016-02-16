@@ -45,13 +45,44 @@ Mention = collections.namedtuple('Mention', [
 # HF = config.NON_GENE_ACRONYMS['HF']
 SR = config.NON_GENE_ACRONYMS['SR']
 
+def contains_sublist(lst, sublst):
+  if len(lst) < len(sublst):
+    return False, None
+  n = len(sublst)
+  for i in xrange(len(lst) - n + 1):
+    if sublst == lst[i:i+n]:
+      return True, (i,i+n)
+  return False, None
+
+def detect_manual(words, gene_idx):
+  gene_name = words[gene_idx]
+  manual_pairs = SR['manual-pairs']
+  rv = []
+  if gene_name in manual_pairs:
+    for definition in manual_pairs[gene_name]:
+      def_lst = [d.lower() for d in definition.split(' ')]
+      contains, def_boundaries = contains_sublist([w.lower() for w in words], def_lst)
+      if contains:
+        # print >>sys.stderr, (contains, def_boundaries, def_lst)
+        def_start, def_stop = def_boundaries
+        definition = words[def_start:def_stop]
+        abbrev = gene_name
+        abbrev_start = gene_idx
+        abbrev_stop = gene_idx + 1
+        rv.append(((abbrev_start, abbrev_stop, abbrev), (def_start, def_stop, definition)))
+  return rv
+
 def extract_candidate_mentions(row, pos_count, neg_count):
   mentions = []
   if abbreviations.conditions(row.words[row.gene_wordidx]):
-    for (is_correct, abbrev, definition, detector_message) in abbreviations.getabbreviations(row.words, abbrevIndex=row.gene_wordidx):
+    for (is_correct, abbrev, definition, detector_message) in abbreviations.getabbreviations(row.words, abbrev_index=row.gene_wordidx):
       m = create_supervised_mention(row, is_correct, abbrev, definition, detector_message, pos_count, neg_count)
       if m:
         mentions.append(m)
+  for (abbrev, definition) in detect_manual(row.words, row.gene_wordidx):
+    m = create_supervised_mention(row, True, abbrev, definition, 'MANUAL', pos_count, neg_count)
+    if m:
+      mentions.append(m)
   return mentions
 
 ### DISTANT SUPERVISION ###
@@ -66,6 +97,13 @@ def create_supervised_mention(row, is_correct,
   gene_to_full_name = CACHE['gene_to_full_name']
   include = None
   if is_correct:
+    # JB: super ugly, who cards
+    if detector_message == 'MANUAL':  
+      m = Mention(None, row.doc_id, row.section_id,
+            row.sent_id, [i for i in xrange(start_abbrev, stop_abbrev + 1)],
+            [i for i in xrange(start_definition, stop_definition + 1)],
+            mid, 'MANUAL', None, abbrev, definition, is_correct);
+      return m
     supertype = 'TRUE_DETECTOR'
     subtype = None
   elif is_correct is False:
@@ -101,6 +139,7 @@ def create_supervised_mention(row, is_correct,
     subtype = None
   # print >>sys.stderr, (include, is_correct, neg_count, pos_count)
   if include is True or (include is not False and is_correct is True or (is_correct is False and neg_count < pos_count)):
+    # we're never gonna do inference here, so why all this shit
     m = Mention(None, row.doc_id, row.section_id,
               row.sent_id, [i for i in xrange(start_abbrev, stop_abbrev + 1)],
               [i for i in xrange(start_definition, stop_definition + 1)],

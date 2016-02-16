@@ -37,7 +37,15 @@ NON_GENE_ACRONYMS = {
 
   'SR' : {
     'levenshtein_cutoff' : 0.2,
-    'short-words': { 'the', 'and', 'or', 'at', 'in', 'see', 'as', 'an', 'data', 'for', 'not', 'our', 'ie', 'to', 'eg', 'one', 'age', 'on', 'center', 'right', 'left', 'from', 'based', 'total', 'via', 'but', 'resp', 'no' }
+    'short-words': { 'the', 'and', 'or', 'at', 'in', 'see', 'as', \
+                    'an', 'data', 'for', 'not', 'our', 'ie', 'to', \
+                    'eg', 'one', 'age', 'on', 'center', 'right', 'left', \
+                    'from', 'based', 'total', 'via', 'but', 'resp', 'no' },
+    'manual-pairs' : { 'FRAXA' : ['fragile X'], 'IL2' : ['intracellular loop'],
+                      'IL3' : ['intracellular loop'], 'IL1' : ['intracellular loop'],
+                      'IL4' : ['extracellular loop'], 'EL2' : ['extracellular loop'],
+                      'EL3' : ['extracellular loop'], 'EL1' : ['extracellular loop'],
+                      'EL4' : ['extracellular loop']}
   }
 }
 
@@ -181,7 +189,9 @@ PHENO = {
     # Consider exact matches with one ommited *interior* word
     'omitted-interior' : True,
 
-    'rand-negs' : True
+    'rand-negs' : True,
+
+    'disallowed-phrases' : ['cancer', 'carcinoma']
   },
 
   # # Supervision Rules
@@ -423,11 +433,12 @@ CAUSATION_SR = {
                'association',
                'associated'
                ],
-      'pos-rgx' : [r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*cause.*PHENO',
-                  r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*described.*patients.*PHENO',
-                  r'.*patient.*GENE.*present with.*clinical.*PHENO.*',
-                  r'(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO',
-                  r'(mutation|deletion).*GENE.*described.*patients.*PHENO'],
+      'pos-rgx' : [#r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*cause.*PHENO',
+                  #r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*described.*patients.*PHENO',
+                  #r'.*patient.*GENE.*present with.*clinical.*PHENO.*',
+                  #r'(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO',
+                  #r'(mutation|deletion).*GENE.*described.*patients.*PHENO'
+                  ],
       'neg-rgx' : [],
     },
     # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them

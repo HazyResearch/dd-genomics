@@ -44,6 +44,32 @@ def normalize_phrase(p):
     out += normalize_phrase(' '.join(cs[::-1]))
   return out
 
+def load_diseases(filename):
+  out_disease = []
+  for line in open('%s/onto/manual/phenotypic_series.tsv' % GDD_HOME):
+    row = line.split('\t')
+    omim_ps_id = row[0]
+    names = row[1].split('|^|')
+    alt_names = row[2].split('|^|')
+    forms = []
+    exact = []
+    for p in names:
+      if len(p.strip().lower()) > 0 and len(p.strip().split()) > 1:
+        exact.append(p.strip().lower())
+        forms.append((omim_ps_id, p.strip().lower(), 'EXACT'))
+    for p in alt_names:
+      if len(p.strip().lower()) > 0 and len(p.strip().split()) > 1:
+        exact.append(p.strip().lower())
+        forms.append((omim_ps_id, p.strip().lower(), 'EXACT'))
+    for p in exact:
+      forms += [(omim_ps_id, np.strip(), 'LEMMA') for np in normalize_phrase(p) if len(np.strip()) > 0 and len(np.strip().split()) > 1]
+    for f in forms:
+      k = f[0] + f[1]
+      if not seen.has_key(k):
+        seen[k] = 1
+        out_disease.append(f)
+  return out_disease
+
 if __name__ == "__main__":
   out_pheno = []
   out_disease = []
@@ -64,43 +90,9 @@ if __name__ == "__main__":
         seen[k] = 1
         out_pheno.append(f)
 
-  for line in open('%s/onto/manual/diseases.tsv' % GDD_HOME):
-    row = line.split('\t')
-    omim_id = row[0]
-    names = row[1].split('|^|')
-    alt_names = row[2].split('|^|')
-    forms = []
-    exact = []
-    for p in names:
-      if len(p.strip().lower()) > 0 and len(p.strip().split()) > 1:
-        exact.append(p.strip().lower())
-        forms.append((omim_id, p.strip().lower(), 'EXACT'))
-    for p in alt_names:
-      if len(p.strip().lower()) > 0 and len(p.strip().split()) > 1:
-        exact.append(p.strip().lower())
-        forms.append((omim_id, p.strip().lower(), 'EXACT'))
-    for p in exact:
-      forms += [(omim_id, np.strip(), 'LEMMA') for np in normalize_phrase(p) if len(np.strip()) > 0 and len(np.strip().split()) > 1]
-    for f in forms:
-      k = f[0] + f[1]
-      if not seen.has_key(k):
-        seen[k] = 1
-        out_disease.append(f)
+  out_disease.extend(load_diseases('%s/onto/manual/diseases.tsv' % GDD_HOME))
+  out_disease.extend(load_diseases('%s/onto/manual/phenotypic_series.tsv' % GDD_HOME))
 
-  for line in open('%s/onto/manual/phenotypic_series.tsv' % GDD_HOME):
-    forms = []
-    row = line.split('\t')
-    omim_ps_id = row[0]
-    p = row[1]
-    if len(p.strip().split()) > 1:
-      forms.append((omim_ps_id, p.strip().lower(), 'EXACT'))
-      forms += [(omim_ps_id, np.strip().lower(), 'LEMMA') for np in normalize_phrase(p) if len(np.strip()) > 0 and len(np.strip().split()) > 1]
-    for f in forms:
-      k = f[0] + f[1]
-      if not seen.has_key(k):
-        seen[k] = 1
-        out_disease.append(f)
-  
   with open("%s/onto/manual/pheno_terms.tsv" % (GDD_HOME,), 'wb') as f:
     for o in out_pheno:
       f.write('\t'.join(o))

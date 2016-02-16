@@ -9,19 +9,11 @@ diseases (
   alt_names text
 ).
 
-diseases_concat_names (
-  @distributed_by
-  omim_id text,
-  names text
-).
-
-diseases_concat_names(omim_id, names || "|^|" || alt_names) :-
-  diseases(omim_id, names, alt_names).
-
 phenotypic_series (
   @distributed_by
   omim_id text,
-  name text
+  name text,
+  alt_names text
 ).
 
 phenotypic_series_to_omim (
@@ -36,10 +28,10 @@ pheno_names (
   names text
 ).
 
-pheno_names(id, names) :-
-  diseases_concat_names(id, names);
-  allowed_phenos_concat_names(id, names);
-  phenotypic_series(id, names).
+pheno_names(id, names || "|^|" || alt_names) :-
+  diseases(id, names, alt_names);
+  allowed_phenos(id, names, alt_names);
+  phenotypic_series(id, names, alt_names).
 
 @source
 sentences_input_views(
@@ -734,15 +726,6 @@ allowed_phenos (
   names text,
   synonyms text).
 
-allowed_phenos_concat_names (
-  @distributed_by
-  hpo_id text,
-  names text).
-
-allowed_phenos_concat_names(omim_id, names || "|^|" || alt_names) :-
-  allowed_phenos(omim_id, names, alt_names).
-
-
 gene_holdout_set (
         @distributed_by
         doc_id text,
@@ -851,6 +834,38 @@ gene_mentions_updated_condition_met_before_union (id, doc_id, section_id, sent_i
 gene_mentions_temp_before_non_gene_acronyms_delete_candidates(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct), 
 EXISTS[non_gene_acronyms( _, doc_id, _, _, _, _, _, _, _, gene_name, _, is_correct_nga), [is_correct_nga = "t" ; is_correct_nga IS NULL]].
 
+gene_mentions_updated_condition_not_met_before_union (
+  id bigint,
+  @distributed_by
+  doc_id text,
+  section_id text,
+  sent_id int,
+  wordidxs int[],
+  mention_id text,
+  mapping_type text,
+  supertype text,
+  subtype text,
+  gene_name text,
+  words text[],
+  is_correct boolean
+).
+
+gene_mentions_updated_condition_met_before_union (
+  id bigint,
+  @distributed_by
+  doc_id text,
+  section_id text,
+  sent_id int,
+  wordidxs int[],
+  mention_id text,
+  mapping_type text,
+  supertype text,
+  subtype text,
+  gene_name text,
+  words text[],
+  is_correct boolean
+).
+
 gene_mentions_updated_condition_not_met_before_union (id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct) :-
 gene_mentions_temp_before_non_gene_acronyms_delete_candidates(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct), 
 ! EXISTS[non_gene_acronyms(_, doc_id, _, _, _, _, _, _, _, gene_name, _, is_correct_nga), [is_correct_nga = "t" ; is_correct_nga IS NULL]].
@@ -946,7 +961,7 @@ function pheno_extract_features over rows like pheno_extract_features_input
 returns rows like pheno_features
 implementation "code/pheno_extract_features.py" handles tsv lines.
 
-pheno_features += pheno_extract_features(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, mention_id, array_to_string(wordidxs, "|^|")) :- 
+pheno_features += pheno_extract_features(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, mention_id, wordidxs) :- 
 sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents), 
 pheno_mentions_filtered(_, doc_id, section_id, sent_id, wordidxs, mention_id, _, _, _, _, _).
 
@@ -1382,15 +1397,38 @@ genevariant_relations ( _, _, _, _, _, _, _, mention_id, _, _, _, _, _, _, _, _,
 #Pheno_filter_candidates
 #? Exctractor seems wrong in the application.conf (What is g ?)
 
+num_gene_candidates (
+  doc_id text,
+  section_id text,
+  sent_id int,
+  num_gene_candidates int
+).
+
+num_gene_candidates(doc_id, section_id, sent_id, COUNT(mention_id)) :-
+  gene_mentions(_, doc_id, section_id, sent_id, _, mention_id, _, _, _, gene_name, _, _),
+  [gene_name IS NOT NULL].
+
+num_pheno_candidates (
+  doc_id text,
+  section_id text,
+  sent_id int,
+  num_pheno_candidates int
+).
+
+num_pheno_candidates(doc_id, section_id, sent_id, COUNT(mention_id)) :-
+  pheno_mentions(_, doc_id, section_id, sent_id, _, mention_id, _, _, entity, _, _),
+  [entity IS NOT NULL].
 
 
 #genepheno_extract_features
 function genepheno_extract_features over rows like genepheno_extract_features_input returns rows like genepheno_features
 implementation "code/genepheno_extract_features.py" handles tsv lines.
 
-genepheno_features += genepheno_extract_features( relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_wordidxs, pheno_mention_id, pheno_wordidxs, words, lemmas, poses, ners, dep_paths, dep_parents) :- 
-genepheno_relations(id,relation_id,doc_id,section_id,sent_id,gene_mention_id,gene_name,gene_wordidxs,gene_is_correct,pheno_mention_id,pheno_entity,pheno_wordidxs,pheno_is_correct),
-sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
+genepheno_features += genepheno_extract_features( relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_wordidxs, pheno_mention_id, pheno_wordidxs, words, lemmas, poses, ners, dep_paths, dep_parents, num_gene_candidates, num_pheno_candidates) :- 
+  genepheno_relations(id,relation_id,doc_id,section_id,sent_id,gene_mention_id,gene_name,gene_wordidxs,gene_is_correct,pheno_mention_id,pheno_entity,pheno_wordidxs,pheno_is_correct),
+  num_gene_candidates(doc_id, section_id, sent_id, num_gene_candidates),
+  num_pheno_candidates(doc_id, section_id, sent_id, num_pheno_candidates),
+  sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
 
 #genepheno_causation_supervision
 
@@ -1492,11 +1530,14 @@ genepheno_causation_canon += canonicalize_genepheno_relations(hpo_id, ensembl_id
 gene_mentions_filtered_inference?(
   @references(relation="gene_mentions_views", column="mention_id")
 mention_id text).
-pheno_mentions_filtered_inference?(mention_id text).
+
+#pheno_mentions_filtered_inference?(mention_id text).
+
 genepheno_causation_inference?(
   @references(relation="genepheno_causation_views", column="relation_id")
 relation_id text).
-non_gene_acronyms_inference?(mention_id text).
+
+#non_gene_acronyms_inference?(mention_id text).
 #genevariant_relations_inference?(relation_id text).
 
 
@@ -1506,14 +1547,14 @@ non_gene_acronyms_inference?(mention_id text).
 gene_mentions_filtered_inference(mention_id) = is_correct :- gene_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, mapping_type, supertype, subtype, gene_name, words, is_correct).
 
 #@label(is_correct)
-pheno_mentions_filtered_inference(mention_id) = is_correct :- pheno_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
+#pheno_mentions_filtered_inference(mention_id) = is_correct :- pheno_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
 
 
 @label(is_correct)
 genepheno_causation_inference(relation_id) :- genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype).
 
-@label(is_correct)
-non_gene_acronyms_inference(mention_id) :- non_gene_acronyms(id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs, mention_id, supertype, subtype, abbrev, definition, is_correct).
+#@label(is_correct)
+#non_gene_acronyms_inference(mention_id) :- non_gene_acronyms(id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs, mention_id, supertype, subtype, abbrev, definition, is_correct).
 
 #@label(is_correct)
 #genevariant_relations_inference(relation_id) :- genevariant_relations ( id, relation_id, doc_id, section1_id, sent1_id, section2_id, sent2_id, variant_mention_id, variant_entity, variant_wordidxs, variant_is_correct, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, is_correct, supertype, subtype).
@@ -1528,10 +1569,10 @@ gene_mentions_filtered_inference(mention_id) :-
   gene_features(_, _, mention_id, feature).
 
 #pheno_inference
-@weight(feature)
-pheno_mentions_filtered_inference(mention_id) :-
-  pheno_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct),
-  pheno_features(_, _, mention_id, feature).
+#@weight(feature)
+#pheno_mentions_filtered_inference(mention_id) :-
+#  pheno_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct),
+#  pheno_features(_, _, mention_id, feature).
 
 #non_gene_acronyms_inference
 #@weight(feature)
@@ -1550,35 +1591,55 @@ gene_mentions_filtered_inference(mention_id1) = gene_mentions_filtered_inference
   gene_mentions_filtered(_, doc_id,_, _, _, mention_id1, _, _, _, gene_name, _, _),
   gene_mentions_filtered(_, doc_id,_, _, _, mention_id2, _, _, _, gene_name, _, _).
 
-# genepheno_causation_first (
-#   id bigint,
-#   relation_id text,
-#   @distributed_by
-#   doc_id text,
-#   section_id text,
-#   sent_id int,
-#   gene_mention_id text,
-#   gene_name text,
-#   gene_wordidx int,
-#   pheno_mention_id text,
-#   pheno_entity text,
-#   pheno_wordidx int,
-#   is_correct boolean,
-#   supertype text,
-#   subtype text
-# ).
-
 #genepheno_causation_to_gene
-# @weight("?")
-# genepheno_causation_inference(relation_id) => gene_mentions_filtered_inference(gene_mention_id) :-
-#   genepheno_causation(_, relation_id, doc_id, section_id, _, gene_mention_id, _, _, _, _, _, _, _, _), 
-#   gene_mentions_filtered(_, doc_id, section_id, _, _, gene_mention_id, _, _, _, _, _, _).
-# 
-# @weight("-0.5")
-# !genepheno_causation_inference(relation_id_outer_1) v !genepheno_causation_inference(relation_id_outer_2) v !genepheno_causation_inference(relation_id_inner) :-
-#   genepheno_causation(_, relation_id_outer_1, doc_id, section_id, sent_id, gene_mention_id_outer_1, _, gene_wordidx_outer_1, pheno_mention_id_outer_1, _, pheno_wordidx_outer_1, _, _, _),
+ @weight("?")
+ genepheno_causation_inference(relation_id) => gene_mentions_filtered_inference(gene_mention_id) :-
+   genepheno_causation(_, relation_id, doc_id, section_id, _, gene_mention_id, _, _, _, _, _, _, _, _), 
+   gene_mentions_filtered(_, doc_id, section_id, _, _, gene_mention_id, _, _, _, _, _, _).
+ 
+
+genepheno_causation_first (
+  id bigint,
+  relation_id text,
+  @distributed_by
+  doc_id text,
+  section_id text,
+  sent_id int,
+  gene_mention_id text,
+  gene_name text,
+  gene_wordidx int,
+  pheno_mention_id text,
+  pheno_entity text,
+  pheno_wordidx int,
+  is_correct boolean,
+  supertype text,
+  subtype text
+).
+
+# @weight("2.0")
+# genepheno_causation_inference(relation_id_outer_1), genepheno_causation_inference(relation_id_outer_2) => !genepheno_causation_inference(relation_id_inner) :-
+#   genepheno_causation(_, relation_id_outer_1, doc_id, section_id, sent_id, gene_mention_id_outer_1, _, gene_wordidx_outer_1, pheno_mention_id_outer_1, _, pheno_wordidx_outer_1[1], _, _, _),
 #   genepheno_causation(_, relation_id_outer_2, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, gene_wordidx_outer_2, pheno_mention_id_outer_2, _, pheno_wordidx_outer_2, _, _, _),
 #   genepheno_causation(_, relation_id_inner, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, _, pheno_mention_id_outer_1, _, _, _, _, _),
+#   [gene_wordidx_outer_1[1] < pheno_wordidx_outer_1[1]],
+#   [pheno_wordidx_outer_1[1] < gene_wordidx_outer_2[1]],
+#   [gene_wordidx_outer_2[1] < pheno_wordidx_outer_2[1]].
+
+# genepheno_factor(relation_id_outer_1, relation_id_inner, relation_id_outer_2, ARRAY_TO_STRING(STRING_TO_ARRAY(words, "|^|"), " "), gene_wordidx_outer_1, gene_name_outer_1, pheno_wordidx_outer_1, gene_wordidx_outer_2, gene_name_outer_2, pheno_wordidx_outer_2) :-
+#   sentences_input(doc_id, section_id, sent_id, words, _, _, _, _, _),
+#   genepheno_causation_first(_, relation_id_outer_1, doc_id, section_id, sent_id, gene_mention_id_outer_1, gene_name_outer_1, gene_wordidx_outer_1, pheno_mention_id_outer_1, _, pheno_wordidx_outer_1, _, _, _),
+#   genepheno_causation_first(_, relation_id_outer_2, doc_id, section_id, sent_id, gene_mention_id_outer_2, gene_name_outer_2, gene_wordidx_outer_2, pheno_mention_id_outer_2, _, pheno_wordidx_outer_2, _, _, _),
+#   genepheno_causation_first(_, relation_id_inner, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, _, pheno_mention_id_outer_1, _, _, _, _, _),
+#   [gene_wordidx_outer_1 < pheno_wordidx_outer_1],
+#   [pheno_wordidx_outer_1 < gene_wordidx_outer_2],
+#   [gene_wordidx_outer_2 < pheno_wordidx_outer_2].
+#   
+#   
+# @weight("?")
+# !genepheno_causation_inference(relation_id_outer_1) v !genepheno_causation_inference(relation_id_outer_2) v !genepheno_causation_inference(relation_id_inner) :-
+#   genepheno_causation_first(_, relation_id_outer_1, doc_id, section_id, sent_id, gene_mention_id_outer_1, _, gene_wordidx_outer_1, pheno_mention_id_outer_1, _, pheno_wordidx_outer_1, _, _, _),
+#   genepheno_causation_first(_, relation_id_outer_2, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, gene_wordidx_outer_2, pheno_mention_id_outer_2, _, pheno_wordidx_outer_2, _, _, _),
+#   genepheno_causation_first(_, relation_id_inner, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, _, pheno_mention_id_outer_1, _, _, _, _, _),
 #   [gene_wordidx_outer_1 < pheno_wordidx_outer_1],
 #   [pheno_wordidx_outer_1 < gene_wordidx_outer_2],
 #   [gene_wordidx_outer_2 < pheno_wordidx_outer_2].
