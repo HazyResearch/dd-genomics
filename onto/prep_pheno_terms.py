@@ -90,7 +90,7 @@ if __name__ == "__main__":
         seen[k] = 1
         out_pheno.append(f)
 
-  #out_disease.extend(load_diseases('%s/onto/manual/phenotypic_series.tsv' % GDD_HOME))
+  out_disease.extend(load_diseases('%s/onto/manual/phenotypic_series.tsv' % GDD_HOME))
   out_disease.extend(load_diseases('%s/onto/manual/diseases.tsv' % GDD_HOME))
 
   with open("%s/onto/manual/pheno_terms.tsv" % (GDD_HOME,), 'w') as f:
