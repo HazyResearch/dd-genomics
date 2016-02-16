@@ -4,7 +4,7 @@ from collections import namedtuple
 import os
 import sys
 import ddlib
-from treedlib import corenlp_to_xmltree, get_relation_features
+from treedlib import corenlp_to_xmltree, get_relation_features, get_relation_binning_features
 
 parser = util.RowParser([
           ('relation_id', 'text'),
@@ -53,6 +53,7 @@ def get_features_for_candidate_treedlib(r):
   xt = corenlp_to_xmltree(s)
 
   # Get features
+  #for feature in get_relation_binning_features(xt.root, r.gene_wordidxs, r.pheno_wordidxs):
   for feature in get_relation_features(xt.root, r.gene_wordidxs, r.pheno_wordidxs):
     features += [f._replace(name=feature)]
   return features
@@ -61,10 +62,13 @@ def get_features_for_candidate_treedlib(r):
 onto_path = lambda p : '%s/onto/%s' % (os.environ['GDD_HOME'], p)
 
 def get_features_for_candidate(row):
+  return get_features_for_candidate_treedlib(row)
+  """
   if row.num_gene_candidates >= 2 and row.num_pheno_candidates >= 2:
     return get_features_for_candidate_treedlib(row)
   else:
     return get_features_for_candidate_ddlib(row)
+  """
 
 if __name__ == '__main__':
   ddlib.load_dictionary(onto_path("manual/genepheno_keywords.txt"), dict_id="gp_relation_kws")

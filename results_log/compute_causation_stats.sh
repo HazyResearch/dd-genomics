@@ -63,6 +63,8 @@ deepdive sql "COPY (SELECT * FROM genepheno_causation_labels gal WHERE gal.versi
 echo '/dfs/scratch0/genomics-data/sentences_input_v0.sql' > $DIR_NAME/input_data
 deepdive sql "COPY (SELECT count(*) FROM sentences_input) TO STDOUT WITH NULL AS ''" >> $DIR_NAME/input_data
 
+# Also echo the top lines from the stats file
+head -n 10 ${DIR_NAME}/stats_causation.tsv
 
 
 
