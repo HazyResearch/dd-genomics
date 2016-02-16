@@ -14,7 +14,7 @@ Setting the dd-genomics repo:
 
 4.  Install nltk: `sudo pip install nltk`. Download the corpora wordnet: in Python: `import nltk; nltk.download()` and download the corpora wordnet.
 
-5.  Fetch and process ontology files: `cd onto; ./make_all.sh`
+5.  Fetch and process ontology files. All the code to make the files in onto is in `make_all.sh` (in principle). However, the script is extremely brittle. What you should do in fact is delete or rename your own onto directory, then copy Johannes' main onto directory from `/lfs/raiders7/0/jbirgmei/onto`.
 
 6. Pre-process & load the data: See the [Parser README](https://github.com/HazyResearch/dd-genomics/tree/master/parser) for detailed instructions; then save the output table to `input/sentences_input.*` (or copy an existing sentences_input table to this location).
 
@@ -76,6 +76,14 @@ These files are stored under `results_log/$USERNAME/$RELATION-$DATE/`.
 **Note**: Only the stats files are shared via Github
 
 **CAVEAT**: in the current implementation, changing the input data will require manual modification in the `compute_causation_stats.sh`, `compute_association_stats.sh`, `compute_gene_stats.sh` by updating the path of the sentences_input file.
+
+**More detailed evaluation**: Go to the util directory and execute the scripts
+there. They names hopefully explain what they're for. E.g., execute `cd util;
+./gp_precision_stats 3` to get precision holdout statistics for labeling set
+version 3; execute `cd util; ./gp_precision_stats` to get precision statistics
+for all labeling set versions.
+
+The files `*_cutoff` contain the current expectation cutoff.
 
 ### Error Analysis
 
