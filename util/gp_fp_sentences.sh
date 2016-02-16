@@ -16,6 +16,7 @@ deepdive sql """
 COPY (
 SELECT DISTINCT
   s.labeler CAUSATION_FALSE_POSITIVES,
+  gc.relation_id,
   si.doc_id,
   si.section_id,
   si.sent_id,
