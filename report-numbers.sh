@@ -159,7 +159,7 @@ select count(*), count(*)::float * 100 / (select count(*) from sentences_input) 
 ) c
 where num_gene >= 1 and num_pheno >= 1;"""
 
-echo "How many sentences in which at least 2gene mentionss+2pheno mentions occur? "
+echo "How many sentences in which at least 2gene mentions+2pheno mentions occur? "
 deepdive sql """
 select count(*), count(*)::float * 100 / (select count(*) from sentences_input) AS percentage FROM (
   select distinct si.doc_id, si.section_id, si.sent_id, COALESCE(a.num_gene_candidates, 0) num_gene, COALESCE(b.num_pheno_candidates, 0) num_pheno
@@ -365,7 +365,7 @@ echo -n "How many distinct diseases (OMIM only!) do we have in genepheno pairs w
 deepdive sql """
 COPY (
 select count(*) from
-(select distinct hpo_id from genepheno_causation_disease) a
+(select distinct omim_id from genepheno_causation_disease) a
 ) TO STDOUT
 """ | xargs printf "%'.f\n"
 
