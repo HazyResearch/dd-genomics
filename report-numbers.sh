@@ -2,17 +2,26 @@
 
 export NUMERIC=en_US
 source env_local.sh
-deepdive mark todo genepheno_causation_inferred > /dev/stderr
-deepdive redo genepheno_causation_canon > /dev/stderr
-deepdive redo allowed_phenos > /dev/stderr
-deepdive redo charite > /dev/stderr
-deepdive redo charite_canon > /dev/stderr
-cd util
-./holdout_patch_ddlog.sh
-cd ..
 redo_weights="n"
-echo -n "Redo weights table? [y/n]: "
-read redo_weights
+if [[ "$1" != "-r" ]]
+then
+  export DEEPDIVE_PLAN_EDIT=false
+  deepdive mark todo genepheno_causation_inferred > /dev/stderr
+  deepdive redo genepheno_causation_pheno > /dev/stderr
+  deepdive redo genepheno_causation_canon > /dev/stderr
+  deepdive redo allowed_phenos > /dev/stderr
+  deepdive redo charite > /dev/stderr
+  deepdive redo charite_canon > /dev/stderr
+  deepdive redo charite_disease > /dev/stderr
+  deepdive redo charite_disease_canon > /dev/stderr
+  deepdive redo genepheno_causation_disease > /dev/stderr
+  cd util
+  ./holdout_patch_ddlog.sh > /dev/stderr
+  cd ..
+  redo_weights="n"
+  echo -n "Redo weights table? [y/n]: "
+  read redo_weights
+fi
 
 echo -n "Number of documents: " 
 deepdive sql """ COPY(
@@ -25,8 +34,8 @@ select count(distinct doc_id) from sentences_input where section_id like 'Body%'
 echo -n "Number of sentences: " 
 deepdive sql """ COPY(
 select count(*) from sentences_input) TO STDOUT
-"""
-echo | xargs printf "%'.f\n"
+""" | xargs printf "%'.f\n"
+echo
 
 echo -n "Number of gene objects: "
 deepdive sql """ COPY(
@@ -77,33 +86,54 @@ deepdive sql """ COPY(
 select count(distinct hpo_id) from allowed_phenos) TO STDOUT
 """ | xargs printf "%'.f\n"
 
-echo -n "How many pheno candidates are there in total? "
+echo -n "How many 'allowed' (non-cancer) OMIM diseases are there? "
+deepdive sql """ COPY(
+select count(distinct omim_id) from diseases) TO STDOUT
+""" | xargs printf "%'.f\n"
+
+echo -n "How many phenodisease candidates are there in total? "
 deepdive sql """ COPY(
 select count(*) from (select distinct * from pheno_mentions where entity is not null) a) TO STDOUT
 """ | xargs printf "%'.f\n"
 
-echo -n "How many distinct pheno objects do we pick up as candidates? "
+echo -n "How many distinct pheno (HPO only!) objects do we pick up as candidates? "
 deepdive sql """ COPY(
-select count(*) from (select distinct entity from pheno_mentions) a) TO STDOUT
+select count(*) from (select distinct entity from pheno_mentions where entity like 'HP:%') a) TO STDOUT
 """ | xargs printf "%'.f\n"
 
-echo -n "How many distinct phenos are there in Charite (non-canonicalized)? "
+echo -n "How many distinct disease (OMIM only!) objects do we pick up as candidates? "
+deepdive sql """ COPY(
+select count(*) from (select distinct entity from pheno_mentions where entity like 'OMIM:%') a) TO STDOUT
+""" | xargs printf "%'.f\n"
+
+echo -n "How many distinct phenos (HP only!) are there in Charite (non-canonicalized)? "
 deepdive sql """ COPY (
 select count(distinct hpo_id) from charite
 ) TO STDOUT""" | xargs printf "%'.f\n"
 
-echo -n "How many phenos in Charite (non-canonicalized) that we don't even pick up? "
+echo -n "How many distinct diseases (OMIM only!) are there in Charite (non-canonicalized)? "
+deepdive sql """ COPY (
+select count(distinct omim_id) from charite_disease
+) TO STDOUT""" | xargs printf "%'.f\n"
+
+echo -n "How many phenos (HP only!) in Charite (non-canonicalized) that we don't even pick up? "
 deepdive sql """ COPY(
 select count(*) from (select distinct c.hpo_id from charite c left join pheno_mentions pm on (c.hpo_id = pm.entity) where pm.entity is null) a) TO STDOUT
 """ | xargs printf "%'.f\n"
 
-echo "Classification of pheno candidates (top 10 classes) (AGAIN WARNING: SQL CANNOT COUNT NULL VALUES):"
+echo -n "How many diseases (OMIM only!) in Charite that where we pick up neither the disease nor the phenotypic series (if exists)? TODO!!"
+echo
+#deepdive sql """ COPY(
+#select count(*) from (select distinct c.omim_id from charite_disease c left join pheno_mentions pm on (c.omim_id = pm.entity) where pm.entity is null) a) TO STDOUT
+#""" | xargs printf "%'.f\n"
+
+echo "Classification of phenodisease candidates (top 10 classes) (AGAIN WARNING: SQL CANNOT COUNT NULL VALUES):"
 deepdive sql """ COPY(
 select supertype, count(supertype), count(supertype)::float * 100 / (select count(*) from pheno_mentions) as percentage from pheno_mentions group by supertype order by count desc) TO STDOUT
 """ | column -t | head -n 10
 echo
 
-echo "How many sentences in which no gene and no pheno candidate occur? "
+echo "How many sentences in which no gene and no phenodisease candidate occur? "
 deepdive sql """
 select count(*), count(*)::float * 100 / (select count(*) from sentences_input) AS percentage FROM (
   select distinct si.doc_id, si.section_id, si.sent_id, COALESCE(a.num_gene_candidates, 0) num_gene, COALESCE(b.num_pheno_candidates, 0) num_pheno
@@ -129,7 +159,7 @@ select count(*), count(*)::float * 100 / (select count(*) from sentences_input) 
 ) c
 where num_gene >= 1 and num_pheno >= 1;"""
 
-echo -n "How many sentences in which at least 2gene mentionss+2pheno mentions occur? "
+echo "How many sentences in which at least 2gene mentions+2pheno mentions occur? "
 deepdive sql """
 select count(*), count(*)::float * 100 / (select count(*) from sentences_input) AS percentage FROM (
   select distinct si.doc_id, si.section_id, si.sent_id, COALESCE(a.num_gene_candidates, 0) num_gene, COALESCE(b.num_pheno_candidates, 0) num_pheno
@@ -142,17 +172,17 @@ select count(*), count(*)::float * 100 / (select count(*) from sentences_input) 
 ) c
 where (num_gene >= 2 and num_pheno >= 2);"""
 
-echo -n "How many gene mention+pheno mention pairs occur in total single sentences (no random negatives)? "
+echo -n "How many gene mention+phenodisease mention pairs occur in total single sentences (no random negatives)? "
 deepdive sql """ COPY(
 select count(*) from (select gm.gene_name, pm.entity from genepheno_pairs p join gene_mentions gm on (p.gene_mention_id = gm.mention_id) join pheno_mentions pm on (p.pheno_mention_id = pm.mention_id) where gm.gene_name is not null and pm.entity is not null) a) TO STDOUT
-"""
+""" | xargs printf "%'.f\n"
 
 echo -n "How many distinct gene object+pheno pairs occur in total single sentences (no random negatives)? "
 deepdive sql """ COPY(
 select count(*) from (select distinct canonical_name, pheno_entity from genepheno_pairs p join gene_mentions gm on (p.gene_mention_id = gm.mention_id) join pheno_mentions pm on (p.pheno_mention_id = pm.mention_id) join genes g on (gm.gene_name = g.gene_name) where gm.gene_name is not null and pm.entity is not null) a) TO STDOUT
 """ | xargs printf "%'.f\n"
 
-echo -n "How many gene mention+pheno pairs do we subject to inference? (I.e. after all filtering by dependency path distance; after filtering out genes+phenos we CURRENTLY don't like ...) "
+echo -n "How many gene mention+phenodisease pairs do we subject to inference? (I.e. after all filtering by dependency path distance; after filtering out genes+phenos we CURRENTLY don't like ...) "
 deepdive sql """ COPY(
 select count(*) from genepheno_causation) TO STDOUT
 """ | xargs printf "%'.f\n"
@@ -162,7 +192,7 @@ deepdive sql """ COPY(
 select supertype, count(supertype) from gene_mentions group by supertype order by count desc) TO STDOUT
 """ | column -t
 
-echo -n "How does the broad pheno distant supervision picture look? "
+echo -n "How does the broad phenodisease distant supervision picture look? "
 echo "TODO, this is currently a mess"
 
 echo "How does the broad genepheno causation supervision picture look? "
@@ -171,7 +201,7 @@ select supertype, count(supertype) from genepheno_causation group by supertype o
 """ | column -t
 echo
 
-if [[ "$redo_weights" -eq "y" ]]
+if [[ "$redo_weights" = "y" ]]
 then
   deepdive redo weights > /dev/stderr
   deepdive sql """drop table if exists weights;""" > /dev/stderr
@@ -219,7 +249,7 @@ echo
 
 cd util
 echo "Genepheno holdout set stats for causation: "
-./gp_holdout_stats_caus.sh
+./gp_stats.sh
 echo
 
 echo "What does the expectation-distribution for gene look like? "
@@ -270,25 +300,40 @@ echo
 
 gp_cutoff=`cat ${GDD_HOME}/results_log/gp_cutoff`
 
-echo -n "How many distinct gene object-pheno causation pairs do we infer with expectation > ${gp_cutoff}? (non-canonicalized pheno) "
+echo -n "How many distinct gene object-pheno (HP only!) causation pairs do we infer with expectation > ${gp_cutoff}? (non-canonicalized pheno) "
 deepdive sql """
 COPY (
 select count(*) from
-(select distinct g.canonical_name, c.pheno_entity from genepheno_causation_inference_label_inference i join genepheno_causation c on (i.relation_id = c.relation_id) join genes g on (c.gene_name = g.gene_name) where i.expectation > ${gp_cutoff} )a
+(select distinct * from genepheno_causation_pheno) a
 ) TO STDOUT
 """ | xargs printf "%'.f\n"
 
-echo -n "How many distinct gene object-pheno causation pairs do we infer with expectation > ${gp_cutoff}? (canonicalized pheno) "
+echo -n "How many distinct gene object-pheno (HP only!) causation pairs do we infer with expectation > ${gp_cutoff}? (canonicalized pheno) "
 deepdive sql """
 COPY (
-select count(*) from (select distinct * from genepheno_causation_canon) a
+select count(*) from (select distinct * from genepheno_causation_canon gc) a
 ) TO STDOUT
 """ | xargs printf "%'.f\n"
 
-echo -n "How many distinct gene object-pheno pairs does Charite contain (canonicalized phenotypes) with 'allowed' pheno (phenotypic abnormality, non-cancer)? "
+echo -n "How many distinct gene object-pheno (HP only!) pairs does Charite contain (canonicalized phenotypes) with 'allowed' pheno (phenotypic abnormality, non-cancer)? "
 deepdive sql """
 COPY (
 select count(*) from (select distinct c.hpo_id, ensembl_id from charite_canon c join allowed_phenos a on c.hpo_id = a.hpo_id) a
+) TO STDOUT
+""" | xargs printf "%'.f\n"
+
+echo -n "How many distinct gene object-disease (OMIM only!) causation pairs do we infer with expectation > ${gp_cutoff}? "
+deepdive sql """
+COPY (
+select count(*) from
+(select distinct * from genepheno_causation_disease) a
+) TO STDOUT
+""" | xargs printf "%'.f\n"
+
+echo -n "How many distinct gene object-disease (OMIM only!) pairs does Charite contain (canonicalized diseases) with 'allowed' diseases (non-cancer)? "
+deepdive sql """
+COPY (
+select count(*) from (select distinct c.hpo_id, ensembl_id from charite_disease c join diseases a on c.omim_id = a.omim_id) a
 ) TO STDOUT
 """ | xargs printf "%'.f\n"
 
@@ -300,7 +345,7 @@ select count(*) from
 ) TO STDOUT
 """ | xargs printf "%'.f\n"
 
-echo -n "How many distinct phenos do we have in genepheno pairs with expectation > ${gp_cutoff}? (canonicalized pheno)? "
+echo -n "How many distinct phenos (HP only!) do we have in genepheno pairs with expectation > ${gp_cutoff}? (canonicalized pheno)? "
 deepdive sql """
 COPY (
 select count(*) from
@@ -308,11 +353,27 @@ select count(*) from
 ) TO STDOUT
 """ | xargs printf "%'.f\n"
 
-echo -n "How many distinct gene object-pheno (canonicalized) pairs do we have inferred that are not in canonicalized Charite? "
+echo -n "How many distinct gene object-pheno (HP only!) (canonicalized) pairs do we have inferred that are not in canonicalized Charite? "
 deepdive sql """
 COPY (
 select count(*) from
 (select distinct g.ensembl_id, g.hpo_id from genepheno_causation_canon g left join charite_canon cc on (g.ensembl_id = cc.ensembl_id and g.hpo_id = cc.hpo_id) where cc.hpo_id is null) a
+) TO STDOUT
+""" | xargs printf "%'.f\n"
+
+echo -n "How many distinct diseases (OMIM only!) do we have in genepheno pairs with expectation > ${gp_cutoff}?? "
+deepdive sql """
+COPY (
+select count(*) from
+(select distinct omim_id from genepheno_causation_disease) a
+) TO STDOUT
+""" | xargs printf "%'.f\n"
+
+echo -n "How many distinct gene object-disease (OMIM only!) pairs do we have inferred that are not in canonicalized Charite? "
+deepdive sql """
+COPY (
+select count(*) from
+(select distinct g.ensembl_id, g.omim_id from genepheno_causation_disease g left join charite_disease_canon cc on (g.ensembl_id = cc.ensembl_id and g.omim_id = cc.omim_id) where cc.omim_id is null) a
 ) TO STDOUT
 """ | xargs printf "%'.f\n"
 
@@ -412,10 +473,18 @@ ORDER BY gp_caus_infs_per_doc DESC
 LIMIT 10
 """
 
-echo "What are the top allowed phenos in Charite that we didn't pick up?"
+echo "What are the top allowed phenos (HP only!) in Charite that we didn't pick up?"
 deepdive sql """
 COPY (
 select a.hpo_id, count(a.hpo_id), a.names from charite c join allowed_phenos a on (c.hpo_id = a.hpo_id) left join pheno_mentions p on (p.entity = c.hpo_id) where p.entity is null group by a.hpo_id, a.names order by count desc limit 10
+) TO STDOUT
+"""
+echo
+
+echo "What are the top allowed diseases (OMIM only!) in Charite that we didn't pick up?"
+deepdive sql """
+COPY (
+select a.omim_id, count(a.omim_id), a.names from charite_disease c join diseases a on (c.omim_id = a.omim_id) left join pheno_mentions p on (p.entity = c.omim_id) where p.entity is null group by a.omim_id, a.names order by count desc limit 10
 ) TO STDOUT
 """
 echo
@@ -455,7 +524,7 @@ order by random() limit 10
 """
 echo
 
-echo "Printing 10 random sentences with genepheno pairs that are inferred true and are not in Charite:"
+echo "Printing 10 random sentences with genepheno pairs (HP only!) that are inferred true and are not in Charite:"
 deepdive sql """
 COPY (
 select
@@ -488,7 +557,8 @@ FROM (
     left join charite_canon cc
       on (g.ensembl_id = cc.ensembl_id and gc.pheno_entity = cc.hpo_id)
   where
-    expectation > ${gp_cutoff}
+    gc.pheno_entity like 'HP:%'
+    and expectation > ${gp_cutoff}
     and cc.hpo_id is null
   ) a
 group by doc_id, section_id, sent_id, sentence
@@ -497,7 +567,7 @@ order by random() limit 10
 """
 echo
 
-echo "Printing 10 random sentences with gene-disease pairs that are inferred true and not in Charite:"
+echo "Printing 10 random sentences with gene-disease (OMIM only!) pairs that are inferred true and not in Charite:"
 deepdive sql """
 COPY (
 SELECT 
@@ -527,25 +597,23 @@ FROM (
       on (gc.relation_id = i.relation_id) 
     join genes g 
       on (g.gene_name = gc.gene_name) 
-    join pheno_names pn 
+    join pheno_names pn
       on (pn.id = gc.pheno_entity) 
     left join charite_disease_canon d 
       on (g.ensembl_id = d.ensembl_id and gc.pheno_entity = d.omim_id) 
   where 
     d.ensembl_id is null 
     and expectation > ${gp_cutoff} 
-    and gc.pheno_entity like 'OMIM:%' 
-    and pn.names not like '%CANCER%' 
-    and pn.names not like '%CARCINOMA%') a 
+    and gc.pheno_entity like 'OMIM:%') a 
 group by 
   doc_id, section_id, sent_id, sentence 
 order by random()
-limit 100
+limit 10
 ) TO STDOUT
 """
 
 echo "Genepheno holdout false positives for causation: "
-./gp_holdout_fp_caus_sentences.sh
+./gp_fp_sentences.sh
 echo
 cd ..
 
