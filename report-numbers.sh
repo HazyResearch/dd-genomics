@@ -608,7 +608,7 @@ FROM (
 group by 
   doc_id, section_id, sent_id, sentence 
 order by random()
-limit 100
+limit 10
 ) TO STDOUT
 """
 
