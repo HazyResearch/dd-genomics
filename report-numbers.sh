@@ -268,15 +268,17 @@ ORDER BY binned_exp
 """ | column -t
 echo
 
-echo -n "How many distinct gene object-pheno causation pairs do we infer with expectation > 0.9? (non-canonicalized pheno) "
+gp_cutoff=`cat ${GDD_HOME}/results_log/gp_cutoff`
+
+echo -n "How many distinct gene object-pheno causation pairs do we infer with expectation > ${gp_cutoff}? (non-canonicalized pheno) "
 deepdive sql """
 COPY (
 select count(*) from
-(select distinct g.canonical_name, c.pheno_entity from genepheno_causation_inference_label_inference i join genepheno_causation c on (i.relation_id = c.relation_id) join genes g on (c.gene_name = g.gene_name) where i.expectation > 0.9 )a
+(select distinct g.canonical_name, c.pheno_entity from genepheno_causation_inference_label_inference i join genepheno_causation c on (i.relation_id = c.relation_id) join genes g on (c.gene_name = g.gene_name) where i.expectation > ${gp_cutoff} )a
 ) TO STDOUT
 """ | xargs printf "%'.f\n"
 
-echo -n "How many distinct gene object-pheno causation pairs do we infer with expectation > 0.9? (canonicalized pheno) "
+echo -n "How many distinct gene object-pheno causation pairs do we infer with expectation > ${gp_cutoff}? (canonicalized pheno) "
 deepdive sql """
 COPY (
 select count(*) from (select distinct * from genepheno_causation_canon) a
@@ -290,7 +292,7 @@ select count(*) from (select distinct c.hpo_id, ensembl_id from charite_canon c 
 ) TO STDOUT
 """ | xargs printf "%'.f\n"
 
-echo -n "How many distinct gene objects do we have in genepheno pairs with expectation > 0.9? "
+echo -n "How many distinct gene objects do we have in genepheno pairs with expectation > ${gp_cutoff}? "
 deepdive sql """
 COPY (
 select count(*) from
@@ -298,7 +300,7 @@ select count(*) from
 ) TO STDOUT
 """ | xargs printf "%'.f\n"
 
-echo -n "How many distinct phenos do we have in genepheno pairs with expectation > 0.9? (canonicalized pheno)? "
+echo -n "How many distinct phenos do we have in genepheno pairs with expectation > ${gp_cutoff}? (canonicalized pheno)? "
 deepdive sql """
 COPY (
 select count(*) from
@@ -352,7 +354,7 @@ SELECT
       FROM
         genepheno_causation_is_correct_inference gc
         LEFT OUTER JOIN doc_metadata dm ON (gc.doc_id = dm.doc_id)
-      WHERE expectation > 0.9
+      WHERE expectation > ${gp_cutoff}
       GROUP BY
         source_name
       ORDER BY
@@ -400,7 +402,7 @@ SELECT
       FROM
         genepheno_causation_is_correct_inference gc
         LEFT OUTER JOIN doc_metadata dm ON (gc.doc_id = dm.doc_id)
-      WHERE expectation > 0.9
+      WHERE expectation > ${gp_cutoff}
       GROUP BY
         source_name
       ORDER BY
@@ -445,7 +447,7 @@ FROM (
     join genes g
       on (gc.gene_name = g.gene_name)
   where
-    expectation > 0.9
+    expectation > ${gp_cutoff}
   ) a
 group by doc_id, section_id, sent_id, sentence
 order by random() limit 10
@@ -486,7 +488,7 @@ FROM (
     left join charite_canon cc
       on (g.ensembl_id = cc.ensembl_id and gc.pheno_entity = cc.hpo_id)
   where
-    expectation > 0.9
+    expectation > ${gp_cutoff}
     and cc.hpo_id is null
   ) a
 group by doc_id, section_id, sent_id, sentence
@@ -531,7 +533,7 @@ FROM (
       on (g.ensembl_id = d.ensembl_id and gc.pheno_entity = d.omim_id) 
   where 
     d.ensembl_id is null 
-    and expectation > 0.9 
+    and expectation > ${gp_cutoff} 
     and gc.pheno_entity like 'OMIM:%' 
     and pn.names not like '%CANCER%' 
     and pn.names not like '%CARCINOMA%') a 

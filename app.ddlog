@@ -1510,6 +1510,18 @@ genepheno_causation_inferred (
   ensembl_id text
 ).
 
+gene_hp_causation_inferred (
+  @distributed_by 
+  hpo_id text,
+  ensembl_id text
+).
+
+gene_omim_causation_inferred (
+  @distributed_by 
+  omim_id text,
+  ensembl_id text
+).
+
 function canonicalize_genepheno_relations over rows like genepheno_causation_canon
 returns rows like genepheno_causation_canon
 implementation "onto/canonicalize_gene_phenotype.sh" handles tsv lines.
