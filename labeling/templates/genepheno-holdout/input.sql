@@ -8,7 +8,7 @@ select
   , g.wordidxs as gene_wordidxs
   , p.wordidxs as pheno_wordidxs
   , string_to_array(si.words, '|^|') as words
-  , ap.names as pheno_name
+  , ARRAY_TO_STRING(STRING_TO_ARRAY(lower(ap.names), '|^|'), ', ') as pheno_name
   , g.mention_id
   , p.mention_id
 from
