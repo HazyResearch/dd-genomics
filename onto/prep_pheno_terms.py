@@ -46,7 +46,7 @@ def normalize_phrase(p):
 
 def load_diseases(filename):
   out = []
-  for line in open(filename % GDD_HOME):
+  for line in open(filename):
     row = line.split('\t')
     omim_ps_id = row[0]
     names = row[1].split('|^|')
@@ -92,7 +92,6 @@ if __name__ == "__main__":
 
   #out_disease.extend(load_diseases('%s/onto/manual/phenotypic_series.tsv' % GDD_HOME))
   out_disease.extend(load_diseases('%s/onto/manual/diseases.tsv' % GDD_HOME))
-  print out_disease
 
   with open("%s/onto/manual/pheno_terms.tsv" % (GDD_HOME,), 'w') as f:
     for o in out_pheno:
