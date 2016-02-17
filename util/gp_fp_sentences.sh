@@ -31,7 +31,8 @@ FROM
   genepheno_causation_is_correct_inference gc 
   RIGHT JOIN (select distinct * from
       ((select * from genepheno_causation_labels)
-      union (select * from genepheno_causation_precision_labels)) a) s
+      union (select * from genepheno_causation_precision_labels)
+      union (select * from genepheno_facts_precision_labels)) a) s
     ON (s.relation_id = gc.relation_id)
   JOIN sentences_input si
     ON (si.doc_id = gc.doc_id AND si.section_id = gc.section_id AND si.sent_id = gc.sent_id)
