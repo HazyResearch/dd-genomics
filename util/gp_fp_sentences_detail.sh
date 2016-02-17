@@ -27,6 +27,7 @@ FROM
   RIGHT JOIN (select distinct * from
       ((select * from genepheno_causation_labels)
       union (select * from genepheno_causation_precision_labels)
+      union (select * from genepheno_multi_precision_labels)
       union (select * from genepheno_facts_precision_labels)) a) s
     ON (s.relation_id = gc.relation_id)
 WHERE
@@ -56,6 +57,7 @@ FROM
   RIGHT JOIN (select distinct * from
       ((select * from genepheno_causation_labels)
       union (select * from genepheno_causation_precision_labels)
+      union (select * from genepheno_multi_precision_labels)
       union (select * from genepheno_facts_precision_labels)) a) s
     ON (s.relation_id = gc.relation_id)
   JOIN sentences_input si
