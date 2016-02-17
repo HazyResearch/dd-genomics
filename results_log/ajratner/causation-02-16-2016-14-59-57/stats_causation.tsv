@@ -1,0 +1,48 @@
+##### SUMMARY #####
+True positives:	8
+True negatives:	677
+False positives:	2
+False negatives:	50
+
+
+Precision:	0.8
+Recall:	0.137931034483
+F1 score:	0.235294117647
+
+
+##### JOHANNES #####
+True positives:	1
+True negatives:	136
+False positives:	1
+False negatives:	19
+
+
+Precision:	0.5
+Recall:	0.05
+F1 score:	0.0909090909091
+
+
+##### yahres #####
+True positives:	0
+True negatives:	203
+False positives:	0
+False negatives:	14
+
+
+Precision:	N/A (not enough examples)
+Recall:	0.0
+F1 score:	N/A (not enough examples)
+
+
+##### CHLOE #####
+True positives:	7
+True negatives:	338
+False positives:	1
+False negatives:	17
+
+
+Precision:	0.875
+Recall:	0.291666666667
+F1 score:	0.4375
+
+
