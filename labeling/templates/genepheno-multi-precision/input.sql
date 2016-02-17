@@ -1,5 +1,5 @@
 copy (
-select 
+select DISTINCT
   hs.doc_id
   , hs.section_id
   , hs.sent_id
@@ -37,7 +37,6 @@ from
     WHERE
       ng.num_gene_candidates >= 3
       AND np.num_pheno_candidates >= 3
-
   ) hs
   join gene_mentions g
     on hs.gene_mention_id = g.mention_id
