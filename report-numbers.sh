@@ -44,6 +44,7 @@ select count(distinct gene_name) from genes where name_type = 'CANONICAL_SYMBOL'
 deepdive sql """ COPY(
 select name_type, count(name_type), count(name_type)::float * 100 / (select count(*) from genes) as percentage from genes group by name_type) TO STDOUT
 """ | column -t
+echo "Minor discrepancies between 'number of objects' and the breakdown occur because in a few edge cases, the same canonical symbol refers to multiple gene objects. I don't really care."
 
 echo -n "How many gene mention candidates are there in total? "
 deepdive sql """ COPY(
