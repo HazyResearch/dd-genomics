@@ -48,7 +48,8 @@ NON_GENE_ACRONYMS = {
                        ( 'CNF' ) : ['Finnish type'],  \
                        ( 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'L1', \
                          'L2', 'L3', 'L4', 'L5', 'S1', 'S2', 'S3', 'S4', 'S5' ) : \
-                         ['vertebrae', 'spine', 'fusion', 'spina'] }
+                         ['vertebrae', 'spine', 'fusion', 'spina'],
+                       ( 'LCA10' ) : ['congenital amaurosis'], ( 'AR-JP' ) : [ 'parkinsonism' ]}
   }
 }
 
@@ -102,7 +103,7 @@ GENE = {
     # Label some P mentions based on the toks / phrases that follow
     'bad-genes': ['ANOVA', 'MRI', 'CO2', 'gamma', 'spatial', 'tau', 'Men', \
                   'ghrelin', 'MIM', 'NHS', 'STD', 'hole', 'SDS', 'p12', 'p13', 'p53',
-                  'FTDP-17'],
+                  'FTDP-17', 'Elo'],
 
     'manual-bad' : { ( 'FRAXA' ) : ['fragile X'], \
                        ('IL1', 'IL2', 'IL3', 'IL4', 'IL5', 'EL1', 'EL2', 'EL3', 'EL4', 'EL5' ) :  \
@@ -111,7 +112,8 @@ GENE = {
                        ( 'CNF' ) : ['Finnish type'],  \
                        ( 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'L1', \
                          'L2', 'L3', 'L4', 'L5', 'S1', 'S2', 'S3', 'S4', 'S5' ) : \
-                         ['vertebrae', 'spine', 'fusion', 'spina'] },
+                         ['vertebrae', 'spine', 'fusion', 'spina'], ( 'LCA10' ) : ['congenital amaurosis'],
+                         ( 'GAN' ) : [ 'primer' ], ( 'AR-JP' ) : [ 'parkinsonism' ]},
 
     'post-neighbor-match' : {
       # 'pos' : ['_ mutation', 'mutation', '_ mutations', 'mutations', 'mutant', \
@@ -140,7 +142,7 @@ GENE = {
 
     'phrases-in-sent': {
       'pos' : [],
-      'neg' : ['serum', 'level', 'elevated', 'plasma'],
+      'neg' : ['serum', 'level', 'elevated', 'plasma', 'accumulate', 'accumulation', 'deposition'],
       'pos-rgx': [],
       'neg-rgx': []
     },
@@ -356,7 +358,9 @@ GENE_PHENO = {
                'unravel',
                'how',
                'fish',
-               'sheep'
+               'sheep',
+               'cattle',
+               'dachshund',
                ],
       'pos-rgx' : [],
       # 'pos-rgx' : [],
@@ -382,7 +386,8 @@ GENE_PHENO = {
                    'unlikely.*GENE.*PHENO',
                    'PHENO.*not due to.*GENE',
                    'GENE.*linked to.*PHENO',
-                   'attracted.*interest'
+                   'attracted.*interest',
+                   'target'
                     ]
     },
 
