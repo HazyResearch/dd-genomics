@@ -3,7 +3,7 @@
 if [ $# -lt 1 ]; then
         echo "$0: ERROR: wrong number of arguments" >&2
         echo "$0: Please select a relation to export gene, pheno or genepheno" >&2
-        echo "$0: USAGE: $0 {gene,pheno,genepheno,genepheno_causation_precision} OPTIONAL_NAME" >&2
+        echo "$0: USAGE: $0 {gene,pheno,genepheno,genepheno_causation_precision,genepheno_facts_precision,genepheno_multi_precision} OPTIONAL_NAME" >&2
         exit 1
 fi
 
