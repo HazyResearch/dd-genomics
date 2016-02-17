@@ -12,7 +12,7 @@ select
   , g.mention_id
   , p.mention_id
 from
-  (SELECT DISTINCT ON (g.canonical_name, gp.pheno_entity)
+  (SELECT
       gp.doc_id,
       gp.section_id,
       gp.sent_id,
@@ -31,7 +31,7 @@ from
         on (gp.doc_id = np.doc_id and gp.section_id = np.section_id and gp.sent_id = np.sent_id)
     WHERE
       ng.num_gene_candidates >= 2
-      OR np.num_pheno_candidates >= 2
+      AND np.num_pheno_candidates >= 2
 
   ) hs
   join gene_mentions g
