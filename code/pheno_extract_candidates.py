@@ -154,8 +154,8 @@ def extract_candidate_mentions(row, terms, term_sets):
   for n in reversed(range(1, min(len(row.words), HF['max-len'])+1)):
     for i in range(len(row.words)-n+1):
       wordidxs = range(i,i+n)
-      words = [w.lower() for w in row.words[i:i+n]]
-      lemmas = [w.lower() for w in row.lemmas[i:i+n]]
+      words = [re.sub(r'\W+', ' ', w.lower()) for w in row.words[i:i+n]]
+      lemmas = [re.sub(r'\W+', ' ', w.lower()) for w in row.lemmas[i:i+n]]
 
       # skip this window if it intersects with the split set
       if not split_indices.isdisjoint(wordidxs):

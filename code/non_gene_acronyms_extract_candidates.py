@@ -58,19 +58,21 @@ def detect_manual(words, gene_idx):
   gene_name = words[gene_idx]
   manual_pairs = SR['manual-pairs']
   rv = []
-  if gene_name in manual_pairs:
-    for definition in manual_pairs[gene_name]:
-      def_lst = [d.lower() for d in definition.split(' ')]
-      contains, def_boundaries = contains_sublist([w.lower() for w in words], def_lst)
-      if contains:
-        # print >>sys.stderr, (contains, def_boundaries, def_lst)
-        def_start, def_stop = def_boundaries
-        definition = words[def_start:def_stop]
-        abbrev = gene_name
-        abbrev_start = gene_idx
-        abbrev_stop = gene_idx + 1
-        rv.append(((abbrev_start, abbrev_stop, abbrev), (def_start, def_stop, definition)))
-  return rv
+  for names in manual_pairs:
+    definitions = manual_pairs[names]
+    if gene_name in names:
+      for definition in definitions:
+        def_lst = [d.lower() for d in definition.split(' ')]
+        contains, def_boundaries = contains_sublist([w.lower() for w in words], def_lst)
+        if contains:
+          # print >>sys.stderr, (contains, def_boundaries, def_lst)
+          def_start, def_stop = def_boundaries
+          definition = words[def_start:def_stop]
+          abbrev = gene_name
+          abbrev_start = gene_idx
+          abbrev_stop = gene_idx + 1
+          rv.append(((abbrev_start, abbrev_stop, abbrev), (def_start, def_stop, definition)))
+    return rv
 
 def extract_candidate_mentions(row, pos_count, neg_count):
   mentions = []
