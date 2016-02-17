@@ -96,9 +96,21 @@ elif [ $1 = 'genepheno_causation_precision' ]; then
                 cat tmp.tsv >> "labels/genepheno_causation_precision_$NAME"
                 rm tmp.tsv
         done
+elif [ $1 = 'genepheno_facts_precision' ]; then
+        for DIR in *-genepheno-facts-precision.$NAME; do
+                ./extract_genepheno_causation_labels_from_json.py $DIR/tags.json $NAME > tmp.tsv
+                psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE IF EXISTS tmp'
+                psql -U $DDUSER -p 6432 -d genomics_labels -c 'CREATE TABLE tmp(relation_id text, is_correct boolean, labeler text, version int)'
+                cat tmp.tsv | psql -U $DDUSER -p 6432 -d genomics_labels -c 'COPY tmp FROM STDIN;'
+                psql -U $DDUSER -p 6432 -d genomics_labels -c 'INSERT INTO tmp SELECT DISTINCT * FROM genepheno_facts_precision_labels gl WHERE (gl.relation_id, gl.labeler) NOT IN (SELECT relation_id, labeler FROM tmp)'
+                psql -U $DDUSER -p 6432 -d genomics_labels -c 'DROP TABLE genepheno_facts_precision_labels'
+                psql -U $DDUSER -p 6432 -d genomics_labels -c 'ALTER TABLE tmp RENAME TO genepheno_facts_precision_labels'
+                cat tmp.tsv >> "labels/genepheno_facts_precision_$NAME"
+                rm tmp.tsv
+        done
 else
         echo "Argument not valid"
-        echo "$0: USAGE: $0 {gene,pheno,genepheno,genepheno_causation_precision,gene_precision} OPTIONAL_NAME" >&2
+        echo "$0: USAGE: $0 {gene,pheno,genepheno,genepheno_causation_precision,gene_precision,genepheno_facts_precision} OPTIONAL_NAME" >&2
         exit 1
 fi
 
