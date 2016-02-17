@@ -86,6 +86,28 @@ def extract_candidate_mentions(row):
           mentions.append(m)
   return mentions
 
+def contains_sublist(lst, sublst):
+  if len(lst) < len(sublst):
+    return False, None
+  n = len(sublst)
+  for i in xrange(len(lst) - n + 1):
+    if sublst == lst[i:i+n]:
+      return True, (i,i+n)
+  return False, None
+
+def detect_manual(gene_name, words):
+  manual_pairs = SR['manual-bad']
+  for names in manual_pairs:
+    definitions = manual_pairs[names]
+    if gene_name in names:
+      for definition in definitions:
+        def_lst = [d.lower() for d in definition.split(' ')]
+        contains, def_boundaries = contains_sublist([w.lower() for w in words], def_lst)
+        if contains:
+          def_start, def_stop = def_boundaries
+          definition = words[def_start:def_stop]
+          return ' '.join(definition)
+  return None
 
 ### DISTANT SUPERVISION ###
 VALS = config.GENE['vals']
@@ -110,6 +132,11 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
   if SR.get('bad-genes'):
     if gene_name in SR['bad-genes']:
       return m._replace(is_correct=False, mention_supertype='BAD_GENE')
+
+  if SR.get('manual-bad'):
+    detected = detect_manual(gene_name, row.words)
+    if detected is not None:
+      return m._replace(is_correct=False, mention_supertype='MANUAL_BAD', mention_subtype=detected)
 
   if SR.get('pre-neighbor-match') and i > 0:
     opts = SR['pre-neighbor-match']

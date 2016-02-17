@@ -41,11 +41,14 @@ NON_GENE_ACRONYMS = {
                     'an', 'data', 'for', 'not', 'our', 'ie', 'to', \
                     'eg', 'one', 'age', 'on', 'center', 'right', 'left', \
                     'from', 'based', 'total', 'via', 'but', 'resp', 'no' },
-    'manual-pairs' : { 'FRAXA' : ['fragile X'], 'IL2' : ['intracellular loop'],
-                      'IL3' : ['intracellular loop'], 'IL1' : ['intracellular loop'],
-                      'IL4' : ['extracellular loop'], 'EL2' : ['extracellular loop'],
-                      'EL3' : ['extracellular loop'], 'EL1' : ['extracellular loop'],
-                      'EL4' : ['extracellular loop']}
+    'manual-pairs' : { ( 'FRAXA' ) : ['fragile X'], \
+                       ('IL1', 'IL2', 'IL3', 'IL4', 'IL5', 'EL1', 'EL2', 'EL3', 'EL4', 'EL5' ) :  \
+                         [ 'intracellular loop', 'extracellular loop'], \
+                       ( 'GAA' ) : ['repeat', 'triplet'],  \
+                       ( 'CNF' ) : ['Finnish type'],  \
+                       ( 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'L1', \
+                         'L2', 'L3', 'L4', 'L5', 'S1', 'S2', 'S3', 'S4', 'S5' ) : \
+                         ['vertebrae', 'spine', 'fusion', 'spina'] }
   }
 }
 
@@ -98,7 +101,17 @@ GENE = {
   'SR' : {
     # Label some P mentions based on the toks / phrases that follow
     'bad-genes': ['ANOVA', 'MRI', 'CO2', 'gamma', 'spatial', 'tau', 'Men', \
-                  'ghrelin', 'MIM', 'NHS', 'STD', 'hole', 'SDS', 'p12', 'p13', 'p53'],
+                  'ghrelin', 'MIM', 'NHS', 'STD', 'hole', 'SDS', 'p12', 'p13', 'p53',
+                  'FTDP-17'],
+
+    'manual-bad' : { ( 'FRAXA' ) : ['fragile X'], \
+                       ('IL1', 'IL2', 'IL3', 'IL4', 'IL5', 'EL1', 'EL2', 'EL3', 'EL4', 'EL5' ) :  \
+                         [ 'intracellular loop', 'extracellular loop'], \
+                       ( 'GAA' ) : ['repeat', 'triplet'],  \
+                       ( 'CNF' ) : ['Finnish type'],  \
+                       ( 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'L1', \
+                         'L2', 'L3', 'L4', 'L5', 'S1', 'S2', 'S3', 'S4', 'S5' ) : \
+                         ['vertebrae', 'spine', 'fusion', 'spina'] },
 
     'post-neighbor-match' : {
       # 'pos' : ['_ mutation', 'mutation', '_ mutations', 'mutations', 'mutant', \

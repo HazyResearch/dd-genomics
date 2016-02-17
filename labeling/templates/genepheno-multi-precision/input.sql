@@ -25,13 +25,18 @@ from
       genepheno_pairs gp
       join genes g
         on (gp.gene_name = g.gene_name)
-      join num_gene_candidates ng
+      join (select g.doc_id, g.section_id, g.sent_id, count(g.mention_id) num_gene_candidates
+            from gene_mentions_filtered g
+              join gene_mentions_filtered_inference_label_inference i
+                on (g.mention_id = i.mention_id)
+            WHERE i.expectation > 0.5
+            group by g.doc_id, g.section_id, g.sent_id) ng
         on (gp.doc_id = ng.doc_id and gp.section_id = ng.section_id and gp.sent_id = ng.sent_id)
       join num_pheno_candidates np
         on (gp.doc_id = np.doc_id and gp.section_id = np.section_id and gp.sent_id = np.sent_id)
     WHERE
-      ng.num_gene_candidates >= 2
-      AND np.num_pheno_candidates >= 2
+      ng.num_gene_candidates >= 3
+      AND np.num_pheno_candidates >= 3
 
   ) hs
   join gene_mentions g
