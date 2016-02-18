@@ -1568,24 +1568,6 @@ gene_mentions_filtered_inference(mention_id1) = gene_mentions_filtered_inference
    gene_mentions_filtered(_, doc_id, section_id, _, _, gene_mention_id, _, _, _, _, _, _).
  
 
-genepheno_causation_first (
-  id bigint,
-  relation_id text,
-  @distributed_by
-  doc_id text,
-  section_id text,
-  sent_id int,
-  gene_mention_id text,
-  gene_name text,
-  gene_wordidx int,
-  pheno_mention_id text,
-  pheno_entity text,
-  pheno_wordidx int,
-  is_correct boolean,
-  supertype text,
-  subtype text
-).
-
 #@weight("2.0")
 #genepheno_causation_inference(relation_id_outer_1), genepheno_causation_inference(relation_id_outer_2) => !genepheno_causation_inference(relation_id_inner) :-
 #  genepheno_causation(_, relation_id_outer_1, doc_id, section_id, sent_id, gene_mention_id_outer_1, _, gene_wordidx_outer_1, pheno_mention_id_outer_1, _, pheno_wordidx_outer_1[1], _, _, _),
@@ -1595,38 +1577,67 @@ genepheno_causation_first (
 #  [pheno_wordidx_outer_1[1] < gene_wordidx_outer_2[1]],
 #  [gene_wordidx_outer_2[1] < pheno_wordidx_outer_2[1]].
 
-genepheno_factor(
-  relation_id_outer_1 text,
+genepheno_factor_inner(
+  relation_id_left text,
   @distributed_by
   relation_id_inner text, 
-  relation_id_outer_2 text, 
+  relation_id_right text, 
   words text,
-  gene_wordidx_outer_1 int, 
-  gene_name_outer_1 text, 
-  pheno_wordidx_outer_1 int, 
-  gene_wordidx_outer_2 int, 
-  gene_name_outer_2 text, 
-  pheno_wordidx_outer_2 int).
+  gene_wordidxs_left int[], 
+  gene_name_left text, 
+  pheno_wordidxs_left int[], 
+  gene_wordidxs_right int[], 
+  gene_name_right text, 
+  pheno_wordidxs_right int[]).
 
-genepheno_factor(relation_id_outer_1, relation_id_inner, relation_id_outer_2, ARRAY_TO_STRING(STRING_TO_ARRAY(words, "|^|"), " "), gene_wordidx_outer_1, gene_name_outer_1, pheno_wordidx_outer_1, gene_wordidx_outer_2, gene_name_outer_2, pheno_wordidx_outer_2) :-
+genepheno_factor_outer(
+  relation_id_left text,
+  @distributed_by
+  relation_id_outer text, 
+  relation_id_right text, 
+  words text,
+  gene_wordidxs_left int[], 
+  gene_name_left text, 
+  pheno_wordidxs_left int[], 
+  gene_wordidxs_right int[], 
+  gene_name_right text, 
+  pheno_wordidxs_right int[]).
+
+genepheno_factor_inner(relation_id_left, relation_id_inner, relation_id_right, ARRAY_TO_STRING(STRING_TO_ARRAY(words, "|^|"), " "), gene_wordidxs_left, gene_name_left, pheno_wordidxs_left, gene_wordidxs_right, gene_name_right, pheno_wordidxs_right) :-
   sentences_input(doc_id, section_id, sent_id, words, _, _, _, _, _),
-  genepheno_causation_first(_, relation_id_outer_1, doc_id, section_id, sent_id, gene_mention_id_outer_1, gene_name_outer_1, gene_wordidx_outer_1, pheno_mention_id_outer_1, _, pheno_wordidx_outer_1, _, _, _),
-  genepheno_causation_first(_, relation_id_outer_2, doc_id, section_id, sent_id, gene_mention_id_outer_2, gene_name_outer_2, gene_wordidx_outer_2, pheno_mention_id_outer_2, _, pheno_wordidx_outer_2, _, _, _),
-  genepheno_causation_first(_, relation_id_inner, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, _, pheno_mention_id_outer_1, _, _, _, _, _),
-  [gene_wordidx_outer_1 < pheno_wordidx_outer_1],
-  [pheno_wordidx_outer_1 < gene_wordidx_outer_2],
-  [gene_wordidx_outer_2 < pheno_wordidx_outer_2].
+  genepheno_causation(_, relation_id_left, doc_id, section_id, sent_id, gene_mention_id_left, gene_name_left, gene_wordidxs_left, pheno_mention_id_left, _, pheno_wordidxs_left, _, _, _),
+  genepheno_causation(_, relation_id_right, doc_id, section_id, sent_id, gene_mention_id_right, gene_name_right, gene_wordidxs_right, pheno_mention_id_right, _, pheno_wordidxs_right, _, _, _),
+  genepheno_causation(_, relation_id_inner, doc_id, section_id, sent_id, gene_mention_id_right, _, _, pheno_mention_id_left, _, _, _, _, _),
+  [gene_wordidxs_left[1] < pheno_wordidxs_left[1]],
+  [pheno_wordidxs_left[1] < gene_wordidxs_right[1]],
+  [gene_wordidxs_right[1] < pheno_wordidxs_right[1]].
    
+genepheno_factor_outer(relation_id_left, relation_id_outer, relation_id_right, ARRAY_TO_STRING(STRING_TO_ARRAY(words, "|^|"), " "), gene_wordidxs_left, gene_name_left, pheno_wordidxs_left, gene_wordidxs_right, gene_name_right, pheno_wordidxs_right) :-
+  sentences_input(doc_id, section_id, sent_id, words, _, _, _, _, _),
+  genepheno_causation(_, relation_id_left, doc_id, section_id, sent_id, gene_mention_id_left, gene_name_left, gene_wordidxs_left, pheno_mention_id_left, _, pheno_wordidxs_left, _, _, _),
+  genepheno_causation(_, relation_id_right, doc_id, section_id, sent_id, gene_mention_id_right, gene_name_right, gene_wordidxs_right, pheno_mention_id_right, _, pheno_wordidxs_right, _, _, _),
+  genepheno_causation(_, relation_id_outer, doc_id, section_id, sent_id, gene_mention_id_left, _, _, pheno_mention_id_right, _, _, _, _, _),
+  [gene_wordidxs_left[1] < pheno_wordidxs_left[1]],
+  [pheno_wordidxs_left[1] < gene_wordidxs_right[1]],
+  [gene_wordidxs_right[1] < pheno_wordidxs_right[1]].
    
-@weight("?")
-genepheno_causation_inference(relation_id_outer_1), genepheno_causation_inference(relation_id_outer_2) => !genepheno_causation_inference(relation_id_inner) :-
-  genepheno_causation_first(_, relation_id_outer_1, doc_id, section_id, sent_id, gene_mention_id_outer_1, _, gene_wordidx_outer_1, pheno_mention_id_outer_1, _, pheno_wordidx_outer_1, _, _, _),
-  genepheno_causation_first(_, relation_id_outer_2, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, gene_wordidx_outer_2, pheno_mention_id_outer_2, _, pheno_wordidx_outer_2, _, _, _),
-  genepheno_causation_first(_, relation_id_inner, doc_id, section_id, sent_id, gene_mention_id_outer_2, _, _, pheno_mention_id_outer_1, _, _, _, _, _),
-  [gene_wordidx_outer_1 < pheno_wordidx_outer_1],
-  [pheno_wordidx_outer_1 < gene_wordidx_outer_2],
-  [gene_wordidx_outer_2 < pheno_wordidx_outer_2].
-  
+# @weight(100.0)
+# !genepheno_causation_inference(relation_id_left) v !genepheno_causation_inference(relation_id_right) v !genepheno_causation_inference(relation_id_inner) :-
+#   genepheno_causation(_, relation_id_left, doc_id, section_id, sent_id, gene_mention_id_left, _, gene_wordidxs_left, pheno_mention_id_left, _, pheno_wordidxs_left, _, _, _),
+#   genepheno_causation(_, relation_id_right, doc_id, section_id, sent_id, gene_mention_id_right, _, gene_wordidxs_right, pheno_mention_id_right, _, pheno_wordidxs_right, _, _, _),
+#   genepheno_causation(_, relation_id_inner, doc_id, section_id, sent_id, gene_mention_id_right, _, _, pheno_mention_id_left, _, _, _, _, _),
+#   [gene_wordidxs_left[1] < pheno_wordidxs_left[1]],
+#   [pheno_wordidxs_left[1] < gene_wordidxs_right[1]],
+#   [gene_wordidxs_right[1] < pheno_wordidxs_right[1]].
+
+@weight(100.0)
+!genepheno_causation_inference(relation_id_left) v !genepheno_causation_inference(relation_id_right) v !genepheno_causation_inference(relation_id_outer) :-
+  genepheno_causation(_, relation_id_left, doc_id, section_id, sent_id, gene_mention_id_left, _, gene_wordidxs_left, pheno_mention_id_left, _, pheno_wordidxs_left, _, _, _),
+  genepheno_causation(_, relation_id_right, doc_id, section_id, sent_id, gene_mention_id_right, _, gene_wordidxs_right, pheno_mention_id_right, _, pheno_wordidxs_right, _, _, _),
+  genepheno_causation(_, relation_id_outer, doc_id, section_id, sent_id, gene_mention_id_left, _, _, pheno_mention_id_right, _, _, _, _, _),
+  [gene_wordidxs_left[1] < pheno_wordidxs_left[1]],
+  [pheno_wordidxs_left[1] < gene_wordidxs_right[1]],
+  [gene_wordidxs_right[1] < pheno_wordidxs_right[1]].
 
 #genepheno_causation_to_pheno
 #@weight("?")
