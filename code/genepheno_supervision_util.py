@@ -83,6 +83,10 @@ def config_supervise(r, row, pheno_entity, gene_name, gene, pheno,
               lemma_phrase, between_phrase_lemmas, dep_dag, \
               dep_path_between, gene_wordidxs, 
               charite_pairs, VALS, SR):
+
+  # **********
+  # RULE 3 (NEG), 11 (POS)
+  # **********
   if SR.get('phrases-in-between'):
     opts = SR['phrases-in-between']
     opts = replace_opts(opts, [('GENE', gene), ('PHENO', pheno)])
@@ -92,6 +96,9 @@ def config_supervise(r, row, pheno_entity, gene_name, gene, pheno,
         if match:
           return r._replace(is_correct=val, relation_supertype='PHRASE_BETWEEN_%s' % name, relation_subtype=non_alnum.sub('_', match))
 
+  # **********
+  # RULE 4 (NEG), 12 (POS)
+  # **********
   if SR.get('phrases-in-sent'):
     opts = SR['phrases-in-sent']
     opts = replace_opts(opts, [('GENE', gene), ('PHENO', pheno)])
@@ -102,7 +109,9 @@ def config_supervise(r, row, pheno_entity, gene_name, gene, pheno,
           # backslashes cause postgres errors in postgres 9
           return r._replace(is_correct=val, relation_supertype='PHRASE_%s' % name, relation_subtype=non_alnum.sub('_', match))
 
-
+  # **********
+  # RULE 5 (NEG), 13 (POS)
+  # **********
   if SR.get('primary-verb-modifiers') and dep_dag:
     opts = SR['primary-verb-modifiers']
     if dep_path_between:
@@ -116,6 +125,9 @@ def config_supervise(r, row, pheno_entity, gene_name, gene, pheno,
             subtype = 'ModWords: ' + ' '.join([str(m) for m in mod_words]) + ', VerbsBetween: ' + ' '.join([str(m) for m in verbs_between]) + ', d: ' + str(d)
             return r._replace(is_correct=val, relation_supertype='PRIMARY_VB_MOD_%s' % name, relation_subtype=non_alnum.sub('_', subtype))
 
+  # **********
+  # RULE 6 (NEG), 14 (POS)
+  # **********
   if SR.get('dep-lemma-connectors') and dep_dag:
     opts = SR['dep-lemma-connectors']
     for name, val in VALS:
@@ -128,6 +140,9 @@ def config_supervise(r, row, pheno_entity, gene_name, gene, pheno,
                             relation_subtype=non_alnum.sub('_', 
                                   ' '.join([str(x) for x in connectors])))
 
+  # **********
+  # RULE 7 (NEG/G), 8 (NEG/P), 15 (POS/G), 16 (POS/P)
+  # **********
   if SR.get('dep-lemma-neighbors') and dep_dag:
     opts = SR['dep-lemma-neighbors']
     for name, val in VALS:
@@ -140,10 +155,16 @@ def config_supervise(r, row, pheno_entity, gene_name, gene, pheno,
                             relation_supertype='DEP_LEMMA_NB_%s_%s' % (name, entity), 
                             relation_subtype=non_alnum.sub('_', subtype))
 
+  # **********
+  # RULE 9
+  # **********
   if SR.get('charite-all-pos'):
     if (pheno_entity, gene_name) in charite_pairs:
       return r._replace(is_correct=True, relation_supertype='CHARITE_SUP')
   
+  # **********
+  # RULE 10
+  # **********
   if SR.get('charite-all-pos-words'):
     opts = SR['charite-all-pos-words']
     match = util.rgx_mult_search(phrase + ' ' + 
@@ -203,6 +224,10 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
   relation_id = '%s_%s' % (gene_mention_id, pheno_mention_id)
   r = Relation(None, relation_id, row.doc_id, row.section_id, row.sent_id, gene_mention_id, gene_name, \
                gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, None, None, None)
+  
+  # **********
+  # RULE 0
+  # **********
   path_len_sets = dep_dag.path_len_sets(gene_wordidxs, pheno_wordidxs)
   if not path_len_sets:
     if SR.get('bad-dep-paths'):
@@ -218,6 +243,9 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
   # global count_g_or_p_false_none
   # global count_adjacent_false_none
 
+  # **********
+  # RULE 1
+  # **********
   if SR.get('g-or-p-false'):
     opts = SR['g-or-p-false']
     # The following line looks like it was written by a prosimian, but it is actually correct.
@@ -231,6 +259,9 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
         # count_g_or_p_false_none += 1
         return None
 
+  # **********
+  # RULE 2
+  # **********
   if SR.get('adjacent-false'):
     if re.search(r'[a-z]{3,}', between_phrase, flags=re.I) is None:
       if random.random() < 0.5 * superv_diff or random.random() < 0.01:
