@@ -1436,6 +1436,7 @@ genepheno_causation_rule_labels(
   relation_id text,
   @key
   rule_id text,
+  rule_verbose text,
   heuristic_priority int,
   heuristic_priority_2 int,
   label int

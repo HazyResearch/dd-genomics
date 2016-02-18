@@ -32,7 +32,7 @@ parser = RowParser([
             ('dep_parents', 'int[]')])
 
 # Output a rule relation
-Label = namedtuple('Label', 'relation_id, rule_id, heuristic_priority, heuristic_priority_2, label')
+Label = namedtuple('Label', 'relation_id, rule_id, rule_verbose, heuristic_priority, heuristic_priority_2, label')
 
 # This is for XMLTree production
 # NOTE the switch from dep_paths -> dep_labels!
@@ -40,20 +40,16 @@ CoreNLPSentence = namedtuple('CoreNLPSentence', 'words, lemmas, poses, dep_label
 
 
 # TODO: Do all this as preprocessing!!
-HPO_DAG = read_hpo_dag()
-
-def read_charite_supervision():
+def read_charite_supervision(hpo_dag):
   """Reads genepheno supervision data (from charite)."""
   supervision_pairs = set()
   with open('%s/onto/data/canon_phenotype_to_gene.map' % APP_HOME) as f:
     for line in f:
       hpo_id, gene_name = line.strip().split('\t')
-      hpo_ids = [hpo_id] + [parent for parent in HPO_DAG.edges[hpo_id]]
+      hpo_ids = [hpo_id] + [parent for parent in hpo_dag.edges[hpo_id]]
       for h in hpo_ids:
         supervision_pairs.add((h, gene_name))
   return supervision_pairs
-
-CHARITE_PAIRS = read_charite_supervision()
 
 
 def tag_seq(words, seq, tag):
@@ -62,6 +58,19 @@ def tag_seq(words, seq, tag):
   words_out += words[seq[-1] + 1:] if seq[-1] < len(words) - 1 else []
   return words_out
 
+def tag_seqs(words, seqs, tags):
+  """
+  Given a list of words, a *list* of lists of indexes, anmd the corresponding tags
+  This function substitutes the tags for the words coresponding to the index lists,
+  taking care of shifting indexes appropriately after multi-word substitutions
+  NOTE: this assumes non-overlapping seqs!
+  """
+  words_out = words
+  dj = 0
+  for i in np.argsort(seqs):
+    words_out = tag_seq(words_out, map(lambda j : j - dj, seqs[i]), tags[i])
+    dj += len(seqs[i]) - 1
+  return words_out
 
 def apply_rules(relation_id, rule_obj, f, boolean_only=True):
   """
@@ -81,6 +90,7 @@ def apply_rules(relation_id, rule_obj, f, boolean_only=True):
       yield Label(
         relation_id=relation_id,
         rule_id='%s:%s' % (rule_id_base, rid),
+        rule_verbose='%s:%s' % (rule_id_base, re.sub(r'\W+', '_', re.escape(p))),
         heuristic_priority=hp,
         heuristic_priority_2=rid,
         label=int(np.sign(w)) if boolean_only else w)
@@ -308,7 +318,7 @@ POS_P_DEP_NB = (
 def generate_labels(r, root):
   """Generate the Label objects produced by each applicable rule"""
   cids = [r.gene_wordidxs, r.pheno_wordidxs]
-  seq = ' '.join(tag_seq(tag_seq(r.words, r.gene_wordidxs, 'G'), r.pheno_wordidxs, 'P'))
+  seq = ' '.join(tag_seqs(r.words, cids, ['G', 'P']))
   generators = []
   
   # RULE over sequence + charite: Label T if (a) in charite pairs and (b) matches regex
@@ -361,4 +371,6 @@ def supervise(r):
       yield label
 
 # Run extractor
-run_main_tsv(row_parser=parser.parse_tsv_row, row_fn=supervise)
+if __name__ == '__main__':
+  CHARITE_PAIRS = read_charite_supervision(read_hpo_dag())
+  run_main_tsv(row_parser=parser.parse_tsv_row, row_fn=supervise)
