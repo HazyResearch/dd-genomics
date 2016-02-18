@@ -13,7 +13,7 @@ from
   sentences_input si
   join (
     select distinct doc_id from 
-      ((select distinct doc_id from sentences_input order by random() LIMIT 50000) 
+      ((select distinct doc_id from sentences_input order by random() LIMIT 5000) 
       union (select distinct doc_id from 
         genepheno_causation_labels l 
         join genepheno_pairs p 
