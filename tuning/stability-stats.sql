@@ -1,13 +1,16 @@
 -- Get the average absolute difference between marginals from this run and preceding one
+COPY (
 SELECT
   avg(abs(i0.expectation - i1.expectation)) AS "Mean Abs. Diff.- Marginals"
 FROM
   genepheno_causation_inference_label_inference_prev i0,
   genepheno_causation_inference_label_inference i1
 WHERE
-  i0.relation_id = i1.relation_id;
+  i0.relation_id = i1.relation_id
+) TO STDOUT DELIMITER E'\t';
 
 -- Get the average relative absolute difference between weights from this run and preceding one
+COPY (
 SELECT
   AVG(
     CASE 
@@ -19,4 +22,5 @@ FROM
   dd_inference_result_variables_mapped_weights_prev w0,
   dd_inference_result_variables_mapped_weights w1
 WHERE
-  w0.description = w1.description;
+  w0.description = w1.description
+) TO STDOUT DELIMITER E'\t';

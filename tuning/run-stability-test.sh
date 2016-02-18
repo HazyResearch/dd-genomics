@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ $# -lt 3 ]; then
-  echo "$0: USAGE: $0 n_learning_epoch n_inference_epoch n_samples_per_learning_epoch" >&2
+if [ $# -lt 4 ]; then
+  echo "$0: USAGE: $0 LEARN_EPOCHS INFER_EPOCHS SAMPLES_PER_LEARN LEARN|INFER" >&2
   exit 1
 fi
 
@@ -16,12 +16,22 @@ deepdive compile
 # Silence deepdive do editor edit mode
 export DEEPDIVE_PLAN_EDIT=false
 
-# RUN #1
+echo "$4 -- Learning epochs=$1, inference epochs=$2, samples-per-learning=$3:"
+
+# RUN #1 - Must do deepdive model learn as infer does nothing
 deepdive model learn
 
-# Store results, RUN #2
+# Store weights and marginals
 deepdive sql < save-tables-for-stability-stats.sql
-deepdive model learn
+
+# RUN #2 - if running "infer", save and reuse weights to skip learning
+if [ "$4" = "infer" ]; then
+  echo "Reusing weights..."
+  deepdive model weights keep
+  deepdive model weights reuse
+fi
+eval "deepdive model $4"
 
 # Get difference stats
-deepdive sql < stability-stats.sql
+echo "# $4 -- Learning epochs=$1, inference epochs=$2, samples-per-learning=$3:" >> stability.tsv
+deepdive sql < stability-stats.sql >> stability.tsv
