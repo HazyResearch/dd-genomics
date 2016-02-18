@@ -27,13 +27,13 @@ parser = util.RowParser([
 
 Feature = namedtuple('Feature', ['doc_id', 'section_id', 'relation_id', 'name'])
 
-CoreNLPSentence = namedtuple('CoreNLPSentence', 'words, lemmas, poses, ners, dep_paths, dep_parents')
+CoreNLPSentence = namedtuple('CoreNLPSentence', 'words, lemmas, poses, ners, dep_labels, dep_parents')
 
 def get_features_for_candidate_treedlib(r):
   """Extract features using treedlib"""
   features = []
   f = Feature(doc_id=r.doc_id, section_id=r.section_id, relation_id=r.relation_id, name=None)
-  s = CoreNLPSentence(words=r.words, lemmas=r.lemmas, poses=r.poses, ners=r.ners, dep_paths=r.dep_paths, dep_parents=r.dep_parents)
+  s = CoreNLPSentence(words=r.words, lemmas=r.lemmas, poses=r.poses, ners=r.ners, dep_labels=r.dep_paths, dep_parents=r.dep_parents)
 
   # Create XMLTree representation of sentence
   xt = corenlp_to_xmltree(s)

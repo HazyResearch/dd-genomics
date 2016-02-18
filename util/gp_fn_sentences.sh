@@ -20,6 +20,8 @@ SELECT DISTINCT
   si.section_id,
   si.sent_id,
   gc.expectation,
+  gc.supertype,
+  gc.subtype,
   gc.gene_name,
   gc.gene_wordidxs,
   gc.pheno_wordidxs,
