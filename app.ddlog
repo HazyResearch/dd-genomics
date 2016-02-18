@@ -1427,6 +1427,49 @@ genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_i
   genepheno_causation_all_superv_holdout_1(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype);
   genepheno_causation_all_superv_holdout_2(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype).
 
+#
+# G-P causation Rule Labels Table
+# This is the new DATA-PROGRAMMING method- add DSRs as factors (with priors)!
+#
+genepheno_causation_rule_labels(
+  @key
+  relation_id text,
+  @key
+  rule_id text,
+  heuristic_priority int,
+  heuristic_priority_2 int,
+  label int
+).
+
+function genepheno_causation_generate_rule_labels
+  over rows like genepheno_causation_supervision_input
+  returns rows like genepheno_causation_rule_labels
+  implementation "code/genepheno_causation_generate_rule_labels.py" handles tsv lines.
+
+genepheno_causation_rule_labels += genepheno_causation_generate_rule_labels(relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct, words, lemmas, poses, dep_paths, dep_parents) :-
+genepheno_relations(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct),
+sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
+
+# Temp G-P causation supervision table to compare
+#genepheno_causation_dp (
+#  id bigint,
+#  relation_id text,
+#  @distributed_by
+#  doc_id text,
+#  section_id text,
+#  sent_id int,
+#  gene_mention_id text,
+#  gene_name text,
+#  gene_wordidxs int[],
+#  pheno_mention_id text,
+#  pheno_entity text,
+#  pheno_wordidxs int[],
+#  is_correct boolean,
+#  supertype text,
+#  subtype text
+#).
+
+
 #genepheno_no_variant_negatives
 
 variant_mentions_distinct_doc_id_view_temp (doc_id) *:-
