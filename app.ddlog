@@ -1622,7 +1622,7 @@ genepheno_factor_outer(relation_id_left, relation_id_outer, relation_id_right, A
   [gene_wordidxs_right[1] < pheno_wordidxs_right[1]].
    
 # @weight(100.0)
-# !genepheno_causation_inference(relation_id_left) v !genepheno_causation_inference(relation_id_right) v !genepheno_causation_inference(relation_id_inner) :-
+# genepheno_causation_inference(relation_id_left), genepheno_causation_inference(relation_id_right) => !genepheno_causation_inference(relation_id_inner) :-
 #   genepheno_causation(_, relation_id_left, doc_id, section_id, sent_id, gene_mention_id_left, _, gene_wordidxs_left, pheno_mention_id_left, _, pheno_wordidxs_left, _, _, _),
 #   genepheno_causation(_, relation_id_right, doc_id, section_id, sent_id, gene_mention_id_right, _, gene_wordidxs_right, pheno_mention_id_right, _, pheno_wordidxs_right, _, _, _),
 #   genepheno_causation(_, relation_id_inner, doc_id, section_id, sent_id, gene_mention_id_right, _, _, pheno_mention_id_left, _, _, _, _, _),
@@ -1630,14 +1630,75 @@ genepheno_factor_outer(relation_id_left, relation_id_outer, relation_id_right, A
 #   [pheno_wordidxs_left[1] < gene_wordidxs_right[1]],
 #   [gene_wordidxs_right[1] < pheno_wordidxs_right[1]].
 
+genepheno_causation_first (
+  id bigint,
+  relation_id text,
+  @distributed_by
+  doc_id text,
+  section_id text,
+  sent_id int,
+  gene_mention_id text,
+  gene_name text,
+  gene_wordidx int,
+  pheno_mention_id text,
+  pheno_entity text,
+  pheno_wordidx int,
+  is_correct boolean,
+  supertype text,
+  subtype text
+).
+
+genepheno_causation_first(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs[1], pheno_mention_id, pheno_entity, pheno_wordidxs[1], is_correct, supertype, subtype) :-
+  genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype).
+
+genepheno_causation_first_minus_3 (
+  id bigint,
+  relation_id text,
+  @distributed_by
+  doc_id text,
+  section_id text,
+  sent_id int,
+  gene_mention_id text,
+  gene_name text,
+  gene_wordidx int,
+  pheno_mention_id text,
+  pheno_entity text,
+  pheno_wordidx int,
+  is_correct boolean,
+  supertype text,
+  subtype text
+).
+
+genepheno_causation_first_minus_3(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidx - 3, pheno_mention_id, pheno_entity, pheno_wordidx, is_correct, supertype, subtype) :-
+  genepheno_causation_first(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidx, pheno_mention_id, pheno_entity, pheno_wordidx, is_correct, supertype, subtype).
+
+# TODO this factor doesn't work yet! Take examples, materialize table and see what's going on!
+# @weight(100.0)
+# genepheno_causation_inference(relation_id_right) => !genepheno_causation_inference(relation_id_left) :-
+#   genepheno_causation(_, relation_id_left, doc_id, section_id, sent_id, gene_mention_id_left, _, gene_wordidxs_left, pheno_mention_id, _, pheno_wordidxs, _, _, _),
+#   genepheno_causation(_, relation_id_right, doc_id, section_id, sent_id, gene_mention_id_right, _, gene_wordidxs_right, pheno_mention_id, _, pheno_wordidxs, _, _, _),
+#   genepheno_causation_first_minus_3(_, relation_id_right, _, _, _, _, _, gene_wordidxs_right_minus_3, _, _, _, _, _, _),
+#   [gene_wordidxs_left[1] < gene_wordidxs_right_minus_3],
+#   [pheno_wordidxs[1] > gene_wordidxs_right[1]].
+
+
 @weight(100.0)
-!genepheno_causation_inference(relation_id_left) v !genepheno_causation_inference(relation_id_right) v !genepheno_causation_inference(relation_id_outer) :-
+genepheno_causation_inference(relation_id_left), genepheno_causation_inference(relation_id_right) => !genepheno_causation_inference(relation_id_outer) :-
   genepheno_causation(_, relation_id_left, doc_id, section_id, sent_id, gene_mention_id_left, _, gene_wordidxs_left, pheno_mention_id_left, _, pheno_wordidxs_left, _, _, _),
   genepheno_causation(_, relation_id_right, doc_id, section_id, sent_id, gene_mention_id_right, _, gene_wordidxs_right, pheno_mention_id_right, _, pheno_wordidxs_right, _, _, _),
   genepheno_causation(_, relation_id_outer, doc_id, section_id, sent_id, gene_mention_id_left, _, _, pheno_mention_id_right, _, _, _, _, _),
   [gene_wordidxs_left[1] < pheno_wordidxs_left[1]],
   [pheno_wordidxs_left[1] < gene_wordidxs_right[1]],
   [gene_wordidxs_right[1] < pheno_wordidxs_right[1]].
+
+@weight(100.0)
+genepheno_causation_inference(relation_id_left), genepheno_causation_inference(relation_id_right) => !genepheno_causation_inference(relation_id_outer) :-
+  genepheno_causation(_, relation_id_left, doc_id, section_id, sent_id, gene_mention_id_left, _, gene_wordidxs_left, pheno_mention_id_left, _, pheno_wordidxs_left, _, _, _),
+  genepheno_causation(_, relation_id_right, doc_id, section_id, sent_id, gene_mention_id_right, _, gene_wordidxs_right, pheno_mention_id_right, _, pheno_wordidxs_right, _, _, _),
+  genepheno_causation(_, relation_id_outer, doc_id, section_id, sent_id, gene_mention_id_left, _, _, pheno_mention_id_right, _, _, _, _, _),
+  [pheno_wordidxs_left[1] < gene_wordidxs_left[1]],
+  [gene_wordidxs_left[1] < pheno_wordidxs_right[1]],
+  [pheno_wordidxs_right[1] < gene_wordidxs_right[1]].
 
 #genepheno_causation_to_pheno
 #@weight("?")
