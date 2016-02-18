@@ -356,7 +356,7 @@ GENE_PHENO = {
                'deficiency',
                'activity',
                'unravel',
-               'how',
+               ' how',
                'fish',
                'sheep',
                'cattle',

@@ -1672,6 +1672,20 @@ genepheno_causation_first_minus_3 (
 genepheno_causation_first_minus_3(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidx - 3, pheno_mention_id, pheno_entity, pheno_wordidx, is_correct, supertype, subtype) :-
   genepheno_causation_first(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidx, pheno_mention_id, pheno_entity, pheno_wordidx, is_correct, supertype, subtype).
 
+genepheno_factor_two_g(
+  relation_id_left text,
+  @distributed_by
+  relation_id_outer text, 
+  relation_id_right text, 
+  words text,
+  gene_wordidxs_left int[], 
+  gene_name_left text, 
+  pheno_wordidxs_left int[], 
+  gene_wordidxs_right int[], 
+  gene_name_right text, 
+  pheno_wordidxs_right int[]).
+
+
 # TODO this factor doesn't work yet! Take examples, materialize table and see what's going on!
 # @weight(100.0)
 # genepheno_causation_inference(relation_id_right) => !genepheno_causation_inference(relation_id_left) :-
@@ -1681,6 +1695,12 @@ genepheno_causation_first_minus_3(id, relation_id, doc_id, section_id, sent_id, 
 #   [gene_wordidxs_left[1] < gene_wordidxs_right_minus_3],
 #   [pheno_wordidxs[1] > gene_wordidxs_right[1]].
 
+genepheno_factor_two_g(relation_id_left, relation_id_right, words, gene_wordidxs_left, gene_name_left, gene_wordidx_right, gene_name_right, pheno_wordidxs, pheno_entity, 
+  genepheno_causation(_, relation_id_left, doc_id, section_id, sent_id, gene_mention_id_left, _, gene_wordidxs_left, pheno_mention_id, _, pheno_wordidxs, _, _, _),
+  genepheno_causation(_, relation_id_right, doc_id, section_id, sent_id, gene_mention_id_right, _, gene_wordidxs_right, pheno_mention_id, _, pheno_wordidxs, _, _, _),
+  genepheno_causation_first_minus_3(_, relation_id_right, _, _, _, _, _, gene_wordidxs_right_minus_3, _, _, _, _, _, _),
+  [gene_wordidxs_left[1] < gene_wordidxs_right_minus_3],
+  [pheno_wordidxs[1] > gene_wordidxs_right[1]].
 
 @weight(100.0)
 genepheno_causation_inference(relation_id_left), genepheno_causation_inference(relation_id_right) => !genepheno_causation_inference(relation_id_outer) :-
