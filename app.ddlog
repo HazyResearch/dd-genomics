@@ -1463,6 +1463,10 @@ genepheno_causation_rule_labels +=
   genepheno_relations(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct),
   sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
 
+# **************************************************
+# METHODS 1/2: SUPERVISION via heuristic prioritization / majority vote
+# **************************************************
+
 # TODO: This shouldn't need to be a table right...??  Yet else it throws error?  Is this fixed in new version?
 genepheno_causation_rule_label_agg(
   @key
@@ -1477,19 +1481,6 @@ genepheno_causation_rule_label_agg(relation_id, l) :-
 
 # Method 2: majority vote- just aggregate via sum
 #genepheno_causation_rule_label_agg(relation_id, SUM(l)) :- genepheno_causation_rule_labels(relation_id, _, _, _, l).
-
-# TODO: This shouldn't need to be a table right...??  Yet else it throws error?  Is this fixed in new version?
-#genepheno_causation_rule_label_agg_nh(
-#  @key
-#  relation_id text,
-#  label_agg int
-#).
-
-# Methods 1,2: Remove holdout set relations from rule-label table
-#genepheno_causation_rule_label_agg_nh(relation_id, l) :-
-#  genepheno_causation_rule_label_agg(relation_id, l),
-#  !EXISTS[genepheno_causation_labels(relation_id, _, _, _)],
-#  !EXISTS[genepheno_causation_precision_labels(relation_id, _, _, _)].
 
 # Resolve to boolean label
 # Methods 1,2: Remove holdout set relations from rule-label table
@@ -1507,6 +1498,25 @@ genepheno_causation_inference(relation_id) = NULL::BOOLEAN :-
   genepheno_causation(_, relation_id, _, _, _, _, _, _, _, _, _, _, _, _),
   !EXISTS[genepheno_causation_rule_label_agg(relation_id, _)].
 
+# **************************************************
+# UNSUPERVISED- add rule labels as unary factors with +1/-1 priors
+# **************************************************
+
+# Add the rules as unary factors
+#@weight(r)
+#genepheno_causation_inference(relation_id) :-
+#  genepheno_causation_rule_labels(relation_id, r, _, _, _).
+
+# Add +1/-1 priors to "initialize" the rule factors
+#@weight(1.0)
+#genepheno_causation_inference(relation_id) :-
+#  genepheno_causation_rule_labels(relation_id, _, _, _, l),
+#  [l > 0].
+
+#@weight(-1.0)
+#genepheno_causation_inference(relation_id) :-
+#  genepheno_causation_rule_labels(relation_id, _, _, _, l),
+#  [l < 0].
 
 
 #genepheno_no_variant_negatives
