@@ -4,7 +4,7 @@ from collections import namedtuple
 import os
 import sys
 import ddlib
-from treedlib import corenlp_to_xmltree, get_relation_features, get_relation_binning_features
+from treedlib import corenlp_to_xmltree, compile_relation_feature_generator
 
 parser = util.RowParser([
           ('relation_id', 'text'),
@@ -27,19 +27,27 @@ parser = util.RowParser([
 
 Feature = namedtuple('Feature', ['doc_id', 'section_id', 'relation_id', 'name'])
 
-CoreNLPSentence = namedtuple('CoreNLPSentence', 'words, lemmas, poses, ners, dep_paths, dep_parents')
+CoreNLPSentence = namedtuple('CoreNLPSentence', 'words, lemmas, poses, ners, dep_labels, dep_parents')
+
+# Compile the feature generator
+generate_features = compile_relation_feature_generator(dictionaries={
+  'GENE'  : GENES,
+  'PHENO' : PHENOS
+})
 
 def get_features_for_candidate_treedlib(r):
   """Extract features using treedlib"""
   features = []
   f = Feature(doc_id=r.doc_id, section_id=r.section_id, relation_id=r.relation_id, name=None)
-  s = CoreNLPSentence(words=r.words, lemmas=r.lemmas, poses=r.poses, ners=r.ners, dep_paths=r.dep_paths, dep_parents=r.dep_parents)
+
+  # NOTE: Note the change from dep_paths -> dep_labels!
+  s = CoreNLPSentence(words=r.words, lemmas=r.lemmas, poses=r.poses, ners=r.ners, dep_labels=r.dep_paths, dep_parents=r.dep_parents)
 
   # Create XMLTree representation of sentence
   xt = corenlp_to_xmltree(s)
 
   # Get features
-  for feature in get_relation_features(xt.root, r.gene_wordidxs, r.pheno_wordidxs):
+  for feature in generate_features(xt.root, r.gene_wordidxs, r.pheno_wordidxs):
     yield f._replace(name=feature)
 
 if __name__ == '__main__':

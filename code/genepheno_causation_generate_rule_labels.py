@@ -326,10 +326,12 @@ def generate_labels(r, root):
     generators.append(apply_rgx_rules(r.relation_id, CHARITE_SUP_RGX, seq))
   
   # RULE over sequence: Label if *any part* of full sentence matches regex
+  # TODO: Add non-regex word/phrase matching!
   generators.append(apply_rgx_rules(r.relation_id, POS_RGX, seq))
   generators.append(apply_rgx_rules(r.relation_id, NEG_RGX, seq))
   
   # RULE over dep-tree: Label based on path between
+  # TODO: Handle phrases + rgxes
   btwn = Ngrams(Between(Mention(0), Mention(1)), 'lemma', 1).result_set(root, cids)
   generators.append(apply_set_rules(r.relation_id, POS_PATH_BTWN, btwn))
   generators.append(apply_set_rules(r.relation_id, NEG_PATH_BTWN, btwn))
