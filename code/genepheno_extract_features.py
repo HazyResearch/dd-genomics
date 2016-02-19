@@ -30,6 +30,8 @@ Feature = namedtuple('Feature', ['doc_id', 'section_id', 'relation_id', 'name'])
 CoreNLPSentence = namedtuple('CoreNLPSentence', 'words, lemmas, poses, ners, dep_labels, dep_parents')
 
 # Compile the feature generator
+GENES = [] # TODO
+PHENOS = [] # TODO
 generate_features = compile_relation_feature_generator(dictionaries={
   'GENE'  : GENES,
   'PHENO' : PHENOS
