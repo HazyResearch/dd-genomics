@@ -29,6 +29,17 @@ Feature = namedtuple('Feature', ['doc_id', 'section_id', 'relation_id', 'name'])
 
 CoreNLPSentence = namedtuple('CoreNLPSentence', 'words, lemmas, poses, ners, dep_labels, dep_parents')
 
+onto_path = lambda p : '%s/onto/%s' % (os.environ['GDD_HOME'], p)
+
+# Compile the feature generator
+GENES = [line.split('\t')[1] for line in open(onto_path('data/ensembl_genes.tsv'))]
+PHENOS = [line.split('\t')[1] for line in open(onto_path('manual/pheno_terms.tsv'), 'rb')] + [line.split('\t')[1] for line in open(onto_path('manual/disease_terms.tsv'), 'rb')]
+
+generate_features = compile_relation_feature_generator(dictionaries={
+  'GENE'  : GENES,
+  'PHENO' : PHENOS
+})
+
 def get_features_for_candidate_treedlib(r):
   """Extract features using treedlib"""
   features = []

@@ -88,7 +88,10 @@ def config_supervise(r, row, pheno_entity, gene_name, gene, pheno,
     opts = replace_opts(opts, [('GENE', gene), ('PHENO', pheno)])
     for name, val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
-        match = util.rgx_mult_search(between_phrase + ' ' + between_phrase_lemmas, opts[name], opts['%s-rgx' % name], flags=re.I)
+        match = util.rgx_mult_search(between_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
+        if match:
+          return r._replace(is_correct=val, relation_supertype='PHRASE_BETWEEN_%s' % name, relation_subtype=non_alnum.sub('_', match))
+        match = util.rgx_mult_search(between_phrase_lemmas, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
           return r._replace(is_correct=val, relation_supertype='PHRASE_BETWEEN_%s' % name, relation_subtype=non_alnum.sub('_', match))
 
@@ -97,10 +100,13 @@ def config_supervise(r, row, pheno_entity, gene_name, gene, pheno,
     opts = replace_opts(opts, [('GENE', gene), ('PHENO', pheno)])
     for name, val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
-        match = util.rgx_mult_search(phrase + ' ' + lemma_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
+        match = util.rgx_mult_search(phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
-          # backslashes cause postgres errors in postgres 9
           return r._replace(is_correct=val, relation_supertype='PHRASE_%s' % name, relation_subtype=non_alnum.sub('_', match))
+        match = util.rgx_mult_search(lemma_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
+        if match:
+          return r._replace(is_correct=val, relation_supertype='PHRASE_%s' % name, relation_subtype=non_alnum.sub('_', match))
+
 
 
   if SR.get('primary-verb-modifiers') and dep_dag:
