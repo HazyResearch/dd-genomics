@@ -140,7 +140,7 @@ class RowParser:
       if RP_PARSERS.has_key(field_type):
         val = RP_PARSERS[field_type](col)
         if FIX_DEP_PARENTS:
-          if field_name == 'dep_parents':
+          if field_name == 'dep_parents' and field_type == 'int[]':
             for i in xrange(0, len(val)):
               val[i] -= 1
       else:
