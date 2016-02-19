@@ -40,8 +40,8 @@ CoreNLPSentence = namedtuple('CoreNLPSentence', 'words, lemmas, poses, dep_label
 
 
 # TODO: Do all this as preprocessing!!
+"""
 def read_charite_supervision(hpo_dag):
-  """Reads genepheno supervision data (from charite)."""
   supervision_pairs = set()
   with open('%s/onto/data/canon_phenotype_to_gene.map' % APP_HOME) as f:
     for line in f:
@@ -50,7 +50,21 @@ def read_charite_supervision(hpo_dag):
       for h in hpo_ids:
         supervision_pairs.add((h, gene_name))
   return supervision_pairs
+"""
 
+def read_charite_supervision(hpo_dag):
+  """Reads genepheno supervision data (from charite)."""
+  supervision_pairs = set()
+  with open('%s/onto/manual/charite_supervision.tsv' % APP_HOME) as f:
+    for line in f:
+      hpo_id, gene_name = line.strip().split('\t')
+      if hpo_id in hpo_dag.edges:
+        hpo_ids = [hpo_id] + [parent for parent in hpo_dag.edges[hpo_id]]
+      else:
+        hpo_ids = [hpo_id]
+      for h in hpo_ids:
+        supervision_pairs.add((h, gene_name))
+  return supervision_pairs
 
 def tag_seq(words, seq, tag):
   """Sub in a tag for a subsequence of a list"""
@@ -95,8 +109,12 @@ def apply_rules(relation_id, rule_obj, f, boolean_only=True):
         heuristic_priority_2=rid,
         label=int(np.sign(w)) if boolean_only else w)
 
-def apply_rgx_rules(relation_id, rule_triple, string, flags=re.I):
-  return apply_rules(relation_id, rule_triple, lambda p : re.search(p, string, flags=flags) is not None)
+def apply_rgx_rules(relation_id, rule_triple, strings, flags=re.I):
+  """Support searching over several strings (e.g. words, lemmas versions)"""
+  if type(strings) not in [list, tuple]:
+    strings = [strings]
+  f = lambda p : any(re.search(p, s, flags=flags) is not None for s in strings)
+  return apply_rules(relation_id, rule_triple, f)
 
 def apply_set_rules(relation_id, rule_triple, word_set):
   return apply_rules(relation_id, rule_triple, lambda x : x in word_set)
@@ -106,7 +124,8 @@ CHARITE_SUP_RGX = (
   1,                  # Rule default weight
   10,                 # Rule heuristic priority- we set to emulate pre-DP version of DSR code!
   [
-    r'(mutat|delet|duplicat|truncat|SNP).*caus'
+    r'(mutat|delet|duplicat|truncat|SNP).* caus',
+    r'caused by.*(mutat|delet|duplicat|truncat|SNP)'
   ])
 
 POS_RGX = (
@@ -318,7 +337,9 @@ POS_P_DEP_NB = (
 def generate_labels(r, root):
   """Generate the Label objects produced by each applicable rule"""
   cids = [r.gene_wordidxs, r.pheno_wordidxs]
-  seq = ' '.join(tag_seqs(r.words, cids, ['G', 'P']))
+  seq_words = ' '.join(tag_seqs(r.words, cids, ['G', 'P']))
+  seq_lemmas = ' '.join(tag_seqs(r.lemmas, cids, ['G', 'P']))
+  seq = [seq_words, seq_lemmas]
   generators = []
   
   # RULE over sequence + charite: Label T if (a) in charite pairs and (b) matches regex
