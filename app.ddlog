@@ -1427,10 +1427,22 @@ genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_i
   genepheno_causation_all_superv_holdout_1(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype);
   genepheno_causation_all_superv_holdout_2(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype).
 
+
+
 #
 # G-P causation Rule Labels Table
 # This is the new DATA-PROGRAMMING method- add DSRs as factors (with priors)!
 #
+# NOTE: Moved all GP-causation stuff here... could be moved back to respective sections later
+
+# Declare RV for genepheno_causation
+# TODO: Change this name to one more appropriate for boolean RV
+genepheno_causation_inference?(
+  @references(relation="genepheno_causation_views", column="relation_id")
+  relation_id text
+).
+
+# The rule labels table- each row is a label-relation pair
 genepheno_causation_rule_labels(
   @key
   relation_id text,
@@ -1438,7 +1450,6 @@ genepheno_causation_rule_labels(
   rule_id text,
   rule_verbose text,
   heuristic_priority int,
-  heuristic_priority_2 int,
   label int
 ).
 
@@ -1447,28 +1458,55 @@ function genepheno_causation_generate_rule_labels
   returns rows like genepheno_causation_rule_labels
   implementation "code/genepheno_causation_generate_rule_labels.py" handles tsv lines.
 
-genepheno_causation_rule_labels += genepheno_causation_generate_rule_labels(relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct, words, lemmas, poses, dep_paths, dep_parents) :-
-genepheno_relations(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct),
-sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
+genepheno_causation_rule_labels += 
+  genepheno_causation_generate_rule_labels(relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct, words, lemmas, poses, dep_paths, dep_parents) :-
+  genepheno_relations(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct),
+  sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
 
-# Temp G-P causation supervision table to compare
-#genepheno_causation_dp (
-#  id bigint,
+# TODO: This shouldn't need to be a table right...??  Yet else it throws error?  Is this fixed in new version?
+genepheno_causation_rule_label_agg(
+  @key
+  relation_id text,
+  label_agg int
+).
+
+# Method 1: label evidence, resolve rule conflicts via heuristic prioritization
+genepheno_causation_rule_label_agg(relation_id, l) :-
+  genepheno_causation_rule_labels(relation_id, _, _, hp, l),
+  !EXISTS[genepheno_causation_rule_labels(relation_id, _, _, hp2, _), hp2 < hp].
+
+# Method 2: majority vote- just aggregate via sum
+#genepheno_causation_rule_label_agg(relation_id, SUM(l)) :- genepheno_causation_rule_labels(relation_id, _, _, _, l).
+
+# TODO: This shouldn't need to be a table right...??  Yet else it throws error?  Is this fixed in new version?
+#genepheno_causation_rule_label_agg_nh(
+#  @key
 #  relation_id text,
-#  @distributed_by
-#  doc_id text,
-#  section_id text,
-#  sent_id int,
-#  gene_mention_id text,
-#  gene_name text,
-#  gene_wordidxs int[],
-#  pheno_mention_id text,
-#  pheno_entity text,
-#  pheno_wordidxs int[],
-#  is_correct boolean,
-#  supertype text,
-#  subtype text
+#  label_agg int
 #).
+
+# Methods 1,2: Remove holdout set relations from rule-label table
+#genepheno_causation_rule_label_agg_nh(relation_id, l) :-
+#  genepheno_causation_rule_label_agg(relation_id, l),
+#  !EXISTS[genepheno_causation_labels(relation_id, _, _, _)],
+#  !EXISTS[genepheno_causation_precision_labels(relation_id, _, _, _)].
+
+# Resolve to boolean label
+# Methods 1,2: Remove holdout set relations from rule-label table
+genepheno_causation_inference(relation_id) = if l > 0 then TRUE
+                                        else if l < 0 then FALSE
+                                        else NULL
+                                        end :- 
+  genepheno_causation_rule_label_agg(relation_id, l),
+  !EXISTS[genepheno_causation_labels(relation_id, _, _, _)],
+  !EXISTS[genepheno_causation_precision_labels(relation_id, _, _, _)].
+
+# Add in all other GP-relations as NULL / unsupervised
+# TODO: Don't rely on old genepheno_causation table for this!
+genepheno_causation_inference(relation_id) = NULL::BOOLEAN :- 
+  genepheno_causation(_, relation_id, _, _, _, _, _, _, _, _, _, _, _, _),
+  !EXISTS[genepheno_causation_rule_label_agg(relation_id, _)].
+
 
 
 #genepheno_no_variant_negatives
@@ -1547,10 +1585,6 @@ mention_id text).
 
 #pheno_mentions_filtered_inference?(mention_id text).
 
-genepheno_causation_inference?(
-  @references(relation="genepheno_causation_views", column="relation_id")
-relation_id text).
-
 #non_gene_acronyms_inference?(mention_id text).
 #genevariant_relations_inference?(relation_id text).
 
@@ -1564,8 +1598,8 @@ gene_mentions_filtered_inference(mention_id) = is_correct :- gene_mentions_filte
 #pheno_mentions_filtered_inference(mention_id) = is_correct :- pheno_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
 
 
-@label(is_correct)
-genepheno_causation_inference(relation_id) :- genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype).
+#@label(is_correct)
+#genepheno_causation_inference(relation_id) :- genepheno_causation(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_entity, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype).
 
 #@label(is_correct)
 #non_gene_acronyms_inference(mention_id) :- non_gene_acronyms(id, doc_id, section_id, sent_id, short_wordidxs, long_wordidxs, mention_id, supertype, subtype, abbrev, definition, is_correct).

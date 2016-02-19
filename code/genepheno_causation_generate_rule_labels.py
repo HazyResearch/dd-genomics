@@ -32,7 +32,7 @@ parser = RowParser([
             ('dep_parents', 'int[]')])
 
 # Output a rule relation
-Label = namedtuple('Label', 'relation_id, rule_id, rule_verbose, heuristic_priority, heuristic_priority_2, label')
+Label = namedtuple('Label', 'relation_id, rule_id, rule_verbose, heuristic_priority, label')
 
 # This is for XMLTree production
 # NOTE the switch from dep_paths -> dep_labels!
@@ -86,6 +86,7 @@ def tag_seqs(words, seqs, tags):
     dj += len(seqs[i]) - 1
   return words_out
 
+MAX_N=1000
 def apply_rules(relation_id, rule_obj, f, boolean_only=True):
   """
   Takes as input a tuple containing (rule_label, default_weight, heuristic_priority, rules)
@@ -105,8 +106,7 @@ def apply_rules(relation_id, rule_obj, f, boolean_only=True):
         relation_id=relation_id,
         rule_id='%s:%s' % (rule_id_base, rid),
         rule_verbose='%s:%s' % (rule_id_base, re.sub(r'\W+', '_', re.escape(p))),
-        heuristic_priority=hp,
-        heuristic_priority_2=rid,
+        heuristic_priority=hp*1000 + rid,
         label=int(np.sign(w)) if boolean_only else w)
 
 def apply_rgx_rules(relation_id, rule_triple, strings, flags=re.I):
