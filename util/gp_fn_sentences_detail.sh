@@ -1,6 +1,9 @@
 #!/bin/bash -e
 set -beEu -o pipefail
 
+echo "CREATE HOLDOUT PATCH!"
+
+
 GP_CUTOFF=`cat ../results_log/gp_cutoff`
 
 cd ..

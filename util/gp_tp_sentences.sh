@@ -1,6 +1,9 @@
 #!/bin/bash -e
 set -beEu -o pipefail
 
+echo "CREATE HOLDOUT PATCH!"
+
+
 if [ $# -eq 1 ]
 then
   version_string="AND version = $1"
