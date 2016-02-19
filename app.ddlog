@@ -322,20 +322,16 @@ gene_features (
 #@extraction
 pheno_mentions (
   id bigint,
-  #@references(relation="sentences_input", column="doc_id")
   @distributed_by
   doc_id text,
   section_id text,
   sent_id int,
   wordidxs int[],
-  #@key
   mention_id text,
   supertype text,
   subtype text,
-  #@searchable
   entity text,
   words text[],
-  #@navigable
   is_correct boolean
 ).
 
@@ -905,7 +901,39 @@ sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, _, _).
 pheno_mentions_before_union_1(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct) :-
 pheno_mentions_without_acronyms(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, entity, words, is_correct).
 
+#@extraction
+split_words_mentions (
+  id bigint,
+  @distributed_by
+  doc_id text,
+  section_id text,
+  sent_id int,
+  wordidxs int[],
+  mention_id text,
+  supertype text,
+  subtype text,
+  word text,
+  is_correct boolean
+).
 
+function split_words_extract_candidates over rows like split_words_extract_candidates_input
+  returns rows like split_words_mentions
+  implementation "code/split_words_extract_candidates.py" handles tsv lines.
+
+split_words_mentions += split_words_extract_candidates(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents) :-
+  sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents).
+
+split_words_features (
+  @distributed_by
+  doc_id text,
+  section_id text,
+  mention_id text,
+  feature text
+).
+
+function split_words_extract_features over rows like split_words_extract_features_input
+  returns rows like split_words_features
+  implementation "code/split_words_extract_features.py" handles tsv lines.
 
 #variant_extract_features
 function variant_extract_features over rows like variant_extract_features_input
