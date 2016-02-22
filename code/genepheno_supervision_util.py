@@ -26,6 +26,7 @@ parser = util.RowParser([
             ('words', 'text[]'),
             ('lemmas', 'text[]'),
             ('poses', 'text[]'),
+            ('ners', 'text[]')
             ('dep_paths', 'text[]'),
             ('dep_parents', 'int[]')])
 
@@ -158,6 +159,8 @@ def config_supervise(r, row, pheno_entity, gene_name, gene, pheno,
     if match and (pheno_entity, gene_name) in charite_pairs:
       return r._replace(is_correct=True, relation_supertype='CHARITE_SUP_WORDS', 
                         relation_subtype=non_alnum.sub('_', match))
+  
+  
     
   # if False and SR.get('example-sentences'):
   #   opts = SR['example-sentences']

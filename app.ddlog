@@ -935,6 +935,33 @@ function split_words_extract_features over rows like split_words_extract_feature
   returns rows like split_words_features
   implementation "code/split_words_extract_features.py" handles tsv lines.
 
+split_words_features += split_words_extract_features(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents, mention_id, mention_wordidxs) :-
+  sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents),
+  split_words_mentions_filtered(_, doc_id, section_id, sent_id, mention_wordidxs, mention_id, _, _, _, _).
+
+#@extraction
+split_words_mentions_filtered (
+  id bigint,
+  @distributed_by
+  doc_id text,
+  section_id text,
+  sent_id int,
+  wordidxs int[],
+  mention_id text,
+  supertype text,
+  subtype text,
+  word text,
+  is_correct boolean
+).
+
+split_words_mentions_filtered(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, word, is_correct) *:-
+  split_words_mentions(id, doc_id, section_id, sent_id, wordidxs, mention_id, supertype, subtype, word, is_correct),
+  genepheno_relations(_, _, doc_id, section_id, sent_id, _, _, _, _, _, _, _, _),
+  num_gene_candidates(doc_id, section_id, sent_id, gene_candidates),
+  num_pheno_candidates(doc_id, section_id, sent_id, pheno_candidates),
+  [gene_candidates > 2, pheno_candidates > 2].
+
+
 #variant_extract_features
 function variant_extract_features over rows like variant_extract_features_input
   returns rows like variant_features
