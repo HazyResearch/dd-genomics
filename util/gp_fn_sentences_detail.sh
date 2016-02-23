@@ -34,7 +34,7 @@ FROM
       union (select * from genepheno_facts_precision_labels)) a) s
     ON (s.relation_id = gc.relation_id)
 WHERE
-  COALESCE(gc.expectation, 0) <= ${GP_CUTOFF}
+  COALESCE(gc.expectation, 0) < $GP_CUTOFF 
   AND s.is_correct = 't'
   $version_string) TO STDOUT;
 """ | while read rid

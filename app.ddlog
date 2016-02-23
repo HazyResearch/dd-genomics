@@ -1212,6 +1212,7 @@ sentences_input_ner_1 (
   words text,
   words_ner text,
   lemmas text,
+  lemmas_ner text,
   poses text,
   ners text,
   dep_paths text,
@@ -1226,6 +1227,7 @@ sentences_input_ner_2 (
   words text,
   words_ner text,
   lemmas text,
+  lemmas_ner text,
   poses text,
   ners text,
   dep_paths text,
@@ -1240,6 +1242,7 @@ sentences_input_ner (
   words text,
   words_ner text,
   lemmas text,
+  lemmas_ner text,
   poses text,
   ners text,
   dep_paths text,
@@ -1272,13 +1275,13 @@ sentences_input_ner_1 += sentences_input_ner_extraction(doc_id,
   gene_mentions_supertype_o(_, doc_id, section_id, sent_id, gene_wordidxs, _, _, gene_supertype, _, _, _, gene_is_correct),
   pheno_mentions_supertype_o(_, doc_id, section_id, sent_id, pheno_wordidxs, _, pheno_supertype, _, _, _, pheno_is_correct).
 
-sentences_input_ner_2(doc_id, section_id, sent_id, words, words, lemmas, poses, ners, dep_paths, dep_parents) :-
+sentences_input_ner_2(doc_id, section_id, sent_id, words, words, lemmas, lemmas, poses, ners, dep_paths, dep_parents) :-
   sentences_input(doc_id, section_id, sent_id, words, lemmas, poses, ners, dep_paths, dep_parents),
-  !EXISTS[sentences_input_ner_1(doc_id, section_id, sent_id, _, _, _, _, _, _, _)].
+  !EXISTS[sentences_input_ner_1(doc_id, section_id, sent_id, _, _, _, _, _, _, _, _)].
 
-sentences_input_ner(doc_id, section_id, sent_id, words, words_ner, lemmas, poses, ners, dep_paths, dep_parents) :-
-  sentences_input_ner_1(doc_id, section_id, sent_id, words, words_ner, lemmas, poses, ners, dep_paths, dep_parents);
-  sentences_input_ner_2(doc_id, section_id, sent_id, words, words_ner, lemmas, poses, ners, dep_paths, dep_parents).
+sentences_input_ner(doc_id, section_id, sent_id, words, words_ner, lemmas, lemmas_ner, poses, ners, dep_paths, dep_parents) :-
+  sentences_input_ner_1(doc_id, section_id, sent_id, words, words_ner, lemmas, lemmas_ner, poses, ners, dep_paths, dep_parents);
+  sentences_input_ner_2(doc_id, section_id, sent_id, words, words_ner, lemmas, lemmas_ner, poses, ners, dep_paths, dep_parents).
 
 #pheno_acronyms_extract_features
 
@@ -1525,9 +1528,9 @@ num_pheno_candidates(doc_id, section_id, sent_id, COUNT(mention_id)) :-
 function genepheno_extract_features over rows like genepheno_extract_features_input returns rows like genepheno_features
 implementation "code/genepheno_extract_features.py" handles tsv lines.
 
-genepheno_features += genepheno_extract_features( relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_wordidxs, pheno_mention_id, pheno_wordidxs, words_ner, lemmas, poses, ners, dep_paths, dep_parents) :- 
+genepheno_features += genepheno_extract_features(relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_wordidxs, pheno_mention_id, pheno_wordidxs, words_ner, lemmas_ner, poses, ners, dep_paths, dep_parents) :- 
   genepheno_relations(id,relation_id,doc_id,section_id,sent_id,gene_mention_id,gene_name,gene_wordidxs,gene_is_correct,pheno_mention_id,pheno_entity,pheno_wordidxs,pheno_is_correct),
-  sentences_input_ner(doc_id, section_id, sent_id, words, words_ner, lemmas, poses, ners, dep_paths, dep_parents).
+  sentences_input_ner(doc_id, section_id, sent_id, words, words_ner, lemmas, lemmas_ner, poses, ners, dep_paths, dep_parents).
 
 #genepheno_causation_supervision
 
@@ -1536,7 +1539,7 @@ implementation "code/genepheno_causation_supervision.py" handles tsv lines.
 
 genepheno_causation_all_superv += genepheno_causation_supervision(relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct, words, lemmas, poses, ners, dep_paths, dep_parents) :-
   genepheno_relations(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct), 
-  sentences_input_ner(doc_id, section_id, sent_id, words, words_ner, lemmas, poses, ners, dep_paths, dep_parents).
+  sentences_input_ner(doc_id, section_id, sent_id, words, words_ner, lemmas, lemmas_ner, poses, ners, dep_paths, dep_parents).
 
 genepheno_causation_all_superv_non_holdout(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype) :-
   genepheno_causation_all_superv(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, pheno_mention_id, pheno_entity, pheno_wordidxs, is_correct, supertype, subtype),

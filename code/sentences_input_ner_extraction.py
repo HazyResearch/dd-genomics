@@ -19,7 +19,7 @@ parser = util.RowParser([
           ('section_id', 'text'),
           ('sent_id', 'int'),
           ('words', 'text[]'),
-          ('lemmas', 'text'),
+          ('lemmas', 'text[]'),
           ('poses', 'text'),
           ('dep_paths', 'text'),
           ('dep_parents', 'text'),
@@ -37,6 +37,7 @@ Mention = collections.namedtuple('Mention', [
             'words',
             'words_ner',
             'lemmas',
+            'lemmas_ner',
             'poses',
             'ners',
             'dep_paths',
@@ -44,9 +45,10 @@ Mention = collections.namedtuple('Mention', [
 
 def create_ners(row):
     m = Mention(row.doc_id, row.section_id, row.sent_id, row.words, None, \
-                row.lemmas, row.poses, None, row.dep_paths, \
+                row.lemmas, None, row.poses, None, row.dep_paths, \
                 row.dep_parents)
     words_ner = [word for word in row.words]
+    lemmas_ner = [lemma for lemma in row.lemmas]
     ners = ['O' for _ in xrange(len(row.words))]
     for i, wordidxs in enumerate(row.pheno_wordidxs):
       pheno_supertype = row.pheno_supertypes[i]
@@ -55,6 +57,7 @@ def create_ners(row):
       ners[wordidxs[0]] = 'PHENO'
       for wordidx in wordidxs:
         words_ner[wordidx] = 'PHENO'
+        lemmas_ner[wordidx] = 'pheno'
     for i, wordidxs in enumerate(row.gene_wordidxs):
       gene_supertype = row.gene_supertypes[i]
       if gene_supertype == 'BAD_GENE' or gene_supertype == 'MANUAL_BAD' or gene_supertype == 'RAND_WORD_NOT_GENE_SYMBOL' \
@@ -64,7 +67,9 @@ def create_ners(row):
       for wordidx in wordidxs:
         if words_ner[wordidx] != 'PHENO':
           words_ner[wordidx] = 'GENE'
-    return m._replace(ners='|^|'.join(ners), words_ner='|^|'.join(words_ner))
+          lemmas_ner[wordidx] = 'gene'
+    return m._replace(ners='|^|'.join(ners), words_ner='|^|'.join(words_ner), 
+                      lemmas_ner='|^|'.join(lemmas_ner))
 
 if __name__ == '__main__':
   # generate the mentions, while trying to keep the supervision approx. balanced

@@ -173,7 +173,9 @@ def config_supervise(r, row, pheno_entity, gene_name, gene, pheno,
   
   if ('neg', False) in VALS:
     if gp_between(row.gene_wordidxs, row.pheno_wordidxs, row.ners):
-      return r._replace(is_correct=False, relation_supertype='NEG_GP_BETWEEN')
+      #if between_neg <= (charite_pos / 4):
+        #between_neg += 1
+        return r._replace(is_correct=False, relation_supertype='NEG_GP_BETWEEN')
   
   if SR.get('charite-all-pos-words'):
     opts = SR['charite-all-pos-words']
@@ -182,9 +184,9 @@ def config_supervise(r, row, pheno_entity, gene_name, gene, pheno,
                                  opts, flags=re.I)
     if match and (pheno_entity, gene_name) in charite_pairs:
       if not gp_between(row.gene_wordidxs, row.pheno_wordidxs, row.ners):
+        charite_pos += 1
         return r._replace(is_correct=True, relation_supertype='CHARITE_SUP_WORDS', 
                         relation_subtype=non_alnum.sub('_', match))
-        charite_pos += 1
       else:
         return r._replace(is_correct=False, relation_supertype='CHARITE_NEG_GP_BETWEEN', 
                         relation_subtype=non_alnum.sub('_', match))
