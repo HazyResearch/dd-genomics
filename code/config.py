@@ -323,8 +323,6 @@ GENE_PHENO = {
     },
 
     # Label T all GP pairs in Charite dataset (and that haven't already been labeled T/F)
-    'charite-all-pos' : False,
-
     'charite-all-pos-words': ['(mutat|delet|duplicat|truncat|SNP).*caus'],
 
     # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them

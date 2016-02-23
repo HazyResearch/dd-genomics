@@ -35,6 +35,7 @@ Mention = collections.namedtuple('Mention', [
             'section_id',
             'sent_id',
             'words',
+            'words_ner',
             'lemmas',
             'poses',
             'ners',
@@ -42,24 +43,28 @@ Mention = collections.namedtuple('Mention', [
             'dep_parents'])
 
 def create_ners(row):
-    m = Mention(row.doc_id, row.section_id, row.sent_id, '|^|'.join(row.words), \
+    m = Mention(row.doc_id, row.section_id, row.sent_id, row.words, None, \
                 row.lemmas, row.poses, None, row.dep_paths, \
                 row.dep_parents)
+    words_ner = [word for word in row.words]
     ners = ['O' for _ in xrange(len(row.words))]
-    #print >>sys.stderr, (str(row.gene_wordidxs), str(row.gene_supertypes), \
-    #                     str(row.pheno_wordidxs), str(row.pheno_supertypes))
     for i, wordidxs in enumerate(row.pheno_wordidxs):
       pheno_supertype = row.pheno_supertypes[i]
       if re.match('RAND_NEG', pheno_supertype) or re.match('BAD', pheno_supertype) or pheno_supertype == 'O':
         continue
       ners[wordidxs[0]] = 'PHENO'
+      for wordidx in wordidxs:
+        words_ner[wordidx] = 'PHENO'
     for i, wordidxs in enumerate(row.gene_wordidxs):
       gene_supertype = row.gene_supertypes[i]
       if gene_supertype == 'BAD_GENE' or gene_supertype == 'MANUAL_BAD' or gene_supertype == 'RAND_WORD_NOT_GENE_SYMBOL' \
           or gene_supertype == 'ABBREVIATION' or gene_supertype == 'ALL_UPPER_NOT_GENE_SYMBOL' or gene_supertype == 'O':
         continue
       ners[wordidxs[0]] = 'GENE'
-    return m._replace(ners='|^|'.join(ners))
+      for wordidx in wordidxs:
+        if words_ner[wordidx] != 'PHENO':
+          words_ner[wordidx] = 'GENE'
+    return m._replace(ners='|^|'.join(ners), words_ner='|^|'.join(words_ner))
 
 if __name__ == '__main__':
   # generate the mentions, while trying to keep the supervision approx. balanced

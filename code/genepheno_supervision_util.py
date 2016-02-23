@@ -26,7 +26,7 @@ parser = util.RowParser([
             ('words', 'text[]'),
             ('lemmas', 'text[]'),
             ('poses', 'text[]'),
-            ('ners', 'text[]')
+            ('ners', 'text[]'),
             ('dep_paths', 'text[]'),
             ('dep_parents', 'int[]')])
 
@@ -79,6 +79,23 @@ def read_supervision():
 
 CACHE = {}
 
+def gp_between(gene_wordidxs, pheno_wordidxs, ners):
+  if gene_wordidxs[0] < pheno_wordidxs[0]:
+    start = max(gene_wordidxs) + 1
+    end = min(pheno_wordidxs) - 1
+  else:
+    start = max(pheno_wordidxs) + 1
+    end = min(gene_wordidxs) - 1
+  found_g = False
+  found_p = False
+  for i in xrange(start, end+1):
+    ner = ners[i]
+    if ner == 'GENE':
+      found_g = True
+    if ner == 'PHENO':
+      found_p = True
+  return found_g and found_p
+
 def config_supervise(r, row, pheno_entity, gene_name, gene, pheno, 
               phrase, between_phrase, \
               lemma_phrase, between_phrase_lemmas, dep_dag, \
@@ -107,8 +124,6 @@ def config_supervise(r, row, pheno_entity, gene_name, gene, pheno,
         match = util.rgx_mult_search(lemma_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
           return r._replace(is_correct=val, relation_supertype='PHRASE_%s' % name, relation_subtype=non_alnum.sub('_', match))
-
-
 
   if SR.get('primary-verb-modifiers') and dep_dag:
     opts = SR['primary-verb-modifiers']
@@ -157,26 +172,10 @@ def config_supervise(r, row, pheno_entity, gene_name, gene, pheno,
                                  lemma_phrase, [], 
                                  opts, flags=re.I)
     if match and (pheno_entity, gene_name) in charite_pairs:
-      return r._replace(is_correct=True, relation_supertype='CHARITE_SUP_WORDS', 
+      if not gp_between(row.gene_wordidxs, row.pheno_wordidxs, row.ners):
+        return r._replace(is_correct=True, relation_supertype='CHARITE_SUP_WORDS', 
                         relation_subtype=non_alnum.sub('_', match))
   
-  
-    
-  # if False and SR.get('example-sentences'):
-  #   opts = SR['example-sentences']
-  #   for name, val in VALS:
-  #     for (i, (sentences_file, cutoff)) in enumerate(opts[name]):
-  #       if (name, sentences_file, cutoff, i) in CACHE['example-trees']:
-  #         example_tree_root, example_tree = CACHE['example-trees'][(name, sentences_file, cutoff, i)]
-  #       else:
-  #         example_tree_root, example_tree = get_example_tree(sentences_file, SR['synonyms'])
-  #         print >>sys.stderr, "tree: "
-  #         print_example_tree(sentences_file, SR['synonyms'])
-  #         CACHE['example-trees'][(name, sentences_file, cutoff, i)] = (example_tree_root, example_tree)
-  #       _, rescore = get_score(row, example_tree_root, example_tree, SR['synonyms'], SR['rescores'])
-  #       # print >> sys.stderr, "%s: have score %d" % (sentences_file, rescore)
-  #       if rescore >= cutoff:
-  #         return r._replace(is_correct=val, relation_supertype='TREE_MATCH_%s' % name, relation_subtype=sentences_file)
   return None
 
 non_alnum = re.compile('[\W_]+')
