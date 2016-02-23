@@ -1,5 +1,4 @@
 """Miscellaneous shared tools for extractors."""
-from collections import defaultdict, namedtuple
 import os
 import re
 import sys
@@ -92,7 +91,7 @@ def tsv_string_to_list(s, func=lambda x : x, sep='|^|'):
   return [func(x) for x in split]
 
 
-def tsv_string_to_listoflists(s, func=lambda x : x, sep1='|~|', sep2='|^|'):
+def tsv_string_to_listoflists(s, func=lambda x : x, sep1='|^|', sep2='|~|'):
   """Convert a TSV string from sentences_input table to a list of lists"""
   return tsv_string_to_list(s, func=lambda x : tsv_string_to_list(x, func=func, sep=sep1), sep=sep2)
 
@@ -140,7 +139,7 @@ class RowParser:
       if RP_PARSERS.has_key(field_type):
         val = RP_PARSERS[field_type](col)
         if FIX_DEP_PARENTS:
-          if field_name == 'dep_parents':
+          if field_name == 'dep_parents' and field_type == 'int[]':
             for i in xrange(0, len(val)):
               val[i] -= 1
       else:
@@ -193,10 +192,6 @@ def run_main_tsv(row_parser, row_fn):
   Assumes that this outputs a list of rows, which get printed out in tsv format
   Has standard error handling for malformed rows- optimally row_fn returns object with pretty print
   """
-  lines_out = []
   for line in sys.stdin:
-    row = row_parser(line)
-    lines_out += row_fn(row)
-
-  for line in lines_out:
-    print_tsv_output(line)
+    for line_out in row_fn(row_parser(line)):
+      print_tsv_output(line_out)

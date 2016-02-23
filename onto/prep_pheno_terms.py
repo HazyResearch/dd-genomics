@@ -45,8 +45,8 @@ def normalize_phrase(p):
   return out
 
 def load_diseases(filename):
-  out_disease = []
-  for line in open('%s/onto/manual/phenotypic_series.tsv' % GDD_HOME):
+  out = []
+  for line in open(filename):
     row = line.split('\t')
     omim_ps_id = row[0]
     names = row[1].split('|^|')
@@ -67,8 +67,8 @@ def load_diseases(filename):
       k = f[0] + f[1]
       if not seen.has_key(k):
         seen[k] = 1
-        out_disease.append(f)
-  return out_disease
+        out.append(f)
+  return out
 
 if __name__ == "__main__":
   out_pheno = []
@@ -90,14 +90,14 @@ if __name__ == "__main__":
         seen[k] = 1
         out_pheno.append(f)
 
-  out_disease.extend(load_diseases('%s/onto/manual/diseases.tsv' % GDD_HOME))
   out_disease.extend(load_diseases('%s/onto/manual/phenotypic_series.tsv' % GDD_HOME))
+  out_disease.extend(load_diseases('%s/onto/manual/diseases.tsv' % GDD_HOME))
 
-  with open("%s/onto/manual/pheno_terms.tsv" % (GDD_HOME,), 'wb') as f:
+  with open("%s/onto/manual/pheno_terms.tsv" % (GDD_HOME,), 'w') as f:
     for o in out_pheno:
       f.write('\t'.join(o))
       f.write('\n')
-  with open("%s/onto/manual/disease_terms.tsv" % (GDD_HOME,), 'wb') as f:
+  with open("%s/onto/manual/disease_terms.tsv" % (GDD_HOME,), 'w') as f:
     for o in out_disease:
       f.write('\t'.join(o))
       f.write('\n')

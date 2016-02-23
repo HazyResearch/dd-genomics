@@ -83,7 +83,9 @@ there. They names hopefully explain what they're for. E.g., execute `cd util;
 version 3; execute `cd util; ./gp_precision_stats` to get precision statistics
 for all labeling set versions.
 
-The files `*_cutoff` contain the current expectation cutoff.
+**CURRENT EXPECTATION CUTOFFS:**
+
+The files `results_log/*_cutoff` (e.g., g_cutoff and gp_cutoff) contain the current expectation cutoff (e.g., 0.5 and 0.75).
 
 ### Error Analysis
 

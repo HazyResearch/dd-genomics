@@ -14,8 +14,9 @@ if [ $# -ge 2 ]; then
         echo "Setting confidence to $2"
         CONFIDENCE=$2
 else
-        echo "Setting confidence to 0.9"
-        CONFIDENCE=.9
+        cutoff=`cat ${GDD_HOME}/results_log/gp_cutoff`
+        echo "Setting confidence to $cutoff"
+        CONFIDENCE=$cutoff
 fi
 
 # extract all labels from the genepheno labels that are true
@@ -63,6 +64,8 @@ deepdive sql "COPY (SELECT * FROM genepheno_causation_labels gal WHERE gal.versi
 echo '/dfs/scratch0/genomics-data/sentences_input_v0.sql' > $DIR_NAME/input_data
 deepdive sql "COPY (SELECT count(*) FROM sentences_input) TO STDOUT WITH NULL AS ''" >> $DIR_NAME/input_data
 
+# Also echo the top lines from the stats file
+head -n 10 ${DIR_NAME}/stats_causation.tsv
 
 
 

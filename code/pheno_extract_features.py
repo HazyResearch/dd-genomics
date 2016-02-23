@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 import extractor_util as util
-from collections import namedtuple
 import os
-import sys
 import ddlib
 import config
 

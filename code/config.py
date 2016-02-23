@@ -15,7 +15,6 @@ GENE_ACRONYMS = {
 
   # # Features
   'F' : {
-    # 'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
   },
 
   'HF' : {},
@@ -30,7 +29,6 @@ NON_GENE_ACRONYMS = {
 
   # # Features
   'F' : {
-    # 'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
   },
 
   'HF' : {},
@@ -41,11 +39,15 @@ NON_GENE_ACRONYMS = {
                     'an', 'data', 'for', 'not', 'our', 'ie', 'to', \
                     'eg', 'one', 'age', 'on', 'center', 'right', 'left', \
                     'from', 'based', 'total', 'via', 'but', 'resp', 'no' },
-    'manual-pairs' : { 'FRAXA' : ['fragile X'], 'IL2' : ['intracellular loop'],
-                      'IL3' : ['intracellular loop'], 'IL1' : ['intracellular loop'],
-                      'IL4' : ['extracellular loop'], 'EL2' : ['extracellular loop'],
-                      'EL3' : ['extracellular loop'], 'EL1' : ['extracellular loop'],
-                      'EL4' : ['extracellular loop']}
+    'manual-pairs' : { ('FRAXA') : ['fragile X'], \
+                       ('IL1', 'IL2', 'IL3', 'IL4', 'IL5', 'EL1', 'EL2', 'EL3', 'EL4', 'EL5') :  \
+                         [ 'intracellular loop', 'extracellular loop'], \
+                       ('GAA') : ['repeat', 'triplet'], \
+                       ('CNF') : ['Finnish type'], \
+                       ('C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'L1', \
+                         'L2', 'L3', 'L4', 'L5', 'S1', 'S2', 'S3', 'S4', 'S5') : \
+                         ['vertebrae', 'spine', 'fusion', 'spina'],
+                       ('LCA10') : ['congenital amaurosis'], ('AR-JP') : [ 'parkinsonism' ]}
   }
 }
 
@@ -54,7 +56,6 @@ PHENO_ACRONYMS = {
 
   # # Features
   'F' : {
-    # 'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
   },
 
   'HF' : {},
@@ -62,10 +63,10 @@ PHENO_ACRONYMS = {
   'SR' : {
     'bad-pheno-names': ['MIM'],
     'difflib.pheno_cutoff' : 0.8,
-    'short-words': { 'the', 'and', 'or', 'at', 'in', 
-                    'see', 'as', 'an', 'data', 'for', 'not', 
-                    'our', 'ie', 'to', 'eg', 'one', 'age', 
-                    'on', 'center', 'right', 'left', 'from', 
+    'short-words': { 'the', 'and', 'or', 'at', 'in',
+                    'see', 'as', 'an', 'data', 'for', 'not',
+                    'our', 'ie', 'to', 'eg', 'one', 'age',
+                    'on', 'center', 'right', 'left', 'from',
                     'based', 'total', 'via', 'but', 'resp', 'no' },
     'rand-negs': True
   },
@@ -98,7 +99,22 @@ GENE = {
   'SR' : {
     # Label some P mentions based on the toks / phrases that follow
     'bad-genes': ['ANOVA', 'MRI', 'CO2', 'gamma', 'spatial', 'tau', 'Men', \
-                  'ghrelin', 'MIM', 'NHS', 'STD', 'hole', 'SDS', 'p12', 'p13', 'p53'],
+                  'ghrelin', 'MIM', 'NHS', 'STD', 'hole', 'SDS', 'p12', 'p13', 'p53',
+                  'FTDP-17', 'activin'],
+
+    'manual-bad' : { ('FRAXA') : ['fragile X'], \
+                       ('IL1', 'IL2', 'IL3', 'IL4', 'IL5', 'EL1', 'EL2', 'EL3', 'EL4', 'EL5') :  \
+                         [ 'intracellular loop', 'extracellular loop'],
+                       ('GAA', 'AAA', 'AAG', 'GTA', 'AGA', 'ACT', 'TGT', 'ACT', 'GCG', 'GCA', 'GCT', 'CAT', 'CGA', 
+                        'AGT', 'ACG', 'GAT', 'GAA', 'AGT', 'CAC', 'AAT', 'TAT', 'TGC') : ['repeat', 'triplet'],
+                       ('TG', 'CG', 'AC', 'GA', 'GC', 'CT', 'TC') : ['repeat'], 
+                       ('CNF') : ['Finnish type'],
+                       ('C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'L1',
+                         'L2', 'L3', 'L4', 'L5', 'S1', 'S2', 'S3', 'S4', 'S5') : \
+                         ['vertebrae', 'spine', 'fusion', 'spina'], 
+                         ('LCA10') : ['congenital amaurosis'],
+                         ('GAN') : [ 'primer' ],
+                         ('AR-JP') : [ 'parkinsonism' ]},
 
     'post-neighbor-match' : {
       # 'pos' : ['_ mutation', 'mutation', '_ mutations', 'mutations', 'mutant', \
@@ -127,7 +143,7 @@ GENE = {
 
     'phrases-in-sent': {
       'pos' : [],
-      'neg' : ['serum', 'level', 'elevated', 'plasma'],
+      'neg' : ['serum', 'level', 'elevated', 'plasma', 'accumulate', 'accumulation', 'deposition'],
       'pos-rgx': [],
       'neg-rgx': []
     },
@@ -146,7 +162,6 @@ GENE = {
 
   # # Features
   'F' : {
-    # 'exclude_generic' : ['LEMMA_SEQ', 'WORD_SEQ']
   }
 }
 
@@ -241,13 +256,8 @@ GENE_PHENO = {
   # # Hard Filters (for candidate extraction)
   'HF' : {
     # Upper-bound the max min-dependency-path length between G and P
-    'max-dep-path-dist' : 10,
+    'max-dep-path-dist' : 20,
 
-    # Only consider the closest GP pairs for duplicate GP pairs
-    'take-best-only-dups' : False,
-
-    # Only consider the closest GP pairs by dep-path distance such that all G,P are covered
-    'take-best-only' : False
   },
 
   'vals' : BOOL_VALS,
@@ -279,8 +289,6 @@ GENE_PHENO = {
     # Supervise GP pairs as T/F based on dependency-path neighbor lemmas of G and P
     'dep-lemma-neighbors' : {
       'max-dist' : 1,
-      # 'pos-g' : ['cause', 'mutate', 'mutation', 'variant', 'allele'],
-      # 'pos-p' : ['mutation', 'mutate'],
       'pos-g' : [],
       'pos-p' : [],
       'neg-g' : ['express',
@@ -313,9 +321,12 @@ GENE_PHENO = {
     },
 
     # Label T all GP pairs in Charite dataset (and that haven't already been labeled T/F)
-    'charite-all-pos' : False,
-
-    'charite-all-pos-words': ['(mutat|delet|duplicat|truncat|SNP).*caus'],
+    'charite-all-pos-words': ['(mutat|delet|duplicat|truncat|SNP).*(caus|responsible for)',
+                              'PHENO.*secondary to.*GENE',
+                              'identified.*(mutat|delet|duplicat|truncat|SNP).*GENE.*PHENO',
+                              'mutations.*GENE.*reported.*PHENO',
+                              'identified.*GENE.*(mutat|delet|duplicat|truncat|SNP).*PHENO',
+                              'PHENO.*result.*from.*GENE'],
 
     # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
     'dep-lemma-connectors' : {
@@ -324,7 +335,6 @@ GENE_PHENO = {
     },
 
     'phrases-in-sent' : {
-      # 'pos' : ['caused by (mutation|deletion|duplication|truncat)', 'confirmed linkage'],
       'pos' : [],
       'neg' : ['possible association',
                'to investigate',
@@ -346,35 +356,40 @@ GENE_PHENO = {
                'deficiency',
                'activity',
                'unravel',
-               'how',
                'fish',
-               'sheep'
+               'sheep',
+               'cattle',
+               'dachshund',
+               'plant',
                ],
       'pos-rgx' : [],
-      # 'pos-rgx' : [],
-      'neg-rgx' : [  # r'rs\d+',
-                   # r't?SNPs?',
-                   # r'\d+(\.\d+)?\s*\%',
-                   r'PHENO.*not.*cause.*GENE',
-                   r'GENE.*not.*cause.*PHENO',
-                   r'\?\s*$',
-                   r'to determine',
-                   r'to evaluate',
-                   r'to investigate',
-                   r'we investigated',
-                   r'we examined',
-                   r'to examine',
-                   r'we requested',
+      'neg-rgx' : [
+                   'PHENO.*not.*cause.*GENE',
+                   'GENE.*not.*cause.*PHENO',
+                   '\?\s*$',
+                   'to determine',
+                   'to evaluate',
+                   'to investigate',
+                   'we investigated',
+                   'we examined',
+                   'to examine',
+                   'we requested',
                    'to study',
                    'indicating that',
                    '\d+ h ',
-                   r'to assess',
-                   r'^\s*here we define',
-                   r'whether',
+                   'to assess',
+                   '^\s*here we define',
+                   'whether',
                    'unlikely.*GENE.*PHENO',
                    'PHENO.*not due to.*GENE',
+                   'GENE.*unlikely.*cause.*PHENO',
+                   'PHENO.*unlikely.*cause.*GENE',
                    'GENE.*linked to.*PHENO',
-                   'attracted.*interest'
+                   'attracted.*interest',
+                   'GENE.*, while.*PHENO',
+                   'GENE.*, whereas.*PHENO',
+                   'GENE.*proposed.*PHENO',
+                   'target'
                     ]
     },
 
@@ -382,24 +397,20 @@ GENE_PHENO = {
       'pos': [],
       'neg': []
     },
-
-    'synonyms': [set(['disease', 'disorder']), \
-                 set(['mutation', 'variant', 'allele', 'polymorphism']), \
-                 set(['case', 'patient', 'subject', 'family', 'boy', 'girl']), \
-                 set(['present', 'display', 'characterize']), \
-                 set(['nonsense', 'missense', 'frameshift']), \
-                 set(['identify', 'report', 'find', 'detect']), \
-                 set(['cause', 'associate', 'link', 'lead']),
-                 set(['mutation', 'inhibition']), \
-                 set(['recessive', 'dominant'])],
-
-    'rescores': [(set(['cause', 'lead', 'result']), set(['associate', 'link']), -50),
-                 (set(['mutation']), set(['inhibition', 'deficiency']), -50)],
-
   },
 
   # # Features
-  'F' : {}
+  'F' : {
+    'synonyms': {'disease': set(['disease', 'disorder']),
+                 'mutation': set(['mutation', 'missense', 'polymorphism', 'deletion', 'duplication',
+                                  'truncation', 'SNP', 'frameshift', 'nonsense']),
+                 'patient': set(['case', 'patient', 'subject', 'family', 'boy', 'girl']),
+                 'present': set(['present', 'display', 'characterize']),
+                 'mut_type': set(['nonsense', 'missense', 'frameshift']),
+                 'identify': set(['identify', 'report', 'find', 'detect']),
+                 'cause': set(['cause', 'result']),
+                 'inheritance': set(['recessive', 'dominant'])},
+  },
 }
 
 CAUSATION_SR = {
@@ -431,39 +442,27 @@ CAUSATION_SR = {
                'inconclusive',
                'further analysis',
                'association',
-               'associated'
                ],
-      'pos-rgx' : [#r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*cause.*PHENO',
-                  #r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*described.*patients.*PHENO',
-                  #r'.*patient.*GENE.*present with.*clinical.*PHENO.*',
-                  #r'(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO',
-                  #r'(mutation|deletion).*GENE.*described.*patients.*PHENO'
+      'pos-rgx' : ['(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*cause.*PHENO',
+                  '(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*described.*patients.*PHENO',
+                  '.*patient.*GENE.*(present with|had).*PHENO.*',
+                  '(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO',
+                  '(mutation|deletion).*GENE.*described.*patients.*PHENO',
+                  'PHENO.*secondary to.*GENE',
+                  'identified.*mutations.*GENE.*PHENO',
+                  'mutations.*GENE.*reported.*PHENO',
+                  'identified.*GENE.*mutations.*PHENO'
                   ],
-      'neg-rgx' : [],
+      'neg-rgx' : [
+               'GENE.*associated.*PHENO'
+               'PHENO.*associated.*GENE'
+               'associated.*GENE.*with.*PHENO'],
     },
     # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
     'dep-lemma-connectors' : {
-      # 'pos' : ['cause'],
       'pos': [],
-      'neg' : [  # 'associate',
-               # 'correlate',
-               # 'implicate'
-               ]
+      'neg' : []
     },
-}
-
-ASSOCIATION_SR = {
-    # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
-    'phrases-in-sent' : {
-      'pos' : [],
-      'neg' : [],
-      # 'pos-rgx' : [r'genotype.*linked to.*PHENO', r'PHENO.*linkage to.*GENE', \
-      #              r'.*GENE.*associated with.*PHENO', \
-      #              '(variant|allele)?.*GENE.*(PHENO suscept|susceptibility to PHENO).*', \
-      #              '(single nucleotide polymorphisms|SNPs) in GENE.*(associated with|cause).*PHENO'],
-      'pos-rgx' : [],
-      'neg-rgx' : [],
-    }
 }
 
 def extend(map1, map2):
@@ -483,9 +482,7 @@ def extend(map1, map2):
             rv[item].append(v)
   return rv
 
-GENE_PHENO_ASSOCIATION = copy.deepcopy(GENE_PHENO)
 GENE_PHENO_CAUSATION = copy.deepcopy(GENE_PHENO)
-GENE_PHENO_ASSOCIATION['SR'] = extend(GENE_PHENO_ASSOCIATION['SR'], ASSOCIATION_SR)
 GENE_PHENO_CAUSATION['SR'] = extend(GENE_PHENO_CAUSATION['SR'], CAUSATION_SR)
 
 # ## GENE-VARIANT-PHENO

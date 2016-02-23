@@ -20,6 +20,12 @@ from
           on (l.relation_id = p.gene_mention_id || '_' || p.pheno_mention_id)) 
       union (select distinct doc_id from 
         genepheno_causation_precision_labels l 
+        join genepheno_pairs p on (l.relation_id = p.gene_mention_id || '_' || p.pheno_mention_id))
+      union (select distinct doc_id from 
+        genepheno_multi_precision_labels l 
+        join genepheno_pairs p on (l.relation_id = p.gene_mention_id || '_' || p.pheno_mention_id))
+      union (select distinct doc_id from 
+        genepheno_facts_precision_labels l 
         join genepheno_pairs p on (l.relation_id = p.gene_mention_id || '_' || p.pheno_mention_id))) a) 
       si2 on (si.doc_id = si2.doc_id)
 ) TO STDOUT" genomics_jbirgmei

@@ -3,8 +3,8 @@
 #Here we assume that the ddlog database is accessible by "deepdive sql" so correctly defined in db.url
 
 cd ..
-deepdive sql """DROP VIEW IF EXISTS gene_mentions_filtered_is_correct_inference CASCADE;
-CREATE VIEW gene_mentions_filtered_is_correct_inference AS SELECT
+deepdive sql """DROP TABLE IF EXISTS gene_mentions_filtered_is_correct_inference CASCADE;
+CREATE TABLE gene_mentions_filtered_is_correct_inference AS SELECT
 g.*,
 ginf.category as category, 
 ginf.expectation as expectation
@@ -12,8 +12,8 @@ from gene_mentions_filtered g,
 gene_mentions_filtered_inference_label_inference ginf
 where ginf.mention_id = g.mention_id;"""
 
-deepdive sql """DROP VIEW IF EXISTS genepheno_causation_is_correct_inference CASCADE;
-CREATE VIEW genepheno_causation_is_correct_inference AS SELECT
+deepdive sql """DROP TABLE IF EXISTS genepheno_causation_is_correct_inference CASCADE;
+CREATE TABLE genepheno_causation_is_correct_inference AS SELECT
 g.*,
 ginf.category as category, 
 ginf.expectation as expectation

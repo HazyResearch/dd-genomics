@@ -1,0 +1,24 @@
+##### SUMMARY #####
+True positives:	24
+True negatives:	13
+False positives:	1
+False negatives:	34
+
+
+Precision:	0.96
+Recall:	0.413793103448
+F1 score:	0.578313253012
+
+
+##### tpalo #####
+True positives:	24
+True negatives:	13
+False positives:	1
+False negatives:	34
+
+
+Precision:	0.96
+Recall:	0.413793103448
+F1 score:	0.578313253012
+
+

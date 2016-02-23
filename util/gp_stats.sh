@@ -1,6 +1,8 @@
 #!/bin/bash -e
 set -beEu -o pipefail
 
+echo "CREATE HOLDOUT PATCH!"
+
 if [ $# -eq 1 ]
 then
   version_string="AND version = $1"
@@ -8,7 +10,7 @@ else
   version_string=""
 fi
 
-GP_CUTOFF=`cat gp_cutoff`
+GP_CUTOFF=`cat ../results_log/gp_cutoff`
 
 cd ..
 source env_local.sh
@@ -82,5 +84,6 @@ FROM
     AND s.is_correct = 'f'
     $version_string
   GROUP BY labeler) tn
-  ON (tn.labeler = COALESCE(fp.labeler, tp.labeler, fn.labeler))) a;
+  ON (tn.labeler = COALESCE(fp.labeler, tp.labeler, fn.labeler))) a
+ORDER BY labeler;
 """

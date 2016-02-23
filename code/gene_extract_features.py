@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 from collections import namedtuple
 import extractor_util as util
-import os
-import sys
 import ddlib
 import re
-import config
 
 # This defines the Row object that we read in to the extractor
 parser = util.RowParser([
@@ -26,9 +23,13 @@ Feature = namedtuple('Feature', ['doc_id', 'section_id', 'mention_id', 'name'])
 
 ENSEMBL_TYPES = ['NONCANONICAL', 'CANONICAL', 'REFSEQ']
 
+def get_custom_features(row):
+  gene_word = row.words[row.mention_wordidxs[0]]
+  if re.match('^[ATGCN]{1,5}$', gene_word):
+    yield 'GENE_ONLY_BASES'
 
 def get_features_for_row(row):
-  OPTS = config.GENE['F']
+  #OPTS = config.GENE['F']
   features = []
   f = Feature(doc_id=row.doc_id, section_id=row.section_id, mention_id=row.mention_id, name=None)
 
@@ -37,11 +38,8 @@ def get_features_for_row(row):
   span = ddlib.Span(begin_word_id=row.mention_wordidxs[0], length=len(row.mention_wordidxs))
   generic_features = [f._replace(name=feat) for feat in ddlib.get_generic_features_mention(sentence, span)]
 
-  # Optionally filter out some generic features
-  if OPTS.get('exclude_generic'):
-    generic_features = filter(lambda feat : not feat.startswith(tuple(OPTS['exclude_generic'])), generic_features)
-
   features += generic_features
+  features += [f._replace(name=feat) for feat in get_custom_features(row)]
   
   # (2) Include gene type as a feature
   # Note: including this as feature creates massive overfitting, for obvious reasons

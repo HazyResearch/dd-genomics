@@ -8,7 +8,7 @@ select
   , g.wordidxs as gene_wordidxs
   , p.wordidxs as pheno_wordidxs
   , string_to_array(si.words, '|^|') as words
-  , ap.names as pheno_name
+  , ARRAY_TO_STRING(STRING_TO_ARRAY(lower(ap.names), '|^|'), ', ') as pheno_name
   , g.mention_id
   , p.mention_id
 from
@@ -16,8 +16,8 @@ from
       doc_id,
       section_id,
       sent_id,
-      string_to_array(gene_wordidxs, '|~|')::int[] AS gene_wordidxs,
-      string_to_array(pheno_wordidxs, '|~|')::int[] AS pheno_wordidxs,
+      string_to_array(gene_wordidxs, '|^|')::int[] AS gene_wordidxs,
+      string_to_array(pheno_wordidxs, '|^|')::int[] AS pheno_wordidxs,
       gp.gene_mention_id AS gene_mention_id,
       gp.pheno_mention_id AS pheno_mention_id
     FROM

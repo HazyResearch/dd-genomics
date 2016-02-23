@@ -2,9 +2,8 @@
 import extractor_util as util
 from collections import namedtuple
 import os
-import sys
 import ddlib
-from treedlib import corenlp_to_xmltree, get_relation_features
+import config
 
 parser = util.RowParser([
           ('relation_id', 'text'),
@@ -20,15 +19,38 @@ parser = util.RowParser([
           ('poses', 'text[]'),
           ('ners', 'text[]'),
           ('dep_paths', 'text[]'),
-          ('dep_parents', 'int[]'),
-          ('num_gene_candidates', 'int'),
-          ('num_pheno_candidates', 'int')])
+          ('dep_parents', 'int[]')])
 
+
+fr = config.GENE_PHENO['F']
 
 Feature = namedtuple('Feature', ['doc_id', 'section_id', 'relation_id', 'name'])
 
+bad_features = ['STARTS_WITH_CAPITAL_[True_True]', 'NGRAM_1_[to]', 'NGRAM_1_[a]', 'NGRAM_1_[and]', 'NGRAM_1_[in]', 'IS_INVERTED', 
+                'NGRAM_1_[or]', 'NGRAM_1_[be]', 'NGRAM_1_[with]', 'NER_SEQ_[O O O O O O O O O O]', 'NER_SEQ_[O O O O O]', 
+                'INV_W_NER_L_1_R_1_[O]_[O]']
+inv_bad_features = []
+for f in bad_features:
+  inv_bad_features.append('INV_' + f)
+bad_features.extend(inv_bad_features)
 
-def get_features_for_candidate_ddlib(row):
+def create_ners_between(gene_wordidxs, pheno_wordidxs, ners):
+  if gene_wordidxs[0] < pheno_wordidxs[0]:
+    start = max(gene_wordidxs) + 1
+    end = min(pheno_wordidxs) - 1
+  else:
+    start = max(pheno_wordidxs) + 1
+    end = min(gene_wordidxs) - 1
+  prefix = 'NERS_BETWEEN_'
+  nonnull_ners = []
+  for i in xrange(start, end+1):
+    ner = ners[i]
+    if ner != 'O':
+      nonnull_ners.append('[' + ner + ']')
+  rv = prefix + '_'.join(nonnull_ners)
+  return [rv]
+          
+def get_features_for_candidate(row):
   """Extract features for candidate mention- both generic ones from ddlib & custom features"""
   features = []
   f = Feature(doc_id=row.doc_id, section_id=row.section_id, relation_id=row.relation_id, name=None)
@@ -37,35 +59,21 @@ def get_features_for_candidate_ddlib(row):
   # (1) GENERIC FEATURES from ddlib
   gene_span = ddlib.Span(begin_word_id=row.gene_wordidxs[0], length=len(row.gene_wordidxs))
   pheno_span = ddlib.Span(begin_word_id=row.pheno_wordidxs[0], length=len(row.pheno_wordidxs))
-  features += [f._replace(name=feat) \
-                    for feat in ddlib.get_generic_features_relation(dds, gene_span, pheno_span)]
-  return features
-
-CoreNLPSentence = namedtuple('CoreNLPSentence', 'words, lemmas, poses, ners, dep_paths, dep_parents')
-
-def get_features_for_candidate_treedlib(r):
-  """Extract features using treedlib"""
-  features = []
-  f = Feature(doc_id=r.doc_id, section_id=r.section_id, relation_id=r.relation_id, name=None)
-  s = CoreNLPSentence(words=r.words, lemmas=r.lemmas, poses=r.poses, ners=r.ners, dep_paths=r.dep_paths, dep_parents=r.dep_parents)
-
-  # Create XMLTree representation of sentence
-  xt = corenlp_to_xmltree(s)
-
-  # Get features
-  for feature in get_relation_features(xt.root, r.gene_wordidxs, r.pheno_wordidxs):
-    features += [f._replace(name=feature)]
+  for feat in ddlib.get_generic_features_relation(dds, gene_span, pheno_span):
+    if feat in bad_features:
+      continue
+    features.append(f._replace(name=feat))
+  # these seem to be hurting (?)
+  #start_span = ddlib.Span(begin_word_id=0, length=4)
+  #for feat in ddlib.get_generic_features_mention(dds, start_span, length_bin_size=2):
+  #  features.append(f._replace(name='START_SENT_%s' % feat))
+  # WITH these custom features, I get a little LESS precision and a little MORE recall (!)
+  #features += [f._replace(name=feat) for feat in create_ners_between(row.gene_wordidxs, row.pheno_wordidxs, row.ners)]
   return features
 
 # Helper for loading in manually defined keywords
 onto_path = lambda p : '%s/onto/%s' % (os.environ['GDD_HOME'], p)
 
-def get_features_for_candidate(row):
-  if row.num_gene_candidates >= 2 and row.num_pheno_candidates >= 2:
-    return get_features_for_candidate_treedlib(row)
-  else:
-    return get_features_for_candidate_ddlib(row)
-
 if __name__ == '__main__':
-  ddlib.load_dictionary(onto_path("manual/genepheno_keywords.txt"), dict_id="gp_relation_kws")
+  ddlib.load_dictionary_map(fr['synonyms'])
   util.run_main_tsv(row_parser=parser.parse_tsv_row, row_fn=get_features_for_candidate)

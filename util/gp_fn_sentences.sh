@@ -1,6 +1,9 @@
 #!/bin/bash -e
 set -beEu -o pipefail
 
+echo "CREATE HOLDOUT PATCH!"
+
+
 if [ $# -eq 1 ]
 then
   version_string="AND version = $1"
@@ -8,7 +11,7 @@ else
   version_string=""
 fi
 
-GP_CUTOFF=`cat $gp_cutoff`
+GP_CUTOFF=`cat ../results_log/gp_cutoff`
 
 cd ..
 source env_local.sh
@@ -20,6 +23,8 @@ SELECT DISTINCT
   si.section_id,
   si.sent_id,
   gc.expectation,
+  gc.supertype,
+  gc.subtype,
   gc.gene_name,
   gc.gene_wordidxs,
   gc.pheno_wordidxs,
