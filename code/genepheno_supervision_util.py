@@ -106,7 +106,7 @@ def config_supervise(r, row, pheno_entity, gene_name, gene, pheno,
   global between_neg
   if SR.get('phrases-in-between'):
     opts = SR['phrases-in-between']
-    opts = replace_opts(opts, [('GENE', gene), ('PHENO', pheno)])
+    opts = replace_opts(opts, [('{{G}}', gene), ('{{P}}', pheno)])
     for name, val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
         match = util.rgx_mult_search(between_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
@@ -118,7 +118,7 @@ def config_supervise(r, row, pheno_entity, gene_name, gene, pheno,
 
   if SR.get('phrases-in-sent'):
     opts = SR['phrases-in-sent']
-    opts = replace_opts(opts, [('GENE', gene), ('PHENO', pheno)])
+    opts = replace_opts(opts, [('{{G}}', gene), ('{{P}}', pheno)])
     for name, val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
         match = util.rgx_mult_search(phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
@@ -209,6 +209,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
   pheno_is_correct = row.pheno_is_correct
   gene = row.gene_name
   pheno = ' '.join([row.words[i] for i in row.pheno_wordidxs])
+  sv_synonyms = SR['sv_synonyms']
 
   phrase = ' '.join(row.words)
   lemma_phrase = ' '.join(row.lemmas)
