@@ -25,7 +25,7 @@ parser = util.RowParser([
 Feature = namedtuple('Feature', ['doc_id', 'section_id', 'relation_id', 'name'])
 
 bad_features = ['STARTS_WITH_CAPITAL_[True_True]', 'NGRAM_1_[to]', 'NGRAM_1_[a]', 'NGRAM_1_[and]', 'NGRAM_1_[in]', 'IS_INVERTED', 
-                'INV_NGRAM_1_[or]']
+                'NGRAM_1_[or]']
 inv_bad_features = []
 for f in bad_features:
   inv_bad_features.append('INV_' + f)
