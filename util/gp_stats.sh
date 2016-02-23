@@ -84,5 +84,6 @@ FROM
     AND s.is_correct = 'f'
     $version_string
   GROUP BY labeler) tn
-  ON (tn.labeler = COALESCE(fp.labeler, tp.labeler, fn.labeler))) a;
+  ON (tn.labeler = COALESCE(fp.labeler, tp.labeler, fn.labeler))) a
+ORDER BY labeler;
 """

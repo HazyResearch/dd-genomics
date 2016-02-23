@@ -4,6 +4,7 @@ from collections import namedtuple
 import os
 import sys
 import ddlib
+import config
 
 parser = util.RowParser([
           ('relation_id', 'text'),
@@ -22,10 +23,13 @@ parser = util.RowParser([
           ('dep_parents', 'int[]')])
 
 
+fr = config.GENE_PHENO['F']
+
 Feature = namedtuple('Feature', ['doc_id', 'section_id', 'relation_id', 'name'])
 
 bad_features = ['STARTS_WITH_CAPITAL_[True_True]', 'NGRAM_1_[to]', 'NGRAM_1_[a]', 'NGRAM_1_[and]', 'NGRAM_1_[in]', 'IS_INVERTED', 
-                'NGRAM_1_[or]']
+                'NGRAM_1_[or]', 'NGRAM_1_[be]', 'NGRAM_1_[with]', 'NER_SEQ_[O O O O O O O O O O]', 'NER_SEQ_[O O O O O]', 
+                'INV_W_NER_L_1_R_1_[O]_[O]']
 inv_bad_features = []
 for f in bad_features:
   inv_bad_features.append('INV_' + f)
@@ -60,6 +64,9 @@ def get_features_for_candidate(row):
     if feat in bad_features:
       continue
     features.append(f._replace(name=feat))
+  start_span = ddlib.Span(begin_word_id=0, length=4)
+  for feat in ddlib.get_generic_features_mention(dds, start_span, length_bin_size=2):
+    features.append(f._replace(name='START_SENT_%s' % feat))
   # WITH these custom features, I get a little LESS precision and a little MORE recall (!)
   #features += [f._replace(name=feat) for feat in create_ners_between(row.gene_wordidxs, row.pheno_wordidxs, row.ners)]
   return features
@@ -68,5 +75,5 @@ def get_features_for_candidate(row):
 onto_path = lambda p : '%s/onto/%s' % (os.environ['GDD_HOME'], p)
 
 if __name__ == '__main__':
-  ddlib.load_dictionary(onto_path("manual/genepheno_keywords.txt"), dict_id="gp_relation_kws")
+  ddlib.load_dictionary_map(fr['synonyms'])
   util.run_main_tsv(row_parser=parser.parse_tsv_row, row_fn=get_features_for_candidate)
