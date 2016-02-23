@@ -335,7 +335,6 @@ GENE_PHENO = {
     },
 
     'phrases-in-sent' : {
-      # 'pos' : ['caused by (mutation|deletion|duplication|truncat)', 'confirmed linkage'],
       'pos' : [],
       'neg' : ['possible association',
                'to investigate',
@@ -364,28 +363,23 @@ GENE_PHENO = {
                'plant',
                ],
       'pos-rgx' : [],
-      # 'pos-rgx' : [],
-      'neg-rgx' : [  # r'rs\d+',
-                   # r't?SNPs?',
-                   # r'\d+(\.\d+)?\s*\%',
-                   r'PHENO.*not.*cause.*GENE',
-                   r'GENE.*not.*cause.*PHENO',
-                   # r'GENE.*;.*PHENO',
-                   # r'PHENO.*;GENE',
-                   r'\?\s*$',
-                   r'to determine',
-                   r'to evaluate',
-                   r'to investigate',
-                   r'we investigated',
-                   r'we examined',
-                   r'to examine',
-                   r'we requested',
+      'neg-rgx' : [
+                   'PHENO.*not.*cause.*GENE',
+                   'GENE.*not.*cause.*PHENO',
+                   '\?\s*$',
+                   'to determine',
+                   'to evaluate',
+                   'to investigate',
+                   'we investigated',
+                   'we examined',
+                   'to examine',
+                   'we requested',
                    'to study',
                    'indicating that',
                    '\d+ h ',
-                   r'to assess',
-                   r'^\s*here we define',
-                   r'whether',
+                   'to assess',
+                   '^\s*here we define',
+                   'whether',
                    'unlikely.*GENE.*PHENO',
                    'PHENO.*not due to.*GENE',
                    'GENE.*unlikely.*cause.*PHENO',
@@ -394,7 +388,7 @@ GENE_PHENO = {
                    'attracted.*interest',
                    'GENE.*, while.*PHENO',
                    'GENE.*, whereas.*PHENO',
-                   'GENE.*proposed.*PHENO'
+                   'GENE.*proposed.*PHENO',
                    'target'
                     ]
     },
@@ -449,11 +443,11 @@ CAUSATION_SR = {
                'further analysis',
                'association',
                ],
-      'pos-rgx' : [r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*cause.*PHENO',
-                  r'(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*described.*patients.*PHENO',
-                  r'.*patient.*GENE.*(present with|had).*PHENO.*',
-                  r'(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO',
-                  r'(mutation|deletion).*GENE.*described.*patients.*PHENO',
+      'pos-rgx' : ['(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*cause.*PHENO',
+                  '(mutat|delet|duplicat|truncat|SNP|polymorphism).*GENE.*described.*patients.*PHENO',
+                  '.*patient.*GENE.*(present with|had).*PHENO.*',
+                  '(single nucleotide polymorphisms|SNPs) in GENE.*cause.*PHENO',
+                  '(mutation|deletion).*GENE.*described.*patients.*PHENO',
                   'PHENO.*secondary to.*GENE',
                   'identified.*mutations.*GENE.*PHENO',
                   'mutations.*GENE.*reported.*PHENO',
@@ -466,27 +460,9 @@ CAUSATION_SR = {
     },
     # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
     'dep-lemma-connectors' : {
-      # 'pos' : ['cause'],
       'pos': [],
-      'neg' : [  # 'associate',
-               # 'correlate',
-               # 'implicate'
-               ]
+      'neg' : []
     },
-}
-
-ASSOCIATION_SR = {
-    # Supervise as T/F based on phrases (exact or regex) anywhere in sentence
-    'phrases-in-sent' : {
-      'pos' : [],
-      'neg' : [],
-      # 'pos-rgx' : [r'genotype.*linked to.*PHENO', r'PHENO.*linkage to.*GENE', \
-      #              r'.*GENE.*associated with.*PHENO', \
-      #              '(variant|allele)?.*GENE.*(PHENO suscept|susceptibility to PHENO).*', \
-      #              '(single nucleotide polymorphisms|SNPs) in GENE.*(associated with|cause).*PHENO'],
-      'pos-rgx' : [],
-      'neg-rgx' : [],
-    }
 }
 
 def extend(map1, map2):
@@ -506,9 +482,7 @@ def extend(map1, map2):
             rv[item].append(v)
   return rv
 
-GENE_PHENO_ASSOCIATION = copy.deepcopy(GENE_PHENO)
 GENE_PHENO_CAUSATION = copy.deepcopy(GENE_PHENO)
-GENE_PHENO_ASSOCIATION['SR'] = extend(GENE_PHENO_ASSOCIATION['SR'], ASSOCIATION_SR)
 GENE_PHENO_CAUSATION['SR'] = extend(GENE_PHENO_CAUSATION['SR'], CAUSATION_SR)
 
 # ## GENE-VARIANT-PHENO

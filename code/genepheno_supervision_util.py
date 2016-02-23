@@ -5,8 +5,6 @@ import dep_util as deps
 import random
 import re
 import sys
-import config
-from genepheno_sv_new import get_example_tree, get_score, print_example_tree
 
 
 # This defines the Row object that we read in to the extractor

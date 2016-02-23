@@ -2,7 +2,6 @@
 import extractor_util as util
 from collections import namedtuple
 import os
-import sys
 import ddlib
 import config
 
@@ -64,9 +63,10 @@ def get_features_for_candidate(row):
     if feat in bad_features:
       continue
     features.append(f._replace(name=feat))
-  start_span = ddlib.Span(begin_word_id=0, length=4)
-  for feat in ddlib.get_generic_features_mention(dds, start_span, length_bin_size=2):
-    features.append(f._replace(name='START_SENT_%s' % feat))
+  # these seem to be hurting (?)
+  #start_span = ddlib.Span(begin_word_id=0, length=4)
+  #for feat in ddlib.get_generic_features_mention(dds, start_span, length_bin_size=2):
+  #  features.append(f._replace(name='START_SENT_%s' % feat))
   # WITH these custom features, I get a little LESS precision and a little MORE recall (!)
   #features += [f._replace(name=feat) for feat in create_ners_between(row.gene_wordidxs, row.pheno_wordidxs, row.ners)]
   return features

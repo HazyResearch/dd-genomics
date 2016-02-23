@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 from collections import namedtuple
 import extractor_util as util
-import os
-import sys
 import ddlib
 import re
-import config
 
 # This defines the Row object that we read in to the extractor
 parser = util.RowParser([
@@ -27,12 +24,12 @@ Feature = namedtuple('Feature', ['doc_id', 'section_id', 'mention_id', 'name'])
 ENSEMBL_TYPES = ['NONCANONICAL', 'CANONICAL', 'REFSEQ']
 
 def get_custom_features(row):
-  gene_word = row.words[row.gene_wordidxs[0]]
+  gene_word = row.words[row.mention_wordidxs[0]]
   if re.match('^[ATGCN]{1,5}$', gene_word):
     yield 'GENE_ONLY_BASES'
 
 def get_features_for_row(row):
-  OPTS = config.GENE['F']
+  #OPTS = config.GENE['F']
   features = []
   f = Feature(doc_id=row.doc_id, section_id=row.section_id, mention_id=row.mention_id, name=None)
 

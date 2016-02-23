@@ -1,5 +1,4 @@
 """Miscellaneous shared tools for extractors."""
-from collections import defaultdict, namedtuple
 import os
 import re
 import sys
