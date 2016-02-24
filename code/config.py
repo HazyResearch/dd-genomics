@@ -48,7 +48,8 @@ NON_GENE_ACRONYMS = {
                          'L2', 'L3', 'L4', 'L5', 'S1', 'S2', 'S3', 'S4', 'S5') :
                          ['vertebrae', 'spine', 'fusion', 'spina'],
                        ('LCA10') : ['congenital amaurosis'], 
-                       ('AR-JP') : [ 'parkinsonism' ]}
+                       ('AR-JP') : [ 'parkinsonism' ],
+                       ('OCRL') : [ 'oculocerebrorenal syndrome of Lowe' ]}
   }
 }
 
@@ -116,7 +117,8 @@ GENE = {
                        ('LCA10') : ['congenital amaurosis'],
                        ('GAN') : [ 'primer' ],
                        ('AR-JP') : [ 'parkinsonism' ],
-                       ('SRN1') : ['nephrotic', 'segmental'],},
+                       ('SRN1') : ['nephrotic', 'segmental'],
+                       ('OCA1') : ['oculocutaneous albinism']},
 
     'post-neighbor-match' : {
       # 'pos' : ['_ mutation', 'mutation', '_ mutations', 'mutations', 'mutant', \
@@ -318,7 +320,8 @@ GENE_PHENO = {
                  'increase',
                  'increas',
                  ' deficiency',
-                 'exclude'
+                 'exclude',
+                 'inclusion',
                  ],
       'neg-p' : ['without', 'except']
     },
@@ -370,7 +373,7 @@ GENE_PHENO = {
                'cattle',
                'dachshund',
                'plant',
-               'algorithm'
+               'algorithm',
                'odds ratio',
                ],
       'pos-rgx' : [],
@@ -384,9 +387,11 @@ GENE_PHENO = {
                    'we investigated',
                    'we examined',
                    'to examine',
+                   'to test',
                    'we requested',
                    'to study',
                    'indicating that',
+                   'analysis.*was performed'
                    '\d+ h ',
                    'to assess',
                    '^\s*here we define',
@@ -395,8 +400,12 @@ GENE_PHENO = {
                    '{{P}}.*not due to.*{{G}}',
                    '{{G}}.*unlikely.*cause.*{{P}}',
                    '{{P}}.*unlikely.*cause.*{{G}}',
+                   '{{G}}.*excluded.*cause.*{{P}}',
+                   '{{P}}.*excluded.*cause.*{{G}}',
                    '{{G}}.*linked to.*{{P}}',
                    'attracted.*interest',
+                   '{{P}}.*, while.*{{G}}',
+                   '{{P}}.*, whereas.*{{G}}',
                    '{{G}}.*, while.*{{P}}',
                    '{{G}}.*, whereas.*{{P}}',
                    '{{G}}.*proposed.*{{P}}',
@@ -404,6 +413,7 @@ GENE_PHENO = {
                     '{{G}}.*to determine.*{{P}}',
                     '{{G}}.*caus.*deregulation.*{{P}}',
                     'dysregulation of.*{{G}}',
+                    '{{G}}.*modifier of.*gene.*{{P}}'
                     ]
     },
 
@@ -441,6 +451,7 @@ GENE_PHENO = {
                    'we investigated',
                    'we examined',
                    'to examine',
+                   'to test',
                    'we requested',
                    'to study',
                    'fish',
@@ -504,7 +515,8 @@ CAUSATION_SR = {
       'neg-rgx' : [
                '{{G}}.*associated.*{{P}}',
                '{{P}}.*associated.*{{G}}',
-               'associated.*{{G}}.*with.*{{P}}',],
+               'associated.*{{G}}.*with.*{{P}}',
+               'associated with.*{{P}}'],
     },
     # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
     'dep-lemma-connectors' : {
