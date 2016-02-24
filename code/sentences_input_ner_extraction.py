@@ -49,20 +49,20 @@ def create_ners(row):
       if re.findall('RAND_NEG', pheno_supertype) or \
           re.findall('BAD', pheno_supertype) or pheno_supertype == 'O':
         continue
-      ners[wordidxs[0]] = 'PHENO'
+      ners[wordidxs[0]] = 'NERPHENO'
       for wordidx in wordidxs:
-        words_ner[wordidx] = 'PHENO'
-        lemmas_ner[wordidx] = 'pheno'
+        words_ner[wordidx] = 'NERPHENO'
+        lemmas_ner[wordidx] = 'nerpheno'
     for i, wordidxs in enumerate(row.gene_wordidxs):
       gene_supertype = row.gene_supertypes[i]
       if gene_supertype == 'BAD_GENE' or gene_supertype == 'MANUAL_BAD' or gene_supertype == 'RAND_WORD_NOT_GENE_SYMBOL' \
           or gene_supertype == 'ABBREVIATION' or gene_supertype == 'ALL_UPPER_NOT_GENE_SYMBOL' or gene_supertype == 'O':
         continue
-      ners[wordidxs[0]] = 'GENE'
+      ners[wordidxs[0]] = 'NERGENE'
       for wordidx in wordidxs:
-        if words_ner[wordidx] != 'PHENO':
-          words_ner[wordidx] = 'GENE'
-          lemmas_ner[wordidx] = 'gene'
+        if words_ner[wordidx] != 'NERPHENO':
+          words_ner[wordidx] = 'NERGENE'
+          lemmas_ner[wordidx] = 'nergene'
     return m._replace(ners='|^|'.join(ners), words_ner='|^|'.join(words_ner), 
                       lemmas_ner='|^|'.join(lemmas_ner))
 

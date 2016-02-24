@@ -35,19 +35,20 @@ NON_GENE_ACRONYMS = {
 
   'SR' : {
     'levenshtein_cutoff' : 0.2,
-    'short-words': { 'the', 'and', 'or', 'at', 'in', 'see', 'as', \
-                    'an', 'data', 'for', 'not', 'our', 'ie', 'to', \
-                    'eg', 'one', 'age', 'on', 'center', 'right', 'left', \
+    'short-words': { 'the', 'and', 'or', 'at', 'in', 'see', 'as',
+                    'an', 'data', 'for', 'not', 'our', 'ie', 'to',
+                    'eg', 'one', 'age', 'on', 'center', 'right', 'left',
                     'from', 'based', 'total', 'via', 'but', 'resp', 'no' },
-    'manual-pairs' : { ('FRAXA') : ['fragile X'], \
-                       ('IL1', 'IL2', 'IL3', 'IL4', 'IL5', 'EL1', 'EL2', 'EL3', 'EL4', 'EL5') :  \
-                         [ 'intracellular loop', 'extracellular loop'], \
-                       ('GAA') : ['repeat', 'triplet'], \
-                       ('CNF') : ['Finnish type'], \
-                       ('C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'L1', \
-                         'L2', 'L3', 'L4', 'L5', 'S1', 'S2', 'S3', 'S4', 'S5') : \
+    'manual-pairs' : { ('FRAXA') : ['fragile X'],
+                       ('IL1', 'IL2', 'IL3', 'IL4', 'IL5', 'EL1', 'EL2', 'EL3', 'EL4', 'EL5') :
+                         [ 'intracellular loop', 'extracellular loop'],
+                       ('CNF') : ['Finnish type'],
+                       ('SRN1') : ['nephrotic', 'segmental'],
+                       ('C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'L1',
+                         'L2', 'L3', 'L4', 'L5', 'S1', 'S2', 'S3', 'S4', 'S5') :
                          ['vertebrae', 'spine', 'fusion', 'spina'],
-                       ('LCA10') : ['congenital amaurosis'], ('AR-JP') : [ 'parkinsonism' ]}
+                       ('LCA10') : ['congenital amaurosis'], 
+                       ('AR-JP') : [ 'parkinsonism' ]}
   }
 }
 
@@ -102,19 +103,20 @@ GENE = {
                   'ghrelin', 'MIM', 'NHS', 'STD', 'hole', 'SDS', 'p12', 'p13', 'p53',
                   'FTDP-17', 'activin'],
 
-    'manual-bad' : { ('FRAXA') : ['fragile X'], \
-                       ('IL1', 'IL2', 'IL3', 'IL4', 'IL5', 'EL1', 'EL2', 'EL3', 'EL4', 'EL5') :  \
+    'manual-bad' : { ('FRAXA') : ['fragile X'],
+                       ('IL1', 'IL2', 'IL3', 'IL4', 'IL5', 'EL1', 'EL2', 'EL3', 'EL4', 'EL5') :
                          [ 'intracellular loop', 'extracellular loop'],
                        ('GAA', 'AAA', 'AAG', 'GTA', 'AGA', 'ACT', 'TGT', 'ACT', 'GCG', 'GCA', 'GCT', 'CAT', 'CGA',
                         'AGT', 'ACG', 'GAT', 'GAA', 'AGT', 'CAC', 'AAT', 'TAT', 'TGC') : ['repeat', 'triplet'],
                        ('TG', 'CG', 'AC', 'GA', 'GC', 'CT', 'TC') : ['repeat'],
                        ('CNF') : ['Finnish type'],
                        ('C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'L1',
-                         'L2', 'L3', 'L4', 'L5', 'S1', 'S2', 'S3', 'S4', 'S5') : \
+                         'L2', 'L3', 'L4', 'L5', 'S1', 'S2', 'S3', 'S4', 'S5') :
                          ['vertebrae', 'spine', 'fusion', 'spina'],
-                         ('LCA10') : ['congenital amaurosis'],
-                         ('GAN') : [ 'primer' ],
-                         ('AR-JP') : [ 'parkinsonism' ]},
+                       ('LCA10') : ['congenital amaurosis'],
+                       ('GAN') : [ 'primer' ],
+                       ('AR-JP') : [ 'parkinsonism' ],
+                       ('SRN1') : ['nephrotic', 'segmental'],},
 
     'post-neighbor-match' : {
       # 'pos' : ['_ mutation', 'mutation', '_ mutations', 'mutations', 'mutant', \
@@ -315,7 +317,7 @@ GENE_PHENO = {
                  'increased',
                  'increase',
                  'increas',
-                 'deficiency',
+                 ' deficiency',
                  'exclude'
                  ],
       'neg-p' : ['without', 'except']
@@ -327,7 +329,9 @@ GENE_PHENO = {
                               'identified.*(mutat|delet|duplicat|truncat|SNP).*{{G}}.*{{P}}',
                               'mutations.*{{G}}.*reported.*{{P}}',
                               'identified.*{{G}}.*(mutat|delet|duplicat|truncat|SNP).*{{P}}',
-                              '{{P}}.*result.*from.*{{G}}'],
+                              '{{P}}.*result.*from.*{{G}}',
+                              '{{P}}.*caused by.*{{G}}',
+                              '{{G}}.*result.*in.*{{P}}'],
 
     # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
     'dep-lemma-connectors' : {
@@ -362,6 +366,8 @@ GENE_PHENO = {
                'cattle',
                'dachshund',
                'plant',
+               'algorithm'
+               'odds ratio',
                ],
       'pos-rgx' : [],
       'neg-rgx' : [
@@ -392,6 +398,8 @@ GENE_PHENO = {
                    '{{G}}.*proposed.*{{P}}',
                    'target',
                    '{{G}}.*to determine.*{{P}}',
+                   '{{G}}.*caus.*deregulation.*{{P}}',
+                   'dysregulation of.*{{G}}'
                     ]
     },
 
@@ -474,7 +482,7 @@ CAUSATION_SR = {
                ],
       'pos-rgx' : ['(mutat|delet|duplicat|truncat|SNP|polymorphism).*{{G}}.*cause.*{{P}}',
                   '(mutat|delet|duplicat|truncat|SNP|polymorphism).*{{G}}.*described.*patients.*{{P}}',
-                  '.*patient.*{{G}}.*(present with|had).*{{P}}.*',
+                  '{{G}}.*(present with|had).*{{P}}.*',
                   '(single nucleotide polymorphisms|SNPs) in {{G}}.*cause.*{{P}}',
                   '(mutation|deletion).*{{G}}.*described.*patients.*{{P}}',
                   '{{P}}.*secondary to.*{{G}}',
@@ -482,11 +490,12 @@ CAUSATION_SR = {
                   'mutations.*{{G}}.*reported.*{{P}}',
                   'identified.*{{G}}.*mutations.*{{P}}',
                   '{{P}}.*consequence of.*{{G}}',
+                  '{{P}}.*caused by.*{{G}}'
                   ],
       'neg-rgx' : [
-               '{{G}}.*associated.*{{P}}'
-               '{{P}}.*associated.*{{G}}'
-               'associated.*{{G}}.*with.*{{P}}'],
+               '{{G}}.*associated.*{{P}}',
+               '{{P}}.*associated.*{{G}}',
+               'associated.*{{G}}.*with.*{{P}}',],
     },
     # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
     'dep-lemma-connectors' : {

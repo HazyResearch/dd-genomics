@@ -88,9 +88,9 @@ def gp_between(gene_wordidxs, pheno_wordidxs, ners):
   found_p = False
   for i in xrange(start, end+1):
     ner = ners[i]
-    if ner == 'GENE':
+    if ner == 'NERGENE':
       found_g = True
-    if ner == 'PHENO':
+    if ner == 'NERPHENO':
       found_p = True
   return found_g and found_p
 
@@ -171,9 +171,7 @@ def config_supervise(r, row, pheno_entity, gene_name, gene, pheno,
   
   if ('neg', False) in VALS:
     if gp_between(row.gene_wordidxs, row.pheno_wordidxs, row.ners):
-      #if between_neg <= (charite_pos / 4):
-        #between_neg += 1
-        return r._replace(is_correct=False, relation_supertype='NEG_GP_BETWEEN')
+      return r._replace(is_correct=False, relation_supertype='NEG_GP_BETWEEN')
   
   if SR.get('charite-all-pos-words'):
     opts = SR['charite-all-pos-words']
