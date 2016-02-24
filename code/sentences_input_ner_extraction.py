@@ -38,15 +38,16 @@ Mention = collections.namedtuple('Mention', [
             'dep_parents'])
 
 def create_ners(row):
-    m = Mention(row.doc_id, row.section_id, row.sent_id, row.words, None, \
-                row.lemmas, None, row.poses, None, row.dep_paths, \
+    m = Mention(row.doc_id, row.section_id, row.sent_id, '|^|'.join(row.words), None, \
+                '|^|'.join(row.lemmas), None, row.poses, None, row.dep_paths, \
                 row.dep_parents)
     words_ner = [word for word in row.words]
     lemmas_ner = [lemma for lemma in row.lemmas]
     ners = ['O' for _ in xrange(len(row.words))]
     for i, wordidxs in enumerate(row.pheno_wordidxs):
       pheno_supertype = row.pheno_supertypes[i]
-      if re.match('RAND_NEG', pheno_supertype) or re.match('BAD', pheno_supertype) or pheno_supertype == 'O':
+      if re.findall('RAND_NEG', pheno_supertype) or \
+          re.findall('BAD', pheno_supertype) or pheno_supertype == 'O':
         continue
       ners[wordidxs[0]] = 'PHENO'
       for wordidx in wordidxs:

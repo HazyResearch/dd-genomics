@@ -4,6 +4,7 @@ from collections import namedtuple
 import os
 import ddlib
 import config
+import sys
 import re
 
 parser = util.RowParser([
@@ -31,7 +32,7 @@ bad_features = ['STARTS_WITH_CAPITAL_\[True_True\]', 'NGRAM_1_\[to\]',
                 'NGRAM_1_\[or\]', 'NGRAM_1_\[be\]', 'NGRAM_1_\[with\]',
                 'NER_SEQ_\[[O ]*\]$', 'W_NER_L_1_R_1_[\[\]O_]*$',
                 'LENGTHS_[0_1]', 'W_NER_L_[0-9]_R_[0-9]_[\[\] O_]*$',
-                'LENGTHS_[[0-9]_[0-9]]']
+                'LENGTHS_\[[0-9]_[0-9]\]']
 inv_bad_features = []
 for f in bad_features:
   inv_bad_features.append('INV_' + f)
@@ -53,6 +54,16 @@ def create_ners_between(gene_wordidxs, pheno_wordidxs, ners):
   rv = prefix + '_'.join(nonnull_ners)
   return [rv]
 
+non_alnum = re.compile('[\W_]+')
+
+def get_custom_features(row):
+  phrase = ' '.join(row.words)
+  lemma_phrase = ' '.join(row.lemmas)
+  global_sentence_patterns = fr['global-sent-words']
+  for p in global_sentence_patterns:
+    if re.findall(p, phrase) or re.findall(p, lemma_phrase):
+      yield 'GLOB_SENT_PATTERN_%s' % (non_alnum.sub('_', p))
+
 def get_features_for_candidate(row):
   """Extract features for candidate mention- both generic ones from ddlib & custom features"""
   features = []
@@ -65,11 +76,13 @@ def get_features_for_candidate(row):
   for feat in ddlib.get_generic_features_relation(dds, gene_span, pheno_span):
     take = True
     for bad_feature_pattern in bad_features:
+      # warning, match matches only from start of string
       if re.match(bad_feature_pattern, feat):
         take = False
         break
     if take:
       features.append(f._replace(name=feat))
+  features.extend([f._replace(name=feat) for feat in get_custom_features(row)])
   # these seem to be hurting (?)
   # start_span = ddlib.Span(begin_word_id=0, length=4)
   # for feat in ddlib.get_generic_features_mention(dds, start_span, length_bin_size=2):

@@ -1,7 +1,14 @@
 #!/bin/bash -e
-set -beEu -o pipefail
 
 echo "CREATE HOLDOUT PATCH!"
+
+
+if [ "$1" = "view" ]
+then
+  weights='dd_inference_result_weights_mapping'
+else
+  weights='weights'
+fi
 
 
 GP_CUTOFF=`cat ../results_log/gp_cutoff`
@@ -89,7 +96,7 @@ from
   genepheno_relations r 
   join genepheno_features f 
     on (f.relation_id = r.relation_id) 
-  join dd_inference_result_weights_mapping w 
+  join ${weights} w 
     on (w.description = ('inf_istrue_genepheno_causation_inference--' || f.feature)) 
 where 
   r.relation_id = '$rid'

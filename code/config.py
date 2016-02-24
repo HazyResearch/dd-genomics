@@ -105,13 +105,13 @@ GENE = {
     'manual-bad' : { ('FRAXA') : ['fragile X'], \
                        ('IL1', 'IL2', 'IL3', 'IL4', 'IL5', 'EL1', 'EL2', 'EL3', 'EL4', 'EL5') :  \
                          [ 'intracellular loop', 'extracellular loop'],
-                       ('GAA', 'AAA', 'AAG', 'GTA', 'AGA', 'ACT', 'TGT', 'ACT', 'GCG', 'GCA', 'GCT', 'CAT', 'CGA', 
+                       ('GAA', 'AAA', 'AAG', 'GTA', 'AGA', 'ACT', 'TGT', 'ACT', 'GCG', 'GCA', 'GCT', 'CAT', 'CGA',
                         'AGT', 'ACG', 'GAT', 'GAA', 'AGT', 'CAC', 'AAT', 'TAT', 'TGC') : ['repeat', 'triplet'],
-                       ('TG', 'CG', 'AC', 'GA', 'GC', 'CT', 'TC') : ['repeat'], 
+                       ('TG', 'CG', 'AC', 'GA', 'GC', 'CT', 'TC') : ['repeat'],
                        ('CNF') : ['Finnish type'],
                        ('C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'L1',
                          'L2', 'L3', 'L4', 'L5', 'S1', 'S2', 'S3', 'S4', 'S5') : \
-                         ['vertebrae', 'spine', 'fusion', 'spina'], 
+                         ['vertebrae', 'spine', 'fusion', 'spina'],
                          ('LCA10') : ['congenital amaurosis'],
                          ('GAN') : [ 'primer' ],
                          ('AR-JP') : [ 'parkinsonism' ]},
@@ -143,7 +143,8 @@ GENE = {
 
     'phrases-in-sent': {
       'pos' : [],
-      'neg' : ['serum', 'level', 'elevated', 'plasma', 'accumulate', 'accumulation', 'deposition'],
+      'neg' : ['serum', 'level', 'elevated', 'plasma', 
+               'accumulate', 'accumulation', 'deposition'],
       'pos-rgx': [],
       'neg-rgx': []
     },
@@ -389,7 +390,8 @@ GENE_PHENO = {
                    '{{G}}.*, while.*{{P}}',
                    '{{G}}.*, whereas.*{{P}}',
                    '{{G}}.*proposed.*{{P}}',
-                   'target'
+                   'target',
+                   '{{G}}.*to determine.*{{P}}',
                     ]
     },
 
@@ -397,7 +399,7 @@ GENE_PHENO = {
       'pos': [],
       'neg': []
     },
-         
+
     'sv_synonyms': {'disease': set(['disease', 'disorder']),
                  'mutation': set(['mutat', 'polymorphism', 'delet', 'duplicat',
                                   'truncat', 'SNP']),
@@ -420,6 +422,23 @@ GENE_PHENO = {
                  'identify': set(['identify', 'report', 'find', 'detect']),
                  'cause': set(['cause', 'result']),
                  'inheritance': set(['recessive', 'dominant'])},
+
+    'global-sent-words' : ['to determine',
+                   'to evaluate',
+                   'to investigate',
+                   'we investigated',
+                   'we examined',
+                   'to examine',
+                   'we requested',
+                   'to study',
+                   'fish',
+                   'sheep',
+                   'cattle',
+                   'dachshund',
+                   'plant',
+                   'mice',
+                   'mouse',
+                   ],
   },
 }
 
