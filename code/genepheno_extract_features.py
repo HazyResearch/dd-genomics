@@ -32,7 +32,8 @@ bad_features = ['STARTS_WITH_CAPITAL_\[True_True\]', 'NGRAM_1_\[to\]',
                 'NGRAM_1_\[or\]', 'NGRAM_1_\[be\]', 'NGRAM_1_\[with\]', 
                 'NGRAM_1_\[have\]', 'NER_SEQ_\[[O ]*\]$', 'W_NER_L_1_R_1_[\[\]O_]*$',
                 'LENGTHS_[0_1]', 'W_NER_L_[0-9]_R_[0-9]_[\[\] O_]*$',
-                'LENGTHS_\[[0-9]_[0-9]\]']
+                'LENGTHS_\[[0-9]_[0-9]\]', 'NGRAM_2_\[have be\]', 'NGRAM_1_\[_\]',
+                'NGRAM_1_\[for\]']
 inv_bad_features = []
 for f in bad_features:
   inv_bad_features.append('INV_' + f)

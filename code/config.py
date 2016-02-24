@@ -324,14 +324,18 @@ GENE_PHENO = {
     },
 
     # Label T all GP pairs in Charite dataset (and that haven't already been labeled T/F)
-    'charite-all-pos-words': ['(mutat|delet|duplicat|truncat|SNP).*(caus|responsible for)',
+    'charite-all-pos-words': ['(disrupt|mutat|delet|duplicat|truncat|SNP).*(caus|responsible for)',
                               '{{P}}.*secondary to.*{{G}}',
                               'identified.*(mutat|delet|duplicat|truncat|SNP).*{{G}}.*{{P}}',
                               'mutations.*{{G}}.*reported.*{{P}}',
                               'identified.*{{G}}.*(mutat|delet|duplicat|truncat|SNP).*{{P}}',
                               '{{P}}.*result.*from.*{{G}}',
                               '{{P}}.*caused by.*{{G}}',
-                              '{{G}}.*result.*in.*{{P}}'],
+                              '{{G}}.*result.*in.*{{P}}',
+                              '{{G}}.*presenting.*{{P}}',
+                              '{{G}}.*characterized.*by{{P}}',
+                              '{{G}}.*patients.*with.*{{P}}',
+                              '{{P}}.*due to.*{{G}}'],
 
     # Supervise GP pairs based on words (e.g. esp verbs) on the min dep path connecting them
     'dep-lemma-connectors' : {
@@ -358,7 +362,7 @@ GENE_PHENO = {
                'inconclusive',
                'further analysis',
                'but not',
-               'deficiency',
+               #'deficiency',
                'activity',
                'unravel',
                'fish',
@@ -397,9 +401,9 @@ GENE_PHENO = {
                    '{{G}}.*, whereas.*{{P}}',
                    '{{G}}.*proposed.*{{P}}',
                    'target',
-                   '{{G}}.*to determine.*{{P}}',
-                   '{{G}}.*caus.*deregulation.*{{P}}',
-                   'dysregulation of.*{{G}}'
+                    '{{G}}.*to determine.*{{P}}',
+                    '{{G}}.*caus.*deregulation.*{{P}}',
+                    'dysregulation of.*{{G}}',
                     ]
     },
 
@@ -480,9 +484,10 @@ CAUSATION_SR = {
                'further analysis',
                'association',
                ],
-      'pos-rgx' : ['(mutat|delet|duplicat|truncat|SNP|polymorphism).*{{G}}.*cause.*{{P}}',
-                  '(mutat|delet|duplicat|truncat|SNP|polymorphism).*{{G}}.*described.*patients.*{{P}}',
-                  '{{G}}.*(present with|had).*{{P}}.*',
+      'pos-rgx' : ['(disrupt|expan.*repeat|mutat|delet|duplicat|truncat|SNP|polymorphism).*{{G}}.*cause.*{{P}}',
+                  '(disrupt|expan.*repeat|mutat|delet|duplicat|truncat|SNP|polymorphism).*{{G}}.*(in|described).*patient.*{{P}}',
+                  '{{G}}.*(in|described).*patient.*(expan.*repeat|mutat|delet|duplicat|truncat|SNP|polymorphism).*{{P}}',
+                  '{{G}}.*present with.*{{P}}.*',
                   '(single nucleotide polymorphisms|SNPs) in {{G}}.*cause.*{{P}}',
                   '(mutation|deletion).*{{G}}.*described.*patients.*{{P}}',
                   '{{P}}.*secondary to.*{{G}}',
@@ -490,7 +495,11 @@ CAUSATION_SR = {
                   'mutations.*{{G}}.*reported.*{{P}}',
                   'identified.*{{G}}.*mutations.*{{P}}',
                   '{{P}}.*consequence of.*{{G}}',
-                  '{{P}}.*caused by.*{{G}}'
+                  '{{P}}.*caused by.*{{G}}',
+                  '{{P}}.*result.*from.*{{G}}',
+                  '{{P}}.*caused by.*{{G}}',
+                  '{{G}}.*result.*in.*{{P}}',
+                  '{{G}}.*cause.*of.*{{P}}',
                   ],
       'neg-rgx' : [
                '{{G}}.*associated.*{{P}}',
