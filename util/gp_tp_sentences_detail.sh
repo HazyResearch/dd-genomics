@@ -1,7 +1,13 @@
 #!/bin/bash -e
-set -beEu -o pipefail
 
 echo "CREATE HOLDOUT PATCH!"
+
+if [ "$1" = "view" ]
+then
+  weights='dd_inference_result_weights_mapping'
+else
+  weights='weights'
+fi
 
 
 if [ $# -eq 1 ]
@@ -33,7 +39,7 @@ FROM
     ON (s.relation_id = gc.relation_id)
 WHERE
   COALESCE(gc.expectation, 0) > $GP_CUTOFF 
-  AND s.is_correct = 'f'
+  AND s.is_correct = 't'
   $version_string) TO STDOUT;
 """ | while read rid
 do
@@ -60,9 +66,7 @@ FROM
   JOIN sentences_input si
     ON (si.doc_id = gc.doc_id AND si.section_id = gc.section_id AND si.sent_id = gc.sent_id)
 WHERE
-  gc.relation_id = '$rid'
-  AND COALESCE(gc.expectation, 0) > $GP_CUTOFF
-  AND s.is_correct = 't') TO STDOUT;
+  gc.relation_id = '$rid') TO STDOUT;
 """ 
 echo "DISTANT SUPERVISION"
 deepdive sql """
@@ -83,7 +87,7 @@ from
   genepheno_relations r 
   join genepheno_features f 
     on (f.relation_id = r.relation_id) 
-  join dd_inference_result_weights_mapping w 
+  join ${weights} w 
     on (w.description = ('inf_istrue_genepheno_causation_inference--' || f.feature)) 
 where 
   r.relation_id = '$rid'

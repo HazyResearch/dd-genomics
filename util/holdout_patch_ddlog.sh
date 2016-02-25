@@ -1,6 +1,11 @@
-
+#! /bin/bash -e
 
 #Here we assume that the ddlog database is accessible by "deepdive sql" so correctly defined in db.url
+
+deepdive sql """
+DROP TABLE IF EXISTS weights;
+CREATE TABLE weights AS (SELECT * FROM dd_inference_result_weights_mapping);
+"""
 
 cd ..
 deepdive sql """DROP TABLE IF EXISTS gene_mentions_filtered_is_correct_inference CASCADE;
@@ -34,3 +39,4 @@ where ginf.relation_id = g.relation_id;"""
 # 
 # DELETE FROM gene_holdout_labels WHERE (doc_id, section_id, sent_id) NOT IN (SELECT DISTINCT doc_id, section_id, sent_id FROM gene_holdout_set);
 # """
+

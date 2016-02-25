@@ -38,30 +38,31 @@ Mention = collections.namedtuple('Mention', [
             'dep_parents'])
 
 def create_ners(row):
-    m = Mention(row.doc_id, row.section_id, row.sent_id, row.words, None, \
-                row.lemmas, None, row.poses, None, row.dep_paths, \
+    m = Mention(row.doc_id, row.section_id, row.sent_id, '|^|'.join(row.words), None, \
+                '|^|'.join(row.lemmas), None, row.poses, None, row.dep_paths, \
                 row.dep_parents)
     words_ner = [word for word in row.words]
     lemmas_ner = [lemma for lemma in row.lemmas]
     ners = ['O' for _ in xrange(len(row.words))]
     for i, wordidxs in enumerate(row.pheno_wordidxs):
       pheno_supertype = row.pheno_supertypes[i]
-      if re.match('RAND_NEG', pheno_supertype) or re.match('BAD', pheno_supertype) or pheno_supertype == 'O':
+      if re.findall('RAND_NEG', pheno_supertype) or \
+          re.findall('BAD', pheno_supertype) or pheno_supertype == 'O':
         continue
-      ners[wordidxs[0]] = 'PHENO'
+      ners[wordidxs[0]] = 'NERPHENO'
       for wordidx in wordidxs:
-        words_ner[wordidx] = 'PHENO'
-        lemmas_ner[wordidx] = 'pheno'
+        words_ner[wordidx] = 'NERPHENO'
+        lemmas_ner[wordidx] = 'nerpheno'
     for i, wordidxs in enumerate(row.gene_wordidxs):
       gene_supertype = row.gene_supertypes[i]
       if gene_supertype == 'BAD_GENE' or gene_supertype == 'MANUAL_BAD' or gene_supertype == 'RAND_WORD_NOT_GENE_SYMBOL' \
           or gene_supertype == 'ABBREVIATION' or gene_supertype == 'ALL_UPPER_NOT_GENE_SYMBOL' or gene_supertype == 'O':
         continue
-      ners[wordidxs[0]] = 'GENE'
+      ners[wordidxs[0]] = 'NERGENE'
       for wordidx in wordidxs:
-        if words_ner[wordidx] != 'PHENO':
-          words_ner[wordidx] = 'GENE'
-          lemmas_ner[wordidx] = 'gene'
+        if words_ner[wordidx] != 'NERPHENO':
+          words_ner[wordidx] = 'NERGENE'
+          lemmas_ner[wordidx] = 'nergene'
     return m._replace(ners='|^|'.join(ners), words_ner='|^|'.join(words_ner), 
                       lemmas_ner='|^|'.join(lemmas_ner))
 

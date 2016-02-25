@@ -35,10 +35,7 @@ SELECT DISTINCT
 FROM
   genepheno_causation_is_correct_inference gc 
   RIGHT JOIN (select distinct * from
-      ((select * from genepheno_causation_labels)
-      union (select * from genepheno_causation_precision_labels)
-      union (select * from genepheno_multi_precision_labels)
-      union (select * from genepheno_facts_precision_labels)) a) s
+      (select * from genepheno_causation_labels) a) s
     ON (s.relation_id = gc.relation_id)
 WHERE
   COALESCE(gc.expectation, 0) > $GP_CUTOFF 
