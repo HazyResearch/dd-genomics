@@ -130,8 +130,18 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
           return m._replace(is_correct=val, mention_supertype='POST_MATCH_%s_%s' % (name, val), mention_subtype=match)
   
   if SR.get('bad-genes'):
-    if gene_name in SR['bad-genes']:
-      return m._replace(is_correct=False, mention_supertype='BAD_GENE')
+    if i > 0:
+      prev_word = row.words[i-1]
+    else:
+      prev_word = ''
+    if i < len(row.words) - 1:
+      next_word = row.words[i+1]
+    else:
+      next_word = ''
+    if next_word != 'gene' and prev_word != 'gene':
+      for bad_gene in SR['bad-genes']:
+        if re.search(bad_gene, gene_name):
+          return m._replace(is_correct=False, mention_supertype='BAD_GENE')
 
   if SR.get('manual-bad'):
     detected = detect_manual(gene_name, row.words)

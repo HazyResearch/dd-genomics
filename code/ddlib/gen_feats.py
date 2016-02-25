@@ -53,19 +53,19 @@ def get_generic_features_mention(sentence, span, length_bin_size=5):
         length_bin_size: the size of the bins for the length feature
     """
     # Mention sequence features (words, lemmas, ners, and poses)
-    for seq_feat in _get_seq_features(sentence, span):
+    for seq_feat in get_seq_features(sentence, span):
         yield seq_feat
     # Window (left and right, up to size 3, with combinations) around the
     # mention
-    for window_feat in _get_window_features(sentence, span):
+    for window_feat in get_window_features(sentence, span):
         yield window_feat
     # Is (substring of) mention in a dictionary?
-    for dict_indicator_feat in _get_dictionary_indicator_features(
+    for dict_indicator_feat in get_dictionary_indicator_features(
             sentence, span):
         yield dict_indicator_feat
     # Dependency path(s) from mention to keyword(s). Various transformations of
     # the dependency path are done.
-    for (i, j) in _get_substring_indices(len(sentence), MAX_KW_LENGTH):
+    for (i, j) in get_substring_indices(len(sentence), MAX_KW_LENGTH):
         if i >= span.begin_word_id and i < span.begin_word_id + span.length:
             continue
         if j > span.begin_word_id and j < span.begin_word_id + span.length:
@@ -79,7 +79,7 @@ def get_generic_features_mention(sentence, span, length_bin_size=5):
                 break
         if is_in_dictionary:
             kw_span = Span(begin_word_id=i, length=j-i)
-            for dep_path_feature in _get_min_dep_path_features(
+            for dep_path_feature in get_min_dep_path_features(
                     sentence, span, kw_span, "KW"):
                 yield dep_path_feature
     # The mention starts with a capital
@@ -90,7 +90,6 @@ def get_generic_features_mention(sentence, span, length_bin_size=5):
     bin_id = length // length_bin_size
     length_feat = "LENGTH_" + str(bin_id)
     yield length_feat
-
 
 def get_generic_features_relation(sentence, span1, span2, length_bin_size=5):
     """Yield 'generic' features for a relation in a sentence.
@@ -118,38 +117,38 @@ def get_generic_features_relation(sentence, span1, span2, length_bin_size=5):
     betw_span = Span(begin_word_id=betw_begin, length=betw_end - betw_begin)
     covering_span = Span(begin_word_id=begin, length=end - begin)
     # Words, Lemmas, Ners, and Poses sequence between the mentions
-    for seq_feat in _get_seq_features(sentence, betw_span):
+    for seq_feat in get_seq_features(sentence, betw_span):
         yield inverted + seq_feat
     # Window feature (left and right, up to size 3, combined)
-    for window_feat in _get_window_features(
+    for window_feat in get_window_features(
             sentence, covering_span, isolated=False):
         yield inverted + window_feat
     # Ngrams of up to size 3 between the mentions
-    for ngram_feat in _get_ngram_features(sentence, betw_span):
+    for ngram_feat in get_ngram_features(sentence, betw_span):
         yield inverted + ngram_feat
     # Indicator features of whether the mentions are in dictionaries
     found1 = False
-    for feat1 in _get_dictionary_indicator_features(
+    for feat1 in get_dictionary_indicator_features(
             sentence, span1, prefix=inverted + "IN_DICT"):
         found1 = True
         found2 = False
-        for feat2 in _get_dictionary_indicator_features(
+        for feat2 in get_dictionary_indicator_features(
                 sentence, span2, prefix=""):
             found2 = True
             yield feat1 + feat2
         if not found2:
             yield feat1 + "_[_NONE]"
     if not found1:
-        for feat2 in _get_dictionary_indicator_features(
+        for feat2 in get_dictionary_indicator_features(
                 sentence, span2, prefix=""):
             found2 = True
             yield inverted + "IN_DICT_[_NONE]" + feat2
     # Dependency path (and transformations) between the mention
-    for betw_dep_path_feature in _get_min_dep_path_features(
+    for betw_dep_path_feature in get_min_dep_path_features(
             sentence, span1, span2, inverted + "BETW"):
         yield betw_dep_path_feature
     # Dependency paths (and transformations) between the mentions and keywords
-    for (i, j) in _get_substring_indices(len(sentence), MAX_KW_LENGTH):
+    for (i, j) in get_substring_indices(len(sentence), MAX_KW_LENGTH):
         if (i >= begin and i < betw_begin) or (i >= betw_end and i < end):
             continue
         if (j > begin and j <= betw_begin) or (j > betw_end and j <= end):
@@ -163,7 +162,7 @@ def get_generic_features_relation(sentence, span1, span2, length_bin_size=5):
                 break
         if is_in_dictionary:
             kw_span = Span(begin_word_id=i, length=j-i)
-            path1 = _get_min_dep_path(sentence, span1, kw_span)
+            path1 = get_min_dep_path(sentence, span1, kw_span)
             lemmas1 = []
             labels1 = []
             for edge in path1:
@@ -174,7 +173,7 @@ def get_generic_features_relation(sentence, span1, span2, length_bin_size=5):
                 both1.append(labels1[j])
                 both1.append(lemmas1[j])
             both1 = both1[:-1]
-            path2 = _get_min_dep_path(sentence, span2, kw_span)
+            path2 = get_min_dep_path(sentence, span2, kw_span)
             lemmas2 = []
             labels2 = []
             for edge in path2:
@@ -219,7 +218,7 @@ def get_generic_features_relation(sentence, span1, span2, length_bin_size=5):
     yield length_feat
 
 
-def _get_substring_indices(_len, max_substring_len):
+def get_substring_indices(_len, max_substring_len):
     """Yield the start-end indices for all substrings of a sequence with length
     _len, up to length max_substring_len"""
     for start in range(_len):
@@ -228,7 +227,7 @@ def _get_substring_indices(_len, max_substring_len):
             yield (start, end)
 
 
-def _get_ngram_features(sentence, span, window=3):
+def get_ngram_features(sentence, span, window=3):
     """Yields ngram features. These are all substrings of size up to window in
     the part of the sentence covered by the span.
 
@@ -248,7 +247,7 @@ def _get_ngram_features(sentence, span, window=3):
                     map(lambda x: str(x.lemma), sentence[i:i+j])) + "]"
 
 
-def _get_min_dep_path(sentence, span1, span2):
+def get_min_dep_path(sentence, span1, span2):
     """Return the shortest dependency path between two Span objects
 
     Args:
@@ -268,7 +267,7 @@ def _get_min_dep_path(sentence, span1, span2):
     return min_path
 
 
-def _get_min_dep_path_features(sentence, span1, span2, prefix="BETW_"):
+def get_min_dep_path_features(sentence, span1, span2, prefix="BETW_"):
     """Yield the minimum dependency path features between two Span objects.
     Various variants of the dependency path are yielded:
         - using both labels and lemmas,
@@ -282,7 +281,7 @@ def _get_min_dep_path_features(sentence, span1, span2, prefix="BETW_"):
         span2: the second Span
         prefix: string prepended to all features
     """
-    min_path = _get_min_dep_path(sentence, span1, span2)
+    min_path = get_min_dep_path(sentence, span1, span2)
     if min_path:
         min_path_lemmas = []
         min_path_labels = []
@@ -304,7 +303,7 @@ def _get_min_dep_path_features(sentence, span1, span2, prefix="BETW_"):
         yield prefix + "_D_[" + " ".join(both) + "]"
 
 
-def _get_seq_features(sentence, span):
+def get_seq_features(sentence, span):
     """Yield the sequence features in a Span
 
     These include:
@@ -331,7 +330,7 @@ def _get_seq_features(sentence, span):
     yield pos_seq_feat
 
 
-def _get_window_features(
+def get_window_features(
         sentence, span, window=3, combinations=True, isolated=True):
     """Yield the window features around a Span
 
@@ -420,7 +419,7 @@ def _get_window_features(
                     curr_left_ners + "]_[" + curr_right_ners + "]"
 
 
-def _get_dictionary_indicator_features(
+def get_dictionary_indicator_features(
         sentence, span, window=3, prefix="IN_DICT"):
     """Yield the indicator features for whether a substring of the span is in
 the dictionaries

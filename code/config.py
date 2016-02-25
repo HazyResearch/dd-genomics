@@ -49,7 +49,8 @@ NON_GENE_ACRONYMS = {
                          ['vertebrae', 'spine', 'fusion', 'spina'],
                        ('LCA10') : ['congenital amaurosis'], 
                        ('AR-JP') : [ 'parkinsonism' ],
-                       ('OCRL') : [ 'oculocerebrorenal syndrome of Lowe' ]}
+                       ('OCRL') : [ 'oculocerebrorenal syndrome of Lowe' ],
+                       ('PPD') : ['pallidopyramidal degeneration']}
   }
 }
 
@@ -100,9 +101,9 @@ GENE = {
   # # Supervision Rules
   'SR' : {
     # Label some P mentions based on the toks / phrases that follow
-    'bad-genes': ['ANOVA', 'MRI', 'CO2', 'gamma', 'spatial', 'tau', 'Men', \
-                  'ghrelin', 'MIM', 'NHS', 'STD', 'hole', 'SDS', 'p12', 'p13', 'p53',
-                  'FTDP-17', 'activin'],
+    'bad-genes': ['^ANOVA', '^MRI$', '^CO2$', '^gamma$', '^spatial$', '^tau$', '^Men$', \
+                  '^ghrelin$', '^MIM$', '^NHS$', '^STD$', '^hole$', '^SDS$', '^p[0-9][0-9]$',
+                  '^FTDP-17$', '^activin$', '^cbl[A-Z]$', '^LQT[0-9]*$'],
 
     'manual-bad' : { ('FRAXA') : ['fragile X'],
                        ('IL1', 'IL2', 'IL3', 'IL4', 'IL5', 'EL1', 'EL2', 'EL3', 'EL4', 'EL5') :
@@ -118,7 +119,8 @@ GENE = {
                        ('GAN') : [ 'primer' ],
                        ('AR-JP') : [ 'parkinsonism' ],
                        ('SRN1') : ['nephrotic', 'segmental'],
-                       ('OCA1') : ['oculocutaneous albinism']},
+                       ('OCA1') : ['oculocutaneous albinism'],
+                       ('PPD') : ['pallidopyramidal degeneration']},
 
     'post-neighbor-match' : {
       # 'pos' : ['_ mutation', 'mutation', '_ mutations', 'mutations', 'mutant', \
@@ -319,7 +321,6 @@ GENE_PHENO = {
                  'increased',
                  'increase',
                  'increas',
-                 ' deficiency',
                  'exclude',
                  'inclusion',
                  ],
@@ -386,12 +387,14 @@ GENE_PHENO = {
                    'to investigate',
                    'we investigated',
                    'we examined',
+                   'were examined',
                    'to examine',
                    'to test',
+                   'to clarify',
                    'we requested',
                    'to study',
                    'indicating that',
-                   'analysis.*was performed'
+                   'analysis.*was performed',
                    '\d+ h ',
                    'to assess',
                    '^\s*here we define',
@@ -412,8 +415,15 @@ GENE_PHENO = {
                    'target',
                     '{{G}}.*to determine.*{{P}}',
                     '{{G}}.*caus.*deregulation.*{{P}}',
+                    '{{P}}.*caus.*deregulation.*{{G}}',
                     'dysregulation of.*{{G}}',
-                    '{{G}}.*modifier of.*gene.*{{P}}'
+                    '{{G}}.*modifier of.*gene.*{{P}}',
+                    '{{G}}.*except.*{{P}}',
+                    '{{G}}.*excluded.*cause.*{{P}}',
+                    '{{G}}.*should.*considered.*{{P}}',
+                    '{{G}} deficiency',
+                    'upregulation of.*{{G}}',
+                    'without {{P}}',
                     ]
     },
 
@@ -450,8 +460,10 @@ GENE_PHENO = {
                    'to investigate',
                    'we investigated',
                    'we examined',
+                   'were examined',
                    'to examine',
                    'to test',
+                   'to clarify',
                    'we requested',
                    'to study',
                    'fish',
@@ -461,6 +473,7 @@ GENE_PHENO = {
                    'plant',
                    'mice',
                    'mouse',
+                   'but not',
                    ],
   },
 }
