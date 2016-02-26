@@ -18,20 +18,20 @@ def rgx_comp(strings=[], rgxs=[]):
 # XXX HACK Johannes: Catching regex exceptions and then continuing is not the nicest way
 # but ever since I had a single regex error in the middle of a 5-hour run and the whole extractor failed
 # I'd rather have the thing continue with a wrong value at the single position ...
-def rgx_mult_search(phrase, strings=[], rgxs=[], flags=re.I):
-  for s in strings:
+def rgx_mult_search(phrase, strings, rgxs, orig_strings, orig_rgxs, flags=re.I):
+  for i, s in enumerate(strings):
     try:
       regex = re.escape(s)
       if re.search(regex, phrase, flags):
-        return s
+        return orig_strings[i]
     except Exception:
       traceback.print_exc()
       print regex
-  for s in rgxs:
+  for i, s in enumerate(rgxs):
     try:
       regex = s
       if re.search(regex, phrase, flags):
-        return s
+        return orig_rgxs[i]
     except Exception:
       traceback.print_exc()
       print regex

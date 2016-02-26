@@ -72,8 +72,8 @@ def take_feature(feat):
       break
   return take
 
-def get_sublists(lst):
-  for length in xrange(2, len(lst)):
+def get_sublists(lst, min_len):
+  for length in xrange(min_len, len(lst)):
     for i in xrange(len(lst) - length + 1):
       yield lst[i:i + length]
 
@@ -82,9 +82,9 @@ def get_my_window_features(row, l, r, prefix):
     words = [row.words[i].lower() for i in xrange(l, r+1)]
     lemmas = [row.lemmas[i] for i in xrange(l, r+1)]
     #ners = [row.ners[i] for i in xrange(l, r+1)]
-    for sublist in get_sublists(words):
+    for sublist in get_sublists(words, 2):
       yield prefix + 'WORD_[' + '_'.join(sublist) + ']'
-    for sublist in get_sublists(lemmas):
+    for sublist in get_sublists(lemmas, 2):
       yield prefix + 'LEMMA_[' + '_'.join(sublist) + ']'
     #for sublist in get_sublists(ners):
     #  yield left + 'NER_[' + '_'.join(sublist) + ']'
@@ -99,8 +99,27 @@ def get_features_around(row, wordidxs, prefix):
   for feat in get_my_window_features(row, l2, r2, prefix + 'R_'):
     yield feat
 
-#def get_cross_features_in(row, wordidxs1, wordidxs2, prefix):
-#  
+def get_cross_features_in(row, wordidxs1, wordidxs2, prefix):
+  if max(wordidxs1) <= min(wordidxs2):
+    l_wordidxs = wordidxs1
+    r_wordidxs = wordidxs2
+  else:
+    l_wordidxs = wordidxs2
+    r_wordidxs = wordidxs1
+  
+  l = max(l_wordidxs) + 1
+  r = min(r_wordidxs) - 1
+  for i in xrange(l+1, r):
+    words1 = [row.words[j].lower() for j in xrange(l, i)]
+    lemmas1 = [row.lemmas[j] for j in xrange(l, i)]
+    words2 = [row.words[j].lower() for j in xrange(i, r+1)]
+    lemmas2 = [row.lemmas[j] for j in xrange(i, r+1)]
+    for sublist1 in get_sublists(words1, 1):
+      for sublist2 in get_sublists(words2, 1):
+        yield prefix + 'WORD_[' + '_'.join(sublist1) + ']_[' + '_'.join(sublist2) + ']'
+    for sublist1 in get_sublists(lemmas1, 1):
+      for sublist2 in get_sublists(lemmas2, 1):
+        yield prefix + 'LEMMA_[' + '_'.join(sublist1) + ']_[' + '_'.join(sublist2) + ']'
 
 def get_custom_features(row, dds):
   phrase = ' '.join(row.words)
@@ -114,8 +133,8 @@ def get_custom_features(row, dds):
     yield feat
   for feat in get_features_around(row, row.pheno_wordidxs, 'PHENO_'):
     yield feat
-  #for feat in get_cross_features_in(row, row.gene_wordidxs, row.pheno_wordidxs, 'CROSS_'):
-  #  yield feat
+  # for feat in get_cross_features_in(row, row.gene_wordidxs, row.pheno_wordidxs, 'CROSS_'):
+  #   yield feat
 
 def get_features_for_candidate(row):
   """Extract features for candidate mention- both generic ones from ddlib & custom features"""

@@ -101,30 +101,36 @@ def config_supervise(r, row, pheno_entity, gene_name, gene, pheno,
               phrase, between_phrase, \
               lemma_phrase, between_phrase_lemmas, dep_dag, \
               dep_path_between, gene_wordidxs, 
-              charite_pairs, VALS, SR):
+              charite_pairs, charite_allowed, VALS, SR):
   global charite_pos
   global between_neg
   if SR.get('phrases-in-between'):
     opts = SR['phrases-in-between']
+    orig_opts = opts.copy()
     opts = replace_opts(opts, [('{{G}}', gene), ('{{P}}', pheno)])
     for name, val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
-        match = util.rgx_mult_search(between_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
+        match = util.rgx_mult_search(between_phrase, opts[name], opts['%s-rgx' % name], orig_opts[name], 
+                                     orig_opts['%s-rgx' % name], flags=re.I)
         if match:
           return r._replace(is_correct=val, relation_supertype='PHRASE_BETWEEN_%s' % name, relation_subtype=non_alnum.sub('_', match))
-        match = util.rgx_mult_search(between_phrase_lemmas, opts[name], opts['%s-rgx' % name], flags=re.I)
+        match = util.rgx_mult_search(between_phrase_lemmas, opts[name], opts['%s-rgx' % name], orig_opts[name], 
+                                     orig_opts['%s-rgx' % name], flags=re.I)
         if match:
           return r._replace(is_correct=val, relation_supertype='PHRASE_BETWEEN_%s' % name, relation_subtype=non_alnum.sub('_', match))
 
   if SR.get('phrases-in-sent'):
     opts = SR['phrases-in-sent']
+    orig_opts = opts.copy()
     opts = replace_opts(opts, [('{{G}}', gene), ('{{P}}', pheno)])
     for name, val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
-        match = util.rgx_mult_search(phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
+        match = util.rgx_mult_search(phrase, opts[name], opts['%s-rgx' % name], orig_opts[name], 
+                                     orig_opts['%s-rgx' % name], flags=re.I)
         if match:
           return r._replace(is_correct=val, relation_supertype='PHRASE_%s' % name, relation_subtype=non_alnum.sub('_', match))
-        match = util.rgx_mult_search(lemma_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
+        match = util.rgx_mult_search(lemma_phrase, opts[name], opts['%s-rgx' % name], orig_opts[name], 
+                                     orig_opts['%s-rgx' % name], flags=re.I)
         if match:
           return r._replace(is_correct=val, relation_supertype='PHRASE_%s' % name, relation_subtype=non_alnum.sub('_', match))
 
@@ -164,33 +170,30 @@ def config_supervise(r, row, pheno_entity, gene_name, gene, pheno,
           return r._replace(is_correct=val, 
                             relation_supertype='DEP_LEMMA_NB_%s_%s' % (name, entity), 
                             relation_subtype=non_alnum.sub('_', subtype))
-
-  if SR.get('charite-all-pos'):
-    if (pheno_entity, gene_name) in charite_pairs:
-      return r._replace(is_correct=True, relation_supertype='CHARITE_SUP')
   
   if ('neg', False) in VALS:
     if gp_between(row.gene_wordidxs, row.pheno_wordidxs, row.ners):
       return r._replace(is_correct=False, relation_supertype='NEG_GP_BETWEEN')
   
-  if SR.get('charite-all-pos-words'):
-    opts = SR['charite-all-pos-words']
-    match = util.rgx_mult_search(phrase + ' ' + 
-                                 lemma_phrase, [], 
-                                 opts, flags=re.I)
-    if match and (pheno_entity, gene_name) in charite_pairs:
-      if not gp_between(row.gene_wordidxs, row.pheno_wordidxs, row.ners):
-        charite_pos += 1
-        return r._replace(is_correct=True, relation_supertype='CHARITE_SUP_WORDS', 
-                        relation_subtype=non_alnum.sub('_', match))
-      else:
-        return r._replace(is_correct=False, relation_supertype='CHARITE_NEG_GP_BETWEEN', 
-                        relation_subtype=non_alnum.sub('_', match))
+  if charite_allowed:
+    if SR.get('charite-all-pos-words'):
+      opts = SR['charite-all-pos-words']
+      match = util.rgx_mult_search(phrase + ' ' + 
+                                   lemma_phrase, [], 
+                                   opts, [], opts, flags=re.I)
+      if match and (pheno_entity, gene_name) in charite_pairs:
+        if not gp_between(row.gene_wordidxs, row.pheno_wordidxs, row.ners):
+          charite_pos += 1
+          return r._replace(is_correct=True, relation_supertype='CHARITE_SUP_WORDS', 
+                          relation_subtype=non_alnum.sub('_', match))
+        else:
+          return r._replace(is_correct=False, relation_supertype='CHARITE_NEG_GP_BETWEEN', 
+                          relation_subtype=non_alnum.sub('_', match))
   
   return None
 
 non_alnum = re.compile('[\W_]+')
-def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
+def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs, charite_allowed):
   """
   Given a Row object with a sentence and several gene and pheno objects, create and 
   supervise a Relation output object for the ith gene and jth pheno objects
@@ -267,7 +270,7 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
               phrase, between_phrase, \
               lemma_phrase, between_phrase_lemmas, dep_dag, \
               dep_path_between, gene_wordidxs, 
-              charite_pairs, VALS, SR)
+              charite_pairs, charite_allowed, VALS, SR)
   if rv is not None:
     return rv
   
@@ -276,14 +279,14 @@ def create_supervised_relation(row, superv_diff, SR, HF, charite_pairs):
               phrase, between_phrase, \
               lemma_phrase, between_phrase_lemmas, dep_dag, \
               dep_path_between, gene_wordidxs, 
-              charite_pairs, VALS, SR)
+              charite_pairs, charite_allowed, VALS, SR)
   if rv is not None:
     return rv
 
   # Return GP relation object
   return r
 
-def supervise(supervision_rules, hard_filters):
+def supervise(supervision_rules, hard_filters, charite_allowed):
   # print >> sys.stderr, supervision_rules
   # generate the mentions, while trying to keep the supervision approx. balanced
   # print out right away so we don't bloat memory...
@@ -291,11 +294,16 @@ def supervise(supervision_rules, hard_filters):
   neg_count = 0
   # load in static data
   CACHE['example-trees'] = {}
-  CHARITE_PAIRS = read_supervision()
+  if charite_allowed:
+    CHARITE_PAIRS = read_supervision()
+  else:
+    CHARITE_PAIRS = []
+    
   for line in sys.stdin:
     row = parser.parse_tsv_row(line)
 
-    relation = create_supervised_relation(row, superv_diff=pos_count - neg_count, SR=supervision_rules, HF=hard_filters, charite_pairs=CHARITE_PAIRS)
+    relation = create_supervised_relation(row, superv_diff=pos_count - neg_count, SR=supervision_rules, HF=hard_filters, 
+                                          charite_pairs=CHARITE_PAIRS, charite_allowed=charite_allowed)
 
     if relation:
       if relation.is_correct == True:

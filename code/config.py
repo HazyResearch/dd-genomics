@@ -50,7 +50,8 @@ NON_GENE_ACRONYMS = {
                        ('LCA10') : ['congenital amaurosis'], 
                        ('AR-JP') : [ 'parkinsonism' ],
                        ('OCRL') : [ 'oculocerebrorenal syndrome of Lowe' ],
-                       ('PPD') : ['pallidopyramidal degeneration']}
+                       ('PPD') : ['pallidopyramidal degeneration'],
+                       ('HDR') : ['sensorineural deafness']}
   }
 }
 
@@ -405,6 +406,7 @@ GENE_PHENO = {
                    '{{P}}.*unlikely.*cause.*{{G}}',
                    '{{G}}.*excluded.*cause.*{{P}}',
                    '{{P}}.*excluded.*cause.*{{G}}',
+                   '{{G}}.*can.*mimic.*{{P}}',
                    '{{G}}.*linked to.*{{P}}',
                    'attracted.*interest',
                    '{{P}}.*, while.*{{G}}',

@@ -411,6 +411,24 @@ pheno_features (
   feature text
 ).
 
+genepheno_causation_no_charite (
+  id bigint,
+  relation_id text,
+  @distributed_by
+  doc_id text,
+  section_id text,
+  sent_id int,
+  gene_mention_id text,
+  gene_name text,
+  gene_wordidxs int[],
+  pheno_mention_id text,
+  pheno_entity text,
+  pheno_wordidxs int[],
+  is_correct boolean,
+  supertype text,
+  subtype text
+).
+
 genepheno_causation_all_superv (
   id bigint,
   relation_id text,
@@ -501,10 +519,26 @@ genepheno_causation (
   subtype text
 ).
 
+genepheno_features_1 (
+  @distributed_by
+  doc_id text,
+  section_id text,
+  relation_id text,
+  feature text
+).
+
+genepheno_features_2 (
+  @distributed_by
+  doc_id text,
+  section_id text,
+  relation_id text,
+  feature text
+).
+
 genepheno_features (
   @distributed_by
   doc_id text,
-        section_id text,
+  section_id text,
   relation_id text,
   feature text
 ).
@@ -1525,19 +1559,36 @@ num_pheno_candidates(doc_id, section_id, sent_id, COUNT(mention_id)) :-
 
 
 #genepheno_extract_features
-function genepheno_extract_features over rows like genepheno_extract_features_input returns rows like genepheno_features
+function genepheno_extract_features_2 over rows like genepheno_extract_features_2_input returns rows like genepheno_features
+implementation "code/genepheno_extract_features2.py" handles tsv lines.
+
+genepheno_features_2 += genepheno_extract_features_2(relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct, words, lemmas, poses, ners, dep_paths, dep_parents) :-
+  genepheno_relations(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct), 
+  sentences_input_ner(doc_id, section_id, sent_id, words, words_ner, lemmas, lemmas_ner, poses, ners, dep_paths, dep_parents).
+
+genepheno_features(doc_id, section_id, relation_id, feature) *:-
+  genepheno_features_2(doc_id, section_id, relation_id, feature).
+
+function genepheno_extract_features_1 over rows like genepheno_extract_features_1_input returns rows like genepheno_features
 implementation "code/genepheno_extract_features.py" handles tsv lines.
 
-genepheno_features += genepheno_extract_features(relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_wordidxs, pheno_mention_id, pheno_wordidxs, words_ner, lemmas_ner, poses, ners, dep_paths, dep_parents) :- 
+genepheno_features_1 += genepheno_extract_features_1(relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_wordidxs, pheno_mention_id, pheno_wordidxs, words_ner, lemmas_ner, poses, ners, dep_paths, dep_parents) :- 
   genepheno_relations(id,relation_id,doc_id,section_id,sent_id,gene_mention_id,gene_name,gene_wordidxs,gene_is_correct,pheno_mention_id,pheno_entity,pheno_wordidxs,pheno_is_correct),
   sentences_input_ner(doc_id, section_id, sent_id, words, words_ner, lemmas, lemmas_ner, poses, ners, dep_paths, dep_parents).
 
 #genepheno_causation_supervision
 
-function genepheno_causation_supervision over rows like genepheno_causation_supervision_input returns rows like genepheno_causation_all_superv
+function genepheno_causation_supervision_charite over rows like genepheno_causation_supervision_input returns rows like genepheno_causation_all_superv
 implementation "code/genepheno_causation_supervision.py" handles tsv lines.
 
-genepheno_causation_all_superv += genepheno_causation_supervision(relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct, words, lemmas, poses, ners, dep_paths, dep_parents) :-
+function genepheno_causation_supervision_no_charite over rows like genepheno_causation_supervision_input returns rows like genepheno_causation_all_superv
+implementation "code/genepheno_causation_supervision_no_charite.py" handles tsv lines.
+
+genepheno_causation_no_charite += genepheno_causation_supervision_no_charite(relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct, words, lemmas, poses, ners, dep_paths, dep_parents) :-
+  genepheno_relations(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct), 
+  sentences_input_ner(doc_id, section_id, sent_id, words, words_ner, lemmas, lemmas_ner, poses, ners, dep_paths, dep_parents).
+
+genepheno_causation_all_superv += genepheno_causation_supervision_charite(relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct, words, lemmas, poses, ners, dep_paths, dep_parents) :-
   genepheno_relations(id, relation_id, doc_id, section_id, sent_id, gene_mention_id, gene_name, gene_wordidxs, gene_is_correct, pheno_mention_id, pheno_entity, pheno_wordidxs, pheno_is_correct), 
   sentences_input_ner(doc_id, section_id, sent_id, words, words_ner, lemmas, lemmas_ner, poses, ners, dep_paths, dep_parents).
 

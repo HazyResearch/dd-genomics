@@ -125,7 +125,7 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
     post_neighbor = row.words[i+1]
     for name,val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
-        match = util.rgx_mult_search(post_neighbor, opts[name], opts['%s-rgx' % name], flags=re.I)
+        match = util.rgx_mult_search(post_neighbor, opts[name], opts['%s-rgx' % name], opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
           return m._replace(is_correct=val, mention_supertype='POST_MATCH_%s_%s' % (name, val), mention_subtype=match)
   
@@ -153,7 +153,8 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
     pre_neighbor = row.words[i-1]
     for name,val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
-        match = util.rgx_mult_search(pre_neighbor, opts[name], opts['%s-rgx' % name], flags=re.I)
+        match = util.rgx_mult_search(pre_neighbor, opts[name], opts['%s-rgx' % name], 
+                                     opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
           return m._replace(is_correct=val, mention_supertype='PRE_NEIGHBOR_MATCH_%s_%s' % (name, val), mention_subtype=match)
 
@@ -161,7 +162,8 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
     opts = SR['phrases-in-sent']
     for name,val in VALS:
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
-        match = util.rgx_mult_search(phrase + ' ' + lemma_phrase, opts[name], opts['%s-rgx' % name], flags=re.I)
+        match = util.rgx_mult_search(phrase + ' ' + lemma_phrase, opts[name], opts['%s-rgx' % name], 
+                                     opts[name], opts['%s-rgx' % name], flags=re.I)
         if match:
           # backslashes cause postgres errors in postgres 9
           return m._replace(is_correct=val, mention_supertype='PHRASE_%s' % name, mention_subtype=match.replace('\\', '/'))
@@ -196,7 +198,7 @@ def create_supervised_mention(row, i, gene_name=None, mapping_type=None, mention
       if len(opts[name]) + len(opts['%s-rgx' % name]) > 0:
         for neighbor_idx in dep_dag.neighbors(i):
           neighbor = row.words[neighbor_idx]
-          match = util.rgx_mult_search(neighbor, opts[name],  opts['%s-rgx' % name], flags=re.I)
+          match = util.rgx_mult_search(neighbor, opts[name],  opts['%s-rgx' % name], opts[name],  opts['%s-rgx' % name], flags=re.I)
           if match:
             return m._replace(is_correct=val, mention_supertype='NEIGHBOR_MATCH_%s_%s' % (name, val), mention_subtype='Neighbor: ' + neighbor + ', match: ' + match)
 
