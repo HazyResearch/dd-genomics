@@ -4,7 +4,7 @@ from collections import namedtuple
 import os
 import sys
 import ddlib
-from treedlib import corenlp_to_xmltree, compile_relation_feature_generator
+from treedlib import corenlp_to_xmltree, compile_relation_feature_generator, compile_dict_sub
 
 parser = util.RowParser([
           ('relation_id', 'text'),
@@ -30,12 +30,15 @@ Feature = namedtuple('Feature', ['doc_id', 'section_id', 'relation_id', 'name'])
 CoreNLPSentence = namedtuple('CoreNLPSentence', 'words, lemmas, poses, ners, dep_labels, dep_parents')
 
 # Compile the feature generator
-GENES = [] # TODO
-PHENOS = [] # TODO
-generate_features = compile_relation_feature_generator(dictionaries={
-  'GENE'  : GENES,
-  'PHENO' : PHENOS
-})
+#GENES = [] # TODO
+#PHENOS = [] # TODO
+#generate_features = compile_relation_feature_generator(dictionaries={
+#  'GENE'  : GENES,
+#  'PHENO' : PHENOS
+#})
+
+dict_sub = compile_dict_sub(brown_clusters_path="%s/clusters_VB_NN.lemma.tsv" % util.APP_HOME)
+generate_features = compile_relation_feature_generator()
 
 def get_features_for_candidate_treedlib(r):
   """Extract features using treedlib"""
@@ -49,8 +52,16 @@ def get_features_for_candidate_treedlib(r):
   xt = corenlp_to_xmltree(s)
 
   # Get features
+  seen = set()
   for feature in generate_features(xt.root, r.gene_wordidxs, r.pheno_wordidxs):
-    yield f._replace(name=feature)
+    if feature not in seen:
+      seen.add(feature)
+      yield f._replace(name=feature)
+
+  for feature in generate_features(xt.root, r.gene_wordidxs, r.pheno_wordidxs, dict_sub=dict_sub):
+    if feature not in seen:
+      seen.add(feature)
+      yield f._replace(name=feature)
 
 if __name__ == '__main__':
   util.run_main_tsv(row_parser=parser.parse_tsv_row, row_fn=get_features_for_candidate_treedlib)
