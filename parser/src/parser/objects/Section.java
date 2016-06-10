@@ -9,12 +9,14 @@ public class Section {
   public String sectionId;
   public String sectionText;
   public String refDocId;
+  public StringBuilder content;
 
   public Section(String docId, String sectionId, String sectionText) {
     this.docId = docId;
     this.sectionId = sectionId;
     this.sectionText = sectionText;
     this.refDocId = null;
+    this.content = new StringBuilder();
   }
 
   public Section(String docId, String sectionId, String sectionText, String refDocId) {
@@ -22,5 +24,14 @@ public class Section {
     this.sectionId = sectionId;
     this.sectionText = sectionText;
     this.refDocId = refDocId;
+    this.content = new StringBuilder();
+  }
+
+  public void updateContent(String sectionText) {
+    this.sectionText = sectionText;
+  }
+
+  public void updateID(String sectionId) {
+    this.sectionId = sectionId;
   }
 }

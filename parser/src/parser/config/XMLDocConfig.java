@@ -16,9 +16,19 @@ public abstract class XMLDocConfig {
      */
     protected HashMap<XMLPattern, String> readSections = new HashMap<XMLPattern, String>();
     protected HashMap<XMLPattern, String> dataSections = new HashMap<XMLPattern, String>();
+    protected HashMap<XMLPattern, String> headerSections = new HashMap<XMLPattern, String>();
 
     public boolean readable(XMLElement element) {
       for (Entry<XMLPattern, String> entry : readSections.entrySet()) {
+        if (entry.getKey().matches(element)) {
+          return true;
+        }
+      }
+      return false;
+    }
+    
+    public boolean headerSec(XMLElement element) {
+      for (Entry<XMLPattern, String> entry : headerSections.entrySet()) {
         if (entry.getKey().matches(element)) {
           return true;
         }
@@ -40,6 +50,15 @@ public abstract class XMLDocConfig {
         if (entry.getKey().matches(element)) {
           return entry.getValue();
         }
+      }
+      return null;
+    }
+
+    public String getHeaderSectionName(XMLElement element) {
+      for (Entry<XMLPattern, String> entry : headerSections.entrySet()) {
+        if (entry.getKey().matches(element)) {
+          return entry.getValue();
+      	}
       }
       return null;
     }

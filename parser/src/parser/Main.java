@@ -62,6 +62,7 @@ public class Main {
 
     try {
       for (File file : files) {
+	System.err.println("Processing file:" + file.getAbsolutePath());
         XMLDocParser docParser = new XMLDocParser(file, config, allTitles, allPubIds, mdWriter, omWriter);
         for (Section s : docParser.parse()) {
           JSONObject obj = new JSONObject();

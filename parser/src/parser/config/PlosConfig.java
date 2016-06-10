@@ -30,9 +30,11 @@ public class PlosConfig extends XMLDocConfig {
   }
 
   public PlosConfig() {
-    readSections.put(new XMLPattern("article-title", false), "Title");
-    readSections.put(new XMLPattern("abstract", false), "Abstract");
-    readSections.put(new XMLPattern("body", false), "Body");
+    headerSections.put(new XMLPattern("article-title", false), "Title");
+    headerSections.put(new XMLPattern("abstract", false), "Abstract");
+    readSections.put(new XMLPattern("body", false), "Body"); 
+    readSections.put(new XMLPattern("sec", false), "Section");
+    readSections.put(new XMLPattern("title", false), "SectionTitle");
     dataSections.put(new XMLPattern("ref-list", false), "References");
     dataSections.put(new XMLPattern("ref", false), "Reference");
     dataSections.put(new XMLPattern("pub-id", false), "PubId");
@@ -49,7 +51,7 @@ public class PlosConfig extends XMLDocConfig {
     // <journal-id journal-id-type="nlm-journal-id">0410462</journal-id>
     dataSections.put(new XMLPattern("journal-id", "journal-id-type", "nlm-journal-id"), "NlmID");
 
-    String[] skipSections = { "title", "xref", "table-wrap", "table", "object-id", "label", "caption", "ext-link" };
+    String[] skipSections = { "xref", "table-wrap", "table", "object-id", "label", "caption", "ext-link" };
     addSkipSections(skipSections);
 
     String[] splitSections = { "p", "div", "li", "ref" };
@@ -58,14 +60,25 @@ public class PlosConfig extends XMLDocConfig {
     String[] splitTags = { "surname" };
     addSplitTags(splitTags);
 
-    markdown.put("bold", "**");
-    markdown.put("b", "**");
-    markdown.put("strong", "**");
-    markdown.put("italic", "_");
-    markdown.put("i", "_");
-    markdown.put("em", "_");
-    markdown.put("underline", "_");
-    markdown.put("u", "_");
+    //markdown.put("bold", "**");
+    //markdown.put("b", "**");
+    //markdown.put("strong", "**");
+    //markdown.put("italic", "_");
+    //markdown.put("i", "_");
+    //markdown.put("em", "_");
+    //markdown.put("underline", "_");
+    //markdown.put("u", "_");
+    //markdown.put("br", " ");
+    //markdown.put("hr", " ");
+
+    markdown.put("bold", "");
+    markdown.put("b", "");
+    markdown.put("strong", "");
+    markdown.put("italic", "");
+    markdown.put("i", "");
+    markdown.put("em", "");
+    markdown.put("underline", "");
+    markdown.put("u", "");
     markdown.put("br", " ");
     markdown.put("hr", " ");
 

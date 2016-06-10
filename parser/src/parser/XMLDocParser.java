@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Stack;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -27,6 +28,11 @@ public class XMLDocParser {
   private HashSet<String> allTitles;
   private HashSet<String> allPubIds;
   private HashMap<String, Integer> seenNames = new HashMap<String, Integer>();
+  private Stack<Section> sectionsStack = new Stack<Section>();
+  private Stack<String>  xmlElmntNamesStack = new Stack<String>();
+  private ArrayList<Section> sections = new ArrayList<Section>();
+  private boolean inBody_Flag = false;
+  private boolean read_Flag = false;
   private PrintWriter mdWriter;
   private PrintWriter omWriter;
   private File inputFile;
@@ -41,6 +47,90 @@ public class XMLDocParser {
     } catch (XMLStreamException ex) {
       ex.printStackTrace();
     }
+  }
+
+  private boolean getSectionContent(String docId) {
+    Section activeSection = this.sectionsStack.peek();
+    Section secondSection = null;
+    String  activeXMLElmntName = this.xmlElmntNamesStack.peek();
+    try {
+      loop: for (int e = parser.next(); e != XMLStreamConstants.END_DOCUMENT; e = parser.next()) {
+        switch (e) {
+        case XMLStreamConstants.CHARACTERS:
+          activeSection.content.append(parser.getText());
+          break;
+
+        case XMLStreamConstants.END_ELEMENT: {
+          XMLElement localElement = new XMLElement(parser, e);
+          if (localElement.elementName.equals(activeXMLElmntName)) {
+	    // found active sections end_element. Update content and add Section in sections arrylist
+	    activeSection = this.sectionsStack.pop();
+	    this.xmlElmntNamesStack.pop();
+	    if (activeSection.content.length() > 0) {
+		activeSection.updateContent(config.cleanup(activeSection.content.toString()));
+	    	this.sections.add(activeSection);
+            }
+	    if (this.sectionsStack.isEmpty()) {
+            	break loop;
+            }
+            else {
+		activeSection = this.sectionsStack.peek();
+	 	activeXMLElmntName = this.xmlElmntNamesStack.peek();
+            }
+          } else if (config.isSplitSection(localElement.elementName)) {
+            if (activeSection.content.length() > 0 && activeSection.content.charAt(activeSection.content.length() - 1) != '.') {
+              activeSection.content.append(".");
+            }
+            activeSection.content.append(" ");
+          } else if (config.isSplitTag(localElement.elementName)) {
+            activeSection.content.append(" ");
+          } else if (config.isMarkdown(localElement.elementName)) {
+            activeSection.content.append(config.getMarkdown(localElement.elementName));
+          }
+          break;
+        }
+
+        case XMLStreamConstants.START_ELEMENT: {
+          XMLElement localElement = new XMLElement(parser, e);
+          if (config.isSkipSection(localElement.elementName)) {
+            skipSection(localElement.elementName);
+          } else if (config.isMarkdown(localElement.elementName)) {
+            activeSection.content.append(config.getMarkdown(localElement.elementName));
+          } else if ("SectionTitle".equals(config.getReadSectionName(localElement))) {
+	    // grab section title 
+	    String title = getFlatElementText(localElement);
+	    // update the title only if you are in a section
+	    if (!"body".equals(activeXMLElmntName)) {
+	    	// grab title of second element and stack titles
+	    	activeSection = this.sectionsStack.pop();
+	    	secondSection = this.sectionsStack.peek();
+            	if (!secondSection.sectionId.startsWith("Body"))
+	    		title = secondSection.sectionId + "||" + title;
+		// update active sections title
+	    	activeSection.updateID(title);
+	    	// restore stack
+	    	this.sectionsStack.push(activeSection);
+	    	activeSection = this.sectionsStack.peek();
+            }
+          } else if ("Section".equals(config.getReadSectionName(localElement))) {
+	    //create new section and push it in stack
+            Section newSection = createSectionHolder(docId, "Section");
+	    this.sectionsStack.push(newSection);
+	    this.xmlElmntNamesStack.push(localElement.elementName);
+	    //updated activesection to paint to start of stack
+	    activeSection = this.sectionsStack.peek();
+	    activeXMLElmntName = this.xmlElmntNamesStack.peek();
+          }
+          break;
+        }
+        }
+      }
+      return true;
+    } catch (XMLStreamException ex) {
+      System.err.println("Problem with file:" + inputFile.getAbsolutePath());
+      ex.printStackTrace();
+      return false;
+    } 
   }
 
   private String getFlatElementText(XMLElement element) {
@@ -200,6 +290,23 @@ public class XMLDocParser {
     return createSection(docId, sectionId, text, null);
   }
 
+  private Section createSectionHolder(String docId, String sectionId) {
+    assert docId != null;
+    int num;
+
+    // The 'primary key' is always the docId + sectionId
+    String pk = docId + "." + sectionId;
+    if (seenNames.containsKey(pk)) {
+      num = seenNames.get(pk) + 1;
+    } else {
+      num = 0;
+    }
+    seenNames.put(pk, num);
+    sectionId = sectionId + "." + num;
+    Section s = new Section(docId, sectionId, null, null);
+    return s;
+  }
+
   /**
    * Go through the XML document, pulling out certain flat sections as
    * individual output files.
@@ -207,7 +314,6 @@ public class XMLDocParser {
   public ArrayList<Section> parse() {
     String docId = null;
     Metadata md = null;
-    ArrayList<Section> sections = new ArrayList<Section>();
     try {
       parser = factory.createXMLStreamReader(this.xmlStream);
       while (true) {
@@ -228,7 +334,7 @@ public class XMLDocParser {
           } else if ("Reference".equals(config.getDataSectionName(localElement))) {
             Section s = parseRef(docId);
             if (s != null) {
-              sections.add(s);
+              this.sections.add(s);
             }
           } else if ("Metadata".equals(config.getDataSectionName(localElement))) {
             parseMetadata(md);
@@ -239,21 +345,35 @@ public class XMLDocParser {
             // section)
           } else if ("MeSH".equals(config.getDataSectionName(localElement))) {
             md.meshTerms.add(getFlatElementText(localElement));
-          } else if (config.readable(localElement)) {
+	  } else if ("Body".equals(config.getReadSectionName(localElement))) {
+            if (docId == null) {
+              String content = getFlatElementText(localElement);
+	      omWriter.println(content);
+	    } else {
+		// cretae Body section and puth it in the stack
+		Section bodySection = createSectionHolder(docId, "Body");
+	        sectionsStack.push(bodySection);
+            	xmlElmntNamesStack.push(localElement.elementName);
+		// parse and extract nested sections
+		if (!this.getSectionContent(docId)) {	
+			System.err.println("Problem with file:" + inputFile.getAbsolutePath());
+		}
+            }	
+          } else if (config.headerSec(localElement)) { 
             String content = getFlatElementText(localElement);
             if (docId == null) {
               omWriter.println(content);
             } else {
-              if (config.getReadSectionName(localElement).equals("Title")) {
+              if (config.getHeaderSectionName(localElement).equals("Title")) {
                 if (allTitles.contains(content)) {
                   continue;
                 }
                 allTitles.add(content);
               }
-              String sectionName = config.getReadSectionName(localElement);
+              String sectionName = config.getHeaderSectionName(localElement);
               Section s = createSection(docId, sectionName, content);
               if (s != null) {
-                sections.add(s);
+                this.sections.add(s);
               }
             }
           }
@@ -278,7 +398,7 @@ public class XMLDocParser {
       System.err.println(inputFile.getAbsolutePath());
       ex.printStackTrace();
     }
-    return sections;
+    return this.sections;
   }
 
   // Default constructor from InputStream
