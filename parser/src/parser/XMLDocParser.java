@@ -194,7 +194,7 @@ public class XMLDocParser {
         }
         case XMLStreamConstants.START_ELEMENT: {
           XMLElement localElement = new XMLElement(parser, e);
-          if ("Title".equals(config.getReadSectionName(localElement))) {
+          if ("Title".equals(config.getHeaderSectionName(localElement))) {
             title = getFlatElementText(localElement);
             if (allTitles.contains(title)) {
               return null;
