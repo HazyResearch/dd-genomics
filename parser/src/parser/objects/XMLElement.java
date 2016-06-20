@@ -28,4 +28,8 @@ public class XMLElement {
     }
   }
 
+  public boolean isBibRef() {
+	return attributeValues.contains("bibr");
+  }
+
 }

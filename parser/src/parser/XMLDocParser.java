@@ -78,15 +78,15 @@ public class XMLDocParser {
 	 	activeXMLElmntName = this.xmlElmntNamesStack.peek();
             }
           } else if (config.isSplitSection(localElement.elementName)) {
-            if (activeSection.content.length() > 0 && activeSection.content.charAt(activeSection.content.length() - 1) != '.') {
-              activeSection.content.append(".");
-            }
+            //if (activeSection.content.length() > 0 && activeSection.content.charAt(activeSection.content.length() - 1) != '.') {
+            //  activeSection.content.append(".");
+            //}
             activeSection.content.append(" ");
           } else if (config.isSplitTag(localElement.elementName)) {
             activeSection.content.append(" ");
           } else if (config.isMarkdown(localElement.elementName)) {
             activeSection.content.append(config.getMarkdown(localElement.elementName));
-          }
+	  }
           break;
         }
 
@@ -120,6 +120,8 @@ public class XMLDocParser {
 	    //updated activesection to paint to start of stack
 	    activeSection = this.sectionsStack.peek();
 	    activeXMLElmntName = this.xmlElmntNamesStack.peek();
+          } else if ("Xref".equals(config.getDataSectionName(localElement)) && localElement.isBibRef()) {
+            activeSection.content.append("<xreffollows>");
           }
           break;
         }
@@ -256,7 +258,13 @@ public class XMLDocParser {
             md.issnElectronic = getFlatElementText(localElement);
           } else if ("ISSNGlobal".equals(config.getDataSectionName(localElement))) {
             md.issnGlobal = getFlatElementText(localElement);
-          }
+          } else if ("Keyword".equals(config.getDataSectionName(localElement))) {
+	    md.keywords.add(getFlatElementText(localElement));
+	  } else if ("Heading".equals(config.getDataSectionName(localElement)) && (localElement.attributeValues.contains("heading"))) {
+	    md.subject = getFlatElementText(localElement);
+	  } else if ("AuthorName".equals(config.getDataSectionName(localElement))) {
+	    md.authors.add(getFlatElementText(localElement));
+	  }
           break;
         }
         }
@@ -327,8 +335,9 @@ public class XMLDocParser {
 
           // Try to get the doc id
           if (config.isDocIdSection(parser, event)) {
-            docId = config.formatDocId(getFlatElementText(localElement));
-
+	    if (docId == null) {
+            	docId = config.formatDocId(getFlatElementText(localElement));
+	    }
             // "Reference" sections not simply in 'scope' because they need
             // special treatment
           } else if ("Reference".equals(config.getDataSectionName(localElement))) {
@@ -336,7 +345,9 @@ public class XMLDocParser {
             if (s != null) {
               this.sections.add(s);
             }
-          } else if ("Metadata".equals(config.getDataSectionName(localElement))) {
+          } else if ("Affiliation".equals(config.getDataSectionName(localElement))) {
+            md.authorAffs.add(getFlatElementText(localElement)); 
+	  }else if ("Metadata".equals(config.getDataSectionName(localElement))) {
             parseMetadata(md);
             md.pmid = docId;
 
@@ -346,6 +357,7 @@ public class XMLDocParser {
           } else if ("MeSH".equals(config.getDataSectionName(localElement))) {
             md.meshTerms.add(getFlatElementText(localElement));
 	  } else if ("Body".equals(config.getReadSectionName(localElement))) {
+	    skipSection(localElement.elementName);
             if (docId == null) {
               String content = getFlatElementText(localElement);
 	      omWriter.println(content);
@@ -358,7 +370,7 @@ public class XMLDocParser {
 		if (!this.getSectionContent(docId)) {	
 			System.err.println("Problem with file:" + inputFile.getAbsolutePath());
 		}
-            }	
+            }
           } else if (config.headerSec(localElement)) { 
             String content = getFlatElementText(localElement);
             if (docId == null) {

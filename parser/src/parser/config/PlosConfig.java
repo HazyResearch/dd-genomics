@@ -21,11 +21,16 @@ public class PlosConfig extends XMLDocConfig {
     String out = doc.replaceAll("\\s{2,}", " ");
 
     // Deal with stuff left after removal of <xref> tags
-    out = out.replaceAll("\\s+(\\s|\\(|\\)|,|-|–)*\\.", ".");
+    //out = out.replaceAll("\\([^a-zA-Z0-9]*\\)", "");
+    //out = out.replaceAll("\\[[^a-zA-Z0-9]*\\]", "");
+
+    //out = out.replaceAll("\n", " ");
+
+    out = out.replaceAll("[ ]{2,}", " ");
 
     out = out.replaceAll("\\s+,", ",");
+    out = out.replaceAll("\\s+\\.", ".");
     
-    out = out.replaceAll("\n", " ");
     return out;
   }
 
@@ -43,6 +48,15 @@ public class PlosConfig extends XMLDocConfig {
     dataSections.put(new XMLPattern("year", false), "JournalYear");
     dataSections.put(new XMLPattern("journal-title", false), "Journal");
     dataSections.put(new XMLPattern("article", false), "BlockMarker");
+    dataSections.put(new XMLPattern("xref",false), "Xref");
+    dataSections.put(new XMLPattern("kwd-group",false), "Metadata");
+    dataSections.put(new XMLPattern("kwd", false), "Keyword");
+    dataSections.put(new XMLPattern("article-categories",false), "Metadata");
+    dataSections.put(new XMLPattern("subj-group", false), "Heading");
+    dataSections.put(new XMLPattern("contrib", false), "Metadata");
+    dataSections.put(new XMLPattern("name", false), "AuthorName");
+    dataSections.put(new XMLPattern("aff", false), "Affiliation");
+    
 
     // <issn pub-type="ppub">0028-0836</issn><issn
     // pub-type="epub">1476-4687</issn>
@@ -51,7 +65,7 @@ public class PlosConfig extends XMLDocConfig {
     // <journal-id journal-id-type="nlm-journal-id">0410462</journal-id>
     dataSections.put(new XMLPattern("journal-id", "journal-id-type", "nlm-journal-id"), "NlmID");
 
-    String[] skipSections = { "xref", "table-wrap", "table", "object-id", "label", "caption", "ext-link" };
+    String[] skipSections = { "table-wrap", "table", "object-id", "label", "caption", "ext-link" };
     addSkipSections(skipSections);
 
     String[] splitSections = { "p", "div", "li", "ref" };

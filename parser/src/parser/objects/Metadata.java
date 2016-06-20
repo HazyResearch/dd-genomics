@@ -11,12 +11,21 @@ public class Metadata {
   public String issnGlobal;
   public String issnPrint;
   public String issnElectronic;
+  public String subject;
+  public ArrayList<String> authorAffs = new ArrayList<String>();
+  public ArrayList<String> authors = new ArrayList<String>();
+  public ArrayList<String> keywords = new ArrayList<String>();
   public List<String> meshTerms = new ArrayList<String>();
 
   @Override
   public String toString() {
-    return pmid + "\t" + journalName + "\t" + journalYear + "\t" + issnGlobal
-        + "\t" + issnPrint + "\t" + issnElectronic + "\t"
+    return pmid + "\t" + journalName + "\t" + journalYear 
+	+ "\t" + String.join("|^|", keywords) 
+	+ "\t" + String.join("|^|", authorAffs)
+	+ "\t" + String.join("|^|", authors)
+	+ "\t" + subject
+	+ "\t" + issnGlobal 
+        + "\t" + issnPrint + "\t" + issnElectronic + "\t" 
         + String.join("|^|", meshTerms);
   }
 
